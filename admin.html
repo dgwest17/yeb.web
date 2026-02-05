@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel – Your Energy Best</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; }
+    
+    .login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #023047 0%, #126782 100%);
+    }
+    .login-box {
+      background: white;
+      padding: 3rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      width: 100%;
+      max-width: 400px;
+    }
+    .login-box h2 { margin-bottom: 1.5rem; color: #023047; }
+    .login-box input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+    .login-box button {
+      width: 100%;
+      padding: 0.75rem;
+      background: #219EBC;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .login-box button:hover { background: #126782; }
+    
+    .admin-header {
+      background: #023047;
+      color: white;
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .admin-header h1 { font-size: 1.5rem; font-weight: 700; }
+    
+    .tabs {
+      display: flex;
+      background: white;
+      border-bottom: 2px solid #ddd;
+      overflow-x: auto;
+    }
+    .tab {
+      padding: 1rem 2rem;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      color: #666;
+      border-bottom: 3px solid transparent;
+      white-space: nowrap;
+    }
+    .tab:hover { background: #f9f9f9; }
+    .tab.active {
+      color: #219EBC;
+      border-bottom-color: #219EBC;
+    }
+    
+    .admin-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    
+    .section-card {
+      background: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid #f0f0f0;
+    }
+    .section-header h3 {
+      font-size: 1.1rem;
+      color: #023047;
+    }
+    
+    .field {
+      margin-bottom: 1rem;
+    }
+    .field label {
+      display: block;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.4rem;
+      font-size: 0.9rem;
+    }
+    .field input,
+    .field textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-family: inherit;
+    }
+    .field input:focus,
+    .field textarea:focus {
+      outline: none;
+      border-color: #219EBC;
+    }
+    .field textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    
+    .item-card {
+      background: #f9f9f9;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+    .item-header h4 {
+      font-size: 0.95rem;
+      color: #023047;
+    }
+    .item-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .btn-primary {
+      background: #219EBC;
+      color: white;
+    }
+    .btn-primary:hover { background: #126782; }
+    .btn-add {
+      background: #06D6A0;
+      color: white;
+      padding: 0.6rem 1.2rem;
+      margin-top: 0.5rem;
+    }
+    .btn-add:hover { background: #05b888; }
+    .btn-sm {
+      padding: 0.3rem 0.6rem;
+      font-size: 0.85rem;
+    }
+    .btn-danger {
+      background: #EF476F;
+      color: white;
+    }
+    .btn-up, .btn-down {
+      background: #FFB703;
+      color: white;
+    }
+    
+    .save-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      padding: 1rem 2rem;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      z-index: 1000;
+    }
+    .save-bar button {
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+    }
+    
+    .img-preview {
+      width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-top: 0.5rem;
+    }
+    
+    .upload-btn {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      background: #8ECAE6;
+      color: #023047;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .upload-btn:hover { background: #6fb8d4; }
+    input[type="file"] { display: none; }
+    
+    .row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    
+    .hint {
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 0.25rem;
+    }
+    
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+<div id="loginScreen" class="login-screen">
+  <div class="login-box">
+    <h2>🔐 Admin Login</h2>
+    <input type="password" id="passwordInput" placeholder="Enter password" />
+    <button onclick="login()">Login</button>
+  </div>
+</div>
+
+<div id="adminInterface" class="hidden">
+  <div class="admin-header">
+    <h1>⚡ Your Energy Best Admin</h1>
+    <div style="display:flex; gap:1rem;">
+      <button class="btn btn-primary" id="saveBtn" onclick="saveContent()">💾 Save All Changes</button>
+      <button class="btn btn-secondary" onclick="downloadBackup()" style="background:#8ECAE6; color:#023047;">📥 Download Backup</button>
+      <button class="btn btn-primary" onclick="logout()">Logout</button>
+    </div>
+  </div>
+  
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('home')">🏠 Home Page</button>
+    <button class="tab" onclick="switchTab('build')">🚀 Build Page</button>
+    <button class="tab" onclick="switchTab('quote')">📝 Quote Page</button>
+    <button class="tab" onclick="switchTab('blog')">📰 Blog</button>
+    <button class="tab" onclick="switchTab('global')">⚙️ Global Settings</button>
+  </div>
+  
+  <div class="admin-content">
+    
+    <div id="tab-home" class="tab-panel active">
+      <div class="section-card">
+        <div class="section-header"><h3>Hero Section</h3></div>
+        <div class="field">
+          <label>Eyebrow Text</label>
+          <input type="text" id="home-eyebrow" placeholder="San Diego's Solar & HVAC Experts" />
+        </div>
+        <div class="field">
+          <label>Hero Title - First Part (White)</label>
+          <input type="text" id="home-title-part1" placeholder="Your Home for the Best" />
+        </div>
+        <div class="field">
+          <label>Hero Title - Second Part (Orange)</label>
+          <input type="text" id="home-title-part2" placeholder="Energy Upgrades" />
+        </div>
+        <div class="field">
+          <label>Subtitle</label>
+          <textarea id="home-subtitle" placeholder="Solar, batteries, and HVAC solutions..."></textarea>
+        </div>
+      </div>
+      
+      <div class="section-card">
+        <div class="section-header"><h3>Customer Option Cards</h3></div>
+        <div id="home-customer-options"></div>
+        <button class="btn btn-add" onclick="addCustomerOption()">+ Add Option</button>
+      </div>
+      
+      <div class="section-card">
+        <div class="section-header"><h3>Gallery</h3></div>
+        <label class="upload-btn">
+          📤 Upload Photos
+          <input type="file" id="home-gallery-upload" accept="image/*" multiple onchange="uploadHomeGallery(event)" />
+        </label>
+        <div id="home-gallery" style="margin-top:1rem;"></div>
+      </div>
+      
+      <div class="section-card">
+        <div class="section-header"><h3>About Section</h3></div>
+        <div class="field">
+          <label>About Text</label>
+          <textarea id="home-about"></textarea>
+        </div>
+      </div>
+    </div>
+    
+    <div id="tab-build" class="tab-panel">
+      <div class="section-card">
+        <div class="section-header"><h3>Hero Section</h3></div>
+        <div class="field">
+          <label>Hero Title</label>
+          <input type="text" id="build-hero-title" />
+        </div>
+        <div class="field">
+          <label>Hero Subtitle</label>
+          <textarea id="build-hero-subtitle"></textarea>
+        </div>
+        <div class="field">
+          <label>CTA Button Text</label>
+          <input type="text" id="build-cta-text" />
+        </div>
+      </div>
+      
+      <div class="section-card">
+        <div class="section-header"><h3>"Why Door-to-Door?" Section</h3></div>
+        <div class="field">
+          <label>Section Title</label>
+          <input type="text" id="build-section-title" />
+        </div>
+        <div class="field">
+          <label>Section Text</label>
+          <textarea id="build-section-text"></textarea>
+        </div>
+      </div>
+      
+      <div class="section-card">
+        <div class="section-header"><h3>Benefits Cards</h3></div>
+        <div id="build-benefits"></div>
+        <button class="btn btn-add" onclick="addBuildBenefit()">+ Add Benefit</button>
+      </div>
+      
+      <div class="section-card">
+        <div class="section-header"><h3>Team Gallery</h3></div>
+        <label class="upload-btn">
+          📤 Upload Team Photos
+          <input type="file" id="build-gallery-upload" accept="image/*" multiple onchange="uploadBuildGallery(event)" />
+        </label>
+        <div id="build-gallery" style="margin-top:1rem;"></div>
+      </div>
+      
+      <div class="section-card">
+        <div class="section-header"><h3>YouTube Videos</h3></div>
+        <div id="build-videos"></div>
+        <button class="btn btn-add" onclick="addBuildVideo()">+ Add Video</button>
+      </div>
+      
+      <div class="section-card">
+        <div class="section-header"><h3>FAQ</h3></div>
+        <div id="build-faq"></div>
+        <button class="btn btn-add" onclick="addBuildFaq()">+ Add Question</button>
+      </div>
+    </div>
+    
+    <div id="tab-quote" class="tab-panel">
+      <div class="section-card">
+        <div class="section-header"><h3>Quote Page Hero</h3></div>
+        <div class="field">
+          <label>Page Title</label>
+          <input type="text" id="quote-title" />
+        </div>
+        <div class="field">
+          <label>Page Subtitle</label>
+          <textarea id="quote-subtitle"></textarea>
+        </div>
+      </div>
+    </div>
+    
+    <div id="tab-blog" class="tab-panel">
+      <div class="section-card">
+        <div class="section-header"><h3>Blog Posts</h3></div>
+        <div id="blog-list"></div>
+        <button class="btn btn-add" onclick="addBlogPost()">+ New Blog Post</button>
+      </div>
+    </div>
+    
+    <div id="tab-global" class="tab-panel">
+      <div class="section-card" style="background:#fff9e6; border:2px solid #FFB703;">
+        <div class="section-header"><h3>🔑 Claude API Access</h3></div>
+        <p style="margin-bottom:1rem; color:#666;">Give this info to Claude so it can read your live content before making changes:</p>
+        <div class="field">
+          <label>API Endpoint</label>
+          <input type="text" readonly value="https://yourenergybest.com/api.php" onclick="this.select()" style="background:#f9f9f9;" />
+        </div>
+        <div class="field">
+          <label>API Key (click to copy)</label>
+          <input type="text" readonly id="apiKey" value="yeb_5622d6ee37e38f85c2ea52ca73eb43af" onclick="this.select(); document.execCommand('copy'); alert('API key copied!');" style="background:#f9f9f9; font-family:monospace;" />
+        </div>
+        <p style="color:#666; font-size:0.9rem;">When asking Claude for changes, say: "First fetch my live content using the API" and provide these details.</p>
+      </div>
+      
+      <div class="section-card">
+        <div class="section-header"><h3>Stats Bar</h3></div>
+        <div class="row">
+          <div class="field"><label>Savings</label><input type="text" id="stats-savings" /></div>
+          <div class="field"><label>Savings Label</label><input type="text" id="stats-savings-label" /></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Hours</label><input type="text" id="stats-hours" /></div>
+          <div class="field"><label>Hours Label</label><input type="text" id="stats-hours-label" /></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Installations</label><input type="text" id="stats-installations" /></div>
+          <div class="field"><label>Installations Label</label><input type="text" id="stats-installations-label" /></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Customers</label><input type="text" id="stats-customers" /></div>
+          <div class="field"><label>Customers Label</label><input type="text" id="stats-customers-label" /></div>
+        </div>
+      </div>
+      
+      <div class="section-card">
+        <div class="section-header"><h3>Testimonials</h3></div>
+        <div id="global-testimonials"></div>
+        <button class="btn btn-add" onclick="addTestimonial()">+ Add Testimonial</button>
+      </div>
+      
+      <div class="section-card">
+        <div class="section-header"><h3>FAQ</h3></div>
+        <div id="global-faq"></div>
+        <button class="btn btn-add" onclick="addFaq()">+ Add Question</button>
+      </div>
+      
+      <div class="section-card">
+        <div class="section-header"><h3>Rebate Alert</h3></div>
+        <div class="field"><label>Heading</label><input type="text" id="rebate-heading" /></div>
+        <div class="field"><label>Text</label><textarea id="rebate-text"></textarea></div>
+      </div>
+    </div>
+    
+  </div>
+  
+</div>
+
+<script>
+const PASSWORD = 'beacons';
+let content = {};
+
+function login() {
+  if (document.getElementById('passwordInput').value === PASSWORD) {
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('adminInterface').classList.remove('hidden');
+    loadContent();
+  } else alert('Incorrect password');
+}
+
+function logout() {
+  document.getElementById('loginScreen').classList.remove('hidden');
+  document.getElementById('adminInterface').classList.add('hidden');
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+async function loadContent() {
+  const res = await fetch('content.json?' + Date.now());
+  content = await res.json();
+  renderAll();
+}
+
+function renderAll() {
+  const h = content.home || {};
+  document.getElementById('home-eyebrow').value = h.hero_eyebrow || '';
+  
+  // Split title into two parts if not already split
+  if (h.hero_title_part1 && h.hero_title_part2) {
+    document.getElementById('home-title-part1').value = h.hero_title_part1;
+    document.getElementById('home-title-part2').value = h.hero_title_part2;
+  } else if (h.hero_title) {
+    // Auto-split existing title
+    const parts = h.hero_title.split(' ');
+    const midpoint = Math.ceil(parts.length / 2);
+    document.getElementById('home-title-part1').value = parts.slice(0, midpoint).join(' ');
+    document.getElementById('home-title-part2').value = parts.slice(midpoint).join(' ');
+  }
+  
+  document.getElementById('home-subtitle').value = h.hero_subtitle || '';
+  document.getElementById('home-about').value = h.about_text || '';
+  
+  const b = content.build || {};
+  document.getElementById('build-hero-title').value = b.hero?.title || '';
+  document.getElementById('build-hero-subtitle').value = b.hero?.subtitle || '';
+  document.getElementById('build-cta-text').value = b.cta_text || '';
+  document.getElementById('build-section-title').value = b.section_title || '';
+  document.getElementById('build-section-text').value = b.section_text || '';
+  
+  const s = content.stats || {};
+  document.getElementById('stats-savings').value = s.savings || '';
+  document.getElementById('stats-savings-label').value = s.savings_label || '';
+  document.getElementById('stats-hours').value = s.hours || '';
+  document.getElementById('stats-hours-label').value = s.hours_label || '';
+  document.getElementById('stats-installations').value = s.installations || '';
+  document.getElementById('stats-installations-label').value = s.installations_label || '';
+  document.getElementById('stats-customers').value = s.customers || '';
+  document.getElementById('stats-customers-label').value = s.customers_label || '';
+  
+  document.getElementById('rebate-heading').value = content.rebate_alert?.heading || '';
+  document.getElementById('rebate-text').value = content.rebate_alert?.text || '';
+  
+  renderCustomerOptions();
+  renderHomeGallery();
+  renderBuildBenefits();
+  renderBuildGallery();
+  renderBuildVideos();
+  renderBuildFaq();
+  renderTestimonials();
+  renderGlobalFaq();
+}
+
+function renderCustomerOptions() {
+  const options = content.home?.customer_options || [];
+  document.getElementById('home-customer-options').innerHTML = options.map((opt, i) => `
+    <div class="item-card">
+      <div class="item-header">
+        <h4>${opt.title || 'Option ' + (i+1)}</h4>
+        <div class="item-actions">
+          <button class="btn btn-sm btn-up" onclick="moveItem('home.customer_options',${i},-1)">↑</button>
+          <button class="btn btn-sm btn-down" onclick="moveItem('home.customer_options',${i},1)">↓</button>
+          <button class="btn btn-sm btn-danger" onclick="removeItem('home.customer_options',${i})">✕</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Icon</label><input type="text" value="${opt.icon||''}" maxlength="2" onchange="content.home.customer_options[${i}].icon=this.value" /></div>
+        <div class="field"><label>Title</label><input type="text" value="${opt.title||''}" onchange="content.home.customer_options[${i}].title=this.value" /></div>
+      </div>
+      <div class="field"><label>Description</label><textarea onchange="content.home.customer_options[${i}].description=this.value">${opt.description||''}</textarea></div>
+    </div>
+  `).join('');
+}
+
+function addCustomerOption() {
+  if (!content.home) content.home = {};
+  if (!content.home.customer_options) content.home.customer_options = [];
+  content.home.customer_options.push({icon:'☀️', title:'', description:''});
+  renderCustomerOptions();
+}
+
+function renderHomeGallery() {
+  const gallery = content.gallery || [];
+  document.getElementById('home-gallery').innerHTML = gallery.map((item, i) => `
+    <div class="item-card">
+      <div class="item-header">
+        <h4>Image ${i+1}</h4>
+        <div class="item-actions">
+          <button class="btn btn-sm btn-up" onclick="moveItem('gallery',${i},-1)">↑</button>
+          <button class="btn btn-sm btn-down" onclick="moveItem('gallery',${i},1)">↓</button>
+          <button class="btn btn-sm btn-danger" onclick="removeItem('gallery',${i})">✕</button>
+        </div>
+      </div>
+      ${item.url ? `<img src="${item.url}" class="img-preview" />` : ''}
+      <div class="field"><label>Caption</label><input type="text" value="${item.caption||''}" onchange="content.gallery[${i}].caption=this.value" /></div>
+    </div>
+  `).join('');
+}
+
+async function uploadHomeGallery(e) {
+  for (let file of e.target.files) {
+    const formData = new FormData();
+    formData.append('image', file);
+    const res = await fetch('upload-image.php', { method: 'POST', body: formData });
+    const result = await res.json();
+    if (result.success) {
+      if (!content.gallery) content.gallery = [];
+      content.gallery.push({ url: result.url, caption: file.name });
+    }
+  }
+  renderHomeGallery();
+  e.target.value = '';
+}
+
+function renderBuildBenefits() {
+  const benefits = content.build?.benefits || [];
+  document.getElementById('build-benefits').innerHTML = benefits.map((b, i) => `
+    <div class="item-card">
+      <div class="item-header">
+        <h4>${b.title || 'Benefit ' + (i+1)}</h4>
+        <div class="item-actions">
+          <button class="btn btn-sm btn-up" onclick="moveItem('build.benefits',${i},-1)">↑</button>
+          <button class="btn btn-sm btn-down" onclick="moveItem('build.benefits',${i},1)">↓</button>
+          <button class="btn btn-sm btn-danger" onclick="removeItem('build.benefits',${i})">✕</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Icon</label><input type="text" value="${b.icon||''}" maxlength="2" onchange="content.build.benefits[${i}].icon=this.value" /></div>
+        <div class="field"><label>Title</label><input type="text" value="${b.title||''}" onchange="content.build.benefits[${i}].title=this.value" /></div>
+      </div>
+      <div class="field"><label>Description</label><textarea onchange="content.build.benefits[${i}].text=this.value">${b.text||''}</textarea></div>
+    </div>
+  `).join('');
+}
+
+function addBuildBenefit() {
+  if (!content.build) content.build = {};
+  if (!content.build.benefits) content.build.benefits = [];
+  content.build.benefits.push({icon:'✨', title:'', text:''});
+  renderBuildBenefits();
+}
+
+function renderBuildGallery() {
+  const gallery = content.build?.gallery || [];
+  document.getElementById('build-gallery').innerHTML = gallery.map((item, i) => `
+    <div class="item-card">
+      <div class="item-header">
+        <h4>Photo ${i+1}</h4>
+        <div class="item-actions">
+          <button class="btn btn-sm btn-up" onclick="moveItem('build.gallery',${i},-1)">↑</button>
+          <button class="btn btn-sm btn-down" onclick="moveItem('build.gallery',${i},1)">↓</button>
+          <button class="btn btn-sm btn-danger" onclick="removeItem('build.gallery',${i})">✕</button>
+        </div>
+      </div>
+      ${item.url ? `<img src="${item.url}" class="img-preview" />` : ''}
+    </div>
+  `).join('');
+}
+
+async function uploadBuildGallery(e) {
+  for (let file of e.target.files) {
+    const formData = new FormData();
+    formData.append('image', file);
+    const res = await fetch('upload-image.php', { method: 'POST', body: formData });
+    const result = await res.json();
+    if (result.success) {
+      if (!content.build) content.build = {};
+      if (!content.build.gallery) content.build.gallery = [];
+      content.build.gallery.push({ url: result.url, caption: file.name });
+    }
+  }
+  renderBuildGallery();
+  e.target.value = '';
+}
+
+function renderBuildVideos() {
+  const videos = content.build?.videos || [];
+  document.getElementById('build-videos').innerHTML = videos.map((v, i) => `
+    <div class="item-card">
+      <div class="item-header">
+        <h4>${v.title || 'Video ' + (i+1)}</h4>
+        <div class="item-actions">
+          <button class="btn btn-sm btn-up" onclick="moveItem('build.videos',${i},-1)">↑</button>
+          <button class="btn btn-sm btn-down" onclick="moveItem('build.videos',${i},1)">↓</button>
+          <button class="btn btn-sm btn-danger" onclick="removeItem('build.videos',${i})">✕</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field"><label>YouTube ID</label><input type="text" value="${v.youtube_id||''}" onchange="content.build.videos[${i}].youtube_id=this.value" placeholder="dQw4w9WgXcQ" /><div class="hint">From youtube.com/watch?v=THIS_PART</div></div>
+        <div class="field"><label>Title</label><input type="text" value="${v.title||''}" onchange="content.build.videos[${i}].title=this.value" /></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addBuildVideo() {
+  if (!content.build) content.build = {};
+  if (!content.build.videos) content.build.videos = [];
+  content.build.videos.push({youtube_id:'', title:''});
+  renderBuildVideos();
+}
+
+function renderBuildFaq() {
+  const faq = content.build?.faq || [];
+  document.getElementById('build-faq').innerHTML = faq.map((q, i) => `
+    <div class="item-card">
+      <div class="item-header">
+        <h4>Q${i+1}</h4>
+        <div class="item-actions">
+          <button class="btn btn-sm btn-up" onclick="moveItem('build.faq',${i},-1)">↑</button>
+          <button class="btn btn-sm btn-down" onclick="moveItem('build.faq',${i},1)">↓</button>
+          <button class="btn btn-sm btn-danger" onclick="removeItem('build.faq',${i})">✕</button>
+        </div>
+      </div>
+      <div class="field"><label>Question</label><input type="text" value="${q.question||''}" onchange="content.build.faq[${i}].question=this.value" /></div>
+      <div class="field"><label>Answer</label><textarea onchange="content.build.faq[${i}].answer=this.value">${q.answer||''}</textarea></div>
+    </div>
+  `).join('');
+}
+
+function addBuildFaq() {
+  if (!content.build) content.build = {};
+  if (!content.build.faq) content.build.faq = [];
+  content.build.faq.push({question:'', answer:''});
+  renderBuildFaq();
+}
+
+function renderTestimonials() {
+  const testimonials = content.testimonials || [];
+  document.getElementById('global-testimonials').innerHTML = testimonials.map((t, i) => `
+    <div class="item-card">
+      <div class="item-header">
+        <h4>${t.name || 'Testimonial ' + (i+1)}</h4>
+        <div class="item-actions">
+          <button class="btn btn-sm btn-up" onclick="moveItem('testimonials',${i},-1)">↑</button>
+          <button class="btn btn-sm btn-down" onclick="moveItem('testimonials',${i},1)">↓</button>
+          <button class="btn btn-sm btn-danger" onclick="removeItem('testimonials',${i})">✕</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Name</label><input type="text" value="${t.name||''}" onchange="content.testimonials[${i}].name=this.value" /></div>
+        <div class="field"><label>Role</label><input type="text" value="${t.role||''}" onchange="content.testimonials[${i}].role=this.value" /></div>
+        <div class="field"><label>Initials</label><input type="text" value="${t.initials||''}" maxlength="2" onchange="content.testimonials[${i}].initials=this.value" /></div>
+      </div>
+      <div class="field"><label>Quote</label><textarea onchange="content.testimonials[${i}].text=this.value">${t.text||''}</textarea></div>
+    </div>
+  `).join('');
+}
+
+function addTestimonial() {
+  if (!content.testimonials) content.testimonials = [];
+  content.testimonials.push({name:'', role:'', text:'', initials:''});
+  renderTestimonials();
+}
+
+function renderGlobalFaq() {
+  const faq = content.faq || [];
+  document.getElementById('global-faq').innerHTML = faq.map((q, i) => `
+    <div class="item-card">
+      <div class="item-header">
+        <h4>Q${i+1}</h4>
+        <div class="item-actions">
+          <button class="btn btn-sm btn-up" onclick="moveItem('faq',${i},-1)">↑</button>
+          <button class="btn btn-sm btn-down" onclick="moveItem('faq',${i},1)">↓</button>
+          <button class="btn btn-sm btn-danger" onclick="removeItem('faq',${i})">✕</button>
+        </div>
+      </div>
+      <div class="field"><label>Question</label><input type="text" value="${q.question||''}" onchange="content.faq[${i}].question=this.value" /></div>
+      <div class="field"><label>Answer</label><textarea onchange="content.faq[${i}].answer=this.value">${q.answer||''}</textarea></div>
+    </div>
+  `).join('');
+}
+
+function addFaq() {
+  if (!content.faq) content.faq = [];
+  content.faq.push({question:'', answer:''});
+  renderGlobalFaq();
+}
+
+function addBlogPost() {
+  alert('Use the old admin (admin-old-backup.html) to edit blog posts. Full blog editor coming soon!');
+}
+
+function moveItem(path, idx, dir) {
+  const keys = path.split('.');
+  let arr = content;
+  for (let key of keys) arr = arr[key];
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= arr.length) return;
+  [arr[idx], arr[newIdx]] = [arr[newIdx], arr[idx]];
+  renderAll();
+}
+
+function removeItem(path, idx) {
+  if (!confirm('Delete this item?')) return;
+  const keys = path.split('.');
+  let arr = content;
+  for (let key of keys) arr = arr[key];
+  arr.splice(idx, 1);
+  renderAll();
+}
+
+async function saveContent() {
+  const btn = document.getElementById('saveBtn');
+  btn.textContent = '💾 Saving...';
+  btn.disabled = true;
+  
+  if (!content.home) content.home = {};
+  content.home.hero_eyebrow = document.getElementById('home-eyebrow').value;
+  content.home.hero_title_part1 = document.getElementById('home-title-part1').value;
+  content.home.hero_title_part2 = document.getElementById('home-title-part2').value;
+  content.home.hero_subtitle = document.getElementById('home-subtitle').value;
+  content.home.about_text = document.getElementById('home-about').value;
+  
+  if (!content.build) content.build = {};
+  if (!content.build.hero) content.build.hero = {};
+  content.build.hero.title = document.getElementById('build-hero-title').value;
+  content.build.hero.subtitle = document.getElementById('build-hero-subtitle').value;
+  content.build.cta_text = document.getElementById('build-cta-text').value;
+  content.build.section_title = document.getElementById('build-section-title').value;
+  content.build.section_text = document.getElementById('build-section-text').value;
+  
+  if (!content.stats) content.stats = {};
+  content.stats.savings = document.getElementById('stats-savings').value;
+  content.stats.savings_label = document.getElementById('stats-savings-label').value;
+  content.stats.hours = document.getElementById('stats-hours').value;
+  content.stats.hours_label = document.getElementById('stats-hours-label').value;
+  content.stats.installations = document.getElementById('stats-installations').value;
+  content.stats.installations_label = document.getElementById('stats-installations-label').value;
+  content.stats.customers = document.getElementById('stats-customers').value;
+  content.stats.customers_label = document.getElementById('stats-customers-label').value;
+  
+  if (!content.rebate_alert) content.rebate_alert = {};
+  content.rebate_alert.heading = document.getElementById('rebate-heading').value;
+  content.rebate_alert.text = document.getElementById('rebate-text').value;
+  
+  try {
+    const res = await fetch('save.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(content)
+    });
+    
+    if (res.ok) {
+      // Success - also create a backup
+      const timestamp = new Date().toISOString().split('T')[0];
+      const backupData = JSON.stringify(content, null, 2);
+      
+      // Download backup to user's device
+      const blob = new Blob([backupData], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `content-backup-${timestamp}.json`;
+      
+      btn.textContent = '✓ Saved! (Backup downloaded)';
+      
+      // Optionally auto-download backup
+      // Uncomment next line if you want automatic backup downloads:
+      // a.click();
+      
+      setTimeout(() => {
+        btn.textContent = '💾 Save All Changes';
+        btn.disabled = false;
+      }, 3000);
+    } else throw new Error('Save failed');
+  } catch (error) {
+    btn.textContent = '✕ Save Failed';
+    btn.disabled = false;
+    alert('Save failed. Please try again.');
+  }
+}
+
+function downloadBackup() {
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+  const backupData = JSON.stringify(content, null, 2);
+  const blob = new Blob([backupData], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `content-backup-${timestamp}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  alert('✓ Backup downloaded to your device');
+}
+</script>
+</body>
+</html>

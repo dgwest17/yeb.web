@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blog | Your Energy Best – Solar News &amp; Insights</title>
+  <meta name="description" content="Solar energy news, tips, and insights from Your Energy Best. Stay informed about incentives, policy changes, and how to save with solar." />
+  <link rel="icon" type="image/png" href="img/logo.png" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .blog-layout {
+      display: grid;
+      grid-template-columns: 1.7fr 0.8fr;
+      gap: var(--space-3xl);
+      align-items: start;
+    }
+    .article-hero {
+      width: 100%;
+      aspect-ratio: 16/7;
+      background: var(--gray-100);
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: var(--space-xl);
+      color: var(--slate);
+      opacity: .5;
+    }
+    .article-meta {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      margin-bottom: var(--space-md);
+      font-size: .82rem;
+      color: var(--slate);
+    }
+    .article-meta .tag { margin: 0; }
+    .article-body { max-width: 720px; }
+    .article-body h2 { margin: var(--space-xl) 0 var(--space-sm); }
+    .article-body h3 { margin: var(--space-lg) 0 var(--space-sm); color: var(--navy-mid); }
+    .article-body p { margin-bottom: var(--space-md); color: var(--navy-light); line-height: 1.8; }
+    .article-body ul { margin: var(--space-md) 0 var(--space-md) var(--space-lg); }
+    .article-body ul li { margin-bottom: .5rem; font-size: .95rem; color: var(--navy-light); line-height: 1.6; }
+
+    /* Sidebar */
+    .sidebar { display: flex; flex-direction: column; gap: var(--space-xl); }
+    .sidebar-card {
+      background: var(--cream);
+      border-radius: var(--radius);
+      padding: var(--space-lg);
+    }
+    .sidebar-card h4 { margin-bottom: var(--space-sm); color: var(--navy); }
+    .sidebar-card p { font-size:.85rem; margin:0; color:var(--slate); }
+    .sidebar-card .btn { margin-top: var(--space-md); width: 100%; justify-content: center; }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      font-size: .85rem;
+      color: var(--teal);
+      font-weight: 500;
+      margin-bottom: var(--space-lg);
+      transition: color .2s;
+    }
+    .back-link:hover { color: var(--teal-dark); }
+
+    @media (max-width: 900px) {
+      .blog-layout { grid-template-columns: 1fr; }
+      .sidebar { order: -1; flex-direction: row; flex-wrap: wrap; }
+      .sidebar-card { flex: 1; min-width: 240px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── NAVIGATION ─── -->
+<nav class="nav" id="mainNav">
+  <div class="container nav__inner">
+    <a href="index.html" class="nav__logo" aria-label="Your Energy Best – Home">
+      <img src="img/logo.png" alt="Your Energy Best" />
+    </a>
+    <button class="nav__toggle" id="navToggle" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav__links" id="navLinks" role="navigation">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="quote.html">Get a Quote</a></li>
+      <li><a href="build.html">Build With Us</a></li>
+      <li><a href="blog.html" class="active">Blog</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ─── PAGE HERO ─── -->
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow">Solar Insights</span>
+    <h1>Blog</h1>
+    <p>Stay up to date on solar incentives, policy changes, and tips for getting the most out of your energy.</p>
+  </div>
+</section>
+
+<!-- ─── BLOG CONTENT (loaded from content.json) ─── -->
+<section class="section">
+  <div class="container">
+    <div id="cms-blog"><!-- JS populates: either post listing or single article --></div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─── -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div>
+        <img src="img/logo.png" alt="Your Energy Best" class="footer__logo" />
+        <p>San Diego's trusted solar installer. We design, install, and support residential solar and battery systems — with honesty and expertise at every step.</p>
+        <div class="footer__social">
+          <a href="https://instagram.com/energy.best.ca" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="footer__col">
+        <h5>Quick Links</h5>
+        <a href="index.html">Home</a>
+        <a href="quote.html">Get a Quote</a>
+        <a href="build.html">Build With Us</a>
+        <a href="blog.html">Blog</a>
+      </div>
+      <div class="footer__col">
+        <h5>Resources</h5>
+        <a href="https://sdcommunitypower.org/solar-battery-savings/" target="_blank" rel="noopener">Battery Rebates (SDCP)</a>
+        <a href="#">Solar Tax Credits</a>
+        <a href="#">How Solar Works</a>
+      </div>
+      <div class="footer__col">
+        <h5>Get Started</h5>
+        <a href="quote.html">Free Solar Quote</a>
+        <a href="build.html">Join Our Sales Team</a>
+        <a href="#">Schedule a Call</a>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>&copy; 2026 Your Energy Best. All rights reserved.</span>
+      <span><a href="#">Privacy Policy</a> &nbsp;·&nbsp; <a href="#">Terms of Service</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="cms.js"></script>
+<script>
+window.addEventListener('scroll', () => {
+  document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 40);
+});
+document.getElementById('navToggle').addEventListener('click', function() {
+  document.getElementById('navLinks').classList.toggle('open');
+});
+
+// Load CMS and render blog
+// If only 1 post, go straight to article. Otherwise show listing.
+CMS.load().then(() => {
+  const posts = CMS.data.blog_posts || [];
+  if (posts.length === 1) {
+    CMS.renderBlogArticle('cms-blog', 0);
+  } else {
+    CMS.renderBlogIndex('cms-blog');
+  }
+});
+</script>
+</body>
+</html>

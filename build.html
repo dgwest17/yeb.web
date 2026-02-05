@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Build With Us – Join the Team | Your Energy Best</title>
+  <meta name="description" content="Join Your Energy Best's sales team in San Diego. Earn $6–10K per 10-day cycle with flexible hours, training, and real earning potential." />
+  <link rel="icon" type="image/png" href="img/logo.png" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .earnings-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-lg);
+    }
+    .earning-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: var(--space-lg);
+      text-align: center;
+      transition: box-shadow .25s;
+    }
+    .earning-card:hover { box-shadow: var(--shadow-md); }
+    .earning-card .big {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      color: var(--teal);
+      line-height: 1.1;
+      margin-bottom: .3rem;
+    }
+    .earning-card .big em { color: var(--orange); font-style: italic; }
+    .earning-card small { color: var(--slate); }
+
+    .perks-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-md);
+    }
+    .perk {
+      display: flex;
+      gap: var(--space-md);
+      align-items: flex-start;
+      background: var(--cream);
+      border-radius: var(--radius);
+      padding: var(--space-md) var(--space-lg);
+    }
+    .perk-icon {
+      flex-shrink: 0;
+      font-size: 1.4rem;
+    }
+    .perk h4 { font-size:.9rem; color:var(--navy); margin-bottom:.15rem; }
+    .perk p { font-size:.82rem; margin:0; color:var(--slate); }
+
+    .recruit-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3xl);
+      align-items: start;
+    }
+    .recruit-form-panel {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      box-shadow: var(--shadow-lg);
+      position: sticky;
+      top: 96px;
+    }
+    .recruit-form-panel h3 { margin-bottom: var(--space-sm); }
+    .recruit-form-panel > p { font-size:.88rem; color:var(--slate); margin-bottom:var(--space-lg); }
+
+    @media (max-width: 900px) {
+      .earnings-grid { grid-template-columns: 1fr; max-width:420px; margin-inline:auto; }
+      .perks-grid { grid-template-columns: 1fr; }
+      .recruit-layout { grid-template-columns: 1fr; }
+      .recruit-form-panel { position: static; order: -1; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── NAVIGATION ─── -->
+<nav class="nav" id="mainNav">
+  <div class="container nav__inner">
+    <a href="index.html" class="nav__logo" aria-label="Your Energy Best – Home">
+      <img src="img/logo.png" alt="Your Energy Best" />
+    </a>
+    <button class="nav__toggle" id="navToggle" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav__links" id="navLinks" role="navigation">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="quote.html">Get a Quote</a></li>
+      <li><a href="build.html" class="active">Build With Us</a></li>
+      <li><a href="blog.html">Blog</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ─── PAGE HERO ─── -->
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow">San Diego Sales Team</span>
+    <h1>Build something<br>worth your time.</h1>
+    <p>Join Your Energy Best's growing sales team. Flexible hours, serious earning potential, and a product that genuinely helps people — solar energy that saves families thousands.</p>
+  </div>
+</section>
+
+<!-- ─── EARNINGS ─── -->
+<section class="section">
+  <div class="container">
+    <div class="section-head text-center">
+      <span class="tag">Earning Potential</span>
+      <h2>Real numbers. Real opportunity.</h2>
+      <p>Our reps earn based on closed deals — here's what that looks like in practice.</p>
+    </div>
+    <div class="earnings-grid">
+      <div class="earning-card">
+        <div class="big"><em>$6K–$10K</em></div>
+        <small>Per 10-day sales cycle</small>
+      </div>
+      <div class="earning-card">
+        <div class="big">Flexible</div>
+        <small>Set your own schedule &amp; territory</small>
+      </div>
+      <div class="earning-card">
+        <div class="big">$0</div>
+        <small>Cost to get started — we train you</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── PERKS ─── -->
+<section class="section" style="background:var(--cream);">
+  <div class="container">
+    <div class="section-head text-center">
+      <span class="tag">Why Join Us</span>
+      <h2>More than a side hustle.</h2>
+    </div>
+    <div class="perks-grid" style="max-width:860px; margin-inline:auto;">
+      <div class="perk">
+        <span class="perk-icon">🎓</span>
+        <div>
+          <h4>Full Training Provided</h4>
+          <p>Whether you're new to sales or solar, we give you a comprehensive onboarding and ongoing coaching.</p>
+        </div>
+      </div>
+      <div class="perk">
+        <span class="perk-icon">📍</span>
+        <div>
+          <h4>San Diego Territory</h4>
+          <p>Work the neighborhoods you know. We match you with leads in your area for the best close rates.</p>
+        </div>
+      </div>
+      <div class="perk">
+        <span class="perk-icon">🏔️</span>
+        <div>
+          <h4>Team Incentives</h4>
+          <p>Top performers unlock team trips and bonus incentives. We celebrate wins together.</p>
+        </div>
+      </div>
+      <div class="perk">
+        <span class="perk-icon">💼</span>
+        <div>
+          <h4>Be Your Own Boss</h4>
+          <p>Set your own hours, your own pace. This is commission-based, flexible, and built around your life.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── VIDEOS (loaded from content.json) ─── -->
+<section class="section" id="videosSection" style="display:none;">
+  <div class="container">
+    <div class="section-head text-center">
+      <span class="tag">Hear From The Team</span>
+      <h2>See what it's really like</h2>
+    </div>
+    <div id="videosGrid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:var(--space-lg); max-width:900px; margin-inline:auto;"></div>
+  </div>
+</section>
+
+<!-- ─── RECRUITMENT FORM + TEAM PHOTO ─── -->
+<section class="section">
+  <div class="container">
+    <div class="recruit-layout">
+
+      <!-- LEFT: Info + Team Photo -->
+      <div>
+        <div class="section-head">
+          <span class="tag">The Process</span>
+          <h2>How it works</h2>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:var(--space-md);">
+          <div style="display:flex; gap:var(--space-md); align-items:flex-start;">
+            <div style="width:36px;height:36px;border-radius:50%;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;font-size:.9rem;">1</div>
+            <div>
+              <h4>Apply</h4>
+              <p style="font-size:.88rem; margin:0; color:var(--slate);">Fill out the short form on the right. No resume needed — just tell us about yourself.</p>
+            </div>
+          </div>
+          <div style="display:flex; gap:var(--space-md); align-items:flex-start;">
+            <div style="width:36px;height:36px;border-radius:50%;background:var(--orange);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;font-size:.9rem;">2</div>
+            <div>
+              <h4>Interview</h4>
+              <p style="font-size:.88rem; margin:0; color:var(--slate);">We'll reach out to set up a quick call to see if you're a good fit for the team.</p>
+            </div>
+          </div>
+          <div style="display:flex; gap:var(--space-md); align-items:flex-start;">
+            <div style="width:36px;height:36px;border-radius:50%;background:var(--teal-light);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;font-size:.9rem;">3</div>
+            <div>
+              <h4>Train &amp; Earn</h4>
+              <p style="font-size:.88rem; margin:0; color:var(--slate);">Complete our training program, then start closing deals and earning commissions.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Team photo placeholder -->
+        <div class="card__img" style="aspect-ratio:16/9; border-radius:var(--radius-lg); min-height:200px; margin-top:var(--space-xl);">
+          <div style="text-align:center; color:var(--slate); opacity:.5;">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="9" cy="7" r="3"/><circle cx="17" cy="9" r="2"/><path d="M1 21c0-4 4-6 8-6s8 2 8 6"/><path d="M17 15c2.5 0 5 1 5 4"/></svg>
+            <div style="font-size:.75rem; margin-top:.3rem;">Team photo placeholder</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Zoho Recruitment Form -->
+      <div class="recruit-form-panel">
+        <h3>Ready to Join the Team?</h3>
+        <p>Take 2 minutes to fill this out and we'll be in touch shortly.</p>
+        <!--
+          ZOHO FORMS — Public Recruitment Form
+          This iframe embeds the Zoho Forms public form directly.
+          To swap the form, replace the src URL below.
+        -->
+        <iframe
+          src="https://forms.zohopublic.com/dwestyourene1/form/RecruitmentInformationForm/formperma/uKd7gJaa2xhpJqSx45B5RZMSKctOyroQ4ikTaAl0XYw"
+          title="Recruitment Application Form"
+          aria-label="Recruitment application form"
+          style="width:100%; height:500px; border:none; border-radius:var(--radius);"
+          scrolling="yes"
+        ></iframe>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA ─── -->
+<section class="section--tight">
+  <div class="container">
+    <div class="cta-banner" style="background:linear-gradient(135deg,var(--orange),var(--orange-dark));">
+      <h2>Don't wait — spots are limited.</h2>
+      <p>We're actively building our San Diego team. Apply today and start earning within weeks.</p>
+      <a href="#recruit-form" class="btn btn--primary btn--lg" style="background:var(--white); color:var(--orange-dark);" onclick="document.querySelector('.recruit-form-panel').scrollIntoView({behavior:'smooth'})">Apply Now</a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─── -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div>
+        <img src="img/logo.png" alt="Your Energy Best" class="footer__logo" />
+        <p>San Diego's trusted solar installer. We design, install, and support residential solar and battery systems — with honesty and expertise at every step.</p>
+        <div class="footer__social">
+          <a href="https://instagram.com/energy.best.ca" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="footer__col">
+        <h5>Quick Links</h5>
+        <a href="index.html">Home</a>
+        <a href="quote.html">Get a Quote</a>
+        <a href="build.html">Build With Us</a>
+        <a href="blog.html">Blog</a>
+      </div>
+      <div class="footer__col">
+        <h5>Resources</h5>
+        <a href="https://sdcommunitypower.org/solar-battery-savings/" target="_blank" rel="noopener">Battery Rebates (SDCP)</a>
+        <a href="#">Solar Tax Credits</a>
+        <a href="#">How Solar Works</a>
+      </div>
+      <div class="footer__col">
+        <h5>Get Started</h5>
+        <a href="quote.html">Free Solar Quote</a>
+        <a href="build.html">Join Our Sales Team</a>
+        <a href="#">Schedule a Call</a>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>&copy; 2026 Your Energy Best. All rights reserved.</span>
+      <span><a href="#">Privacy Policy</a> &nbsp;·&nbsp; <a href="#">Terms of Service</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="cms.js"></script>
+<script>
+window.addEventListener('scroll', () => {
+  document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 40);
+});
+document.getElementById('navToggle').addEventListener('click', function() {
+  document.getElementById('navLinks').classList.toggle('open');
+});
+
+// Load CMS and populate recruiting videos
+CMS.load().then(() => {
+  CMS.renderVideos('videosGrid', 'recruiting');
+  const vids = CMS.data.videos.filter(v => v.context === 'recruiting' && v.youtube_id);
+  if (vids.length > 0) document.getElementById('videosSection').style.display = 'block';
+});
+</script>
+</body>
+</html>

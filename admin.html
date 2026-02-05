@@ -312,6 +312,23 @@
       </div>
       
       <div class="section-card">
+        <div class="section-header"><h3>Manufacturers / Equipment Partners</h3></div>
+        <label class="upload-btn">
+          📤 Upload Manufacturer Logos
+          <input type="file" id="manufacturers-upload" accept="image/*" multiple onchange="uploadManufacturers(event)" />
+        </label>
+        <div id="manufacturers-list" style="margin-top:1rem;"></div>
+      </div>
+      
+      <div class="section-card">
+        <div class="section-header"><h3>Mobile Accordion Button Text</h3></div>
+        <div class="field">
+          <label>Button Text (mobile only)</label>
+          <input type="text" id="mobile-accordion-btn" placeholder="Start Your Process" />
+        </div>
+      </div>
+      
+      <div class="section-card">
         <div class="section-header"><h3>About Section</h3></div>
         <div class="field">
           <label>About Text</label>
@@ -379,14 +396,26 @@
     
     <div id="tab-quote" class="tab-panel">
       <div class="section-card">
-        <div class="section-header"><h3>Quote Page Hero</h3></div>
+        <div class="section-header"><h3>Quote Page Content</h3></div>
         <div class="field">
-          <label>Page Title</label>
-          <input type="text" id="quote-title" />
+          <label>Hero Eyebrow</label>
+          <input type="text" id="quote-eyebrow" placeholder="Free Solar Quote" />
         </div>
         <div class="field">
-          <label>Page Subtitle</label>
-          <textarea id="quote-subtitle"></textarea>
+          <label>Hero Title</label>
+          <input type="text" id="quote-title" placeholder="Get Your Custom Solar Proposal" />
+        </div>
+        <div class="field">
+          <label>Hero Subtitle</label>
+          <textarea id="quote-subtitle" placeholder="Tell us about your home and schedule a consultation—no obligation."></textarea>
+        </div>
+        <div class="field">
+          <label>Form Title (above customer options)</label>
+          <input type="text" id="quote-form-title" placeholder="What brings you here?" />
+        </div>
+        <div class="field">
+          <label>Success Message</label>
+          <input type="text" id="quote-success" placeholder="✓ Submitted! Redirecting to schedule your consultation..." />
         </div>
       </div>
     </div>
@@ -447,9 +476,22 @@
       </div>
       
       <div class="section-card">
-        <div class="section-header"><h3>Rebate Alert</h3></div>
+        <div class="section-header"><h3>Rebate Alert (Global)</h3></div>
         <div class="field"><label>Heading</label><input type="text" id="rebate-heading" /></div>
         <div class="field"><label>Text</label><textarea id="rebate-text"></textarea></div>
+        <div class="row">
+          <div class="field"><label>Home Page Link Text</label><input type="text" id="rebate-home-link" placeholder="See what you qualify for" /></div>
+          <div class="field"><label>Quote Page Link Text</label><input type="text" id="rebate-quote-link" placeholder="See what you qualify for" /></div>
+        </div>
+        <div class="field"><label>Modal Popup Text (Quote Page)</label><input type="text" id="rebate-modal-text" placeholder="Enter Your Info Below and We'll Check for You!" /></div>
+      </div>
+      
+      <div class="section-card">
+        <div class="section-header"><h3>Contact Information</h3></div>
+        <div class="row">
+          <div class="field"><label>Phone Number</label><input type="text" id="contact-phone" placeholder="7608607862" /></div>
+          <div class="field"><label>Email</label><input type="text" id="contact-email" placeholder="info@yourenergybest.com" /></div>
+        </div>
       </div>
     </div>
     
@@ -868,6 +910,164 @@ function downloadBackup() {
   URL.revokeObjectURL(url);
   alert('✓ Backup downloaded to your device');
 }
+</script>
+</body>
+</html>
+
+// Manufacturers management
+function renderManufacturers() {
+  const manufacturers = content.manufacturers || [];
+  document.getElementById('manufacturers-list').innerHTML = manufacturers.map((item, i) => `
+    <div class="item-card">
+      <div class="item-header">
+        <h4>Logo ${i+1}</h4>
+        <div class="item-actions">
+          <button class="btn btn-sm btn-up" onclick="moveItem('manufacturers',${i},-1)">↑</button>
+          <button class="btn btn-sm btn-down" onclick="moveItem('manufacturers',${i},1)">↓</button>
+          <button class="btn btn-sm btn-danger" onclick="removeItem('manufacturers',${i})">✕</button>
+        </div>
+      </div>
+      ${item.url ? `<img src="${item.url}" class="img-preview" style="max-height:80px; object-fit:contain;" />` : ''}
+      <div class="field"><label>Name</label><input type="text" value="${item.name||''}" onchange="content.manufacturers[${i}].name=this.value" /></div>
+    </div>
+  `).join('');
+}
+
+async function uploadManufacturers(e) {
+  for (let file of e.target.files) {
+    const formData = new FormData();
+    formData.append('image', file);
+    const res = await fetch('upload-image.php', { method: 'POST', body: formData });
+    const result = await res.json();
+    if (result.success) {
+      if (!content.manufacturers) content.manufacturers = [];
+      content.manufacturers.push({ url: result.url, name: file.name.replace(/\.[^/.]+$/, "") });
+    }
+  }
+  renderManufacturers();
+  e.target.value = '';
+}
+
+// Load content with new fields
+async function loadContent() {
+  const res = await fetch('content.json');
+  content = await res.json();
+  
+  const h = content.home || {};
+  document.getElementById('home-eyebrow').value = h.hero_eyebrow || '';
+  document.getElementById('home-title-part1').value = h.hero_title_part1 || '';
+  document.getElementById('home-title-part2').value = h.hero_title_part2 || '';
+  document.getElementById('home-subtitle').value = h.hero_subtitle || '';
+  document.getElementById('home-about').value = h.about_text || '';
+  document.getElementById('home-referral').value = h.referral_text || '';
+  document.getElementById('mobile-accordion-btn').value = h.mobile_accordion_button || 'Start Your Process';
+  
+  const s = content.stats || {};
+  document.getElementById('stats-savings').value = s.savings || '';
+  document.getElementById('stats-savings-label').value = s.savings_label || '';
+  document.getElementById('stats-hours').value = s.hours || '';
+  document.getElementById('stats-hours-label').value = s.hours_label || '';
+  document.getElementById('stats-installations').value = s.installations || '';
+  document.getElementById('stats-installations-label').value = s.installations_label || '';
+  document.getElementById('stats-customers').value = s.customers || '';
+  document.getElementById('stats-customers-label').value = s.customers_label || '';
+  
+  const ra = content.rebate_alert || {};
+  document.getElementById('rebate-heading').value = ra.heading || '';
+  document.getElementById('rebate-text').value = ra.text || '';
+  document.getElementById('rebate-home-link').value = ra.home_link_text || '';
+  document.getElementById('rebate-quote-link').value = ra.quote_link_text || '';
+  document.getElementById('rebate-modal-text').value = ra.quote_modal_text || '';
+  
+  const contact = content.contact || {};
+  document.getElementById('contact-phone').value = contact.phone || '';
+  document.getElementById('contact-email').value = contact.email || '';
+  
+  const quote = content.quote || {};
+  document.getElementById('quote-eyebrow').value = quote.hero_eyebrow || '';
+  document.getElementById('quote-title').value = quote.hero_title || '';
+  document.getElementById('quote-subtitle').value = quote.hero_subtitle || '';
+  document.getElementById('quote-form-title').value = quote.form_title || '';
+  document.getElementById('quote-success').value = quote.success_message || '';
+  
+  renderCustomerOptions();
+  renderHomeGallery();
+  renderManufacturers();
+  renderBuildBenefits();
+  renderBuildGallery();
+  renderBuildVideos();
+  renderBuildFaq();
+  renderTestimonials();
+  renderGlobalFaq();
+}
+
+// Save content with new fields
+async function saveContent() {
+  if (!confirm('Save all changes? This will update your live website.')) return;
+  
+  // Update all existing fields
+  content.home = content.home || {};
+  content.home.hero_eyebrow = document.getElementById('home-eyebrow').value;
+  content.home.hero_title_part1 = document.getElementById('home-title-part1').value;
+  content.home.hero_title_part2 = document.getElementById('home-title-part2').value;
+  content.home.hero_subtitle = document.getElementById('home-subtitle').value;
+  content.home.about_text = document.getElementById('home-about').value;
+  content.home.referral_text = document.getElementById('home-referral').value;
+  content.home.mobile_accordion_button = document.getElementById('mobile-accordion-btn').value;
+  
+  content.stats = content.stats || {};
+  content.stats.savings = document.getElementById('stats-savings').value;
+  content.stats.savings_label = document.getElementById('stats-savings-label').value;
+  content.stats.hours = document.getElementById('stats-hours').value;
+  content.stats.hours_label = document.getElementById('stats-hours-label').value;
+  content.stats.installations = document.getElementById('stats-installations').value;
+  content.stats.installations_label = document.getElementById('stats-installations-label').value;
+  content.stats.customers = document.getElementById('stats-customers').value;
+  content.stats.customers_label = document.getElementById('stats-customers-label').value;
+  
+  content.rebate_alert = content.rebate_alert || {};
+  content.rebate_alert.heading = document.getElementById('rebate-heading').value;
+  content.rebate_alert.text = document.getElementById('rebate-text').value;
+  content.rebate_alert.home_link_text = document.getElementById('rebate-home-link').value;
+  content.rebate_alert.quote_link_text = document.getElementById('rebate-quote-link').value;
+  content.rebate_alert.quote_modal_text = document.getElementById('rebate-modal-text').value;
+  
+  content.contact = content.contact || {};
+  content.contact.phone = document.getElementById('contact-phone').value;
+  content.contact.phone_formatted = formatPhone(document.getElementById('contact-phone').value);
+  content.contact.email = document.getElementById('contact-email').value;
+  
+  // Quote page
+  content.quote = content.quote || {};
+  content.quote.hero_eyebrow = document.getElementById('quote-eyebrow').value;
+  content.quote.hero_title = document.getElementById('quote-title').value;
+  content.quote.hero_subtitle = document.getElementById('quote-subtitle').value;
+  content.quote.form_title = document.getElementById('quote-form-title').value;
+  content.quote.success_message = document.getElementById('quote-success').value;
+  
+  // Save
+  const res = await fetch('save.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(content)
+  });
+  const result = await res.json();
+  if (result.success) {
+    alert('✓ Content saved successfully!');
+  } else {
+    alert('Error: ' + (result.error || 'Could not save'));
+  }
+}
+
+function formatPhone(phone) {
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length === 10) {
+    return `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
+  }
+  return phone;
+}
+
+loadContent();
 </script>
 </body>
 </html>

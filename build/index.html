@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Build With Us – Your Energy Best</title>
+  <link rel="icon" type="image/png" href="../img/logo.png" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --gold: #F59E0B; --gold-light: #FCD34D; --white: #FFFFFF; --gray: #9CA3AF; --gray-light: #D1D5DB; }
+    body { font-family: 'Inter', sans-serif; background: #000; color: var(--white); line-height: 1.6; overflow-x: hidden; }
+    
+    .hero { 
+      position: relative; min-height: 60vh; display: flex; align-items: center; 
+      justify-content: center; text-align: center; padding: 4rem 2rem 2rem;
+      background: linear-gradient(to bottom, #000, #0a0a0a);
+    }
+    .hero-content { max-width: 900px; margin: 0 auto; }
+    .hero h1 { 
+      font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 800; line-height: 1.1; 
+      margin-bottom: 1.5rem; background: linear-gradient(135deg, var(--white) 0%, var(--gold-light) 100%); 
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; 
+    }
+    .hero p { font-size: clamp(1.1rem, 2vw, 1.4rem); color: var(--gray-light); margin-bottom: 2.5rem; line-height: 1.8; }
+    
+    .hero-image-section {
+      padding: 4rem 2rem;
+      background: #0a0a0a;
+      display: flex;
+      align-items: center;
+      gap: 3rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .hero-image-text { flex: 1; z-index: 2; position: relative; }
+    .hero-image-text h2 { 
+      font-size: clamp(2rem, 4vw, 3rem); 
+      color: var(--gold-light); 
+      margin-bottom: 1.5rem; 
+    }
+    .hero-image-text p { 
+      font-size: 1.1rem; 
+      color: var(--gray-light); 
+      line-height: 1.8; 
+    }
+    .hero-image-container { 
+      flex: 0 0 35%; 
+      border-radius: 20px; 
+      overflow: hidden;
+      position: relative;
+      opacity: 0.4;
+      transition: opacity 0.3s;
+    }
+    .hero-image-container::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to left, rgba(10,10,10,0) 0%, rgba(10,10,10,0.9) 100%);
+      z-index: 1;
+    }
+    .hero-image-container:hover {
+      opacity: 0.7;
+    }
+    .hero-image-container img { 
+      width: 100%; 
+      height: auto; 
+      display: block; 
+    }
+    
+    .cta-btn { 
+      display: inline-block; background: var(--gold); color: #000; padding: 1.2rem 3rem; 
+      font-size: 1.1rem; font-weight: 700; border-radius: 50px; text-decoration: none; 
+      transition: all 0.3s; cursor: pointer; border: none; font-family: inherit; 
+    }
+    .cta-btn:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: 0 10px 40px rgba(245, 158, 11, 0.3); }
+    
+    .benefits { padding: 6rem 2rem; background: linear-gradient(to bottom, #000, #0a0a0a); }
+    .benefits-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
+    .benefit-card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 2.5rem; transition: all 0.3s; }
+    .benefit-card:hover { background: rgba(255, 255, 255, 0.08); border-color: var(--gold); transform: translateY(-5px); }
+    .benefit-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .benefit-card h3 { font-size: 1.5rem; margin-bottom: 1rem; color: var(--gold-light); }
+    .benefit-card p { color: var(--gray-light); line-height: 1.7; }
+    
+    .gallery { padding: 6rem 2rem; background: #0a0a0a; }
+    .gallery h2 { text-align: center; font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 3rem; color: var(--gold-light); }
+    .gallery-scroll { display: flex; gap: 1.5rem; overflow-x: auto; padding: 1rem 0; scroll-behavior: smooth; max-width: 1400px; margin: 0 auto; }
+    .gallery-item { flex: 0 0 350px; height: 450px; border-radius: 15px; overflow: hidden; }
+    .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+    .gallery-placeholder { width: 100%; height: 100%; background: rgba(255, 255, 255, 0.05); display: flex; align-items: center; justify-content: center; color: var(--gray); }
+    
+    .form-section { padding: 6rem 2rem; background: linear-gradient(to bottom, #0a0a0a, #000); }
+    .form-container { max-width: 700px; margin: 0 auto; text-align: center; }
+    .form-container h2 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 1rem; color: var(--gold-light); }
+    .form-container p { font-size: 1.2rem; color: var(--gray-light); margin-bottom: 3rem; }
+    .zoho-iframe { width: 100%; min-height: 600px; border: none; border-radius: 20px; }
+    
+    .videos { padding: 6rem 2rem; background: #000; }
+    .videos h2 { text-align: center; font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 3rem; color: var(--gold-light); }
+    .videos-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; }
+    .video-card { border-radius: 15px; overflow: hidden; background: rgba(255, 255, 255, 0.05); }
+    .video-card iframe { width: 100%; aspect-ratio: 16/9; }
+    .video-card .video-title { padding: 1rem; font-weight: 600; }
+    
+    .faq { padding: 6rem 2rem; background: #0a0a0a; }
+    .faq h2 { text-align: center; font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 3rem; color: var(--gold-light); }
+    .faq-container { max-width: 800px; margin: 0 auto; }
+    .faq-item { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 15px; margin-bottom: 1rem; overflow: hidden; }
+    .faq-question { width: 100%; text-align: left; padding: 1.5rem; background: none; border: none; color: var(--white); font-size: 1.1rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; font-family: inherit; }
+    .faq-question:hover { color: var(--gold-light); }
+    .faq-icon { font-size: 1.5rem; transition: transform 0.3s; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s; padding: 0 1.5rem; color: var(--gray-light); line-height: 1.7; }
+    .faq-item.open .faq-answer { max-height: 500px; padding: 0 1.5rem 1.5rem; }
+    
+    /* Sticky Join Button */
+    .sticky-join-btn {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--gold);
+      color: #000;
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      box-shadow: 0 10px 40px rgba(245, 158, 11, 0.4);
+      cursor: pointer;
+      border: none;
+      z-index: 1000;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s;
+    }
+    .sticky-join-btn.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .sticky-join-btn:hover {
+      background: var(--gold-light);
+      transform: translateY(-2px);
+      box-shadow: 0 15px 50px rgba(245, 158, 11, 0.5);
+    }
+    
+    @media (max-width: 968px) {
+      .hero-image-section { flex-direction: column; }
+      .hero-image-container { flex: 0 0 auto; width: 100%; max-width: 500px; }
+    }
+  </style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-content">
+    <h1 id="build-hero-title">Unlock Your Potential Through Door-to-Door Sales</h1>
+    <p id="build-hero-subtitle">Join Your Energy Best's elite sales team. Solar & HVAC solutions that change lives — starting with yours.</p>
+    <button class="cta-btn" id="build-cta" onclick="document.getElementById('apply').scrollIntoView({behavior:'smooth'})">Join Our Team</button>
+  </div>
+</section>
+
+<section class="hero-image-section">
+  <div class="hero-image-text">
+    <h2 id="build-section-title">Why Door-to-Door?</h2>
+    <p id="build-section-text">This isn't just about sales—it's about personal growth, financial freedom, and making a real impact in your community.</p>
+  </div>
+  <div class="hero-image-container">
+    <img src="../img/build-hero.png" alt="Open the door to opportunity" onerror="this.parentElement.innerHTML='<div style=\'width:100%;height:400px;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;color:#9CA3AF;\'>Hero image placeholder</div>'" />
+  </div>
+</section>
+
+<section class="benefits"><div class="benefits-grid" id="build-benefits"></div></section>
+<section class="gallery"><h2>See Us In Action</h2><div class="gallery-scroll" id="build-gallery"></div></section>
+<section class="form-section" id="apply">
+  <div class="form-container">
+    <h2>Ready to Build Your Future?</h2>
+    <p>Fill out the form below and we'll be in touch within 24 hours.</p>
+    <iframe class="zoho-iframe" src="https://forms.zohopublic.com/dwestyourene1/form/RecruitmentInformationForm/formperma/uKd7gJaa2xhpJqSx45B5RZMSKctOyroQ4ikTaAl0XYw"></iframe>
+  </div>
+</section>
+<section class="videos" id="build-videos" style="display:none;"><h2>Hear From The Team</h2><div class="videos-grid" id="build-videos-grid"></div></section>
+<section class="faq"><h2>Common Questions</h2><div class="faq-container" id="build-faq"></div></section>
+
+<!-- Sticky Join Button -->
+<button class="sticky-join-btn" id="stickyJoinBtn" onclick="document.getElementById('apply').scrollIntoView({behavior:'smooth'})">Join Team Waitlist</button>
+
+<script>
+// Show/hide sticky button on scroll
+window.addEventListener('scroll', () => {
+  const btn = document.getElementById('stickyJoinBtn');
+  if (window.scrollY > 500) {
+    btn.classList.add('show');
+  } else {
+    btn.classList.remove('show');
+  }
+});
+
+async function loadBuildContent() {
+  try {
+    const res = await fetch('../content.json?' + Date.now());
+    const data = await res.json();
+    
+    if (data.build && data.build.hero) {
+      document.getElementById('build-hero-title').textContent = data.build.hero.title || document.getElementById('build-hero-title').textContent;
+      document.getElementById('build-hero-subtitle').textContent = data.build.hero.subtitle || document.getElementById('build-hero-subtitle').textContent;
+    }
+    
+    if (data.build && data.build.section_title) document.getElementById('build-section-title').textContent = data.build.section_title;
+    if (data.build && data.build.section_text) document.getElementById('build-section-text').textContent = data.build.section_text;
+    if (data.build && data.build.cta_text) document.getElementById('build-cta').textContent = data.build.cta_text;
+    
+    if (data.build && data.build.benefits) {
+      document.getElementById('build-benefits').innerHTML = data.build.benefits.map(b => `
+        <div class="benefit-card"><div class="benefit-icon">${b.icon}</div><h3>${b.title}</h3><p>${b.text}</p></div>
+      `).join('');
+    }
+    
+    if (data.build && data.build.gallery) {
+      document.getElementById('build-gallery').innerHTML = data.build.gallery.map(item => 
+        item.url ? `<div class="gallery-item"><img src="${item.url}" alt="${item.caption || 'Team'}" /></div>` : `<div class="gallery-item"><div class="gallery-placeholder">Photo placeholder</div></div>`
+      ).join('');
+    }
+    
+    if (data.build && data.build.videos && data.build.videos.length > 0) {
+      document.getElementById('build-videos').style.display = 'block';
+      document.getElementById('build-videos-grid').innerHTML = data.build.videos.map(v => `
+        <div class="video-card"><iframe src="https://www.youtube.com/embed/${v.youtube_id}" frameborder="0" allowfullscreen></iframe><div class="video-title">${v.title}</div></div>
+      `).join('');
+    }
+    
+    if (data.build && data.build.faq) {
+      document.getElementById('build-faq').innerHTML = data.build.faq.map((item, i) => `
+        <div class="faq-item"><button class="faq-question" onclick="toggleFaq(${i})">${item.question}<span class="faq-icon">+</span></button><div class="faq-answer">${item.answer}</div></div>
+      `).join('');
+    }
+  } catch (err) { console.error('Failed to load build content:', err); }
+}
+
+function toggleFaq(index) {
+  const items = document.querySelectorAll('.faq-item');
+  const item = items[index];
+  const isOpen = item.classList.contains('open');
+  items.forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+loadBuildContent();
+</script>
+</body>
+</html>

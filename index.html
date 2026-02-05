@@ -3,58 +3,95 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>San Diego Solar Energy Solutions | Your Energy Best</title>
-  <meta name="description" content="Solar, batteries, and HVAC solutions with $0 down options for eligible San Diego homes." />
-  <link rel="icon" type="image/png" href="img/logo.png" />
+  <title>Your Energy Best - Solar, Battery & HVAC Installation | San Diego</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Professional solar panel, battery storage, and HVAC installation in San Diego. $0 down financing available. 30% federal tax credit. Free quotes. NABCEP certified installers serving Southern California." />
+  <meta name="keywords" content="solar panels San Diego, solar installation Southern California, battery storage San Diego, HVAC San Diego, Tesla Powerwall, Enphase battery, solar rebates San Diego, residential solar San Diego County" />
+  <meta name="geo.region" content="US-CA" />
+  <meta name="geo.placename" content="San Diego" />
+  <meta name="geo.position" content="32.715738;-117.161084" />
+  <meta name="ICBM" content="32.715738, -117.161084" />
+  
+  <!-- Open Graph / Social Media -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Your Energy Best - Solar & Battery Installation San Diego" />
+  <meta property="og:description" content="Professional solar panel, battery storage, and HVAC installation in San Diego. $0 down financing available. Free quotes from NABCEP certified installers." />
+  <meta property="og:url" content="https://yourenergybest.com" />
+  
+  <!-- Local Business Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "Your Energy Best",
+    "description": "Professional solar panel, battery storage, and HVAC installation serving San Diego and Southern California",
+    "telephone": "+1-760-860-7862",
+    "email": "info@yourenergybest.com",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "San Diego",
+      "addressRegion": "CA",
+      "addressCountry": "US"
+    },
+    "areaServed": [
+      "San Diego", "Encinitas", "La Jolla", "Carlsbad", "Del Mar", "Solana Beach", 
+      "Rancho Santa Fe", "Poway", "Chula Vista", "Oceanside", "Vista", "Escondido"
+    ],
+    "priceRange": "$$",
+    "openingHours": "Mo-Fr 08:00-18:00, Sa 09:00-17:00",
+    "image": "https://yourenergybest.com/img/logo.png",
+    "url": "https://yourenergybest.com",
+    "sameAs": [],
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": "194"
+    },
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Solar & Energy Services",
+      "itemListElement": [
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Residential Solar Panel Installation",
+            "description": "Complete solar panel system design and installation with $0 down financing options"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Battery Storage Systems",
+            "description": "Tesla Powerwall and Enphase battery installation with backup power capabilities"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "HVAC Installation & Service",
+            "description": "Professional HVAC system installation and maintenance"
+          }
+        }
+      ]
+    }
+  }
+  </script>
+  
   <link rel="stylesheet" href="style.css" />
-  <style>
-    /* Logo fills full header height */
-    .nav { padding: 0.5rem 2rem; }
-    .nav__logo img { height: 70px; width: auto; }
-    
-    /* Sticky header with transparent background on scroll */
-    .nav.scrolled { background: rgba(2, 48, 71, 0.95); backdrop-filter: blur(10px); }
-    
-    /* Mobile CTA button in header */
-    .nav__cta-mobile { 
-      display: none; 
-      background: var(--teal); 
-      color: var(--white); 
-      padding: 0.6rem 1.2rem; 
-      border-radius: 50px; 
-      font-weight: 600; 
-      font-size: 0.9rem; 
-      text-decoration: none;
-      white-space: nowrap;
-    }
-    @media (max-width: 768px) {
-      .nav__cta-mobile { display: inline-block; }
-      .nav__links { display: none; }
-      .nav__links.open { display: flex; }
-    }
-    
-    /* Animated counting numbers */
-    .stat__number.counting { color: var(--teal); }
-    
-    /* Reordered hero - title on top, cards below */
-    .hero__content { 
-      display: flex; 
-      flex-direction: column; 
-      gap: 3rem;
-    }
-    .hero__text { order: 1; }
-    .hero__visual { order: 2; }
-  </style>
 </head>
 <body>
 
-<!-- ─── NAVIGATION ─── -->
-<nav class="nav" id="mainNav">
+<!-- Nav -->
+<nav class="nav" id="nav">
   <div class="container nav__inner">
     <a href="index.html" class="nav__logo" aria-label="Your Energy Best – Home">
       <img src="img/logo.png" alt="Your Energy Best" />
     </a>
-    <a href="quote.html" class="nav__cta-mobile">Free Quote</a>
+    <a href="quote.html" class="nav__cta-mobile">Get Quote</a>
     <button class="nav__toggle" id="navToggle" aria-label="Toggle navigation">
       <span></span><span></span><span></span>
     </button>
@@ -63,309 +100,218 @@
       <li><a href="quote.html">Get a Quote</a></li>
       <li><a href="build">Build With Us</a></li>
       <li><a href="blog.html">Blog</a></li>
+      <li><a href="#about">About</a></li>
       <li><a href="#testimonials">Reviews</a></li>
       <li><a href="quote.html" class="nav__cta-btn">Get Your Custom Quote</a></li>
     </ul>
   </div>
 </nav>
 
-<!-- ─── HERO ─── -->
+<!-- Hero -->
 <section class="hero">
-  <div class="hero__bg"></div>
-  <div class="hero__content">
+  <div class="container hero__content">
     <div class="hero__text anim-fadeUp">
       <span class="eyebrow">San Diego's Solar & HVAC Experts</span>
       <h1><span class="title-white" id="home-title-part1">Your Home for the Best</span> <span class="title-orange" id="home-title-part2">Energy Upgrades</span></h1>
       <p id="home-subtitle">Solar, batteries, and HVAC solutions—with $0 down options available for eligible homes.</p>
     </div>
-    <div class="hero__visual anim-fadeUp anim-delay-2">
-      <div class="hero__card-grid" id="customer-options">
-        <a href="quote.html" class="hero__card">
-          <div class="hero__card__icon hero__card__icon--teal">☀️</div>
-          <h4>New to Solar?</h4>
-          <p>We'll walk you through everything — from design to savings.</p>
-        </a>
-        <a href="quote.html" class="hero__card">
-          <div class="hero__card__icon hero__card__icon--orange">🔋</div>
-          <h4>Already Have Solar?</h4>
-          <p>Add battery storage and maximize what you already own.</p>
-        </a>
-        <a href="quote.html" class="hero__card">
-          <div class="hero__card__icon hero__card__icon--green">📋</div>
-          <h4>Ready for a Proposal?</h4>
-          <p>Get a detailed, no-obligation solar proposal in 48 hours.</p>
-        </a>
-        <a href="quote.html" class="hero__card">
-          <div class="hero__card__icon hero__card__icon--teal">💰</div>
-          <h4>$0 Down Financing</h4>
-          <p>Start saving day one with flexible payment options.</p>
-        </a>
-      </div>
+    
+    <!-- Mobile Accordion Button -->
+    <button class="customer-accordion-trigger" id="accordionTrigger">
+      <span id="accordionButtonText">Start Your Process</span>
+    </button>
+    
+    <div class="hero__card-grid" id="customerOptionsGrid">
+      <!-- Customer option cards will be loaded by CMS -->
     </div>
   </div>
 </section>
 
-<!-- ─── STATS BAR ─── -->
+<!-- Stats -->
 <section class="stats">
+  <div class="container stats__grid" id="stats"></div>
+</section>
+
+<!-- Rebate Alert -->
+<section class="rebate-section">
   <div class="container">
-    <div class="stats__grid" id="cms-stats"><!-- populated by cms.js with animated numbers --></div>
+    <div class="rebate-alert" id="rebate-alert"></div>
   </div>
 </section>
 
-<!-- ─── HOW IT WORKS ─── -->
-<section class="section" id="how-it-works">
+<!-- How It Works -->
+<section class="process">
   <div class="container">
-    <div class="section-head text-center">
-      <span class="tag">The Process</span>
-      <h2>Simple. Transparent. Rewarding.</h2>
-      <p>From your first question to your first savings check — we handle the heavy lifting.</p>
-    </div>
-    <div style="display:grid; grid-template-columns: repeat(3,1fr); gap: var(--space-xl); max-width: 960px; margin-inline: auto;" class="anim-fadeUp">
-      <div class="text-center">
-        <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--teal-dark));display:flex;align-items:center;justify-content:center;margin-inline:auto auto var(--space-md); color:#fff; font-size:1.4rem;">1</div>
-        <h4>Design</h4>
-        <p style="font-size:.88rem; margin:0;">We assess your roof, usage, and goals to build a custom solar plan.</p>
-      </div>
-      <div class="text-center">
-        <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--orange),var(--orange-dark));display:flex;align-items:center;justify-content:center;margin-inline:auto auto var(--space-md); color:#fff; font-size:1.4rem;">2</div>
-        <h4>Install</h4>
-        <p style="font-size:.88rem; margin:0;">Our NABCEP-certified team handles permits, wiring, and installation.</p>
-      </div>
-      <div class="text-center">
-        <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--teal-light),var(--teal));display:flex;align-items:center;justify-content:center;margin-inline:auto auto var(--space-md); color:#fff; font-size:1.4rem;">3</div>
-        <h4>Save</h4>
-        <p style="font-size:.88rem; margin:0;">Watch your energy bill drop — we monitor your system for years to come.</p>
-      </div>
-    </div>
+    <h2 class="section-title">How It Works</h2>
+    <div class="process__grid" id="process-steps"></div>
   </div>
 </section>
 
-<!-- ─── REBATE ALERT ─── -->
-<section class="section--tight" style="background:var(--cream);">
-  <div class="container" style="max-width:860px;">
-    <div id="cms-rebate"><!-- populated by cms.js --></div>
-  </div>
-</section>
-
-<!-- ─── PROJECT GALLERY ─── -->
-<section class="section">
+<!-- Testimonials -->
+<section class="testimonials" id="testimonials">
   <div class="container">
-    <div class="section-head text-center">
-      <span class="tag">Our Work</span>
-      <h2>Real installations. Real savings.</h2>
-      <p>A look at some of the solar systems we've designed and built across San Diego.</p>
-    </div>
-    <div class="gallery-carousel-container" style="overflow:hidden; position:relative;">
-      <div style="display:flex; gap:var(--space-md); animation:scroll-gallery 30s linear infinite;" id="cms-gallery">
-        <!-- populated by cms.js -->
-      </div>
+    <h2 class="section-title">What Our Customers Say</h2>
+    <div class="testimonials__grid" id="testimonials-grid"></div>
+    <div style="text-align:center;">
+      <button class="testimonials__see-more" id="seeMoreBtn" style="display:none;">See More Reviews</button>
     </div>
   </div>
 </section>
 
-<style>
-@keyframes scroll-gallery {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-.gallery-carousel-container:hover #cms-gallery {
-  animation-play-state: paused;
-}
-</style>
-
-<!-- ─── TESTIMONIALS ─── -->
-<section class="section" id="testimonials" style="background:var(--gray-100);">
+<!-- Manufacturers -->
+<section class="manufacturers" id="manufacturers">
   <div class="container">
-    <div class="section-head text-center">
-      <span class="tag">Testimonials</span>
-      <h2>What our customers are saying</h2>
-      <div style="display:flex; align-items:center; justify-content:center; gap:0.5rem; margin-top:0.5rem;">
-        <div style="color:var(--orange); font-size:1.5rem;">★★★★★</div>
-        <span style="font-weight:600; color:var(--slate);">5.0 Average Rating</span>
-      </div>
-    </div>
-    <div style="display:grid; grid-template-columns: repeat(3,1fr); gap:var(--space-lg);" id="cms-testimonials">
-      <!-- populated by cms.js -->
-    </div>
+    <h2 class="section-title">Trusted Equipment Partners</h2>
+    <div class="manufacturers__carousel" id="manufacturers-carousel"></div>
   </div>
 </section>
 
-<!-- ─── PARTNERS (Scrolling logos) ─── -->
-<section class="partners">
+<!-- Gallery -->
+<section class="gallery" id="gallery">
+  <div class="container gallery__scroll" id="gallery-scroll"></div>
+</section>
+
+<!-- About -->
+<section class="about" id="about">
   <div class="container">
-    <p class="partners__label">Trusted equipment &amp; certifications</p>
-    <div class="partners__logos" style="display:flex; gap:2rem; overflow-x:auto; animation:scroll 20s linear infinite;">
-      <span><span class="logo-icon logo-icon--tesla">T</span> Tesla Powerwall</span>
-      <span><span class="logo-icon logo-icon--enphase">E</span> Enphase</span>
-      <span><span class="logo-icon logo-icon--rec">R</span> REC Solar</span>
-      <span><span class="logo-icon logo-icon--qcell">Q</span> Qcell</span>
-      <span><span class="logo-icon logo-icon--silfab">S</span> Silfab Solar</span>
-      <span><span class="logo-icon logo-icon--franklin">F</span> Franklin WH</span>
-      <span><span class="logo-icon logo-icon--nabcep">✓</span> NABCEP Certified</span>
-    </div>
+    <h2>About Your Energy Best</h2>
+    <p id="about-text"></p>
   </div>
 </section>
 
-<!-- ─── INSTAGRAM ─── -->
-<section class="section instagram-section">
+<!-- Call/Text CTA -->
+<section class="contact-section">
   <div class="container">
-    <div class="section-head text-center">
-      <span class="tag">Follow Along</span>
-      <h2>@energy.best.ca</h2>
-      <p>See our latest installations, tips, and behind-the-scenes on Instagram.</p>
-    </div>
-    <!-- Instagram feed embed will go here -->
-    <div style="text-align:center; padding:2rem; color:var(--slate);">Instagram feed coming soon</div>
-    <div class="text-center mt-lg">
-      <a href="https://instagram.com/energy.best.ca" target="_blank" rel="noopener" class="btn btn--outline btn--sm">View Full Profile</a>
+    <div class="contact-cta">
+      <h3>Ready to Get Started?</h3>
+      <a href="tel:+17608607862" class="contact-cta__phone" id="contact-phone">(760) 860-7862</a>
+      <p>Call or text us now for a free consultation</p>
     </div>
   </div>
 </section>
 
-<!-- ─── ABOUT DAVID / REFERRAL ─── -->
-<section class="section">
-  <div class="container" style="max-width:860px;">
-    <div style="max-width:700px; margin:0 auto;">
-      <div class="section-head text-center">
-        <span class="tag">Meet the Team</span>
-        <h2>David West</h2>
-        <p id="about-text">David founded Your Energy Best with a simple mission: make solar accessible, honest, and hassle-free for every San Diego homeowner. With years in the industry and a NABCEP certification, he personally oversees every project to make sure you get the best possible outcome.</p>
-      </div>
-      <div style="margin-top:var(--space-xl); padding:var(--space-md) var(--space-lg); background:var(--cream); border-radius:var(--radius); border-left:3px solid var(--orange);">
-        <h4 style="color:var(--orange); margin-bottom:.3rem;">🎁 Referral Program</h4>
-        <p style="font-size:.88rem; margin:0; color:var(--navy-mid);">Know someone who'd benefit from solar? Refer a friend and earn a reward when they install. Ask us how.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ─── FAQ ─── -->
-<section class="section" style="background:var(--gray-100);">
+<!-- FAQ -->
+<section class="faq">
   <div class="container">
-    <div class="section-head text-center">
-      <span class="tag">FAQ</span>
-      <h2>Got questions?</h2>
-    </div>
-    <div class="faq" id="cms-faq"><!-- populated by cms.js --></div>
+    <h2 class="section-title">Common Questions</h2>
+    <div class="faq__container" id="faq-container"></div>
   </div>
 </section>
 
-<!-- ─── CTA ─── -->
-<section class="section">
+<!-- Instagram (if populated) -->
+<section class="instagram" id="instagram" style="display:none;">
   <div class="container">
-    <div class="cta-banner">
-      <h2>Ready to start saving?</h2>
-      <p>Get a free, no-obligation solar quote in under 48 hours. Zero pressure, zero hidden fees.</p>
-      <a href="quote.html" class="btn btn--primary btn--lg">Get Your Free Quote</a>
-    </div>
+    <h2 class="section-title">Follow Our Work</h2>
+    <div class="instagram-grid" id="instagram-grid"></div>
   </div>
 </section>
 
-<!-- ─── FOOTER ─── -->
+<!-- Referral -->
+<section class="referral">
+  <div class="container">
+    <h3>Know Someone Who Needs Solar?</h3>
+    <p id="referral-text"></p>
+  </div>
+</section>
+
+<!-- Footer -->
 <footer class="footer">
   <div class="container">
     <div class="footer__grid">
-      <div>
-        <img src="img/logo.png" alt="Your Energy Best" class="footer__logo" />
-        <p>San Diego's trusted solar installer. We design, install, and support residential solar and battery systems — with honesty and expertise at every step.</p>
-        <div class="footer__social">
-          <a href="https://instagram.com/energy.best.ca" target="_blank" rel="noopener" aria-label="Instagram">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
-          </a>
-        </div>
+      <div class="footer__col">
+        <h4>Contact</h4>
+        <p>Phone: <a href="tel:+17608607862">(760) 860-7862</a></p>
+        <p>Email: <a href="mailto:info@yourenergybest.com">info@yourenergybest.com</a></p>
+        <p>Serving San Diego & Southern California</p>
       </div>
       <div class="footer__col">
-        <h5>Quick Links</h5>
-        <a href="index.html">Home</a>
-        <a href="quote.html">Get a Quote</a>
-        <a href="build">Build With Us</a>
-        <a href="blog.html">Blog</a>
+        <h4>Services</h4>
+        <p>Residential Solar Installation</p>
+        <p>Battery Storage Systems</p>
+        <p>HVAC Installation & Service</p>
+        <p>Solar Financing Options</p>
       </div>
       <div class="footer__col">
-        <h5>Resources</h5>
-        <a href="https://sdcommunitypower.org/solar-battery-savings/" target="_blank" rel="noopener">Battery Rebates (SDCP)</a>
-        <a href="#">Solar Tax Credits</a>
-        <a href="#">How Solar Works</a>
+        <h4>Service Areas</h4>
+        <p>San Diego | Encinitas | La Jolla</p>
+        <p>Carlsbad | Del Mar | Oceanside</p>
+        <p>Vista | Escondido | Poway</p>
+        <p>All of San Diego County</p>
       </div>
       <div class="footer__col">
-        <h5>Get Started</h5>
-        <a href="quote.html">Free Solar Quote</a>
-        <a href="build">Join Our Sales Team</a>
-        <a href="#">Schedule a Call</a>
+        <h4>Resources</h4>
+        <p><a href="quote.html">Get a Free Quote</a></p>
+        <p><a href="blog.html">Solar Education Blog</a></p>
+        <p><a href="build">Join Our Team</a></p>
+        <p><a href="#about">About Us</a></p>
       </div>
     </div>
     <div class="footer__bottom">
-      <span>&copy; 2026 Your Energy Best. All rights reserved.</span>
-      <span><a href="#">Privacy Policy</a> &nbsp;·&nbsp; <a href="#">Terms of Service</a></span>
+      <p>&copy; 2026 Your Energy Best. All rights reserved.</p>
+      <p>Licensed Solar & HVAC Contractor | NABCEP Certified</p>
     </div>
   </div>
 </footer>
 
-<!-- ─── SCRIPTS ─── -->
+<!-- Rebate Modal -->
+<div class="rebate-modal" id="rebateModal">
+  <div class="rebate-modal__content">
+    <button class="rebate-modal__close" id="modalClose">✕</button>
+    <h3 id="modal-title">Check Your Eligibility</h3>
+    <p id="modal-text">Enter Your Info Below and We'll Check for You!</p>
+    <div style="text-align:center; margin-top:1rem;">
+      <a href="#customer-form" class="rebate-alert__link" onclick="document.getElementById('rebateModal').classList.remove('open')">Go to Form ↓</a>
+    </div>
+  </div>
+</div>
+
 <script src="cms.js"></script>
 <script>
-// Nav scroll effect with transparency
-window.addEventListener('scroll', () => {
-  const nav = document.getElementById('mainNav');
-  if (window.scrollY > 40) {
-    nav.classList.add('scrolled');
+// Mobile menu toggle
+const navToggle = document.getElementById('navToggle');
+const navLinks = document.getElementById('navLinks');
+navToggle?.addEventListener('click', () => navLinks.classList.toggle('open'));
+
+// Mobile accordion toggle
+const accordionTrigger = document.getElementById('accordionTrigger');
+const customerGrid = document.getElementById('customerOptionsGrid');
+accordionTrigger?.addEventListener('click', function() {
+  customerGrid.classList.toggle('open');
+  this.classList.toggle('active');
+  this.querySelector('span').textContent = customerGrid.classList.contains('open') ? 'Close' : CMS.data.home?.mobile_accordion_button || 'Start Your Process';
+});
+
+// Testimonials See More
+let showingAll = false;
+document.getElementById('seeMoreBtn')?.addEventListener('click', function() {
+  const hidden = document.querySelectorAll('.testimonials__item.hidden');
+  if (!showingAll) {
+    hidden.forEach(item => item.classList.remove('hidden'));
+    this.textContent = 'Show Less';
+    showingAll = true;
   } else {
-    nav.classList.remove('scrolled');
+    hidden.forEach((item, i) => {
+      if (i >= 6) item.classList.add('hidden');
+    });
+    const allItems = document.querySelectorAll('.testimonials__item');
+    allItems.forEach((item, i) => {
+      if (i >= 6) item.classList.add('hidden');
+    });
+    this.textContent = 'See More Reviews';
+    showingAll = false;
+    document.getElementById('testimonials').scrollIntoView({behavior: 'smooth'});
   }
 });
 
-// Mobile nav toggle
-document.getElementById('navToggle').addEventListener('click', function() {
-  document.getElementById('navLinks').classList.toggle('open');
+// Rebate modal
+document.getElementById('modalClose')?.addEventListener('click', () => {
+  document.getElementById('rebateModal').classList.remove('open');
 });
 
-// Animated counting numbers
-function animateNumber(element, target) {
-  const duration = 2000;
-  const start = 0;
-  const startTime = performance.now();
-  
-  // Parse target (handle $, %, commas)
-  const numericTarget = parseFloat(target.replace(/[$,%,]/g, ''));
-  const hasPercent = target.includes('%');
-  const hasDollar = target.includes('$');
-  
-  function update(currentTime) {
-    const elapsed = currentTime - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    
-    // Easing function
-    const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-    const current = start + (numericTarget - start) * easeOutQuart;
-    
-    // Format the number
-    let display = Math.round(current).toLocaleString();
-    if (hasDollar) display = '$' + display;
-    if (hasPercent) display = Math.round(current) + '%';
-    
-    element.textContent = display;
-    element.classList.add('counting');
-    
-    if (progress < 1) {
-      requestAnimationFrame(update);
-    } else {
-      element.classList.remove('counting');
-    }
-  }
-  
-  requestAnimationFrame(update);
-}
-
-// Intersection Observer for number animation
-const statsObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting && !entry.target.dataset.animated) {
-      const target = entry.target.dataset.target;
-      animateNumber(entry.target, target);
-      entry.target.dataset.animated = 'true';
-    }
-  });
-}, { threshold: 0.5 });
+// Click outside modal to close
+document.getElementById('rebateModal')?.addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('open');
+});
 
 // Load CMS content
 CMS.load().then(() => {
@@ -386,42 +332,154 @@ CMS.load().then(() => {
     if (CMS.data.home.about_text) {
       document.getElementById('about-text').textContent = CMS.data.home.about_text;
     }
+    if (CMS.data.home.referral_text) {
+      document.getElementById('referral-text').textContent = CMS.data.home.referral_text;
+    }
+    if (CMS.data.home.mobile_accordion_button) {
+      document.getElementById('accordionButtonText').textContent = CMS.data.home.mobile_accordion_button;
+    }
+  }
+  
+  // Phone number
+  if (CMS.data.contact?.phone_formatted) {
+    document.getElementById('contact-phone').textContent = CMS.data.contact.phone_formatted;
   }
   
   // Stats with animation
-  const statsGrid = document.getElementById('cms-stats');
-  const s = CMS.data.stats;
-  statsGrid.innerHTML = `
-    <div><div class="stat__number" data-target="${s.savings}">${s.savings}</div><div class="stat__label">${s.savings_label}</div></div>
-    <div><div class="stat__number" data-target="${s.hours}">${s.hours}</div><div class="stat__label">${s.hours_label}</div></div>
-    <div><div class="stat__number" data-target="${s.installations}">${s.installations}</div><div class="stat__label">${s.installations_label}</div></div>
-    <div><div class="stat__number" data-target="${s.customers}">${s.customers}</div><div class="stat__label">${s.customers_label}</div></div>
-  `;
+  if (CMS.data.stats) {
+    const statsGrid = document.getElementById('stats');
+    const stats = [
+      { value: CMS.data.stats.savings, label: CMS.data.stats.savings_label },
+      { value: CMS.data.stats.hours, label: CMS.data.stats.hours_label },
+      { value: CMS.data.stats.installations, label: CMS.data.stats.installations_label },
+      { value: CMS.data.stats.customers, label: CMS.data.stats.customers_label }
+    ];
+    statsGrid.innerHTML = stats.map(stat => `
+      <div class="stats__item anim-fadeUp">
+        <div class="stats__number">${stat.value}</div>
+        <div class="stats__label">${stat.label}</div>
+      </div>
+    `).join('');
+  }
   
-  // Observe all stat numbers
-  document.querySelectorAll('.stat__number').forEach(el => {
-    statsObserver.observe(el);
-  });
+  // Rebate Alert
+  if (CMS.data.rebate_alert) {
+    const rebateEl = document.getElementById('rebate-alert');
+    rebateEl.innerHTML = `
+      <h3>${CMS.data.rebate_alert.heading}</h3>
+      <p>${CMS.data.rebate_alert.text}</p>
+      <a href="quote.html" class="rebate-alert__link">${CMS.data.rebate_alert.home_link_text || 'See what you qualify for'} →</a>
+    `;
+  }
   
-  // Gallery as auto-scrolling carousel
-  const galleryEl = document.getElementById('cms-gallery');
-  const galleryHTML = CMS.data.gallery.map(g => {
-    if (g.url) {
-      return `<div style="flex:0 0 400px; height:300px; border-radius:var(--radius); overflow:hidden;">
-                <img src="${g.url}" alt="${g.caption}" style="width:100%;height:100%;object-fit:cover;" />
-              </div>`;
+  // Customer Options
+  if (CMS.data.home?.customer_options) {
+    document.getElementById('customerOptionsGrid').innerHTML = CMS.data.home.customer_options.map(opt => `
+      <div class="hero__card anim-fadeUp">
+        <div class="hero__card-icon">${opt.icon}</div>
+        <h3>${opt.title}</h3>
+        <p>${opt.description}</p>
+      </div>
+    `).join('');
+  }
+  
+  // Process Steps
+  if (CMS.data.home?.process_steps) {
+    document.getElementById('process-steps').innerHTML = CMS.data.home.process_steps.map(step => `
+      <div class="process__step anim-fadeUp">
+        <div class="process__number">${step.number}</div>
+        <h3>${step.title}</h3>
+        <p>${step.description}</p>
+      </div>
+    `).join('');
+  }
+  
+  // Testimonials (2 rows of 3, hide extras)
+  if (CMS.data.testimonials && CMS.data.testimonials.length > 0) {
+    const grid = document.getElementById('testimonials-grid');
+    grid.innerHTML = CMS.data.testimonials.map((t, i) => `
+      <div class="testimonials__item anim-fadeUp ${i >= 6 ? 'hidden' : ''}">
+        <div class="testimonials__avatar">${t.initials}</div>
+        <p class="testimonials__text">"${t.text}"</p>
+        <div class="testimonials__author">
+          <strong>${t.name}</strong>
+          <span>${t.role}</span>
+        </div>
+      </div>
+    `).join('');
+    
+    // Show "See More" if more than 6
+    if (CMS.data.testimonials.length > 6) {
+      document.getElementById('seeMoreBtn').style.display = 'inline-block';
     }
-    return `<div style="flex:0 0 400px; height:300px; border-radius:var(--radius); background:var(--gray-100); display:flex; align-items:center; justify-content:center; color:var(--slate);">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
-            </div>`;
-  }).join('');
+  }
   
-  // Duplicate items for seamless loop
-  galleryEl.innerHTML = galleryHTML + galleryHTML;
+  // Manufacturers
+  if (CMS.data.manufacturers && CMS.data.manufacturers.length > 0) {
+    const carousel = document.getElementById('manufacturers-carousel');
+    carousel.innerHTML = CMS.data.manufacturers.map(m => `
+      <div class="manufacturers__item">
+        <img src="${m.url}" alt="${m.name || 'Manufacturer logo'}" />
+      </div>
+    `).join('');
+  } else {
+    document.getElementById('manufacturers').style.display = 'none';
+  }
   
-  CMS.renderRebate('cms-rebate');
-  CMS.renderTestimonials('cms-testimonials');
-  CMS.renderFaq('cms-faq');
+  // Gallery
+  if (CMS.data.gallery && CMS.data.gallery.length > 0) {
+    const galleryEl = document.getElementById('gallery-scroll');
+    const doubled = [...CMS.data.gallery, ...CMS.data.gallery];
+    galleryEl.innerHTML = doubled.map(item => `
+      <div class="gallery__item">
+        <img src="${item.url}" alt="${item.caption || 'Installation photo'}" loading="lazy" />
+      </div>
+    `).join('');
+  } else {
+    document.getElementById('gallery').style.display = 'none';
+  }
+  
+  // FAQ
+  if (CMS.data.faq) {
+    document.getElementById('faq-container').innerHTML = CMS.data.faq.map((item, i) => `
+      <div class="faq-item" data-index="${i}">
+        <button class="faq-question">
+          <span>${item.question}</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>${item.answer}</p>
+        </div>
+      </div>
+    `).join('');
+    
+    // FAQ toggle
+    document.querySelectorAll('.faq-question').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const parent = btn.parentElement;
+        const isOpen = parent.classList.contains('open');
+        document.querySelectorAll('.faq-item').forEach(item => {
+          item.classList.remove('open');
+          item.querySelector('.faq-icon').textContent = '+';
+        });
+        if (!isOpen) {
+          parent.classList.add('open');
+          btn.querySelector('.faq-icon').textContent = '−';
+        }
+      });
+    });
+  }
+  
+  // Sticky nav on scroll
+  let lastScroll = 0;
+  window.addEventListener('scroll', () => {
+    const nav = document.getElementById('nav');
+    if (window.scrollY > 100) {
+      nav.classList.add('scrolled');
+    } else {
+      nav.classList.remove('scrolled');
+    }
+  });
 });
 </script>
 </body>

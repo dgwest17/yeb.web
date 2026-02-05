@@ -59,9 +59,9 @@
 
 <section class="page-hero">
   <div class="container">
-    <span class="eyebrow">Free Solar Quote</span>
-    <h1>Get Your Custom Solar Proposal</h1>
-    <p>Tell us about your home and schedule a consultation—no obligation.</p>
+    <span class="eyebrow" id="quote-eyebrow">Free Solar Quote</span>
+    <h1 id="quote-title">Get Your Custom Solar Proposal</h1>
+    <p id="quote-subtitle">Tell us about your home and schedule a consultation—no obligation.</p>
   </div>
 </section>
 
@@ -236,6 +236,16 @@ document.getElementById('quoteForm').addEventListener('submit', async function(e
 <script>
 // Load testimonials from CMS
 CMS.load().then(() => {
+  // Load quote page content
+  if (CMS.data.quote) {
+    if (CMS.data.quote.hero_eyebrow) document.getElementById('quote-eyebrow').textContent = CMS.data.quote.hero_eyebrow;
+    if (CMS.data.quote.hero_title) document.getElementById('quote-title').textContent = CMS.data.quote.hero_title;
+    if (CMS.data.quote.hero_subtitle) document.getElementById('quote-subtitle').textContent = CMS.data.quote.hero_subtitle;
+    if (CMS.data.quote.form_title) document.querySelector('h3#customer-form').textContent = CMS.data.quote.form_title;
+    if (CMS.data.quote.success_message) document.getElementById('successMsg').textContent = CMS.data.quote.success_message;
+  }
+  
+  // Load testimonials
   if (CMS.data.testimonials && CMS.data.testimonials.length > 0) {
     const grid = document.getElementById('quote-testimonials-grid');
     grid.innerHTML = CMS.data.testimonials.map((t, i) => `

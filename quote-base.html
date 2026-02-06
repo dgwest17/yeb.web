@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Get Your Free Quote – Your Energy Best</title>
   <link rel="icon" type="image/png" href="img/logo.png" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=20260205" />
   <style>
     .quote-section { padding: 4rem 2rem; background: var(--white); }
     .quote-container { max-width: 700px; margin: 0 auto; }
@@ -57,18 +57,22 @@
   </div>
 </nav>
 
-<section class="page-hero" style="background:var(--navy);color:var(--white);padding:4rem 2rem 3rem;">
-  <div class="container" style="max-width:700px;text-align:center;">
-    <span class="eyebrow" style="color:var(--orange);">Free Solar Quote</span>
-    <h1>Get Your Custom Solar Proposal</h1>
-    <p>Tell us about your home and schedule a consultation—no obligation.</p>
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow" id="quote-eyebrow">Free Solar Quote</span>
+    <h1 id="quote-title">Get Your Custom Solar Proposal</h1>
+    <p id="quote-subtitle">Tell us about your home and schedule a consultation—no obligation.</p>
   </div>
 </section>
 
 <section class="quote-section">
   <div class="quote-container">
     <!-- Rebate Alert -->
-    <div class="rebate-alert" id="quote-rebate-alert" style="margin-bottom: 2.5rem;"></div>
+    <div class="rebate-alert" id="quote-rebate-alert" style="margin-bottom: 2rem;">
+      <h3>Limited funds available for battery rebates & credits</h3>
+      <p>Apply as soon as possible before they expire to see if you qualify. San Diego Community Power currently offers upfront rebates of $250–$500 per kWh on new battery installations, plus ongoing performance incentives — but funds are limited and availability is not guaranteed.</p>
+      <button class="rebate-alert__link" onclick="document.getElementById('rebateModal').classList.add('open')" style="cursor:pointer;">See what you qualify for →</button>
+    </div>
     
     <div class="success-msg" id="successMsg">✓ Submitted! Redirecting to schedule your consultation...</div>
     
@@ -105,13 +109,13 @@
       </div>
 
       <div class="form-field">
-        <label for="phone">Phone *</label>
+        <label for="phone">Phone Number *</label>
         <input type="tel" id="phone" required />
       </div>
 
       <div class="form-field">
         <label for="zip">Zip Code *</label>
-        <input type="text" id="zip" pattern="[0-9]{5}" maxlength="5" required />
+        <input type="text" id="zip" pattern="[0-9]{5}" required />
       </div>
 
       <button type="submit" class="submit-btn" id="submitBtn">Get My Free Quote</button>
@@ -120,16 +124,9 @@
 </section>
 
 <!-- Testimonials Section -->
-<section class="testimonials" style="background: var(--gray-100); padding: var(--space-section) 0;">
+<section class="testimonials" style="background: var(--bg-light); padding: var(--space-section) 0;">
   <div class="container">
-    <div class="section-head text-center">
-      <span class="tag">Testimonials</span>
-      <h2>What Our Customers Say</h2>
-      <div style="display:flex; align-items:center; justify-content:center; gap:0.5rem; margin-top:0.5rem;">
-        <div style="color:var(--orange); font-size:1.5rem;">★★★★★</div>
-        <span style="font-weight:600; color:var(--slate);">5.0 Average Rating</span>
-      </div>
-    </div>
+    <h2 class="section-title">What Our Customers Say</h2>
     <div class="testimonials__grid" id="quote-testimonials-grid"></div>
     <div style="text-align:center;">
       <button class="testimonials__see-more" id="quoteSeeMoreBtn" style="display:none;">See More Reviews</button>
@@ -137,11 +134,23 @@
   </div>
 </section>
 
+<!-- Rebate Modal -->
+<div class="rebate-modal" id="rebateModal">
+  <div class="rebate-modal__content">
+    <button class="rebate-modal__close" id="modalClose">✕</button>
+    <h3>Check Your Eligibility</h3>
+    <p>Enter Your Info Below and We'll Check for You!</p>
+    <div style="text-align:center; margin-top:1rem;">
+      <a href="#customer-form" class="rebate-alert__link" onclick="document.getElementById('rebateModal').classList.remove('open'); document.getElementById('customer-form').scrollIntoView({behavior:'smooth'});">Go to Form ↓</a>
+    </div>
+  </div>
+</div>
+
 <footer class="footer">
   <div class="container">
     <div class="footer__grid">
       <div>
-        <img src="img/logo.png" alt="Your Energy Best" class="footer__logo" style="height:60px;margin-bottom:1rem;" />
+        <img src="img/logo.png" alt="Your Energy Best" class="footer__logo" />
         <p>San Diego's trusted solar installer.</p>
       </div>
       <div class="footer__col">
@@ -157,19 +166,6 @@
   </div>
 </footer>
 
-<!-- Rebate Modal -->
-<div class="rebate-modal" id="rebateModal">
-  <div class="rebate-modal__content">
-    <button class="rebate-modal__close" id="modalClose">✕</button>
-    <h3>Check Your Eligibility</h3>
-    <p id="modal-text">Enter Your Info Below and We'll Check for You!</p>
-    <div style="text-align:center; margin-top:1.5rem;">
-      <button class="rebate-modal__cta" onclick="document.getElementById('rebateModal').classList.remove('open'); document.getElementById('customer-form').scrollIntoView({behavior:'smooth'});">Go to Form ↓</button>
-    </div>
-  </div>
-</div>
-
-<script src="cms.js"></script>
 <script>
 window.addEventListener('scroll', () => {
   document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 40);
@@ -234,43 +230,53 @@ document.getElementById('quoteForm').addEventListener('submit', async function(e
     submitBtn.textContent = 'Get My Free Quote';
   }
 });
+</script>
 
-// Load CMS content
+<script src="cms.js"></script>
+<script>
+// Load testimonials from CMS
 CMS.load().then(() => {
-  // Rebate alert
-  if (CMS.data.rebate_alert) {
-    const rebateEl = document.getElementById('quote-rebate-alert');
-    rebateEl.innerHTML = `
-      <h3>${CMS.data.rebate_alert.heading}</h3>
-      <p>${CMS.data.rebate_alert.text}</p>
-      <button class="rebate-alert__link" onclick="document.getElementById('rebateModal').classList.add('open')" style="cursor:pointer;border:none;">${CMS.data.rebate_alert.quote_link_text || 'See what you qualify for'} →</button>
-    `;
+  // Load quote page content
+  if (CMS.data.quote) {
+    if (CMS.data.quote.hero_eyebrow) document.getElementById('quote-eyebrow').textContent = CMS.data.quote.hero_eyebrow;
+    if (CMS.data.quote.hero_title) document.getElementById('quote-title').textContent = CMS.data.quote.hero_title;
+    if (CMS.data.quote.hero_subtitle) document.getElementById('quote-subtitle').textContent = CMS.data.quote.hero_subtitle;
+    if (CMS.data.quote.form_title) document.querySelector('h3#customer-form').textContent = CMS.data.quote.form_title;
+    if (CMS.data.quote.success_message) document.getElementById('successMsg').textContent = CMS.data.quote.success_message;
+  }
+  
+  // Load testimonials
+  if (CMS.data.testimonials && CMS.data.testimonials.length > 0) {
+    const grid = document.getElementById('quote-testimonials-grid');
+    grid.innerHTML = CMS.data.testimonials.map((t, i) => `
+      <div class="testimonials__item ${i >= 6 ? 'hidden' : ''}">
+        <div class="testimonials__avatar">${t.initials}</div>
+        <p class="testimonials__text">"${t.text}"</p>
+        <div class="testimonials__author">
+          <strong>${t.name}</strong>
+          <span>${t.role}</span>
+        </div>
+      </div>
+    `).join('');
     
-    if (CMS.data.rebate_alert.quote_modal_text) {
-      document.getElementById('modal-text').textContent = CMS.data.rebate_alert.quote_modal_text;
+    // Show "See More" if more than 6
+    if (CMS.data.testimonials.length > 6) {
+      document.getElementById('quoteSeeMoreBtn').style.display = 'inline-block';
     }
   }
   
-  // Testimonials (same as home page)
-  const testimonials = CMS.data.testimonials || [];
-  const testimonialsContainer = document.getElementById('quote-testimonials-grid');
-  testimonialsContainer.innerHTML = testimonials.map((t, i) => `
-    <div class="testimonials__item ${i >= 6 ? 'hidden' : ''}" style="background:var(--white); padding:var(--space-lg); border-radius:var(--radius); box-shadow:0 2px 8px rgba(0,0,0,0.08);">
-      <div class="testimonials__avatar" style="width:48px;height:48px;border-radius:50%;background:var(--teal);color:var(--white);display:flex;align-items:center;justify-content:center;font-weight:700;margin-bottom:1rem;">${t.initials}</div>
-      <p class="testimonials__text" style="font-style:italic;margin-bottom:1rem;color:var(--slate);">"${t.text}"</p>
-      <div class="testimonials__author">
-        <strong style="color:var(--navy);">${t.name}</strong><br>
-        <span style="color:var(--slate);font-size:0.9rem;">${t.role}</span>
-      </div>
-    </div>
-  `).join('');
-  
-  if (testimonials.length > 6) {
-    document.getElementById('quoteSeeMoreBtn').style.display = 'inline-block';
+  // Update rebate alert with content from CMS
+  if (CMS.data.rebate_alert) {
+    const rebateEl = document.getElementById('quote-rebate-alert');
+    if (rebateEl) {
+      rebateEl.querySelector('h3').textContent = CMS.data.rebate_alert.heading || rebateEl.querySelector('h3').textContent;
+      rebateEl.querySelector('p').textContent = CMS.data.rebate_alert.text || rebateEl.querySelector('p').textContent;
+      rebateEl.querySelector('button').textContent = (CMS.data.rebate_alert.quote_link_text || 'See what you qualify for') + ' →';
+    }
   }
 });
 
-// Testimonials See More
+// Testimonials See More functionality
 let quoteShowingAll = false;
 document.getElementById('quoteSeeMoreBtn')?.addEventListener('click', function() {
   const allItems = document.querySelectorAll('#quote-testimonials-grid .testimonials__item');

@@ -4,71 +4,24 @@
     "hero_title_part1": "Your Home for the Best",
     "hero_title_part2": "Energy Upgrades",
     "hero_subtitle": "Solar, batteries, and HVAC solutions—with $0 down options available for eligible homes.",
-    "customer_options": [
-      {
-        "icon": "☀️",
-        "title": "New to Solar?",
-        "description": "We'll walk you through everything — from design to savings.",
-        "link": "quote.html"
-      },
-      {
-        "icon": "🔋",
-        "title": "Already Have Solar?",
-        "description": "Add battery storage and maximize what you already own.",
-        "link": "quote.html"
-      },
-      {
-        "icon": "📋",
-        "title": "Ready for a Proposal?",
-        "description": "Get a detailed, no-obligation solar proposal in 48 hours.",
-        "link": "quote.html"
-      },
-      {
-        "icon": "💰",
-        "title": "$0 Down Financing",
-        "description": "Start saving day one with flexible payment options.",
-        "link": "quote.html"
-      }
-    ],
     "mobile_accordion_button": "Start Your Process",
-    "process_steps": [
-      {
-        "number": "1",
-        "title": "Design",
-        "description": "We assess your roof, usage, and goals to build a custom solar plan."
-      },
-      {
-        "number": "2",
-        "title": "Install",
-        "description": "Our NABCEP-certified team handles permits, wiring, and installation."
-      },
-      {
-        "number": "3",
-        "title": "Save",
-        "description": "Watch your energy bill drop — we monitor your system for years to come."
-      }
-    ],
-    "about_text": "David founded Your Energy Best with a simple mission: make solar accessible, honest, and hassle-free for every San Diego homeowner. With years in the industry and a NABCEP certification, he personally oversees every project to make sure you get the best possible outcome.",
-    "referral_text": "Know someone who'd benefit from solar? Refer a friend and earn a reward when they install. Ask us how."
+    "about_text": "David founded Your Energy Best with a simple mission: make solar accessible, honest, and hassle-free for every San Diego homeowner. With years in the industry and a NABCEP certification, he personally oversees every project to make sure you get the best possible outcome."
   },
-
   "contact": {
     "phone": "7608607862",
     "phone_formatted": "(760) 860-7862",
     "email": "info@yourenergybest.com"
   },
-
   "stats": {
     "savings": "$1,379",
     "savings_label": "Average Year 1 Savings",
     "hours": "1.2",
-    "hours_label": "Average Hours of Your Time To See Those Savings",
+    "hours_label": "Average Hours of Your Time",
     "installations": "194",
     "installations_label": "Installations Completed",
     "customers": "99%",
     "customers_label": "Happy Customers"
   },
-
   "testimonials": [
     {
       "name": "Mckay Hyde",
@@ -107,11 +60,15 @@
       "initials": "MR"
     }
   ],
-
   "manufacturers": [],
-
   "gallery": [],
-
+  "rebate_alert": {
+    "heading": "Limited funds available for battery rebates & credits",
+    "text": "Apply as soon as possible before they expire to see if you qualify. San Diego Community Power currently offers upfront rebates of $250–$500 per kWh on new battery installations, plus ongoing performance incentives — but funds are limited and availability is not guaranteed.",
+    "home_link_text": "See what you qualify for",
+    "quote_link_text": "See what you qualify for",
+    "quote_modal_text": "Enter Your Info Below and We'll Check for You!"
+  },
   "faq": [
     {
       "question": "How much does solar cost?",
@@ -133,35 +90,5 @@
       "question": "What happens during a power outage?",
       "answer": "If you have a battery backup system (like Tesla Powerwall or Enphase), your home stays powered during outages using stored solar energy. We can design your system to prioritize your most essential appliances."
     }
-  ],
-
-  "rebate_alert": {
-    "heading": "Limited funds available for battery rebates & credits",
-    "text": "Apply as soon as possible before they expire to see if you qualify. San Diego Community Power currently offers upfront rebates of $250–$500 per kWh on new battery installations, plus ongoing performance incentives — but funds are limited and availability is not guaranteed.",
-    "home_link_text": "See what you qualify for",
-    "quote_link_text": "See what you qualify for",
-    "quote_modal_text": "Enter Your Info Below and We'll Check for You!"
-  },
-
-  "quote": {
-    "hero_eyebrow": "Free Solar Quote",
-    "hero_title": "Get Your Custom Solar Proposal",
-    "hero_subtitle": "Tell us about your home and schedule a consultation—no obligation.",
-    "form_title": "What brings you here?",
-    "success_message": "✓ Submitted! Redirecting to schedule your consultation..."
-  },
-
-  "build": {
-    "hero": {
-      "title": "Unlock Your Potential Through Door-to-Door Sales",
-      "subtitle": "Join Your Energy Best's elite sales team. Solar & HVAC solutions that change lives — starting with yours. Build the income, freedom, and future you've been working toward.",
-      "cta_text": "Join Our Team"
-    },
-    "section_title": "Why Door-to-Door?",
-    "section_text": "This isn't just about sales—it's about personal growth, financial freedom, and making a real impact in your community.",
-    "benefits": [],
-    "gallery": [],
-    "videos": [],
-    "faq": []
-  }
+  ]
 }

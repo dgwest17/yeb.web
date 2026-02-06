@@ -5,48 +5,136 @@
     "hero_title_part2": "Energy Upgrades",
     "hero_subtitle": "Solar, batteries, and HVAC solutions—with $0 down options available for eligible homes.",
     "customer_options": [
-      {"icon": "☀️", "title": "New to Solar?", "description": "We'll walk you through everything — from design to savings."},
-      {"icon": "🔋", "title": "Already Have Solar?", "description": "Add battery storage and maximize what you already own."},
-      {"icon": "📋", "title": "Ready for a Proposal?", "description": "Get a detailed, no-obligation solar proposal in 48 hours."},
-      {"icon": "💰", "title": "$0 Down Financing", "description": "Start saving day one with flexible payment options."}
+      {
+        "icon": "☀️",
+        "title": "New to Solar?",
+        "description": "We'll walk you through everything — from design to savings.",
+        "link": "quote.html"
+      },
+      {
+        "icon": "🔋",
+        "title": "Already Have Solar?",
+        "description": "Add battery storage and maximize what you already own.",
+        "link": "quote.html"
+      },
+      {
+        "icon": "📋",
+        "title": "Ready for a Proposal?",
+        "description": "Get a detailed, no-obligation solar proposal in 48 hours.",
+        "link": "quote.html"
+      },
+      {
+        "icon": "💰",
+        "title": "$0 Down Financing",
+        "description": "Start saving day one with flexible payment options.",
+        "link": "quote.html"
+      }
     ],
     "mobile_accordion_button": "Start Your Process",
     "process_steps": [
-      {"number": "1", "title": "Design", "description": "We assess your roof, usage, and goals to build a custom solar plan."},
-      {"number": "2", "title": "Install", "description": "Our NABCEP-certified team handles permits, wiring, and installation."},
-      {"number": "3", "title": "Save", "description": "Watch your energy bill drop — we monitor your system for years to come."}
+      {
+        "number": "1",
+        "title": "Design",
+        "description": "We assess your roof, usage, and goals to build a custom solar plan."
+      },
+      {
+        "number": "2",
+        "title": "Install",
+        "description": "Our NABCEP-certified team handles permits, wiring, and installation."
+      },
+      {
+        "number": "3",
+        "title": "Save",
+        "description": "Watch your energy bill drop — we monitor your system for years to come."
+      }
     ],
     "about_text": "David founded Your Energy Best with a simple mission: make solar accessible, honest, and hassle-free for every San Diego homeowner. With years in the industry and a NABCEP certification, he personally oversees every project to make sure you get the best possible outcome.",
     "referral_text": "Know someone who'd benefit from solar? Refer a friend and earn a reward when they install. Ask us how."
   },
-  "contact": {"phone": "7608607862", "phone_formatted": "(760) 860-7862", "email": "info@yourenergybest.com"},
+
+  "contact": {
+    "phone": "7608607862",
+    "phone_formatted": "(760) 860-7862",
+    "email": "info@yourenergybest.com"
+  },
+
   "stats": {
-    "savings": "$1,379", "savings_label": "Average Year 1 Savings",
-    "hours": "1.2", "hours_label": "Average Hours of Your Time To See Those Savings",
-    "installations": "194", "installations_label": "Installations Completed",
-    "customers": "99%", "customers_label": "Happy Customers"
+    "savings": "$1,379",
+    "savings_label": "Average Year 1 Savings",
+    "hours": "1.2",
+    "hours_label": "Average Hours of Your Time To See Those Savings",
+    "installations": "194",
+    "installations_label": "Installations Completed",
+    "customers": "99%",
+    "customers_label": "Happy Customers"
   },
-  "testimonials": {
-    "rating": "5.0",
-    "total_reviews": "194",
-    "items": [
-      {"name": "Mckay Hyde", "role": "Homeowner", "text": "David was an absolute professional. He knew the solar industry in and out! He was able to help me understand what option would be best for my family and made the entire process painless.", "initials": "MH"},
-      {"name": "Sherry Jarrett", "role": "Homeowner, age 76", "text": "I'm so happy to share my experience with David. First because of his personal integrity and authenticity — he never once pressured me and made sure I truly understood every step.", "initials": "SJ"},
-      {"name": "Stephen Bell", "role": "Homeowner", "text": "David is conscientious, knowledgeable, and honest. He knows Solar inside and out and goes above and beyond to make sure you're taken care of every step of the way.", "initials": "SB"},
-      {"name": "Jennifer Martinez", "role": "Encinitas Homeowner", "text": "The team at Your Energy Best made going solar so easy. From the initial consultation to the final installation, everything was handled professionally. Our electric bill has dropped by over 80%!", "initials": "JM"},
-      {"name": "Robert Chen", "role": "La Jolla Resident", "text": "I was skeptical about solar at first, but David answered every question I had. The installation was quick and clean, and the savings are real. Highly recommend to anyone considering solar.", "initials": "RC"},
-      {"name": "Maria Rodriguez", "role": "Chula Vista Homeowner", "text": "Adding battery storage to our existing solar system was the best decision we made. Now we have power even during outages. The Your Energy Best team was fantastic throughout the entire process.", "initials": "MR"}
-    ]
-  },
-  "manufacturers": [],
-  "gallery": [],
-  "faq": [
-    {"question": "How much does solar cost?", "answer": "With $0 down financing, there's no upfront cost. You pay a fixed monthly amount that is typically lower than your current electricity bill — and you lock in your rate for 25 years."},
-    {"question": "How long does installation take?", "answer": "Most residential installations are completed in 1–3 days once permits are approved. We handle the entire permitting process for you, which typically takes 2–4 weeks."},
-    {"question": "What if my roof isn't ideal for solar?", "answer": "We perform a thorough site assessment before recommending anything. If your roof isn't a great fit, we'll let you know honestly — we never push a system that won't deliver real savings."},
-    {"question": "Do I qualify for tax credits or rebates?", "answer": "There is currently a 30% federal Investment Tax Credit (ITC) available on solar installations. Additionally, San Diego Community Power offers battery-specific rebates — funds are limited, so we recommend applying soon. We walk you through every incentive you qualify for."},
-    {"question": "What happens during a power outage?", "answer": "If you have a battery backup system (like Tesla Powerwall or Enphase), your home stays powered during outages using stored solar energy. We can design your system to prioritize your most essential appliances."}
+
+  "testimonials": [
+    {
+      "name": "Mckay Hyde",
+      "role": "Homeowner",
+      "text": "David was an absolute professional. He knew the solar industry in and out! He was able to help me understand what option would be best for my family and made the entire process painless.",
+      "initials": "MH"
+    },
+    {
+      "name": "Sherry Jarrett",
+      "role": "Homeowner, age 76",
+      "text": "I'm so happy to share my experience with David. First because of his personal integrity and authenticity — he never once pressured me and made sure I truly understood every step.",
+      "initials": "SJ"
+    },
+    {
+      "name": "Stephen Bell",
+      "role": "Homeowner",
+      "text": "David is conscientious, knowledgeable, and honest. He knows Solar inside and out and goes above and beyond to make sure you're taken care of every step of the way.",
+      "initials": "SB"
+    },
+    {
+      "name": "Jennifer Martinez",
+      "role": "Encinitas Homeowner",
+      "text": "The team at Your Energy Best made going solar so easy. From the initial consultation to the final installation, everything was handled professionally. Our electric bill has dropped by over 80%!",
+      "initials": "JM"
+    },
+    {
+      "name": "Robert Chen",
+      "role": "La Jolla Resident",
+      "text": "I was skeptical about solar at first, but David answered every question I had. The installation was quick and clean, and the savings are real. Highly recommend to anyone considering solar.",
+      "initials": "RC"
+    },
+    {
+      "name": "Maria Rodriguez",
+      "role": "Chula Vista Homeowner",
+      "text": "Adding battery storage to our existing solar system was the best decision we made. Now we have power even during outages. The Your Energy Best team was fantastic throughout the entire process.",
+      "initials": "MR"
+    }
   ],
+
+  "manufacturers": [],
+
+  "gallery": [],
+
+  "faq": [
+    {
+      "question": "How much does solar cost?",
+      "answer": "With $0 down financing, there's no upfront cost. You pay a fixed monthly amount that is typically lower than your current electricity bill — and you lock in your rate for 25 years."
+    },
+    {
+      "question": "How long does installation take?",
+      "answer": "Most residential installations are completed in 1–3 days once permits are approved. We handle the entire permitting process for you, which typically takes 2–4 weeks."
+    },
+    {
+      "question": "What if my roof isn't ideal for solar?",
+      "answer": "We perform a thorough site assessment before recommending anything. If your roof isn't a great fit, we'll let you know honestly — we never push a system that won't deliver real savings."
+    },
+    {
+      "question": "Do I qualify for tax credits or rebates?",
+      "answer": "There is currently a 30% federal Investment Tax Credit (ITC) available on solar installations. Additionally, San Diego Community Power offers battery-specific rebates — funds are limited, so we recommend applying soon. We walk you through every incentive you qualify for."
+    },
+    {
+      "question": "What happens during a power outage?",
+      "answer": "If you have a battery backup system (like Tesla Powerwall or Enphase), your home stays powered during outages using stored solar energy. We can design your system to prioritize your most essential appliances."
+    }
+  ],
+
   "rebate_alert": {
     "heading": "Limited funds available for battery rebates & credits",
     "text": "Apply as soon as possible before they expire to see if you qualify. San Diego Community Power currently offers upfront rebates of $250–$500 per kWh on new battery installations, plus ongoing performance incentives — but funds are limited and availability is not guaranteed.",
@@ -54,20 +142,26 @@
     "quote_link_text": "See what you qualify for",
     "quote_modal_text": "Enter Your Info Below and We'll Check for You!"
   },
-  "build": {
-    "hero": {"title": "Unlock Your Potential Through Door-to-Door Sales", "subtitle": "Join Your Energy Best's elite sales team.", "cta_text": "Join Our Team"},
-    "section_title": "Why Door-to-Door?",
-    "section_text": "This isn't just about sales—it's about personal growth, financial freedom, and making a real impact in your community.",
-    "benefits": [
-      {"icon": "💰", "title": "Serious Earning Potential", "text": "Commission-based pay means your income is unlimited. Top performers earn $6K-$10K per 10-day cycle."}
-    ],
-    "gallery": [], "videos": [], "faq": []
-  },
+
   "quote": {
     "hero_eyebrow": "Free Solar Quote",
     "hero_title": "Get Your Custom Solar Proposal",
     "hero_subtitle": "Tell us about your home and schedule a consultation—no obligation.",
     "form_title": "What brings you here?",
     "success_message": "✓ Submitted! Redirecting to schedule your consultation..."
+  },
+
+  "build": {
+    "hero": {
+      "title": "Unlock Your Potential Through Door-to-Door Sales",
+      "subtitle": "Join Your Energy Best's elite sales team. Solar & HVAC solutions that change lives — starting with yours. Build the income, freedom, and future you've been working toward.",
+      "cta_text": "Join Our Team"
+    },
+    "section_title": "Why Door-to-Door?",
+    "section_text": "This isn't just about sales—it's about personal growth, financial freedom, and making a real impact in your community.",
+    "benefits": [],
+    "gallery": [],
+    "videos": [],
+    "faq": []
   }
 }

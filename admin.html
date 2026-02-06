@@ -753,30 +753,44 @@ function addBuildFaq() {
 }
 
 function renderTestimonials() {
-  const testimonials = content.testimonials || [];
-  document.getElementById('global-testimonials').innerHTML = testimonials.map((t, i) => `
+  const testimonials = content.testimonials?.items || [];
+  const rating = content.testimonials?.rating || '5.0';
+  const totalReviews = content.testimonials?.total_reviews || '0';
+  
+  // Add rating fields
+  const ratingHTML = `
+    <div class="row" style="margin-bottom:1rem; background:#f0f9ff; padding:1rem; border-radius:8px;">
+      <div class="field"><label>Star Rating</label><input type="text" id="testimonials-rating" value="${rating}" onchange="if(!content.testimonials)content.testimonials={items:[]};content.testimonials.rating=this.value" placeholder="5.0" /></div>
+      <div class="field"><label>Total Reviews</label><input type="text" id="testimonials-total" value="${totalReviews}" onchange="if(!content.testimonials)content.testimonials={items:[]};content.testimonials.total_reviews=this.value" placeholder="194" /></div>
+    </div>
+  `;
+  
+  const testimonialsHTML = testimonials.map((t, i) => `
     <div class="item-card">
       <div class="item-header">
         <h4>${t.name || 'Testimonial ' + (i+1)}</h4>
         <div class="item-actions">
-          <button class="btn btn-sm btn-up" onclick="moveItem('testimonials',${i},-1)">↑</button>
-          <button class="btn btn-sm btn-down" onclick="moveItem('testimonials',${i},1)">↓</button>
-          <button class="btn btn-sm btn-danger" onclick="removeItem('testimonials',${i})">✕</button>
+          <button class="btn btn-sm btn-up" onclick="moveItem('testimonials.items',${i},-1)">↑</button>
+          <button class="btn btn-sm btn-down" onclick="moveItem('testimonials.items',${i},1)">↓</button>
+          <button class="btn btn-sm btn-danger" onclick="removeItem('testimonials.items',${i})">✕</button>
         </div>
       </div>
       <div class="row">
-        <div class="field"><label>Name</label><input type="text" value="${t.name||''}" onchange="content.testimonials[${i}].name=this.value" /></div>
-        <div class="field"><label>Role</label><input type="text" value="${t.role||''}" onchange="content.testimonials[${i}].role=this.value" /></div>
-        <div class="field"><label>Initials</label><input type="text" value="${t.initials||''}" maxlength="2" onchange="content.testimonials[${i}].initials=this.value" /></div>
+        <div class="field"><label>Name</label><input type="text" value="${t.name||''}" onchange="content.testimonials.items[${i}].name=this.value" /></div>
+        <div class="field"><label>Role</label><input type="text" value="${t.role||''}" onchange="content.testimonials.items[${i}].role=this.value" /></div>
+        <div class="field"><label>Initials</label><input type="text" value="${t.initials||''}" maxlength="2" onchange="content.testimonials.items[${i}].initials=this.value" /></div>
       </div>
-      <div class="field"><label>Quote</label><textarea onchange="content.testimonials[${i}].text=this.value">${t.text||''}</textarea></div>
+      <div class="field"><label>Quote</label><textarea onchange="content.testimonials.items[${i}].text=this.value">${t.text||''}</textarea></div>
     </div>
   `).join('');
+  
+  document.getElementById('global-testimonials').innerHTML = ratingHTML + testimonialsHTML;
 }
 
 function addTestimonial() {
-  if (!content.testimonials) content.testimonials = [];
-  content.testimonials.push({name:'', role:'', text:'', initials:''});
+  if (!content.testimonials) content.testimonials = {rating:'5.0', total_reviews:'0', items:[]};
+  if (!content.testimonials.items) content.testimonials.items = [];
+  content.testimonials.items.push({name:'', role:'', text:'', initials:''});
   renderTestimonials();
 }
 

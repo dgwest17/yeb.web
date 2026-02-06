@@ -246,9 +246,11 @@ CMS.load().then(() => {
   }
   
   // Load testimonials
-  if (CMS.data.testimonials && CMS.data.testimonials.length > 0) {
-    const grid = document.getElementById('quote-testimonials-grid');
-    grid.innerHTML = CMS.data.testimonials.map((t, i) => `
+  if (CMS.data.testimonials) {
+    const items = CMS.data.testimonials.items || [];
+    if (items.length > 0) {
+      const grid = document.getElementById('quote-testimonials-grid');
+      grid.innerHTML = items.map((t, i) => `
       <div class="testimonials__item ${i >= 6 ? 'hidden' : ''}">
         <div class="testimonials__avatar">${t.initials}</div>
         <p class="testimonials__text">"${t.text}"</p>
@@ -260,8 +262,9 @@ CMS.load().then(() => {
     `).join('');
     
     // Show "See More" if more than 6
-    if (CMS.data.testimonials.length > 6) {
+    if (items.length > 6) {
       document.getElementById('quoteSeeMoreBtn').style.display = 'inline-block';
+    }
     }
   }
   

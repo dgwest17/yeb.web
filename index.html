@@ -151,6 +151,10 @@
 <section class="testimonials" id="testimonials">
   <div class="container">
     <h2 class="section-title">What Our Customers Say</h2>
+    <div class="testimonials__rating" id="testimonials-rating">
+      <div class="stars">★★★★★</div>
+      <div class="rating-text"><strong id="rating-value">5.0</strong> out of 5 based on <span id="review-count">194</span> reviews</div>
+    </div>
     <div class="testimonials__grid" id="testimonials-grid"></div>
     <div style="text-align:center;">
       <button class="testimonials__see-more" id="seeMoreBtn" style="display:none;">See More Reviews</button>
@@ -395,22 +399,34 @@ CMS.load().then(() => {
   }
   
   // Testimonials (2 rows of 3, hide extras)
-  if (CMS.data.testimonials && CMS.data.testimonials.length > 0) {
-    const grid = document.getElementById('testimonials-grid');
-    grid.innerHTML = CMS.data.testimonials.map((t, i) => `
-      <div class="testimonials__item anim-fadeUp ${i >= 6 ? 'hidden' : ''}">
-        <div class="testimonials__avatar">${t.initials}</div>
-        <p class="testimonials__text">"${t.text}"</p>
-        <div class="testimonials__author">
-          <strong>${t.name}</strong>
-          <span>${t.role}</span>
-        </div>
-      </div>
-    `).join('');
+  if (CMS.data.testimonials) {
+    // Update rating
+    if (CMS.data.testimonials.rating) {
+      document.getElementById('rating-value').textContent = CMS.data.testimonials.rating;
+    }
+    if (CMS.data.testimonials.total_reviews) {
+      document.getElementById('review-count').textContent = CMS.data.testimonials.total_reviews;
+    }
     
-    // Show "See More" if more than 6
-    if (CMS.data.testimonials.length > 6) {
-      document.getElementById('seeMoreBtn').style.display = 'inline-block';
+    // Render testimonials
+    const items = CMS.data.testimonials.items || [];
+    if (items.length > 0) {
+      const grid = document.getElementById('testimonials-grid');
+      grid.innerHTML = items.map((t, i) => `
+        <div class="testimonials__item anim-fadeUp ${i >= 6 ? 'hidden' : ''}">
+          <div class="testimonials__avatar">${t.initials}</div>
+          <p class="testimonials__text">"${t.text}"</p>
+          <div class="testimonials__author">
+            <strong>${t.name}</strong>
+            <span>${t.role}</span>
+          </div>
+        </div>
+      `).join('');
+      
+      // Show "See More" if more than 6
+      if (items.length > 6) {
+        document.getElementById('seeMoreBtn').style.display = 'inline-block';
+      }
     }
   }
   

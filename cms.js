@@ -40,16 +40,13 @@ function md(text) {
   if (inList) html += '</ul>';
 
   html = '<p>' + html + '</p>';
-  // Clean up empty tags
   html = html.replace(/<p>\s*<\/p>/g, '');
   html = html.replace(/<p>\s*<h2>/g, '<h2>');
   html = html.replace(/<\/h2>\s*<p>/g, '</h2>');
   html = html.replace(/<p>\s*<ul>/g, '<ul>');
   html = html.replace(/<\/ul>\s*<\/p>/g, '</ul>');
-  // Re-wrap text after ul/h2 back into <p>
   html = html.replace(/<\/ul>([^<])/g, '</ul><p>$1');
   html = html.replace(/<\/h2>([^<])/g, '</h2><p>$1');
-  // Ensure trailing text is closed
   if (!html.endsWith('</p>') && !html.endsWith('</ul>') && !html.endsWith('</h2>')) html += '</p>';
   html = html.replace(/<p>\s*<\/p>/g, '');
 
@@ -63,6 +60,17 @@ function inlineMd(text) {
   return text;
 }
 
+// ─── Helper: get testimonials items regardless of old/new format ───
+function getTestimonialItems() {
+  const t = window.CMS.data.testimonials;
+  if (!t) return [];
+  // New format: { items: [...], rating, total_reviews }
+  if (t.items && Array.isArray(t.items)) return t.items;
+  // Old format: flat array
+  if (Array.isArray(t)) return t;
+  return [];
+}
+
 // ─── STATS ───
 window.CMS.renderStats = function(containerId) {
   const s = window.CMS.data.stats;
@@ -73,9 +81,10 @@ window.CMS.renderStats = function(containerId) {
      <div><div class="stat__number">${esc(s.customers)}</div><div class="stat__label">${esc(s.customers_label)}</div></div>`;
 };
 
-// ─── TESTIMONIALS ───
+// ─── TESTIMONIALS (3-column cards, used on home page) ───
 window.CMS.renderTestimonials = function(containerId) {
-  document.getElementById(containerId).innerHTML = window.CMS.data.testimonials.map(t => `
+  const items = getTestimonialItems();
+  document.getElementById(containerId).innerHTML = items.map(t => `
     <div class="testimonial">
       <div class="testimonial__quote">"</div>
       <p>${esc(t.text)}</p>
@@ -90,9 +99,69 @@ window.CMS.renderTestimonials = function(containerId) {
   `).join('');
 };
 
-// Render only first N testimonials (e.g. quote page shows 2)
+// ─── TESTIMONIALS GLOBAL (expandable grid, shows 6 then expand) ───
+window.CMS.renderTestimonialsGlobal = function(containerId, initialCount) {
+  initialCount = initialCount || 6;
+  const items = getTestimonialItems();
+  const el = document.getElementById(containerId);
+  if (!el || items.length === 0) return;
+
+  const t = window.CMS.data.testimonials;
+  const rating = (t && t.rating) ? t.rating : '5.0';
+  const totalReviews = (t && t.total_reviews) ? t.total_reviews : '';
+
+  // Rating header
+  let ratingHTML = '';
+  if (rating || totalReviews) {
+    ratingHTML = `
+      <div class="testimonials__rating">
+        <div class="stars">★★★★★</div>
+        <div class="rating-text"><strong>${esc(rating)}</strong> Average Rating${totalReviews ? ' · ' + esc(totalReviews) + ' Reviews' : ''}</div>
+      </div>`;
+  }
+
+  const gridHTML = items.map((item, i) => `
+    <div class="testimonials__item${i >= initialCount ? ' hidden' : ''}">
+      <div class="testimonials__avatar">${esc(item.initials)}</div>
+      <p class="testimonials__text">"${esc(item.text)}"</p>
+      <div class="testimonials__author">
+        <strong>${esc(item.name)}</strong>
+        <span>${esc(item.role)}</span>
+      </div>
+    </div>
+  `).join('');
+
+  const seeMoreHTML = items.length > initialCount
+    ? `<div style="text-align:center;"><button class="testimonials__see-more" id="${containerId}-see-more">See More Reviews</button></div>`
+    : '';
+
+  el.innerHTML = ratingHTML + `<div class="testimonials__grid">${gridHTML}</div>` + seeMoreHTML;
+
+  // Wire up see more toggle
+  const btn = document.getElementById(containerId + '-see-more');
+  if (btn) {
+    let showingAll = false;
+    btn.addEventListener('click', function() {
+      const allItems = el.querySelectorAll('.testimonials__item');
+      if (!showingAll) {
+        allItems.forEach(item => item.classList.remove('hidden'));
+        this.textContent = 'Show Less';
+        showingAll = true;
+      } else {
+        allItems.forEach((item, i) => {
+          if (i >= initialCount) item.classList.add('hidden');
+        });
+        this.textContent = 'See More Reviews';
+        showingAll = false;
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  }
+};
+
+// Render only first N testimonials (e.g. sidebar)
 window.CMS.renderTestimonialsN = function(containerId, n) {
-  const items = window.CMS.data.testimonials.slice(0, n);
+  const items = getTestimonialItems().slice(0, n);
   document.getElementById(containerId).innerHTML = items.map((t, i) => `
     <div class="testimonial" ${i > 0 ? 'style="margin-top:var(--space-md);"' : ''}>
       <div class="testimonial__quote">"</div>
@@ -128,7 +197,8 @@ window.CMS.renderGallery = function(containerId) {
 // ─── VIDEOS (filtered by context/page) ───
 window.CMS.renderVideos = function(containerId, context) {
   const el = document.getElementById(containerId);
-  const videos = window.CMS.data.videos.filter(v => v.context === context && v.youtube_id);
+  const allVideos = window.CMS.data.videos || [];
+  const videos = allVideos.filter(v => v.context === context && v.youtube_id);
   if (videos.length === 0) { el.style.display = 'none'; return; }
   el.style.display = 'block';
   el.innerHTML = videos.map(v => `
@@ -165,9 +235,19 @@ window.CMS.toggleFaq = function(btn) {
 // ─── REBATE ALERT ───
 window.CMS.renderRebate = function(containerId) {
   const r = window.CMS.data.rebate_alert;
-  const links = r.links.map(l =>
-    `<a href="${esc(l.url)}" ${l.external ? 'target="_blank" rel="noopener"' : ''} style="${!l.external ? 'color:var(--orange);font-weight:600;' : ''}">${esc(l.label)}</a>`
-  ).join('');
+  let linksHtml = '';
+
+  // Support both new .links array and legacy flat fields
+  if (r.links && Array.isArray(r.links) && r.links.length > 0) {
+    linksHtml = r.links.map(l =>
+      `<a href="${esc(l.url)}" ${l.external ? 'target="_blank" rel="noopener"' : ''} style="${!l.external ? 'color:var(--orange);font-weight:600;' : ''}">${esc(l.label)}</a>`
+    ).join('');
+  } else {
+    // Fallback: build links from legacy fields
+    if (r.home_link_text) {
+      linksHtml += `<a href="quote.html" style="color:var(--orange);font-weight:600;">${esc(r.home_link_text)}</a>`;
+    }
+  }
 
   document.getElementById(containerId).innerHTML = `
     <div class="rebate-alert">
@@ -175,14 +255,22 @@ window.CMS.renderRebate = function(containerId) {
       <div>
         <h4>${esc(r.heading)}</h4>
         <p style="margin-bottom:0.6rem;">${esc(r.text)}</p>
-        <div style="display:flex; flex-wrap:wrap; gap:0.6rem; margin-top:0.5rem;">${links}</div>
+        <div style="display:flex; flex-wrap:wrap; gap:0.6rem; margin-top:0.5rem;">${linksHtml}</div>
       </div>
     </div>`;
 };
 
 // ─── BLOG INDEX ───
 window.CMS.renderBlogIndex = function(containerId) {
-  const posts = [...window.CMS.data.blog_posts].sort((a,b) => new Date(b.date) - new Date(a.date));
+  const posts = [...(window.CMS.data.blog_posts || [])].sort((a,b) => new Date(b.date) - new Date(a.date));
+  if (posts.length === 0) {
+    document.getElementById(containerId).innerHTML = `
+      <div style="text-align:center; padding:4rem 2rem; color:var(--slate);">
+        <h3 style="margin-bottom:1rem;">Coming Soon</h3>
+        <p>We're working on some great content. Check back soon!</p>
+      </div>`;
+    return;
+  }
   document.getElementById(containerId).innerHTML = posts.map((p, i) => `
     <a href="#" onclick="event.preventDefault(); CMS.renderBlogArticle('${containerId}', ${i})"
        style="text-decoration:none; color:inherit; display:block; border:1px solid var(--gray-200); border-radius:var(--radius); overflow:hidden; background:#fff; transition:box-shadow .25s, transform .25s; margin-bottom:var(--space-lg);"
@@ -208,7 +296,7 @@ window.CMS.renderBlogIndex = function(containerId) {
 
 // ─── BLOG ARTICLE (single post view) ───
 window.CMS.renderBlogArticle = function(containerId, index) {
-  const posts = [...window.CMS.data.blog_posts].sort((a,b) => new Date(b.date) - new Date(a.date));
+  const posts = [...(window.CMS.data.blog_posts || [])].sort((a,b) => new Date(b.date) - new Date(a.date));
   const p = posts[index];
   const bodyHtml = md(p.body);
 
@@ -251,7 +339,7 @@ window.CMS.renderBlogArticle = function(containerId, index) {
         <div style="background:var(--navy); border-radius:var(--radius); padding:var(--space-lg);">
           <h4 style="margin-bottom:var(--space-sm); color:#fff;">🤝 Join Our Team</h4>
           <p style="font-size:.85rem; margin:0; color:rgba(255,255,255,.6);">Interested in earning while helping homeowners go solar?</p>
-          <a href="build.html" class="btn btn--outline btn--sm" style="margin-top:var(--space-md); width:100%; justify-content:center; display:inline-flex; border-color:var(--teal-light); color:var(--teal-light);">Apply Now</a>
+          <a href="build" class="btn btn--outline btn--sm" style="margin-top:var(--space-md); width:100%; justify-content:center; display:inline-flex; border-color:var(--teal-light); color:var(--teal-light);">Apply Now</a>
         </div>
       </aside>
     </div>`;

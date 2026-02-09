@@ -7,242 +7,51 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; }
-    
-    .login-screen {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, #023047 0%, #126782 100%);
-    }
-    .login-box {
-      background: white;
-      padding: 3rem;
-      border-radius: 12px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-      width: 100%;
-      max-width: 400px;
-    }
+    .login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #023047 0%, #126782 100%); }
+    .login-box { background: white; padding: 3rem; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); width: 100%; max-width: 400px; }
     .login-box h2 { margin-bottom: 1.5rem; color: #023047; }
-    .login-box input {
-      width: 100%;
-      padding: 0.75rem;
-      border: 2px solid #ddd;
-      border-radius: 6px;
-      font-size: 1rem;
-      margin-bottom: 1rem;
-    }
-    .login-box button {
-      width: 100%;
-      padding: 0.75rem;
-      background: #219EBC;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-    }
+    .login-box input { width: 100%; padding: 0.75rem; border: 2px solid #ddd; border-radius: 6px; font-size: 1rem; margin-bottom: 1rem; }
+    .login-box button { width: 100%; padding: 0.75rem; background: #219EBC; color: white; border: none; border-radius: 6px; font-size: 1rem; font-weight: 600; cursor: pointer; }
     .login-box button:hover { background: #126782; }
-    
-    .admin-header {
-      background: #023047;
-      color: white;
-      padding: 1.5rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
+    .login-box .error { color: #EF476F; font-size: 0.9rem; margin-bottom: 1rem; display: none; }
+    .admin-header { background: #023047; color: white; padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); flex-wrap: wrap; gap: 0.5rem; }
     .admin-header h1 { font-size: 1.5rem; font-weight: 700; }
-    
-    .tabs {
-      display: flex;
-      background: white;
-      border-bottom: 2px solid #ddd;
-      overflow-x: auto;
-    }
-    .tab {
-      padding: 1rem 2rem;
-      border: none;
-      background: none;
-      cursor: pointer;
-      font-size: 1rem;
-      font-weight: 500;
-      color: #666;
-      border-bottom: 3px solid transparent;
-      white-space: nowrap;
-    }
+    .tabs { display: flex; background: white; border-bottom: 2px solid #ddd; overflow-x: auto; }
+    .tab { padding: 1rem 2rem; border: none; background: none; cursor: pointer; font-size: 1rem; font-weight: 500; color: #666; border-bottom: 3px solid transparent; white-space: nowrap; }
     .tab:hover { background: #f9f9f9; }
-    .tab.active {
-      color: #219EBC;
-      border-bottom-color: #219EBC;
-    }
-    
-    .admin-content {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
+    .tab.active { color: #219EBC; border-bottom-color: #219EBC; }
+    .admin-content { max-width: 1400px; margin: 0 auto; padding: 2rem; padding-bottom: 5rem; }
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
-    
-    .section-card {
-      background: white;
-      border-radius: 8px;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 2px solid #f0f0f0;
-    }
-    .section-header h3 {
-      font-size: 1.1rem;
-      color: #023047;
-    }
-    
-    .field {
-      margin-bottom: 1rem;
-    }
-    .field label {
-      display: block;
-      font-weight: 600;
-      color: #333;
-      margin-bottom: 0.4rem;
-      font-size: 0.9rem;
-    }
-    .field input,
-    .field textarea {
-      width: 100%;
-      padding: 0.75rem;
-      border: 2px solid #e0e0e0;
-      border-radius: 6px;
-      font-size: 1rem;
-      font-family: inherit;
-    }
-    .field input:focus,
-    .field textarea:focus {
-      outline: none;
-      border-color: #219EBC;
-    }
-    .field textarea {
-      min-height: 100px;
-      resize: vertical;
-    }
-    
-    .item-card {
-      background: #f9f9f9;
-      border: 1px solid #e0e0e0;
-      border-radius: 6px;
-      padding: 1rem;
-      margin-bottom: 1rem;
-    }
-    .item-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.75rem;
-    }
-    .item-header h4 {
-      font-size: 0.95rem;
-      color: #023047;
-    }
-    .item-actions {
-      display: flex;
-      gap: 0.5rem;
-    }
-    
-    .btn {
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 6px;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 0.9rem;
-    }
-    .btn-primary {
-      background: #219EBC;
-      color: white;
-    }
+    .section-card { background: white; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 2px solid #f0f0f0; }
+    .section-header h3 { font-size: 1.1rem; color: #023047; }
+    .field { margin-bottom: 1rem; }
+    .field label { display: block; font-weight: 600; color: #333; margin-bottom: 0.4rem; font-size: 0.9rem; }
+    .field input, .field textarea { width: 100%; padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 1rem; font-family: inherit; }
+    .field input:focus, .field textarea:focus { outline: none; border-color: #219EBC; }
+    .field textarea { min-height: 100px; resize: vertical; }
+    .item-card { background: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 6px; padding: 1rem; margin-bottom: 1rem; }
+    .item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+    .item-header h4 { font-size: 0.95rem; color: #023047; }
+    .item-actions { display: flex; gap: 0.5rem; }
+    .btn { padding: 0.5rem 1rem; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+    .btn-primary { background: #219EBC; color: white; }
     .btn-primary:hover { background: #126782; }
-    .btn-add {
-      background: #06D6A0;
-      color: white;
-      padding: 0.6rem 1.2rem;
-      margin-top: 0.5rem;
-    }
+    .btn-add { background: #06D6A0; color: white; padding: 0.6rem 1.2rem; margin-top: 0.5rem; }
     .btn-add:hover { background: #05b888; }
-    .btn-sm {
-      padding: 0.3rem 0.6rem;
-      font-size: 0.85rem;
-    }
-    .btn-danger {
-      background: #EF476F;
-      color: white;
-    }
-    .btn-up, .btn-down {
-      background: #FFB703;
-      color: white;
-    }
-    
-    .save-bar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: white;
-      padding: 1rem 2rem;
-      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      z-index: 1000;
-    }
-    .save-bar button {
-      padding: 0.75rem 2rem;
-      font-size: 1rem;
-    }
-    
-    .img-preview {
-      width: 100%;
-      max-height: 200px;
-      object-fit: cover;
-      border-radius: 6px;
-      margin-top: 0.5rem;
-    }
-    
-    .upload-btn {
-      display: inline-block;
-      padding: 0.5rem 1rem;
-      background: #8ECAE6;
-      color: #023047;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
+    .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.85rem; }
+    .btn-danger { background: #EF476F; color: white; }
+    .btn-up, .btn-down { background: #FFB703; color: white; }
+    .img-preview { width: 100%; max-height: 200px; object-fit: cover; border-radius: 6px; margin-top: 0.5rem; }
+    .upload-btn { display: inline-block; padding: 0.5rem 1rem; background: #8ECAE6; color: #023047; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
     .upload-btn:hover { background: #6fb8d4; }
     input[type="file"] { display: none; }
-    
-    .row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-    }
-    
-    .hint {
-      font-size: 0.85rem;
-      color: #666;
-      margin-top: 0.25rem;
-    }
-    
+    .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+    .hint { font-size: 0.85rem; color: #666; margin-top: 0.25rem; }
     .hidden { display: none; }
+    .save-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 1rem 2rem; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); display: flex; justify-content: center; gap: 1rem; z-index: 1000; }
+    .save-bar button { padding: 0.75rem 2rem; font-size: 1rem; }
   </style>
 </head>
 <body>
@@ -250,7 +59,8 @@
 <div id="loginScreen" class="login-screen">
   <div class="login-box">
     <h2>🔐 Admin Login</h2>
-    <input type="password" id="passwordInput" placeholder="Enter password" />
+    <div class="error" id="loginError">Incorrect password. Please try again.</div>
+    <input type="password" id="passwordInput" placeholder="Enter password" onkeypress="if(event.key==='Enter')login()" />
     <button onclick="login()">Login</button>
   </div>
 </div>
@@ -258,168 +68,105 @@
 <div id="adminInterface" class="hidden">
   <div class="admin-header">
     <h1>⚡ Your Energy Best Admin</h1>
-    <div style="display:flex; gap:1rem;">
-      <button class="btn btn-primary" id="saveBtn" onclick="saveContent()">💾 Save All Changes</button>
-      <button class="btn btn-secondary" onclick="downloadBackup()" style="background:#8ECAE6; color:#023047;">📥 Download Backup</button>
+    <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="downloadBackup()" style="background:#8ECAE6; color:#023047;">📥 Backup</button>
       <button class="btn btn-primary" onclick="logout()">Logout</button>
     </div>
   </div>
-  
+
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('home')">🏠 Home Page</button>
-    <button class="tab" onclick="switchTab('build')">🚀 Build Page</button>
-    <button class="tab" onclick="switchTab('quote')">📝 Quote Page</button>
-    <button class="tab" onclick="switchTab('blog')">📰 Blog</button>
-    <button class="tab" onclick="switchTab('global')">⚙️ Global Settings</button>
+    <button class="tab active" onclick="switchTab('home', this)">🏠 Home Page</button>
+    <button class="tab" onclick="switchTab('build', this)">🚀 Build Page</button>
+    <button class="tab" onclick="switchTab('quote', this)">📝 Quote Page</button>
+    <button class="tab" onclick="switchTab('blog', this)">📰 Blog</button>
+    <button class="tab" onclick="switchTab('global', this)">⚙️ Global Settings</button>
   </div>
-  
+
   <div class="admin-content">
-    
+    <!-- HOME TAB -->
     <div id="tab-home" class="tab-panel active">
       <div class="section-card">
         <div class="section-header"><h3>Hero Section</h3></div>
-        <div class="field">
-          <label>Eyebrow Text</label>
-          <input type="text" id="home-eyebrow" placeholder="San Diego's Solar & HVAC Experts" />
-        </div>
-        <div class="field">
-          <label>Hero Title - First Part (White)</label>
-          <input type="text" id="home-title-part1" placeholder="Your Home for the Best" />
-        </div>
-        <div class="field">
-          <label>Hero Title - Second Part (Orange)</label>
-          <input type="text" id="home-title-part2" placeholder="Energy Upgrades" />
-        </div>
-        <div class="field">
-          <label>Subtitle</label>
-          <textarea id="home-subtitle" placeholder="Solar, batteries, and HVAC solutions..."></textarea>
-        </div>
+        <div class="field"><label>Eyebrow Text</label><input type="text" id="home-eyebrow" /></div>
+        <div class="field"><label>Hero Title - First Part (White)</label><input type="text" id="home-title-part1" /></div>
+        <div class="field"><label>Hero Title - Second Part (Orange)</label><input type="text" id="home-title-part2" /></div>
+        <div class="field"><label>Subtitle</label><textarea id="home-subtitle"></textarea></div>
       </div>
-      
       <div class="section-card">
         <div class="section-header"><h3>Customer Option Cards</h3></div>
         <div id="home-customer-options"></div>
         <button class="btn btn-add" onclick="addCustomerOption()">+ Add Option</button>
       </div>
-      
+      <div class="section-card">
+        <div class="section-header"><h3>"Start Your Process" Accordion Button</h3></div>
+        <div class="field"><label>Button Text (before click)</label><input type="text" id="accordion-btn-closed" placeholder="Start Your Process" /></div>
+        <div class="field"><label>Button Text (after click / expanded)</label><input type="text" id="accordion-btn-open" placeholder="What option best describes how we can help you?" /></div>
+      </div>
       <div class="section-card">
         <div class="section-header"><h3>Gallery</h3></div>
-        <label class="upload-btn">
-          📤 Upload Photos
-          <input type="file" id="home-gallery-upload" accept="image/*" multiple onchange="uploadHomeGallery(event)" />
-        </label>
+        <label class="upload-btn">📤 Upload Photos<input type="file" accept="image/*" multiple onchange="uploadImages(event,'gallery')" /></label>
         <div id="home-gallery" style="margin-top:1rem;"></div>
       </div>
-      
       <div class="section-card">
         <div class="section-header"><h3>Manufacturers / Equipment Partners</h3></div>
-        <label class="upload-btn">
-          📤 Upload Manufacturer Logos
-          <input type="file" id="manufacturers-upload" accept="image/*" multiple onchange="uploadManufacturers(event)" />
-        </label>
+        <label class="upload-btn">📤 Upload Logos<input type="file" accept="image/*" multiple onchange="uploadImages(event,'manufacturers')" /></label>
         <div id="manufacturers-list" style="margin-top:1rem;"></div>
       </div>
-      
-      <div class="section-card">
-        <div class="section-header"><h3>Mobile Accordion Button Text</h3></div>
-        <div class="field">
-          <label>Button Text (mobile only)</label>
-          <input type="text" id="mobile-accordion-btn" placeholder="Start Your Process" />
-        </div>
-      </div>
-      
       <div class="section-card">
         <div class="section-header"><h3>About Section</h3></div>
-        <div class="field">
-          <label>About Text</label>
-          <textarea id="home-about"></textarea>
-        </div>
+        <div class="field"><label>About Text</label><textarea id="home-about"></textarea></div>
+        <div class="field"><label>Referral Text</label><textarea id="home-referral"></textarea></div>
       </div>
     </div>
-    
+
+    <!-- BUILD TAB -->
     <div id="tab-build" class="tab-panel">
       <div class="section-card">
         <div class="section-header"><h3>Hero Section</h3></div>
-        <div class="field">
-          <label>Hero Title</label>
-          <input type="text" id="build-hero-title" />
-        </div>
-        <div class="field">
-          <label>Hero Subtitle</label>
-          <textarea id="build-hero-subtitle"></textarea>
-        </div>
-        <div class="field">
-          <label>CTA Button Text</label>
-          <input type="text" id="build-cta-text" />
-        </div>
+        <div class="field"><label>Hero Title</label><input type="text" id="build-hero-title" /></div>
+        <div class="field"><label>Hero Subtitle</label><textarea id="build-hero-subtitle"></textarea></div>
+        <div class="field"><label>CTA Button Text</label><input type="text" id="build-cta-text" /></div>
       </div>
-      
       <div class="section-card">
         <div class="section-header"><h3>"Why Door-to-Door?" Section</h3></div>
-        <div class="field">
-          <label>Section Title</label>
-          <input type="text" id="build-section-title" />
-        </div>
-        <div class="field">
-          <label>Section Text</label>
-          <textarea id="build-section-text"></textarea>
-        </div>
+        <div class="field"><label>Section Title</label><input type="text" id="build-section-title" /></div>
+        <div class="field"><label>Section Text</label><textarea id="build-section-text"></textarea></div>
       </div>
-      
       <div class="section-card">
         <div class="section-header"><h3>Benefits Cards</h3></div>
         <div id="build-benefits"></div>
-        <button class="btn btn-add" onclick="addBuildBenefit()">+ Add Benefit</button>
+        <button class="btn btn-add" onclick="addToArray('build.benefits',{icon:'✨',title:'',text:''})">+ Add Benefit</button>
       </div>
-      
       <div class="section-card">
         <div class="section-header"><h3>Team Gallery</h3></div>
-        <label class="upload-btn">
-          📤 Upload Team Photos
-          <input type="file" id="build-gallery-upload" accept="image/*" multiple onchange="uploadBuildGallery(event)" />
-        </label>
+        <label class="upload-btn">📤 Upload Photos<input type="file" accept="image/*" multiple onchange="uploadImages(event,'build.gallery')" /></label>
         <div id="build-gallery" style="margin-top:1rem;"></div>
       </div>
-      
       <div class="section-card">
         <div class="section-header"><h3>YouTube Videos</h3></div>
         <div id="build-videos"></div>
-        <button class="btn btn-add" onclick="addBuildVideo()">+ Add Video</button>
+        <button class="btn btn-add" onclick="addToArray('build.videos',{youtube_id:'',title:'',context:'recruiting'})">+ Add Video</button>
       </div>
-      
       <div class="section-card">
         <div class="section-header"><h3>FAQ</h3></div>
         <div id="build-faq"></div>
-        <button class="btn btn-add" onclick="addBuildFaq()">+ Add Question</button>
+        <button class="btn btn-add" onclick="addToArray('build.faq',{question:'',answer:''})">+ Add Question</button>
       </div>
     </div>
-    
+
+    <!-- QUOTE TAB -->
     <div id="tab-quote" class="tab-panel">
       <div class="section-card">
         <div class="section-header"><h3>Quote Page Content</h3></div>
-        <div class="field">
-          <label>Hero Eyebrow</label>
-          <input type="text" id="quote-eyebrow" placeholder="Free Solar Quote" />
-        </div>
-        <div class="field">
-          <label>Hero Title</label>
-          <input type="text" id="quote-title" placeholder="Get Your Custom Solar Proposal" />
-        </div>
-        <div class="field">
-          <label>Hero Subtitle</label>
-          <textarea id="quote-subtitle" placeholder="Tell us about your home and schedule a consultation—no obligation."></textarea>
-        </div>
-        <div class="field">
-          <label>Form Title (above customer options)</label>
-          <input type="text" id="quote-form-title" placeholder="What brings you here?" />
-        </div>
-        <div class="field">
-          <label>Success Message</label>
-          <input type="text" id="quote-success" placeholder="✓ Submitted! Redirecting to schedule your consultation..." />
-        </div>
+        <div class="field"><label>Hero Eyebrow</label><input type="text" id="quote-eyebrow" /></div>
+        <div class="field"><label>Hero Title</label><input type="text" id="quote-title" /></div>
+        <div class="field"><label>Hero Subtitle</label><textarea id="quote-subtitle"></textarea></div>
+        <div class="field"><label>Form Title</label><input type="text" id="quote-form-title" /></div>
+        <div class="field"><label>Success Message</label><input type="text" id="quote-success" /></div>
       </div>
     </div>
-    
+
+    <!-- BLOG TAB -->
     <div id="tab-blog" class="tab-panel">
       <div class="section-card">
         <div class="section-header"><h3>Blog Posts</h3></div>
@@ -427,22 +174,9 @@
         <button class="btn btn-add" onclick="addBlogPost()">+ New Blog Post</button>
       </div>
     </div>
-    
+
+    <!-- GLOBAL TAB -->
     <div id="tab-global" class="tab-panel">
-      <div class="section-card" style="background:#fff9e6; border:2px solid #FFB703;">
-        <div class="section-header"><h3>🔑 Claude API Access</h3></div>
-        <p style="margin-bottom:1rem; color:#666;">Give this info to Claude so it can read your live content before making changes:</p>
-        <div class="field">
-          <label>API Endpoint</label>
-          <input type="text" readonly value="https://yourenergybest.com/api.php" onclick="this.select()" style="background:#f9f9f9;" />
-        </div>
-        <div class="field">
-          <label>API Key (click to copy)</label>
-          <input type="text" readonly id="apiKey" value="yeb_5622d6ee37e38f85c2ea52ca73eb43af" onclick="this.select(); document.execCommand('copy'); alert('API key copied!');" style="background:#f9f9f9; font-family:monospace;" />
-        </div>
-        <p style="color:#666; font-size:0.9rem;">When asking Claude for changes, say: "First fetch my live content using the API" and provide these details.</p>
-      </div>
-      
       <div class="section-card">
         <div class="section-header"><h3>Stats Bar</h3></div>
         <div class="row">
@@ -462,442 +196,594 @@
           <div class="field"><label>Customers Label</label><input type="text" id="stats-customers-label" /></div>
         </div>
       </div>
-      
       <div class="section-card">
         <div class="section-header"><h3>Testimonials</h3></div>
         <div id="global-testimonials"></div>
         <button class="btn btn-add" onclick="addTestimonial()">+ Add Testimonial</button>
       </div>
-      
       <div class="section-card">
         <div class="section-header"><h3>FAQ</h3></div>
         <div id="global-faq"></div>
-        <button class="btn btn-add" onclick="addFaq()">+ Add Question</button>
+        <button class="btn btn-add" onclick="addToArray('faq',{question:'',answer:''})">+ Add Question</button>
       </div>
-      
       <div class="section-card">
-        <div class="section-header"><h3>Rebate Alert (Global)</h3></div>
+        <div class="section-header"><h3>Rebate / Urgency Alert</h3></div>
         <div class="field"><label>Heading</label><input type="text" id="rebate-heading" /></div>
         <div class="field"><label>Text</label><textarea id="rebate-text"></textarea></div>
         <div class="row">
-          <div class="field"><label>Home Page Link Text</label><input type="text" id="rebate-home-link" placeholder="See what you qualify for" /></div>
-          <div class="field"><label>Quote Page Link Text</label><input type="text" id="rebate-quote-link" placeholder="See what you qualify for" /></div>
+          <div class="field"><label>Home Page Link Text</label><input type="text" id="rebate-home-link" /></div>
+          <div class="field"><label>Quote Page Link Text</label><input type="text" id="rebate-quote-link" /></div>
         </div>
-        <div class="field"><label>Modal Popup Text (Quote Page)</label><input type="text" id="rebate-modal-text" placeholder="Enter Your Info Below and We'll Check for You!" /></div>
+        <div class="field"><label>Modal Popup Text (Quote Page)</label><input type="text" id="rebate-modal-text" /></div>
       </div>
-      
       <div class="section-card">
         <div class="section-header"><h3>Contact Information</h3></div>
         <div class="row">
-          <div class="field"><label>Phone Number</label><input type="text" id="contact-phone" placeholder="7608607862" /></div>
-          <div class="field"><label>Email</label><input type="text" id="contact-email" placeholder="info@yourenergybest.com" /></div>
+          <div class="field"><label>Phone Number</label><input type="text" id="contact-phone" /></div>
+          <div class="field"><label>Email</label><input type="text" id="contact-email" /></div>
         </div>
       </div>
     </div>
-    
   </div>
-  
+
+  <!-- Save bar -->
+  <div class="save-bar">
+    <button class="btn btn-primary" id="saveBtn" onclick="saveContent()">💾 Save All Changes</button>
+  </div>
 </div>
 
 <script>
-const PASSWORD = 'beacons';
 let content = {};
+let sessionToken = null;
 
-function login() {
-  if (document.getElementById('passwordInput').value === PASSWORD) {
-    document.getElementById('loginScreen').classList.add('hidden');
-    document.getElementById('adminInterface').classList.remove('hidden');
-    loadContent();
-  } else alert('Incorrect password');
+// ─── Login (server-side check) ───
+async function login() {
+  const pw = document.getElementById('passwordInput').value;
+  try {
+    const res = await fetch('save.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'login', password: pw })
+    });
+    const result = await res.json();
+    if (result.success) {
+      sessionToken = result.token || pw;
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('adminInterface').classList.remove('hidden');
+      loadContent();
+    } else {
+      document.getElementById('loginError').style.display = 'block';
+    }
+  } catch(e) {
+    // Fallback: simple client check if save.php doesn't support login action yet
+    if (pw === 'beacons') {
+      sessionToken = pw;
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('adminInterface').classList.remove('hidden');
+      loadContent();
+    } else {
+      document.getElementById('loginError').style.display = 'block';
+    }
+  }
 }
 
 function logout() {
+  sessionToken = null;
   document.getElementById('loginScreen').classList.remove('hidden');
   document.getElementById('adminInterface').classList.add('hidden');
 }
 
-function switchTab(tab) {
+function switchTab(tab, btn) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  event.target.classList.add('active');
+  if (btn) btn.classList.add('active');
   document.getElementById('tab-' + tab).classList.add('active');
 }
 
+// ─── Load Content ───
 async function loadContent() {
   const res = await fetch('content.json?' + Date.now());
   content = await res.json();
   renderAll();
 }
 
+// ─── Render All Fields ───
 function renderAll() {
   const h = content.home || {};
-  document.getElementById('home-eyebrow').value = h.hero_eyebrow || '';
-  
-  // Split title into two parts if not already split
-  if (h.hero_title_part1 && h.hero_title_part2) {
-    document.getElementById('home-title-part1').value = h.hero_title_part1;
-    document.getElementById('home-title-part2').value = h.hero_title_part2;
-  } else if (h.hero_title) {
-    // Auto-split existing title
-    const parts = h.hero_title.split(' ');
-    const midpoint = Math.ceil(parts.length / 2);
-    document.getElementById('home-title-part1').value = parts.slice(0, midpoint).join(' ');
-    document.getElementById('home-title-part2').value = parts.slice(midpoint).join(' ');
-  }
-  
-  document.getElementById('home-subtitle').value = h.hero_subtitle || '';
-  document.getElementById('home-about').value = h.about_text || '';
-  
+  setVal('home-eyebrow', h.hero_eyebrow);
+  setVal('home-title-part1', h.hero_title_part1);
+  setVal('home-title-part2', h.hero_title_part2);
+  setVal('home-subtitle', h.hero_subtitle);
+  setVal('home-about', h.about_text);
+  setVal('home-referral', h.referral_text);
+  setVal('accordion-btn-closed', h.accordion_btn_closed || 'Start Your Process');
+  setVal('accordion-btn-open', h.accordion_btn_open || 'What option best describes how we can help you?');
+
   const b = content.build || {};
-  document.getElementById('build-hero-title').value = b.hero?.title || '';
-  document.getElementById('build-hero-subtitle').value = b.hero?.subtitle || '';
-  document.getElementById('build-cta-text').value = b.cta_text || '';
-  document.getElementById('build-section-title').value = b.section_title || '';
-  document.getElementById('build-section-text').value = b.section_text || '';
-  
+  setVal('build-hero-title', b.hero?.title);
+  setVal('build-hero-subtitle', b.hero?.subtitle);
+  setVal('build-cta-text', b.cta_text);
+  setVal('build-section-title', b.section_title);
+  setVal('build-section-text', b.section_text);
+
   const s = content.stats || {};
-  document.getElementById('stats-savings').value = s.savings || '';
-  document.getElementById('stats-savings-label').value = s.savings_label || '';
-  document.getElementById('stats-hours').value = s.hours || '';
-  document.getElementById('stats-hours-label').value = s.hours_label || '';
-  document.getElementById('stats-installations').value = s.installations || '';
-  document.getElementById('stats-installations-label').value = s.installations_label || '';
-  document.getElementById('stats-customers').value = s.customers || '';
-  document.getElementById('stats-customers-label').value = s.customers_label || '';
-  
-  document.getElementById('rebate-heading').value = content.rebate_alert?.heading || '';
-  document.getElementById('rebate-text').value = content.rebate_alert?.text || '';
-  
+  setVal('stats-savings', s.savings);
+  setVal('stats-savings-label', s.savings_label);
+  setVal('stats-hours', s.hours);
+  setVal('stats-hours-label', s.hours_label);
+  setVal('stats-installations', s.installations);
+  setVal('stats-installations-label', s.installations_label);
+  setVal('stats-customers', s.customers);
+  setVal('stats-customers-label', s.customers_label);
+
+  const ra = content.rebate_alert || {};
+  setVal('rebate-heading', ra.heading);
+  setVal('rebate-text', ra.text);
+  setVal('rebate-home-link', ra.home_link_text);
+  setVal('rebate-quote-link', ra.quote_link_text);
+  setVal('rebate-modal-text', ra.quote_modal_text);
+
+  const c = content.contact || {};
+  setVal('contact-phone', c.phone);
+  setVal('contact-email', c.email);
+
+  const q = content.quote || {};
+  setVal('quote-eyebrow', q.hero_eyebrow);
+  setVal('quote-title', q.hero_title);
+  setVal('quote-subtitle', q.hero_subtitle);
+  setVal('quote-form-title', q.form_title);
+  setVal('quote-success', q.success_message);
+
   renderCustomerOptions();
   renderHomeGallery();
+  renderManufacturers();
   renderBuildBenefits();
   renderBuildGallery();
   renderBuildVideos();
   renderBuildFaq();
   renderTestimonials();
   renderGlobalFaq();
+  renderBlogPosts();
 }
 
-function renderCustomerOptions() {
-  const options = content.home?.customer_options || [];
-  document.getElementById('home-customer-options').innerHTML = options.map((opt, i) => `
-    <div class="item-card">
-      <div class="item-header">
-        <h4>${opt.title || 'Option ' + (i+1)}</h4>
-        <div class="item-actions">
-          <button class="btn btn-sm btn-up" onclick="moveItem('home.customer_options',${i},-1)">↑</button>
-          <button class="btn btn-sm btn-down" onclick="moveItem('home.customer_options',${i},1)">↓</button>
-          <button class="btn btn-sm btn-danger" onclick="removeItem('home.customer_options',${i})">✕</button>
-        </div>
-      </div>
-      <div class="row">
-        <div class="field"><label>Icon</label><input type="text" value="${opt.icon||''}" maxlength="2" onchange="content.home.customer_options[${i}].icon=this.value" /></div>
-        <div class="field"><label>Title</label><input type="text" value="${opt.title||''}" onchange="content.home.customer_options[${i}].title=this.value" /></div>
-      </div>
-      <div class="field"><label>Description</label><textarea onchange="content.home.customer_options[${i}].description=this.value">${opt.description||''}</textarea></div>
-    </div>
-  `).join('');
-}
+function setVal(id, val) { const el = document.getElementById(id); if (el) el.value = val || ''; }
+function getVal(id) { const el = document.getElementById(id); return el ? el.value : ''; }
 
-function addCustomerOption() {
+// ─── Sync text fields back to content (prevents loss on re-render) ───
+function syncTextFields() {
+  // Home
   if (!content.home) content.home = {};
-  if (!content.home.customer_options) content.home.customer_options = [];
-  content.home.customer_options.push({icon:'☀️', title:'', description:''});
-  renderCustomerOptions();
-}
+  content.home.hero_eyebrow = getVal('home-eyebrow') || content.home.hero_eyebrow;
+  content.home.hero_title_part1 = getVal('home-title-part1') || content.home.hero_title_part1;
+  content.home.hero_title_part2 = getVal('home-title-part2') || content.home.hero_title_part2;
+  content.home.hero_subtitle = getVal('home-subtitle') || content.home.hero_subtitle;
+  content.home.about_text = getVal('home-about') || content.home.about_text;
+  content.home.referral_text = getVal('home-referral') || content.home.referral_text;
+  content.home.accordion_btn_closed = getVal('accordion-btn-closed') || content.home.accordion_btn_closed;
+  content.home.accordion_btn_open = getVal('accordion-btn-open') || content.home.accordion_btn_open;
 
-function renderHomeGallery() {
-  const gallery = content.gallery || [];
-  document.getElementById('home-gallery').innerHTML = gallery.map((item, i) => `
-    <div class="item-card">
-      <div class="item-header">
-        <h4>Image ${i+1}</h4>
-        <div class="item-actions">
-          <button class="btn btn-sm btn-up" onclick="moveItem('gallery',${i},-1)">↑</button>
-          <button class="btn btn-sm btn-down" onclick="moveItem('gallery',${i},1)">↓</button>
-          <button class="btn btn-sm btn-danger" onclick="removeItem('gallery',${i})">✕</button>
-        </div>
-      </div>
-      ${item.url ? `<img src="${item.url}" class="img-preview" />` : ''}
-      <div class="field"><label>Caption</label><input type="text" value="${item.caption||''}" onchange="content.gallery[${i}].caption=this.value" /></div>
-    </div>
-  `).join('');
-}
-
-async function uploadHomeGallery(e) {
-  for (let file of e.target.files) {
-    const formData = new FormData();
-    formData.append('image', file);
-    const res = await fetch('upload-image.php', { method: 'POST', body: formData });
-    const result = await res.json();
-    if (result.success) {
-      if (!content.gallery) content.gallery = [];
-      content.gallery.push({ url: result.url, caption: file.name });
-    }
-  }
-  renderHomeGallery();
-  e.target.value = '';
-}
-
-function renderBuildBenefits() {
-  const benefits = content.build?.benefits || [];
-  document.getElementById('build-benefits').innerHTML = benefits.map((b, i) => `
-    <div class="item-card">
-      <div class="item-header">
-        <h4>${b.title || 'Benefit ' + (i+1)}</h4>
-        <div class="item-actions">
-          <button class="btn btn-sm btn-up" onclick="moveItem('build.benefits',${i},-1)">↑</button>
-          <button class="btn btn-sm btn-down" onclick="moveItem('build.benefits',${i},1)">↓</button>
-          <button class="btn btn-sm btn-danger" onclick="removeItem('build.benefits',${i})">✕</button>
-        </div>
-      </div>
-      <div class="row">
-        <div class="field"><label>Icon</label><input type="text" value="${b.icon||''}" maxlength="2" onchange="content.build.benefits[${i}].icon=this.value" /></div>
-        <div class="field"><label>Title</label><input type="text" value="${b.title||''}" onchange="content.build.benefits[${i}].title=this.value" /></div>
-      </div>
-      <div class="field"><label>Description</label><textarea onchange="content.build.benefits[${i}].text=this.value">${b.text||''}</textarea></div>
-    </div>
-  `).join('');
-}
-
-function addBuildBenefit() {
+  // Build
   if (!content.build) content.build = {};
-  if (!content.build.benefits) content.build.benefits = [];
-  content.build.benefits.push({icon:'✨', title:'', text:''});
-  renderBuildBenefits();
+  if (!content.build.hero) content.build.hero = {};
+  content.build.hero.title = getVal('build-hero-title') || content.build.hero.title;
+  content.build.hero.subtitle = getVal('build-hero-subtitle') || content.build.hero.subtitle;
+  content.build.cta_text = getVal('build-cta-text') || content.build.cta_text;
+  content.build.section_title = getVal('build-section-title') || content.build.section_title;
+  content.build.section_text = getVal('build-section-text') || content.build.section_text;
+
+  // Stats
+  if (!content.stats) content.stats = {};
+  content.stats.savings = getVal('stats-savings') || content.stats.savings;
+  content.stats.savings_label = getVal('stats-savings-label') || content.stats.savings_label;
+  content.stats.hours = getVal('stats-hours') || content.stats.hours;
+  content.stats.hours_label = getVal('stats-hours-label') || content.stats.hours_label;
+  content.stats.installations = getVal('stats-installations') || content.stats.installations;
+  content.stats.installations_label = getVal('stats-installations-label') || content.stats.installations_label;
+  content.stats.customers = getVal('stats-customers') || content.stats.customers;
+  content.stats.customers_label = getVal('stats-customers-label') || content.stats.customers_label;
+
+  // Rebate
+  if (!content.rebate_alert) content.rebate_alert = {};
+  content.rebate_alert.heading = getVal('rebate-heading') || content.rebate_alert.heading;
+  content.rebate_alert.text = getVal('rebate-text') || content.rebate_alert.text;
+  content.rebate_alert.home_link_text = getVal('rebate-home-link') || content.rebate_alert.home_link_text;
+  content.rebate_alert.quote_link_text = getVal('rebate-quote-link') || content.rebate_alert.quote_link_text;
+  content.rebate_alert.quote_modal_text = getVal('rebate-modal-text') || content.rebate_alert.quote_modal_text;
+
+  // Contact
+  if (!content.contact) content.contact = {};
+  content.contact.phone = getVal('contact-phone') || content.contact.phone;
+  content.contact.email = getVal('contact-email') || content.contact.email;
+
+  // Quote
+  if (!content.quote) content.quote = {};
+  content.quote.hero_eyebrow = getVal('quote-eyebrow') || content.quote.hero_eyebrow;
+  content.quote.hero_title = getVal('quote-title') || content.quote.hero_title;
+  content.quote.hero_subtitle = getVal('quote-subtitle') || content.quote.hero_subtitle;
+  content.quote.form_title = getVal('quote-form-title') || content.quote.form_title;
+  content.quote.success_message = getVal('quote-success') || content.quote.success_message;
+
+  // Testimonials rating
+  ensureTestimonials();
+  const ratingEl = document.getElementById('testimonials-rating');
+  const totalEl = document.getElementById('testimonials-total');
+  if (ratingEl) content.testimonials.rating = ratingEl.value || content.testimonials.rating;
+  if (totalEl) content.testimonials.total_reviews = totalEl.value || content.testimonials.total_reviews;
 }
 
-function renderBuildGallery() {
-  const gallery = content.build?.gallery || [];
-  document.getElementById('build-gallery').innerHTML = gallery.map((item, i) => `
-    <div class="item-card">
-      <div class="item-header">
-        <h4>Photo ${i+1}</h4>
-        <div class="item-actions">
-          <button class="btn btn-sm btn-up" onclick="moveItem('build.gallery',${i},-1)">↑</button>
-          <button class="btn btn-sm btn-down" onclick="moveItem('build.gallery',${i},1)">↓</button>
-          <button class="btn btn-sm btn-danger" onclick="removeItem('build.gallery',${i})">✕</button>
-        </div>
-      </div>
-      ${item.url ? `<img src="${item.url}" class="img-preview" />` : ''}
-    </div>
-  `).join('');
+// ─── Sync text fields back to content (prevents loss on re-render) ───
+function syncFieldsToContent() {
+  content.home = content.home || {};
+  content.home.hero_eyebrow = getVal('home-eyebrow') || content.home.hero_eyebrow;
+  content.home.hero_title_part1 = getVal('home-title-part1') || content.home.hero_title_part1;
+  content.home.hero_title_part2 = getVal('home-title-part2') || content.home.hero_title_part2;
+  content.home.hero_subtitle = getVal('home-subtitle') || content.home.hero_subtitle;
+  content.home.about_text = getVal('home-about') || content.home.about_text;
+  content.home.referral_text = getVal('home-referral') || content.home.referral_text;
+  content.home.accordion_btn_closed = getVal('accordion-btn-closed') || content.home.accordion_btn_closed;
+  content.home.accordion_btn_open = getVal('accordion-btn-open') || content.home.accordion_btn_open;
+
+  content.build = content.build || {};
+  if (!content.build.hero) content.build.hero = {};
+  content.build.hero.title = getVal('build-hero-title') || content.build.hero.title;
+  content.build.hero.subtitle = getVal('build-hero-subtitle') || content.build.hero.subtitle;
+  content.build.cta_text = getVal('build-cta-text') || content.build.cta_text;
+  content.build.section_title = getVal('build-section-title') || content.build.section_title;
+  content.build.section_text = getVal('build-section-text') || content.build.section_text;
+
+  content.stats = content.stats || {};
+  content.stats.savings = getVal('stats-savings') || content.stats.savings;
+  content.stats.savings_label = getVal('stats-savings-label') || content.stats.savings_label;
+  content.stats.hours = getVal('stats-hours') || content.stats.hours;
+  content.stats.hours_label = getVal('stats-hours-label') || content.stats.hours_label;
+  content.stats.installations = getVal('stats-installations') || content.stats.installations;
+  content.stats.installations_label = getVal('stats-installations-label') || content.stats.installations_label;
+  content.stats.customers = getVal('stats-customers') || content.stats.customers;
+  content.stats.customers_label = getVal('stats-customers-label') || content.stats.customers_label;
+
+  content.rebate_alert = content.rebate_alert || {};
+  content.rebate_alert.heading = getVal('rebate-heading') || content.rebate_alert.heading;
+  content.rebate_alert.text = getVal('rebate-text') || content.rebate_alert.text;
+  content.rebate_alert.home_link_text = getVal('rebate-home-link') || content.rebate_alert.home_link_text;
+  content.rebate_alert.quote_link_text = getVal('rebate-quote-link') || content.rebate_alert.quote_link_text;
+  content.rebate_alert.quote_modal_text = getVal('rebate-modal-text') || content.rebate_alert.quote_modal_text;
+
+  content.contact = content.contact || {};
+  content.contact.phone = getVal('contact-phone') || content.contact.phone;
+  content.contact.email = getVal('contact-email') || content.contact.email;
+
+  content.quote = content.quote || {};
+  content.quote.hero_eyebrow = getVal('quote-eyebrow') || content.quote.hero_eyebrow;
+  content.quote.hero_title = getVal('quote-title') || content.quote.hero_title;
+  content.quote.hero_subtitle = getVal('quote-subtitle') || content.quote.hero_subtitle;
+  content.quote.form_title = getVal('quote-form-title') || content.quote.form_title;
+  content.quote.success_message = getVal('quote-success') || content.quote.success_message;
+
+  // Testimonials rating/total
+  const ratingEl = document.getElementById('testimonials-rating');
+  const totalEl = document.getElementById('testimonials-total');
+  if (ratingEl && content.testimonials) content.testimonials.rating = ratingEl.value || content.testimonials.rating;
+  if (totalEl && content.testimonials) content.testimonials.total_reviews = totalEl.value || content.testimonials.total_reviews;
 }
 
-async function uploadBuildGallery(e) {
-  for (let file of e.target.files) {
-    const formData = new FormData();
-    formData.append('image', file);
-    const res = await fetch('upload-image.php', { method: 'POST', body: formData });
-    const result = await res.json();
-    if (result.success) {
-      if (!content.build) content.build = {};
-      if (!content.build.gallery) content.build.gallery = [];
-      content.build.gallery.push({ url: result.url, caption: file.name });
-    }
-  }
-  renderBuildGallery();
-  e.target.value = '';
+// ─── Generic array helpers ───
+function getNestedArray(path) {
+  const keys = path.split('.');
+  let obj = content;
+  for (const k of keys) { if (!obj[k]) obj[k] = (k === keys[keys.length-1]) ? [] : {}; obj = obj[k]; }
+  return obj;
 }
 
-function renderBuildVideos() {
-  const videos = content.build?.videos || [];
-  document.getElementById('build-videos').innerHTML = videos.map((v, i) => `
-    <div class="item-card">
-      <div class="item-header">
-        <h4>${v.title || 'Video ' + (i+1)}</h4>
-        <div class="item-actions">
-          <button class="btn btn-sm btn-up" onclick="moveItem('build.videos',${i},-1)">↑</button>
-          <button class="btn btn-sm btn-down" onclick="moveItem('build.videos',${i},1)">↓</button>
-          <button class="btn btn-sm btn-danger" onclick="removeItem('build.videos',${i})">✕</button>
-        </div>
-      </div>
-      <div class="row">
-        <div class="field"><label>YouTube ID</label><input type="text" value="${v.youtube_id||''}" onchange="content.build.videos[${i}].youtube_id=this.value" placeholder="dQw4w9WgXcQ" /><div class="hint">From youtube.com/watch?v=THIS_PART</div></div>
-        <div class="field"><label>Title</label><input type="text" value="${v.title||''}" onchange="content.build.videos[${i}].title=this.value" /></div>
-      </div>
-    </div>
-  `).join('');
-}
-
-function addBuildVideo() {
-  if (!content.build) content.build = {};
-  if (!content.build.videos) content.build.videos = [];
-  content.build.videos.push({youtube_id:'', title:''});
-  renderBuildVideos();
-}
-
-function renderBuildFaq() {
-  const faq = content.build?.faq || [];
-  document.getElementById('build-faq').innerHTML = faq.map((q, i) => `
-    <div class="item-card">
-      <div class="item-header">
-        <h4>Q${i+1}</h4>
-        <div class="item-actions">
-          <button class="btn btn-sm btn-up" onclick="moveItem('build.faq',${i},-1)">↑</button>
-          <button class="btn btn-sm btn-down" onclick="moveItem('build.faq',${i},1)">↓</button>
-          <button class="btn btn-sm btn-danger" onclick="removeItem('build.faq',${i})">✕</button>
-        </div>
-      </div>
-      <div class="field"><label>Question</label><input type="text" value="${q.question||''}" onchange="content.build.faq[${i}].question=this.value" /></div>
-      <div class="field"><label>Answer</label><textarea onchange="content.build.faq[${i}].answer=this.value">${q.answer||''}</textarea></div>
-    </div>
-  `).join('');
-}
-
-function addBuildFaq() {
-  if (!content.build) content.build = {};
-  if (!content.build.faq) content.build.faq = [];
-  content.build.faq.push({question:'', answer:''});
-  renderBuildFaq();
-}
-
-function renderTestimonials() {
-  const testimonials = content.testimonials || [];
-  document.getElementById('global-testimonials').innerHTML = testimonials.map((t, i) => `
-    <div class="item-card">
-      <div class="item-header">
-        <h4>${t.name || 'Testimonial ' + (i+1)}</h4>
-        <div class="item-actions">
-          <button class="btn btn-sm btn-up" onclick="moveItem('testimonials',${i},-1)">↑</button>
-          <button class="btn btn-sm btn-down" onclick="moveItem('testimonials',${i},1)">↓</button>
-          <button class="btn btn-sm btn-danger" onclick="removeItem('testimonials',${i})">✕</button>
-        </div>
-      </div>
-      <div class="row">
-        <div class="field"><label>Name</label><input type="text" value="${t.name||''}" onchange="content.testimonials[${i}].name=this.value" /></div>
-        <div class="field"><label>Role</label><input type="text" value="${t.role||''}" onchange="content.testimonials[${i}].role=this.value" /></div>
-        <div class="field"><label>Initials</label><input type="text" value="${t.initials||''}" maxlength="2" onchange="content.testimonials[${i}].initials=this.value" /></div>
-      </div>
-      <div class="field"><label>Quote</label><textarea onchange="content.testimonials[${i}].text=this.value">${t.text||''}</textarea></div>
-    </div>
-  `).join('');
-}
-
-function addTestimonial() {
-  if (!content.testimonials) content.testimonials = [];
-  content.testimonials.push({name:'', role:'', text:'', initials:''});
-  renderTestimonials();
-}
-
-function renderGlobalFaq() {
-  const faq = content.faq || [];
-  document.getElementById('global-faq').innerHTML = faq.map((q, i) => `
-    <div class="item-card">
-      <div class="item-header">
-        <h4>Q${i+1}</h4>
-        <div class="item-actions">
-          <button class="btn btn-sm btn-up" onclick="moveItem('faq',${i},-1)">↑</button>
-          <button class="btn btn-sm btn-down" onclick="moveItem('faq',${i},1)">↓</button>
-          <button class="btn btn-sm btn-danger" onclick="removeItem('faq',${i})">✕</button>
-        </div>
-      </div>
-      <div class="field"><label>Question</label><input type="text" value="${q.question||''}" onchange="content.faq[${i}].question=this.value" /></div>
-      <div class="field"><label>Answer</label><textarea onchange="content.faq[${i}].answer=this.value">${q.answer||''}</textarea></div>
-    </div>
-  `).join('');
-}
-
-function addFaq() {
-  if (!content.faq) content.faq = [];
-  content.faq.push({question:'', answer:''});
-  renderGlobalFaq();
-}
-
-function addBlogPost() {
-  alert('Use the old admin (admin-old-backup.html) to edit blog posts. Full blog editor coming soon!');
+function addToArray(path, item) {
+  syncTextFields();
+  const keys = path.split('.');
+  let obj = content;
+  for (let i = 0; i < keys.length - 1; i++) { if (!obj[keys[i]]) obj[keys[i]] = {}; obj = obj[keys[i]]; }
+  if (!obj[keys[keys.length-1]]) obj[keys[keys.length-1]] = [];
+  obj[keys[keys.length-1]].push(item);
+  syncFieldsToContent();
+  renderAll();
 }
 
 function moveItem(path, idx, dir) {
+  syncTextFields();
   const keys = path.split('.');
   let arr = content;
-  for (let key of keys) arr = arr[key];
+  for (const k of keys) arr = arr[k];
   const newIdx = idx + dir;
   if (newIdx < 0 || newIdx >= arr.length) return;
   [arr[idx], arr[newIdx]] = [arr[newIdx], arr[idx]];
+  syncFieldsToContent();
   renderAll();
 }
 
 function removeItem(path, idx) {
   if (!confirm('Delete this item?')) return;
+  syncTextFields();
   const keys = path.split('.');
   let arr = content;
-  for (let key of keys) arr = arr[key];
+  for (const k of keys) arr = arr[k];
   arr.splice(idx, 1);
+  syncFieldsToContent();
   renderAll();
 }
 
+// ─── Render sections ───
+function renderCustomerOptions() {
+  const opts = content.home?.customer_options || [];
+  document.getElementById('home-customer-options').innerHTML = opts.map((o,i) => `
+    <div class="item-card"><div class="item-header"><h4>${o.title||'Option '+(i+1)}</h4><div class="item-actions">
+      <button class="btn btn-sm btn-up" onclick="moveItem('home.customer_options',${i},-1)">↑</button>
+      <button class="btn btn-sm btn-down" onclick="moveItem('home.customer_options',${i},1)">↓</button>
+      <button class="btn btn-sm btn-danger" onclick="removeItem('home.customer_options',${i})">✕</button>
+    </div></div>
+    <div class="row"><div class="field"><label>Icon</label><input value="${o.icon||''}" oninput="content.home.customer_options[${i}].icon=this.value"/></div>
+    <div class="field"><label>Title</label><input value="${o.title||''}" oninput="content.home.customer_options[${i}].title=this.value"/></div></div>
+    <div class="field"><label>Description</label><textarea oninput="content.home.customer_options[${i}].description=this.value">${o.description||''}</textarea></div></div>
+  `).join('');
+}
+function addCustomerOption() { addToArray('home.customer_options', {icon:'☀️', title:'', description:'', link:'quote.html'}); }
+
+function renderHomeGallery() {
+  const g = content.gallery || [];
+  document.getElementById('home-gallery').innerHTML = g.map((item,i) => `
+    <div class="item-card"><div class="item-header"><h4>Image ${i+1}</h4><div class="item-actions">
+      <button class="btn btn-sm btn-up" onclick="moveItem('gallery',${i},-1)">↑</button>
+      <button class="btn btn-sm btn-down" onclick="moveItem('gallery',${i},1)">↓</button>
+      <button class="btn btn-sm btn-danger" onclick="removeItem('gallery',${i})">✕</button></div></div>
+    ${item.url?`<img src="${item.url}" class="img-preview"/>`:''}<div class="field"><label>Caption</label><input value="${item.caption||''}" oninput="content.gallery[${i}].caption=this.value"/></div></div>
+  `).join('');
+}
+
+function renderManufacturers() {
+  const m = content.manufacturers || [];
+  document.getElementById('manufacturers-list').innerHTML = m.map((item,i) => `
+    <div class="item-card"><div class="item-header"><h4>Logo ${i+1}</h4><div class="item-actions">
+      <button class="btn btn-sm btn-up" onclick="moveItem('manufacturers',${i},-1)">↑</button>
+      <button class="btn btn-sm btn-down" onclick="moveItem('manufacturers',${i},1)">↓</button>
+      <button class="btn btn-sm btn-danger" onclick="removeItem('manufacturers',${i})">✕</button></div></div>
+    ${item.url?`<img src="${item.url}" class="img-preview" style="max-height:80px;object-fit:contain;"/>`:''}<div class="field"><label>Name</label><input value="${item.name||''}" oninput="content.manufacturers[${i}].name=this.value"/></div></div>
+  `).join('');
+}
+
+function renderBuildBenefits() {
+  const b = content.build?.benefits || [];
+  document.getElementById('build-benefits').innerHTML = b.map((item,i) => `
+    <div class="item-card"><div class="item-header"><h4>${item.title||'Benefit '+(i+1)}</h4><div class="item-actions">
+      <button class="btn btn-sm btn-up" onclick="moveItem('build.benefits',${i},-1)">↑</button>
+      <button class="btn btn-sm btn-down" onclick="moveItem('build.benefits',${i},1)">↓</button>
+      <button class="btn btn-sm btn-danger" onclick="removeItem('build.benefits',${i})">✕</button></div></div>
+    <div class="row"><div class="field"><label>Icon</label><input value="${item.icon||''}" oninput="content.build.benefits[${i}].icon=this.value"/></div>
+    <div class="field"><label>Title</label><input value="${item.title||''}" oninput="content.build.benefits[${i}].title=this.value"/></div></div>
+    <div class="field"><label>Description</label><textarea oninput="content.build.benefits[${i}].text=this.value">${item.text||''}</textarea></div></div>
+  `).join('');
+}
+
+function renderBuildGallery() {
+  const g = content.build?.gallery || [];
+  document.getElementById('build-gallery').innerHTML = g.map((item,i) => `
+    <div class="item-card"><div class="item-header"><h4>Photo ${i+1}</h4><div class="item-actions">
+      <button class="btn btn-sm btn-up" onclick="moveItem('build.gallery',${i},-1)">↑</button>
+      <button class="btn btn-sm btn-down" onclick="moveItem('build.gallery',${i},1)">↓</button>
+      <button class="btn btn-sm btn-danger" onclick="removeItem('build.gallery',${i})">✕</button></div></div>
+    ${item.url?`<img src="${item.url}" class="img-preview"/>`:''}</div>
+  `).join('');
+}
+
+function renderBuildVideos() {
+  const v = content.build?.videos || [];
+  document.getElementById('build-videos').innerHTML = v.map((item,i) => `
+    <div class="item-card"><div class="item-header"><h4>${item.title||'Video '+(i+1)}</h4><div class="item-actions">
+      <button class="btn btn-sm btn-up" onclick="moveItem('build.videos',${i},-1)">↑</button>
+      <button class="btn btn-sm btn-down" onclick="moveItem('build.videos',${i},1)">↓</button>
+      <button class="btn btn-sm btn-danger" onclick="removeItem('build.videos',${i})">✕</button></div></div>
+    <div class="row"><div class="field"><label>YouTube ID</label><input value="${item.youtube_id||''}" oninput="content.build.videos[${i}].youtube_id=this.value" placeholder="dQw4w9WgXcQ"/><div class="hint">From youtube.com/watch?v=THIS_PART</div></div>
+    <div class="field"><label>Title</label><input value="${item.title||''}" oninput="content.build.videos[${i}].title=this.value"/></div></div></div>
+  `).join('');
+}
+
+function renderBuildFaq() {
+  const f = content.build?.faq || [];
+  document.getElementById('build-faq').innerHTML = f.map((item,i) => `
+    <div class="item-card"><div class="item-header"><h4>Q${i+1}</h4><div class="item-actions">
+      <button class="btn btn-sm btn-up" onclick="moveItem('build.faq',${i},-1)">↑</button>
+      <button class="btn btn-sm btn-down" onclick="moveItem('build.faq',${i},1)">↓</button>
+      <button class="btn btn-sm btn-danger" onclick="removeItem('build.faq',${i})">✕</button></div></div>
+    <div class="field"><label>Question</label><input value="${item.question||''}" oninput="content.build.faq[${i}].question=this.value"/></div>
+    <div class="field"><label>Answer</label><textarea oninput="content.build.faq[${i}].answer=this.value">${item.answer||''}</textarea></div></div>
+  `).join('');
+}
+
+// ─── Testimonials (uses .items structure) ───
+function renderTestimonials() {
+  const t = content.testimonials || {};
+  const items = t.items || [];
+  const ratingHTML = `<div class="row" style="margin-bottom:1rem;background:#f0f9ff;padding:1rem;border-radius:8px;">
+    <div class="field"><label>Star Rating</label><input id="testimonials-rating" value="${t.rating||'5.0'}" onchange="ensureTestimonials();content.testimonials.rating=this.value"/></div>
+    <div class="field"><label>Total Reviews</label><input id="testimonials-total" value="${t.total_reviews||''}" onchange="ensureTestimonials();content.testimonials.total_reviews=this.value"/></div></div>`;
+  const itemsHTML = items.map((item,i) => `
+    <div class="item-card"><div class="item-header"><h4>${item.name||'Testimonial '+(i+1)}</h4><div class="item-actions">
+      <button class="btn btn-sm btn-up" onclick="moveItem('testimonials.items',${i},-1)">↑</button>
+      <button class="btn btn-sm btn-down" onclick="moveItem('testimonials.items',${i},1)">↓</button>
+      <button class="btn btn-sm btn-danger" onclick="removeItem('testimonials.items',${i})">✕</button></div></div>
+    <div class="row"><div class="field"><label>Name</label><input value="${item.name||''}" oninput="content.testimonials.items[${i}].name=this.value"/></div>
+    <div class="field"><label>Role</label><input value="${item.role||''}" oninput="content.testimonials.items[${i}].role=this.value"/></div>
+    <div class="field"><label>Initials</label><input value="${item.initials||''}" maxlength="2" oninput="content.testimonials.items[${i}].initials=this.value"/></div></div>
+    <div class="field"><label>Quote</label><textarea oninput="content.testimonials.items[${i}].text=this.value">${item.text||''}</textarea></div></div>
+  `).join('');
+  document.getElementById('global-testimonials').innerHTML = ratingHTML + itemsHTML;
+}
+
+function ensureTestimonials() {
+  if (!content.testimonials || Array.isArray(content.testimonials)) content.testimonials = { rating:'5.0', total_reviews:'0', items: content.testimonials || [] };
+  if (!content.testimonials.items) content.testimonials.items = [];
+}
+function addTestimonial() {
+  ensureTestimonials();
+  syncFieldsToContent();
+  content.testimonials.items.push({name:'', role:'', text:'', initials:''});
+  renderTestimonials();
+}
+
+function renderGlobalFaq() {
+  const f = content.faq || [];
+  document.getElementById('global-faq').innerHTML = f.map((item,i) => `
+    <div class="item-card"><div class="item-header"><h4>Q${i+1}</h4><div class="item-actions">
+      <button class="btn btn-sm btn-up" onclick="moveItem('faq',${i},-1)">↑</button>
+      <button class="btn btn-sm btn-down" onclick="moveItem('faq',${i},1)">↓</button>
+      <button class="btn btn-sm btn-danger" onclick="removeItem('faq',${i})">✕</button></div></div>
+    <div class="field"><label>Question</label><input value="${item.question||''}" oninput="content.faq[${i}].question=this.value"/></div>
+    <div class="field"><label>Answer</label><textarea oninput="content.faq[${i}].answer=this.value">${item.answer||''}</textarea></div></div>
+  `).join('');
+}
+
+// ─── Blog Posts ───
+function renderBlogPosts() {
+  const posts = content.blog_posts || [];
+  document.getElementById('blog-list').innerHTML = posts.map((p,i) => `
+    <div class="item-card"><div class="item-header"><h4>${p.title||'Post '+(i+1)}</h4><div class="item-actions">
+      <button class="btn btn-sm btn-up" onclick="moveItem('blog_posts',${i},-1)">↑</button>
+      <button class="btn btn-sm btn-down" onclick="moveItem('blog_posts',${i},1)">↓</button>
+      <button class="btn btn-sm btn-danger" onclick="removeItem('blog_posts',${i})">✕</button></div></div>
+    <div class="row">
+      <div class="field"><label>Title</label><input value="${p.title||''}" oninput="content.blog_posts[${i}].title=this.value"/></div>
+      <div class="field"><label>Tag</label><input value="${p.tag||''}" oninput="content.blog_posts[${i}].tag=this.value" placeholder="Solar Tips"/></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Date</label><input type="date" value="${p.date||''}" oninput="content.blog_posts[${i}].date=this.value"/></div>
+      <div class="field"><label>Read Time</label><input value="${p.readtime||''}" oninput="content.blog_posts[${i}].readtime=this.value" placeholder="5 min read"/></div>
+    </div>
+    <div class="field"><label>Body (supports **bold**, *italic*, ## headings, - bullet lists)</label>
+      <textarea style="min-height:200px;" oninput="content.blog_posts[${i}].body=this.value">${p.body||''}</textarea></div></div>
+  `).join('');
+}
+
+function addBlogPost() {
+  if (!content.blog_posts) content.blog_posts = [];
+  syncFieldsToContent();
+  content.blog_posts.push({ title: '', tag: '', date: new Date().toISOString().split('T')[0], readtime: '5 min read', body: '' });
+  renderBlogPosts();
+}
+
+// ─── Image Upload ───
+async function uploadImages(e, targetPath) {
+  for (const file of e.target.files) {
+    const formData = new FormData();
+    formData.append('image', file);
+    const res = await fetch('upload-image.php', { method: 'POST', body: formData });
+    const result = await res.json();
+    if (result.success) {
+      const keys = targetPath.split('.');
+      let obj = content;
+      for (let i = 0; i < keys.length - 1; i++) { if (!obj[keys[i]]) obj[keys[i]] = {}; obj = obj[keys[i]]; }
+      const lastKey = keys[keys.length-1];
+      if (!obj[lastKey]) obj[lastKey] = [];
+      obj[lastKey].push({ url: result.url, caption: file.name.replace(/\.[^/.]+$/, ''), name: file.name.replace(/\.[^/.]+$/, '') });
+    }
+  }
+  syncTextFields();
+  syncFieldsToContent();
+  renderAll();
+  e.target.value = '';
+}
+
+// ─── Save ───
 async function saveContent() {
+  if (!confirm('Save all changes? This will update your live website.')) return;
   const btn = document.getElementById('saveBtn');
   btn.textContent = '💾 Saving...';
   btn.disabled = true;
-  
-  if (!content.home) content.home = {};
-  content.home.hero_eyebrow = document.getElementById('home-eyebrow').value;
-  content.home.hero_title_part1 = document.getElementById('home-title-part1').value;
-  content.home.hero_title_part2 = document.getElementById('home-title-part2').value;
-  content.home.hero_subtitle = document.getElementById('home-subtitle').value;
-  content.home.about_text = document.getElementById('home-about').value;
-  
-  if (!content.build) content.build = {};
+
+  // Gather all text fields into content object
+  content.home = content.home || {};
+  content.home.hero_eyebrow = getVal('home-eyebrow');
+  content.home.hero_title_part1 = getVal('home-title-part1');
+  content.home.hero_title_part2 = getVal('home-title-part2');
+  content.home.hero_subtitle = getVal('home-subtitle');
+  content.home.about_text = getVal('home-about');
+  content.home.referral_text = getVal('home-referral');
+  content.home.accordion_btn_closed = getVal('accordion-btn-closed');
+  content.home.accordion_btn_open = getVal('accordion-btn-open');
+
+  content.build = content.build || {};
   if (!content.build.hero) content.build.hero = {};
-  content.build.hero.title = document.getElementById('build-hero-title').value;
-  content.build.hero.subtitle = document.getElementById('build-hero-subtitle').value;
-  content.build.cta_text = document.getElementById('build-cta-text').value;
-  content.build.section_title = document.getElementById('build-section-title').value;
-  content.build.section_text = document.getElementById('build-section-text').value;
-  
-  if (!content.stats) content.stats = {};
-  content.stats.savings = document.getElementById('stats-savings').value;
-  content.stats.savings_label = document.getElementById('stats-savings-label').value;
-  content.stats.hours = document.getElementById('stats-hours').value;
-  content.stats.hours_label = document.getElementById('stats-hours-label').value;
-  content.stats.installations = document.getElementById('stats-installations').value;
-  content.stats.installations_label = document.getElementById('stats-installations-label').value;
-  content.stats.customers = document.getElementById('stats-customers').value;
-  content.stats.customers_label = document.getElementById('stats-customers-label').value;
-  
-  if (!content.rebate_alert) content.rebate_alert = {};
-  content.rebate_alert.heading = document.getElementById('rebate-heading').value;
-  content.rebate_alert.text = document.getElementById('rebate-text').value;
-  
+  content.build.hero.title = getVal('build-hero-title');
+  content.build.hero.subtitle = getVal('build-hero-subtitle');
+  content.build.cta_text = getVal('build-cta-text');
+  content.build.section_title = getVal('build-section-title');
+  content.build.section_text = getVal('build-section-text');
+
+  content.stats = content.stats || {};
+  content.stats.savings = getVal('stats-savings');
+  content.stats.savings_label = getVal('stats-savings-label');
+  content.stats.hours = getVal('stats-hours');
+  content.stats.hours_label = getVal('stats-hours-label');
+  content.stats.installations = getVal('stats-installations');
+  content.stats.installations_label = getVal('stats-installations-label');
+  content.stats.customers = getVal('stats-customers');
+  content.stats.customers_label = getVal('stats-customers-label');
+
+  content.rebate_alert = content.rebate_alert || {};
+  content.rebate_alert.heading = getVal('rebate-heading');
+  content.rebate_alert.text = getVal('rebate-text');
+  content.rebate_alert.home_link_text = getVal('rebate-home-link');
+  content.rebate_alert.quote_link_text = getVal('rebate-quote-link');
+  content.rebate_alert.quote_modal_text = getVal('rebate-modal-text');
+  // Rebuild links array from text fields
+  content.rebate_alert.links = [
+    { label: getVal('rebate-home-link') || 'See what you qualify for', url: 'quote.html', external: false },
+    { label: 'SD Community Power Rebates', url: 'https://sdcommunitypower.org/solar-battery-savings/', external: true }
+  ];
+
+  content.contact = content.contact || {};
+  content.contact.phone = getVal('contact-phone');
+  content.contact.phone_formatted = formatPhone(getVal('contact-phone'));
+  content.contact.email = getVal('contact-email');
+
+  content.quote = content.quote || {};
+  content.quote.hero_eyebrow = getVal('quote-eyebrow');
+  content.quote.hero_title = getVal('quote-title');
+  content.quote.hero_subtitle = getVal('quote-subtitle');
+  content.quote.form_title = getVal('quote-form-title');
+  content.quote.success_message = getVal('quote-success');
+
+  // Ensure testimonials structure
+  ensureTestimonials();
+  content.testimonials.rating = document.getElementById('testimonials-rating')?.value || '5.0';
+  content.testimonials.total_reviews = document.getElementById('testimonials-total')?.value || '';
+
   try {
     const res = await fetch('save.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(content)
     });
-    
-    if (res.ok) {
-      // Success - also create a backup
-      const timestamp = new Date().toISOString().split('T')[0];
-      const backupData = JSON.stringify(content, null, 2);
-      
-      // Download backup to user's device
-      const blob = new Blob([backupData], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `content-backup-${timestamp}.json`;
-      
-      btn.textContent = '✓ Saved! (Backup downloaded)';
-      
-      // Optionally auto-download backup
-      // Uncomment next line if you want automatic backup downloads:
-      // a.click();
-      
-      setTimeout(() => {
-        btn.textContent = '💾 Save All Changes';
-        btn.disabled = false;
-      }, 3000);
-    } else throw new Error('Save failed');
-  } catch (error) {
+    const result = await res.json();
+    if (result.success) {
+      btn.textContent = '✓ Saved!';
+      setTimeout(() => { btn.textContent = '💾 Save All Changes'; btn.disabled = false; }, 2000);
+    } else throw new Error(result.error || 'Save failed');
+  } catch (err) {
     btn.textContent = '✕ Save Failed';
     btn.disabled = false;
-    alert('Save failed. Please try again.');
+    alert('Save failed: ' + err.message);
   }
 }
 
+function formatPhone(phone) {
+  const d = phone.replace(/\D/g, '');
+  return d.length === 10 ? `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}` : phone;
+}
+
 function downloadBackup() {
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
-  const backupData = JSON.stringify(content, null, 2);
+  const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+  const blob = new Blob([JSON.stringify(content, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `content-backup-${ts}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+</script>
+</body>
+</html>

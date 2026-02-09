@@ -1,5 +1,5 @@
 <?php
-// save.php - Save content.json with automatic backup
+// save.php - Save content.json with automatic backup + server-side login
 
 header('Content-Type: application/json');
 
@@ -8,6 +8,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['error' => 'Method not allowed']);
     exit;
 }
+
+// Server-side password — change this to your desired password
+define('ADMIN_PASSWORD', 'beacons');
 
 $input = file_get_contents('php://input');
 $data = json_decode($input, true);
@@ -18,20 +21,31 @@ if ($data === null) {
     exit;
 }
 
+// Handle login check
+if (isset($data['action']) && $data['action'] === 'login') {
+    if (isset($data['password']) && $data['password'] === ADMIN_PASSWORD) {
+        echo json_encode(['success' => true]);
+    } else {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'error' => 'Invalid password']);
+    }
+    exit;
+}
+
+// Normal save operation
 $content_file = __DIR__ . '/content.json';
 $backup_dir = __DIR__ . '/backups';
 
-// Create backups directory if it doesn't exist
 if (!is_dir($backup_dir)) {
     mkdir($backup_dir, 0755, true);
 }
 
-// Create backup of existing content.json before overwriting
+// Create backup before overwriting
 if (file_exists($content_file)) {
     $backup_file = $backup_dir . '/content-' . date('Y-m-d-His') . '.json';
     copy($content_file, $backup_file);
     
-    // Keep only last 10 backups (cleanup old ones)
+    // Keep only last 10 backups
     $backups = glob($backup_dir . '/content-*.json');
     if (count($backups) > 10) {
         usort($backups, function($a, $b) {

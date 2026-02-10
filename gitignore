@@ -1,0 +1,12 @@
+# Protect live content edited via admin panel
+content.json
+
+# Backups created by save.php
+backups/
+
+# Uploaded images (managed via admin, not repo)
+img/uploads/
+
+# OS files
+.DS_Store
+Thumbs.db

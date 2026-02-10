@@ -119,15 +119,18 @@ small { font-size: 0.82rem; color: var(--slate); }
    NAVIGATION
    ============================================================ */
 .nav {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 100;
-  background: rgba(255,255,255,.92);
+  background: rgba(255,255,255,.95);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--gray-200);
   transition: box-shadow .3s;
 }
 .nav.scrolled { box-shadow: var(--shadow); }
+body { padding-top: 72px; }
 .nav__inner {
   display: flex;
   align-items: center;
@@ -194,11 +197,14 @@ small { font-size: 0.82rem; color: var(--slate); }
   display: none;
   flex-direction: column;
   gap: 5px;
-  padding: 8px;
+  padding: 10px;
   z-index: 102;
+  cursor: pointer;
+  border: none;
+  background: none;
 }
 .nav__toggle span {
-  width: 24px; height: 2px;
+  width: 26px; height: 3px;
   background: var(--navy);
   border-radius: 2px;
   transition: .3s;
@@ -934,13 +940,12 @@ small { font-size: 0.82rem; color: var(--slate); }
     bottom: 0;
     width: 55%;
     max-width: 320px;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(12px);
+    background: #ffffff;
     flex-direction: column;
     padding: var(--space-xl);
     gap: var(--space-lg);
     z-index: 101;
-    box-shadow: -4px 0 20px rgba(0,0,0,0.15);
+    box-shadow: -4px 0 20px rgba(0,0,0,0.2);
     overflow-y: auto;
   }
   .nav__links.open { display: flex; }

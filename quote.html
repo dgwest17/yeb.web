@@ -36,6 +36,10 @@
 <nav class="nav" id="mainNav">
   <div class="container nav__inner">
     <a href="index.html" class="nav__logo"><img src="img/logo.png" alt="Your Energy Best" /></a>
+    <a href="tel:7608607862" class="nav__phone" aria-label="Call us">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.12.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.58 2.81.7A2 2 0 0122 16.92z"/></svg>
+      <span>(760) 860-7862</span>
+    </a>
     <a href="quote.html" class="nav__cta-mobile">Get Your Custom Quote</a>
     <button class="nav__toggle" id="navToggle"><span></span><span></span><span></span></button>
     <ul class="nav__links" id="navLinks">
@@ -43,6 +47,7 @@
       <li><a href="quote.html" class="active">Get a Quote</a></li>
       <li><a href="build">Build With Us</a></li>
       <li><a href="blog.html">Blog</a></li>
+      <li><a href="tel:7608607862" class="nav__phone-link">📞 (760) 860-7862</a></li>
       <li><a href="quote.html" class="nav__cta-btn">Get Your Custom Quote</a></li>
     </ul>
   </div>
@@ -81,6 +86,8 @@
       <div class="form-field"><label for="phone">Phone Number *</label><input type="tel" id="phone" required /></div>
       <div class="form-field"><label for="zip">Zip Code *</label><input type="text" id="zip" pattern="[0-9]{5}" required /></div>
       <button type="submit" class="submit-btn" id="submitBtn">Get My Free Quote</button>
+      <p class="microcopy" style="text-align:center; margin-top:0.75rem;">Takes 30 seconds · No credit check · No commitment</p>
+      <p class="microcopy" style="text-align:center;">Or call us: <a href="tel:7608607862" style="color:var(--teal); font-weight:600;">(760) 860-7862</a></p>
     </form>
   </div>
 </section>
@@ -154,6 +161,7 @@ if (quoteAccBtn) {
 
 // Option card selection
 let selectedOption = null;
+const optionMap = { 'new': 'New to Solar', 'existing': 'Already Have Solar', 'proposal': 'Ready for Proposal', 'financing': '$0 Down Financing' };
 document.querySelectorAll('.option-card').forEach(card => {
   card.addEventListener('click', function() {
     document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
@@ -161,6 +169,26 @@ document.querySelectorAll('.option-card').forEach(card => {
     selectedOption = this.dataset.option;
   });
 });
+
+// Pre-select from URL parameter (from homepage card click)
+const urlParams = new URLSearchParams(window.location.search);
+const preselect = urlParams.get('option');
+if (preselect && optionMap[preselect]) {
+  const targetOption = optionMap[preselect];
+  // Open the accordion
+  if (quoteAccBtn && custOpts) {
+    custOpts.classList.add('open');
+    quoteAccBtn.classList.add('expanded');
+    quoteAccBtn.textContent = qOpenText;
+  }
+  // Select the matching card
+  document.querySelectorAll('.option-card').forEach(card => {
+    if (card.dataset.option === targetOption) {
+      card.classList.add('selected');
+      selectedOption = targetOption;
+    }
+  });
+}
 
 // Form submission
 document.getElementById('quoteForm').addEventListener('submit', async function(e) {

@@ -71,7 +71,7 @@ function saveLocalBackup($data, $type = 'lead') {
     $isNew = !file_exists(LEADS_BACKUP_FILE);
     $fp = fopen(LEADS_BACKUP_FILE, 'a');
     if ($isNew) {
-        fputcsv($fp, ['timestamp', 'type', 'name', 'email', 'phone', 'zip', 'option', 'source']);
+        fputcsv($fp, ['timestamp', 'type', 'name', 'email', 'phone', 'zip', 'monthly_bill', 'option', 'source']);
     }
     fputcsv($fp, [
         date('Y-m-d H:i:s'),
@@ -80,6 +80,7 @@ function saveLocalBackup($data, $type = 'lead') {
         $data['email'] ?? '',
         $data['phone'] ?? '',
         $data['zip'] ?? '',
+        $data['monthly_bill'] ?? '',
         $data['customer_option'] ?? '',
         $data['source'] ?? 'website'
     ]);
@@ -155,36 +156,81 @@ sendNotification($input, $action);
 $accessToken = getAccessToken();
 
 if ($action === 'newsletter') {
-    // ─── NEWSLETTER → Zoho Contact ───
+    // ─── NEWSLETTER → Zoho Lead with "Newsletter" tag ───
     if (!$accessToken) {
         logDebug('No token, but email saved locally and notification sent');
         echo json_encode(['success' => true, 'note' => 'Saved locally, Zoho sync pending']);
         exit;
     }
     
-    $contactData = [
+    // Build UTM description
+    $utmParts = [];
+    foreach (['utm_source','utm_medium','utm_campaign','utm_content','utm_term','referrer'] as $k) {
+        if (!empty($input[$k])) $utmParts[] = "$k: {$input[$k]}";
+    }
+    $utmDesc = $utmParts ? implode(' | ', $utmParts) : '';
+    
+    $leadData = [
+        'First_Name'  => $input['first_name'] ?? 'Newsletter',
+        'Last_Name'   => $input['last_name'] ?? ($input['first_name'] ?? 'Subscriber'),
         'Email'       => $input['email'] ?? '',
-        'First_Name'  => $input['first_name'] ?? '',
-        'Last_Name'   => $input['last_name'] ?? ($input['first_name'] ?? 'Newsletter Subscriber'),
-        'Lead_Source'  => 'Newsletter Popup',
-        'Description' => 'Newsletter signup from website'
+        'Lead_Source'  => 'Website',
+        'Tag'         => [['name' => 'Newsletter']],
+        'Description' => 'Newsletter signup from website' . ($utmDesc ? " | $utmDesc" : '')
     ];
     
-    $result = createZohoRecord('Contacts', $contactData, $accessToken);
+    // Dedup check — search for existing lead with same email
+    $searchUrl = 'https://www.zohoapis.com/crm/v2/Leads/search?email=' . urlencode($input['email'] ?? '');
+    $sch = curl_init($searchUrl);
+    curl_setopt_array($sch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 10,
+        CURLOPT_HTTPHEADER => [
+            'Authorization: Zoho-oauthtoken ' . $accessToken,
+        ],
+    ]);
+    $searchResp = curl_exec($sch);
+    $searchCode = curl_getinfo($sch, CURLINFO_HTTP_CODE);
+    curl_close($sch);
+    
+    if ($searchCode === 200) {
+        $existing = json_decode($searchResp, true);
+        if (!empty($existing['data'])) {
+            logDebug('Duplicate found for email: ' . ($input['email'] ?? '') . ' — skipping create, updating tag');
+            // Update existing record to add Newsletter tag
+            $existingId = $existing['data'][0]['id'];
+            $updateData = ['Tag' => [['name' => 'Newsletter']]];
+            $updatePayload = json_encode(['data' => [$updateData]]);
+            $uch = curl_init("https://www.zohoapis.com/crm/v2/Leads/{$existingId}");
+            curl_setopt_array($uch, [
+                CURLOPT_CUSTOMREQUEST => 'PUT',
+                CURLOPT_POSTFIELDS => $updatePayload,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_HTTPHEADER => [
+                    'Authorization: Zoho-oauthtoken ' . $accessToken,
+                    'Content-Type: application/json'
+                ],
+            ]);
+            curl_exec($uch);
+            curl_close($uch);
+            echo json_encode(['success' => true]);
+            exit;
+        }
+    }
+    
+    $result = createZohoRecord('Leads', $leadData, $accessToken);
     
     if ($result['code'] === 200 || $result['code'] === 201) {
         echo json_encode(['success' => true]);
     } else {
-        // Still return success to user since we saved locally
-        logDebug('Zoho contact creation failed, but saved locally');
+        logDebug('Zoho lead creation failed for newsletter, but saved locally');
         echo json_encode(['success' => true, 'note' => 'Saved locally, Zoho sync pending']);
     }
     
 } else {
-    // ─── LEAD (quote form) → Zoho Lead ───
+    // ─── LEAD (quote form) → Zoho Lead with dedup + UTM ───
     if (!$accessToken) {
         logDebug('No token, but lead saved locally and notification sent');
-        // Return success to user — we have their info, just Zoho sync failed
         echo json_encode(['success' => true, 'note' => 'Saved locally, Zoho sync pending']);
         exit;
     }
@@ -193,15 +239,65 @@ if ($action === 'newsletter') {
     $firstName = $nameParts[0];
     $lastName  = $nameParts[1] ?? $nameParts[0];
     
+    // Build UTM description
+    $utmParts = [];
+    foreach (['utm_source','utm_medium','utm_campaign','utm_content','utm_term','referrer'] as $k) {
+        if (!empty($input[$k])) $utmParts[] = "$k: {$input[$k]}";
+    }
+    $utmDesc = $utmParts ? implode(' | ', $utmParts) : '';
+    
     $leadData = [
         'First_Name'  => $firstName,
         'Last_Name'   => $lastName,
         'Email'       => $input['email'] ?? '',
         'Phone'       => $input['phone'] ?? '',
         'Zip_Code'    => $input['zip'] ?? '',
-        'Lead_Source'  => 'Website Quote Form',
+        'Lead_Source'  => 'Website',
+        'Tag'         => [['name' => 'Quote Request']],
         'Description' => 'Customer Option: ' . ($input['customer_option'] ?? 'Not specified')
+                       . ' | Monthly Bill: ' . ($input['monthly_bill'] ?? 'Not specified')
+                       . ($utmDesc ? " | $utmDesc" : '')
     ];
+    
+    // Dedup check
+    $email = $input['email'] ?? '';
+    if ($email) {
+        $searchUrl = 'https://www.zohoapis.com/crm/v2/Leads/search?email=' . urlencode($email);
+        $sch = curl_init($searchUrl);
+        curl_setopt_array($sch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 10,
+            CURLOPT_HTTPHEADER => ['Authorization: Zoho-oauthtoken ' . $accessToken],
+        ]);
+        $searchResp = curl_exec($sch);
+        $searchCode = curl_getinfo($sch, CURLINFO_HTTP_CODE);
+        curl_close($sch);
+        
+        if ($searchCode === 200) {
+            $existing = json_decode($searchResp, true);
+            if (!empty($existing['data'])) {
+                logDebug('Duplicate lead found for: ' . $email . ' — updating instead of creating');
+                $existingId = $existing['data'][0]['id'];
+                $leadData['Description'] = '[Returning Lead] ' . $leadData['Description'];
+                $updatePayload = json_encode(['data' => [$leadData]]);
+                $uch = curl_init("https://www.zohoapis.com/crm/v2/Leads/{$existingId}");
+                curl_setopt_array($uch, [
+                    CURLOPT_CUSTOMREQUEST => 'PUT',
+                    CURLOPT_POSTFIELDS => $updatePayload,
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_HTTPHEADER => [
+                        'Authorization: Zoho-oauthtoken ' . $accessToken,
+                        'Content-Type: application/json'
+                    ],
+                ]);
+                $dupResp = curl_exec($uch);
+                curl_close($uch);
+                logDebug('Dedup update response: ' . $dupResp);
+                echo json_encode(['success' => true]);
+                exit;
+            }
+        }
+    }
     
     $result = createZohoRecord('Leads', $leadData, $accessToken);
     
@@ -221,7 +317,6 @@ if ($action === 'newsletter') {
             }
         }
         
-        // Still return success — we have the lead saved locally + email sent
         logDebug('Zoho lead creation failed, but saved locally and notified');
         echo json_encode(['success' => true, 'note' => 'Saved locally, Zoho sync pending']);
     }

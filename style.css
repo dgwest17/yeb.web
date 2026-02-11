@@ -1288,6 +1288,89 @@ body { padding-top: 72px; }
   .sticky-cta__inner { justify-content: center; gap: 1rem; }
 }
 
+/* ─── Newsletter Popup ─── */
+.newsletter-popup {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0,0,0,0.5);
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.newsletter-popup.visible { display: flex; }
+.newsletter-popup__content {
+  background: var(--white);
+  border-radius: var(--radius-lg, 16px);
+  padding: 2.5rem;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  animation: fadeUp 0.3s ease;
+}
+.newsletter-popup__close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: var(--slate);
+  padding: 0.25rem;
+}
+.newsletter-popup__icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+.newsletter-popup__content h3 {
+  color: var(--navy);
+  margin-bottom: 0.5rem;
+  font-size: 1.3rem;
+}
+.newsletter-popup__content > p {
+  color: var(--slate);
+  font-size: 0.9rem;
+  margin-bottom: 1.25rem;
+}
+.newsletter-popup__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.newsletter-popup__form input {
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-sm, 8px);
+  font-size: 1rem;
+  font-family: inherit;
+  width: 100%;
+}
+.newsletter-popup__form input:focus { outline: none; border-color: var(--teal); }
+.newsletter-popup__form button {
+  padding: 0.75rem;
+  background: var(--teal);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-sm, 8px);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.3s;
+}
+.newsletter-popup__form button:hover { background: var(--teal-dark); }
+.newsletter-popup__fine {
+  font-size: 0.75rem;
+  color: var(--slate);
+  margin-top: 0.5rem;
+}
+.newsletter-popup__success p {
+  color: var(--teal);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
 /* ─── Zoho Form Styles ─── */
 .zoho-form-wrap { max-width: 520px; margin-inline: auto; }
 .zoho-form-wrap iframe { width: 100%; border: none; border-radius: var(--radius); min-height: 480px; }

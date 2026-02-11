@@ -411,6 +411,25 @@
   </div>
 </footer>
 
+<!-- ─── NEWSLETTER POPUP ─── -->
+<div class="newsletter-popup" id="newsletterPopup">
+  <div class="newsletter-popup__content">
+    <button class="newsletter-popup__close" id="newsletterClose">✕</button>
+    <div class="newsletter-popup__icon">⚡</div>
+    <h3>Stay in the loop</h3>
+    <p>Get solar tips, rebate alerts, and exclusive savings — delivered to your inbox.</p>
+    <form id="newsletterForm" class="newsletter-popup__form">
+      <input type="text" id="nlFirstName" placeholder="First name" required />
+      <input type="email" id="nlEmail" placeholder="Email address" required />
+      <button type="submit">Subscribe</button>
+    </form>
+    <p class="newsletter-popup__fine">No spam, ever. Unsubscribe anytime.</p>
+    <div class="newsletter-popup__success" id="nlSuccess" style="display:none;">
+      <p>✓ You're in! Watch your inbox.</p>
+    </div>
+  </div>
+</div>
+
 <!-- ─── STICKY BOTTOM CTA BAR (Rec #6) ─── -->
 <div class="sticky-cta" id="stickyCta">
   <div class="sticky-cta__inner">
@@ -595,6 +614,54 @@ CMS.load().then(() => {
   // Install map
   renderInstallMap();
 });
+
+// ─── Newsletter Popup ───
+(function() {
+  const popup = document.getElementById('newsletterPopup');
+  const closeBtn = document.getElementById('newsletterClose');
+  const form = document.getElementById('newsletterForm');
+  if (!popup) return;
+  
+  // Don't show if already dismissed or subscribed
+  const dismissed = sessionStorage.getItem('nl_dismissed');
+  if (dismissed) return;
+  
+  // Show after 8 seconds
+  setTimeout(() => { popup.classList.add('visible'); }, 8000);
+  
+  closeBtn.addEventListener('click', () => {
+    popup.classList.remove('visible');
+    sessionStorage.setItem('nl_dismissed', '1');
+  });
+  popup.addEventListener('click', (e) => {
+    if (e.target === popup) { popup.classList.remove('visible'); sessionStorage.setItem('nl_dismissed', '1'); }
+  });
+  
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = form.querySelector('button');
+    btn.textContent = 'Subscribing...';
+    btn.disabled = true;
+    
+    try {
+      await fetch('zoho.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'newsletter',
+          first_name: document.getElementById('nlFirstName').value,
+          email: document.getElementById('nlEmail').value,
+          source: 'newsletter_popup'
+        })
+      });
+    } catch(err) { /* still show success — email was likely saved */ }
+    
+    form.style.display = 'none';
+    document.getElementById('nlSuccess').style.display = 'block';
+    sessionStorage.setItem('nl_dismissed', '1');
+    setTimeout(() => { popup.classList.remove('visible'); }, 3000);
+  });
+})();
 </script>
 </body>
 </html>

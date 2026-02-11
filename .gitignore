@@ -12,6 +12,15 @@ img/uploads/
 zoho_debug.log
 leads_backup.csv
 
+# Instagram
+.instagram_token
+ig_cache.json
+
+# Google Reviews
+.google_api_key
+.google_place_id
+reviews_cache.json
+
 # OS files
 .DS_Store
 Thumbs.db

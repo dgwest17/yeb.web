@@ -785,9 +785,9 @@ CMS.load().then(() => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'newsletter',
+          source_form: 'NewsletterPopup',
           first_name: document.getElementById('nlFirstName').value,
           email: document.getElementById('nlEmail').value,
-          source: 'newsletter_popup',
           ...utmData
         })
       });

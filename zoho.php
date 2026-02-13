@@ -288,6 +288,72 @@ if (!$accessToken) {
 
 // ─── BUILD LEAD DATA ───
 $email = trim($input['email'] ?? '');
+
+// ═══ RECRUIT HANDLER (Training Access Requests) ═══
+if ($action === 'recruit') {
+    // Name handling
+    if (!empty($input['name'])) {
+        $nameParts = splitName($input['name']);
+    } else {
+        $nameParts = [
+            'First' => trim($input['first_name'] ?? '') ?: 'Unknown',
+            'Last'  => trim($input['last_name'] ?? '') ?: 'N/A'
+        ];
+    }
+    
+    $recruitData = [
+        'Name'              => $nameParts['First'],
+        'Last_Name'         => $nameParts['Last'],
+        'Email'             => $email,
+        'Phone_1'           => $input['phone'] ?? '',
+        'How_you_found_us'  => 'Website - Training Portal',
+        'Status'            => 'New',
+        'Tag'               => 'TRAINING_ACCESS_REQUEST',
+        'Rep_Notes'         => "Training access requested | Trace: {$traceId}",
+    ];
+    
+    if ($isTest) {
+        $recruitData['Tag'] = 'TEST_RECRUIT,TRAINING_ACCESS_REQUEST';
+    }
+    
+    logDebug("Recruit payload: " . json_encode($recruitData));
+    
+    // Search for existing recruit by email
+    $existingId = null;
+    if (!empty($email)) {
+        $searchUrl = ZOHO_API_BASE . '/Recruits/search?email=' . urlencode($email);
+        $search = zohoRequest('GET', $searchUrl, $accessToken);
+        if ($search['code'] === 200 && !empty($search['body']['data'])) {
+            $existingId = $search['body']['data'][0]['id'];
+            logDebug("Found existing recruit {$existingId} for {$email}");
+        }
+    }
+    
+    if ($existingId) {
+        // Update existing
+        unset($recruitData['Status']);
+        $result = zohoRequest('PUT', ZOHO_API_BASE . "/Recruits/{$existingId}", $accessToken, ['data' => [$recruitData]]);
+        if ($result['code'] === 200) {
+            logStructured($sourceForm, 'success', $input, $existingId);
+            echo json_encode(['success' => true, 'zoho_id' => $existingId, 'action' => 'updated', 'trace' => $traceId]);
+            exit;
+        }
+    }
+    
+    // Create new
+    $result = zohoRequest('POST', ZOHO_API_BASE . '/Recruits', $accessToken, ['data' => [$recruitData]]);
+    if ($result['code'] === 200 || $result['code'] === 201) {
+        $newId = $result['body']['data'][0]['details']['id'] ?? null;
+        logStructured($sourceForm, 'success', $input, $newId);
+        echo json_encode(['success' => true, 'zoho_id' => $newId, 'action' => 'created', 'trace' => $traceId]);
+    } else {
+        logStructured($sourceForm, 'fail', $input, null, $result['raw']);
+        echo json_encode(['success' => true, 'note' => 'Saved locally, Zoho sync pending', 'trace' => $traceId]);
+    }
+    exit;
+}
+
+// ═══ LEAD HANDLER (Quote, Newsletter, PayPal) ═══
 $opportunityType = resolveOpportunityType($input);
 
 $leadSource = $input['lead_source'] ?? 'Website';

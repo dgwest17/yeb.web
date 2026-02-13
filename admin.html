@@ -223,6 +223,20 @@
           <div class="field"><label>Email</label><input type="text" id="contact-email" /></div>
         </div>
       </div>
+      <div class="section-card">
+        <div class="section-header"><h3>Utilities vs Solar Comparison Table</h3></div>
+        <div class="row">
+          <div class="field"><label>Section Title</label><input type="text" id="comp-title" /></div>
+          <div class="field"><label>Subtitle</label><input type="text" id="comp-subtitle" /></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Utility Column Header</label><input type="text" id="comp-col-utility" /></div>
+          <div class="field"><label>Solar Column Header</label><input type="text" id="comp-col-solar" /></div>
+        </div>
+        <p style="font-size:0.85rem;color:#666;margin:0.5rem 0;">Comparison Rows:</p>
+        <div id="comp-rows"></div>
+        <button class="btn btn-add" onclick="addCompRow()">+ Add Row</button>
+      </div>
     </div>
   </div>
 
@@ -327,6 +341,14 @@ function renderAll() {
   setVal('contact-phone', c.phone);
   setVal('contact-email', c.email);
 
+  // Comparison table
+  const comp = content.comparison || {};
+  setVal('comp-title', comp.title || 'California Utilities vs. Going Solar');
+  setVal('comp-subtitle', comp.subtitle || 'Utility rates have increased 40%+ in three years.');
+  setVal('comp-col-utility', comp.col_utility || 'Stay with Utility');
+  setVal('comp-col-solar', comp.col_solar || 'Go Solar');
+  renderCompRows();
+
   const q = content.quote || {};
   setVal('quote-eyebrow', q.hero_eyebrow);
   setVal('quote-title', q.hero_title);
@@ -394,6 +416,25 @@ function syncTextFields() {
   if (!content.contact) content.contact = {};
   content.contact.phone = getVal('contact-phone') || content.contact.phone;
   content.contact.email = getVal('contact-email') || content.contact.email;
+
+  // Comparison table
+  if (!content.comparison) content.comparison = {};
+  content.comparison.title = getVal('comp-title') || content.comparison.title;
+  content.comparison.subtitle = getVal('comp-subtitle') || content.comparison.subtitle;
+  content.comparison.col_utility = getVal('comp-col-utility') || content.comparison.col_utility;
+  content.comparison.col_solar = getVal('comp-col-solar') || content.comparison.col_solar;
+  // Sync comparison rows
+  const compRowEls = document.querySelectorAll('.comp-row-item');
+  if (compRowEls.length > 0) {
+    content.comparison.rows = [];
+    compRowEls.forEach(el => {
+      content.comparison.rows.push({
+        label: el.querySelector('.comp-label').value,
+        utility: el.querySelector('.comp-utility').value,
+        solar: el.querySelector('.comp-solar').value
+      });
+    });
+  }
 
   // Quote
   if (!content.quote) content.quote = {};
@@ -663,6 +704,52 @@ function addBlogPost() {
   syncFieldsToContent();
   content.blog_posts.push({ title: '', tag: '', date: new Date().toISOString().split('T')[0], readtime: '5 min read', body: '' });
   renderBlogPosts();
+}
+
+// ─── Comparison Table Rows ───
+function renderCompRows() {
+  const rows = (content.comparison && content.comparison.rows) || [
+    { label: 'Monthly Cost', utility: '~$250+ (rising)', solar: '~$150 (locked)' },
+    { label: 'Annual Rate Increase', utility: '~8–10%/yr', solar: '0%' },
+    { label: '10-Year Cost', utility: '~$38,000+', solar: '~$18,000' },
+    { label: 'Own Your Power', utility: '✗', solar: '✓' },
+    { label: 'Home Value Increase', utility: '✗', solar: '+$15–25K' },
+  ];
+  document.getElementById('comp-rows').innerHTML = rows.map((r, i) => `
+    <div class="comp-row-item row" style="align-items:center;margin-bottom:0.5rem;">
+      <div class="field" style="flex:1.2"><input class="comp-label" value="${r.label||''}" placeholder="Row label" oninput="syncCompRow()" /></div>
+      <div class="field" style="flex:1"><input class="comp-utility" value="${r.utility||''}" placeholder="Utility value" oninput="syncCompRow()" /></div>
+      <div class="field" style="flex:1"><input class="comp-solar" value="${r.solar||''}" placeholder="Solar value" oninput="syncCompRow()" /></div>
+      <button class="btn btn-sm" style="flex:0 0 auto;background:#ef4444;color:white;border:none;padding:4px 10px;border-radius:6px;cursor:pointer;" onclick="removeCompRow(${i})">✕</button>
+    </div>
+  `).join('');
+}
+
+function syncCompRow() {
+  if (!content.comparison) content.comparison = {};
+  const rows = [];
+  document.querySelectorAll('.comp-row-item').forEach(el => {
+    rows.push({
+      label: el.querySelector('.comp-label').value,
+      utility: el.querySelector('.comp-utility').value,
+      solar: el.querySelector('.comp-solar').value
+    });
+  });
+  content.comparison.rows = rows;
+}
+
+function addCompRow() {
+  if (!content.comparison) content.comparison = {};
+  if (!content.comparison.rows) content.comparison.rows = [];
+  syncCompRow();
+  content.comparison.rows.push({ label: '', utility: '', solar: '' });
+  renderCompRows();
+}
+
+function removeCompRow(i) {
+  syncCompRow();
+  content.comparison.rows.splice(i, 1);
+  renderCompRows();
 }
 
 // ─── Image Upload ───

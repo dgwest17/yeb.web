@@ -20,7 +20,7 @@
 <body>
 
 <!-- ─── NAVIGATION (with phone number) ─── -->
-<nav class="nav" id="mainNav">
+<nav class="nav" id="mainNav" role="navigation" aria-label="Main navigation">
   <div class="container nav__inner">
     <a href="index.html" class="nav__logo" aria-label="Your Energy Best – Home">
       <img src="img/logo.png" alt="Your Energy Best" />
@@ -30,22 +30,22 @@
       <span>(760) 860-7862</span>
     </a>
     <a href="quote.html" class="nav__cta-mobile">Get Your Custom Quote</a>
-    <button class="nav__toggle" id="navToggle" aria-label="Toggle navigation">
+    <button class="nav__toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
       <span></span><span></span><span></span>
     </button>
-    <ul class="nav__links" id="navLinks" role="navigation">
-      <li><a href="index.html" class="active">Home</a></li>
-      <li><a href="quote.html">Get a Quote</a></li>
-      <li><a href="build">Build With Us</a></li>
-      <li><a href="blog.html">Blog</a></li>
-      <li><a href="#testimonials">Testimonials</a></li>
-      <li><a href="tel:7608607862" class="nav__phone-link">📞 (760) 860-7862</a></li>
-      <li><a href="quote.html" class="nav__cta-btn">Get Your Custom Quote</a></li>
+    <ul class="nav__links" id="navLinks" role="menubar">
+      <li role="none"><a href="index.html" class="active" role="menuitem">Home</a></li>
+      <li role="none"><a href="quote.html" role="menuitem">Get a Quote</a></li>
+      <li role="none"><a href="build" role="menuitem">Build With Us</a></li>
+      <li role="none"><a href="blog.html" role="menuitem">Blog</a></li>
+      <li role="none"><a href="#testimonials" role="menuitem">Testimonials</a></li>
+      <li role="none"><a href="tel:7608607862" class="nav__phone-link" role="menuitem">📞 (760) 860-7862</a></li>
+      <li role="none"><a href="quote.html" class="nav__cta-btn" role="menuitem">Get Your Custom Quote</a></li>
     </ul>
   </div>
 </nav>
 <!-- Mobile nav overlay -->
-<div class="nav__overlay" id="navOverlay"></div>
+<div class="nav__overlay" id="navOverlay" aria-hidden="true"></div>
 
 <!-- ─── HERO ─── -->
 <section class="hero">
@@ -102,7 +102,7 @@
     <div class="trust-bar__inner">
       <span class="trust-bar__item">✓ Licensed & Insured</span>
       <span class="trust-bar__item">✓ CSLB Licensed</span>
-      <span class="trust-bar__item">★ 5.0 Google Rating (194 Reviews)</span>
+      <span class="trust-bar__item trust-bar__item--rating">★ 5.0 Google Rating (194 Reviews)</span>
       <span class="trust-bar__item">✓ San Diego Local</span>
       <span class="trust-bar__item">✓ $0 Down Available</span>
     </div>
@@ -182,45 +182,16 @@
   </div>
 </section>
 
-<!-- ─── SOLAR vs SDG&E COMPARISON (Rec #10) ─── -->
+<!-- ─── CALIFORNIA UTILITIES vs SOLAR COMPARISON (CMS-driven) ─── -->
 <section class="section" style="background: var(--navy);">
   <div class="container" style="max-width: 860px;">
     <div class="section-head text-center">
       <span class="tag" style="background: rgba(255,255,255,0.1); color: var(--teal-light);">The Math</span>
-      <h2 style="color: var(--white);">SDG&E vs. Going Solar</h2>
-      <p style="color: rgba(255,255,255,0.6);">SDG&E rates have increased 40%+ in three years. Here's what that looks like over time.</p>
+      <h2 style="color: var(--white);" id="comparison-title">California Utilities vs. Going Solar</h2>
+      <p style="color: rgba(255,255,255,0.6);" id="comparison-subtitle">Utility rates have increased 40%+ in three years. Here's what that looks like over time.</p>
     </div>
-    <div class="comparison-table">
-      <div class="comparison-table__header">
-        <div></div>
-        <div class="comparison-table__col comparison-table__col--bad">Stay with SDG&E</div>
-        <div class="comparison-table__col comparison-table__col--good">Go Solar</div>
-      </div>
-      <div class="comparison-table__row">
-        <div class="comparison-table__label">Monthly Cost</div>
-        <div class="comparison-table__val comparison-table__val--bad">~$250+ (rising)</div>
-        <div class="comparison-table__val comparison-table__val--good">~$150 (locked)</div>
-      </div>
-      <div class="comparison-table__row">
-        <div class="comparison-table__label">Annual Rate Increase</div>
-        <div class="comparison-table__val comparison-table__val--bad">~8–10%/yr</div>
-        <div class="comparison-table__val comparison-table__val--good">0%</div>
-      </div>
-      <div class="comparison-table__row">
-        <div class="comparison-table__label">10-Year Cost</div>
-        <div class="comparison-table__val comparison-table__val--bad">~$38,000+</div>
-        <div class="comparison-table__val comparison-table__val--good">~$18,000</div>
-      </div>
-      <div class="comparison-table__row">
-        <div class="comparison-table__label">Own Your Power</div>
-        <div class="comparison-table__val comparison-table__val--bad">✗</div>
-        <div class="comparison-table__val comparison-table__val--good">✓</div>
-      </div>
-      <div class="comparison-table__row">
-        <div class="comparison-table__label">Home Value Increase</div>
-        <div class="comparison-table__val comparison-table__val--bad">✗</div>
-        <div class="comparison-table__val comparison-table__val--good">+$15–25K</div>
-      </div>
+    <div id="cms-comparison">
+      <!-- Rendered by CMS.renderComparison() -->
     </div>
     <div class="text-center" style="margin-top: var(--space-xl);">
       <a href="quote.html" class="btn btn--primary btn--lg">Lock In Your Rate →</a>
@@ -306,7 +277,7 @@
   </div>
 </section>
 
-<!-- ─── INSTAGRAM ─── -->
+<!-- ─── INSTAGRAM (Live Feed) ─── -->
 <section class="section instagram-section">
   <div class="container">
     <div class="section-head text-center">
@@ -314,7 +285,11 @@
       <h2>@energy.best.ca</h2>
       <p>See our latest installations, tips, and behind-the-scenes on Instagram.</p>
     </div>
-    <div style="text-align:center; padding:2rem; color:var(--slate);">Instagram feed coming soon</div>
+    <div class="ig-grid" id="igGrid">
+      <!-- Skeleton loaders while fetching -->
+      <div class="ig-skeleton"></div><div class="ig-skeleton"></div><div class="ig-skeleton"></div><div class="ig-skeleton"></div>
+      <div class="ig-skeleton"></div><div class="ig-skeleton"></div><div class="ig-skeleton"></div><div class="ig-skeleton"></div>
+    </div>
     <div class="text-center mt-lg">
       <a href="https://instagram.com/energy.best.ca" target="_blank" rel="noopener" class="btn btn--outline btn--sm">View Full Profile</a>
     </div>
@@ -350,7 +325,7 @@
     <div class="faq-exit-cta text-center">
       <p><strong>Still have questions?</strong> That's what we're here for.</p>
       <p>Get personalized answers from a San Diego solar expert — no sales pitch, just straight talk.</p>
-      <a href="quote.html" class="btn btn--primary" style="margin-top: var(--space-md);">Talk to an Expert →</a>
+      <a href="https://calendly.com/yourenergybest" target="_blank" rel="noopener" class="btn btn--primary" style="margin-top: var(--space-md);">Talk to an Expert →</a>
       <p class="microcopy">Or call us directly: <a href="tel:7608607862" style="color:var(--teal); font-weight:600;">(760) 860-7862</a></p>
     </div>
   </div>
@@ -442,33 +417,78 @@
 <!-- ─── SCRIPTS ─── -->
 <script src="cms.js"></script>
 <script>
-// Nav scroll effect
-window.addEventListener('scroll', () => {
-  const nav = document.getElementById('mainNav');
-  if (window.scrollY > 40) { nav.classList.add('scrolled'); }
-  else { nav.classList.remove('scrolled'); }
-});
-
-// Mobile nav toggle with overlay
+// ═══════════════════════════════════════════════════════════
+// 1. ENHANCED NAVIGATION — shrink on scroll, body lock, 
+//    animated hamburger, focus trap, accessibility
+// ═══════════════════════════════════════════════════════════
+const nav = document.getElementById('mainNav');
 const navToggle = document.getElementById('navToggle');
 const navLinks = document.getElementById('navLinks');
 const navOverlay = document.getElementById('navOverlay');
 
-navToggle.addEventListener('click', function() {
-  navLinks.classList.toggle('open');
-  navOverlay.classList.toggle('open');
-});
-navOverlay.addEventListener('click', function() {
+// Shrink + scrolled state
+let lastScroll = 0;
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  nav.classList.toggle('scrolled', y > 40);
+  nav.classList.toggle('shrink', y > 120);
+  lastScroll = y;
+}, { passive: true });
+
+// Mobile nav open/close with body scroll lock
+function openNav() {
+  navLinks.classList.add('open');
+  navOverlay.classList.add('open');
+  navToggle.classList.add('active');
+  navToggle.setAttribute('aria-expanded', 'true');
+  navToggle.setAttribute('aria-label', 'Close menu');
+  document.body.classList.add('nav-open');
+  navOverlay.setAttribute('aria-hidden', 'false');
+  // Focus first link
+  const firstLink = navLinks.querySelector('a');
+  if (firstLink) firstLink.focus();
+}
+function closeNav() {
   navLinks.classList.remove('open');
   navOverlay.classList.remove('open');
+  navToggle.classList.remove('active');
+  navToggle.setAttribute('aria-expanded', 'false');
+  navToggle.setAttribute('aria-label', 'Open menu');
+  document.body.classList.remove('nav-open');
+  navOverlay.setAttribute('aria-hidden', 'true');
+  navToggle.focus();
+}
+
+navToggle.addEventListener('click', () => {
+  navLinks.classList.contains('open') ? closeNav() : openNav();
 });
-// Close menu when a link is clicked
-navLinks.querySelectorAll('a').forEach(link => {
-  link.addEventListener('click', () => {
-    navLinks.classList.remove('open');
-    navOverlay.classList.remove('open');
+navOverlay.addEventListener('click', closeNav);
+navLinks.querySelectorAll('a').forEach(link => link.addEventListener('click', closeNav));
+
+// Focus trap in mobile nav
+navLinks.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') { closeNav(); return; }
+  if (e.key !== 'Tab') return;
+  const focusable = navLinks.querySelectorAll('a:not([style*="display:none"])');
+  const first = focusable[0], last = focusable[focusable.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+});
+
+// ═══════════════════════════════════════════════════════════
+// UTM CAPTURE — store in sessionStorage for form submission
+// ═══════════════════════════════════════════════════════════
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'].forEach(k => {
+    const v = params.get(k);
+    if (v) sessionStorage.setItem(k, v);
   });
-});
+  // Also store referring page
+  if (document.referrer && !document.referrer.includes(window.location.hostname)) {
+    sessionStorage.setItem('referrer', document.referrer);
+  }
+})();
 
 // Customer options accordion (all screen sizes)
 const accordionBtn = document.getElementById('accordionTrigger');
@@ -526,7 +546,7 @@ const statsObserver = new IntersectionObserver((entries) => {
   });
 }, { threshold: 0.5 });
 
-// Install Map (Rec #9) — renders pins on a simple SVG map of San Diego
+// Install Map
 function renderInstallMap() {
   const installs = [
     { name: 'Encinitas', lat: 33.0370, lng: -117.2920 },
@@ -545,7 +565,6 @@ function renderInstallMap() {
     { name: 'National City', lat: 32.6781, lng: -117.0992 },
     { name: 'Spring Valley', lat: 32.7448, lng: -116.9989 },
   ];
-  // Add your real addresses here — I'll render them as neighborhood pins
   
   const mapEl = document.getElementById('installMap');
   const minLat = 32.55, maxLat = 33.25, minLng = -117.45, maxLng = -116.85;
@@ -567,7 +586,110 @@ function renderInstallMap() {
     </div>`;
 }
 
-// Load CMS content
+// ═══════════════════════════════════════════════════════════
+// 4. CMS-DRIVEN COMPARISON TABLE
+// ═══════════════════════════════════════════════════════════
+function renderComparison(data) {
+  const c = data.comparison || {};
+  const title = c.title || 'California Utilities vs. Going Solar';
+  const subtitle = c.subtitle || 'Utility rates have increased 40%+ in three years.';
+  const colBad = c.col_utility || 'Stay with Utility';
+  const colGood = c.col_solar || 'Go Solar';
+  const rows = c.rows || [
+    { label: 'Monthly Cost', utility: '~$250+ (rising)', solar: '~$150 (locked)' },
+    { label: 'Annual Rate Increase', utility: '~8–10%/yr', solar: '0%' },
+    { label: '10-Year Cost', utility: '~$38,000+', solar: '~$18,000' },
+    { label: 'Own Your Power', utility: '✗', solar: '✓' },
+    { label: 'Home Value Increase', utility: '✗', solar: '+$15–25K' },
+  ];
+  
+  document.getElementById('comparison-title').textContent = title;
+  document.getElementById('comparison-subtitle').textContent = subtitle;
+  
+  let html = `<div class="comparison-table">
+    <div class="comparison-table__header">
+      <div></div>
+      <div class="comparison-table__col comparison-table__col--bad">${colBad}</div>
+      <div class="comparison-table__col comparison-table__col--good">${colGood}</div>
+    </div>`;
+  
+  rows.forEach(row => {
+    html += `<div class="comparison-table__row">
+      <div class="comparison-table__label">${row.label}</div>
+      <div class="comparison-table__val comparison-table__val--bad">${row.utility}</div>
+      <div class="comparison-table__val comparison-table__val--good">${row.solar}</div>
+    </div>`;
+  });
+  
+  html += '</div>';
+  document.getElementById('cms-comparison').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════
+// 2. INSTAGRAM FEED — lazy loaded, cached server-side
+// ═══════════════════════════════════════════════════════════
+function loadInstagramFeed() {
+  const grid = document.getElementById('igGrid');
+  // Lazy load: only fetch when section is near viewport
+  const igObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        igObserver.disconnect();
+        fetch('instagram.php')
+          .then(r => r.json())
+          .then(data => {
+            if (!data.success || !data.posts || data.posts.length === 0) {
+              grid.innerHTML = '<p style="text-align:center;color:var(--slate);grid-column:1/-1;">Follow us on Instagram @energy.best.ca</p>';
+              return;
+            }
+            grid.innerHTML = data.posts.map(post => {
+              if (post.placeholder || !post.media_url) {
+                return `<a href="${post.permalink}" target="_blank" rel="noopener" class="ig-item ig-item--placeholder">
+                  <div class="ig-item__icon">📸</div>
+                </a>`;
+              }
+              return `<a href="${post.permalink}" target="_blank" rel="noopener" class="ig-item">
+                <img src="${post.media_url}" alt="${post.caption || 'Instagram post'}" loading="lazy" />
+                <div class="ig-item__overlay">
+                  <p>${post.caption || ''}</p>
+                </div>
+              </a>`;
+            }).join('');
+          })
+          .catch(() => {
+            grid.innerHTML = '<p style="text-align:center;color:var(--slate);grid-column:1/-1;">Follow us <a href="https://instagram.com/energy.best.ca" target="_blank" style="color:var(--teal);">@energy.best.ca</a></p>';
+          });
+      }
+    });
+  }, { rootMargin: '200px' });
+  igObserver.observe(grid);
+}
+
+// ═══════════════════════════════════════════════════════════
+// 5. GOOGLE REVIEWS — live from Places API, cached server-side
+// ═══════════════════════════════════════════════════════════
+function loadGoogleReviews() {
+  fetch('reviews.php')
+    .then(r => r.json())
+    .then(data => {
+      if (!data.success) return;
+      // Update trust bar with live rating
+      const trustRating = document.querySelector('.trust-bar__item--rating');
+      if (trustRating) {
+        trustRating.textContent = '★ ' + data.rating.toFixed(1) + ' Google Rating (' + data.total_reviews + ' Reviews)';
+      }
+      // Update testimonials header rating if present
+      const ratingEls = document.querySelectorAll('.testimonials__rating .rating-text');
+      ratingEls.forEach(el => {
+        el.innerHTML = '<strong>' + data.rating.toFixed(1) + '</strong> Average Rating · ' + data.total_reviews + ' Reviews';
+      });
+    })
+    .catch(() => {}); // Fail silently — trust bar has static fallback
+}
+
+// ═══════════════════════════════════════════════════════════
+// LOAD CMS + RENDER ALL
+// ═══════════════════════════════════════════════════════════
 CMS.load().then(() => {
   // Hero text
   if (CMS.data.home) {
@@ -597,7 +719,7 @@ CMS.load().then(() => {
   const galleryHTML = CMS.data.gallery.map(g => {
     if (g.url) {
       return `<div style="flex:0 0 400px; height:300px; border-radius:var(--radius); overflow:hidden;">
-                <img src="${g.url}" alt="${g.caption}" style="width:100%;height:100%;object-fit:cover;" />
+                <img src="${g.url}" alt="${g.caption}" style="width:100%;height:100%;object-fit:cover;" loading="lazy" />
               </div>`;
     }
     return `<div style="flex:0 0 400px; height:300px; border-radius:var(--radius); background:var(--gray-100); display:flex; align-items:center; justify-content:center; color:var(--slate);">
@@ -606,13 +728,22 @@ CMS.load().then(() => {
   }).join('');
   galleryEl.innerHTML = galleryHTML + galleryHTML;
 
-  // Rebate, Testimonials (global expandable), FAQ
+  // Rebate, Testimonials, FAQ
   CMS.renderRebate('cms-rebate');
   CMS.renderTestimonialsGlobal('cms-testimonials', 6);
   CMS.renderFaq('cms-faq');
   
+  // Comparison table (CMS-driven)
+  renderComparison(CMS.data);
+  
   // Install map
   renderInstallMap();
+  
+  // Instagram feed (lazy loaded)
+  loadInstagramFeed();
+  
+  // Google Reviews (async update)
+  loadGoogleReviews();
 });
 
 // ─── Newsletter Popup ───
@@ -622,11 +753,9 @@ CMS.load().then(() => {
   const form = document.getElementById('newsletterForm');
   if (!popup) return;
   
-  // Don't show if already dismissed or subscribed
   const dismissed = sessionStorage.getItem('nl_dismissed');
   if (dismissed) return;
   
-  // Show after 8 seconds
   setTimeout(() => { popup.classList.add('visible'); }, 8000);
   
   closeBtn.addEventListener('click', () => {
@@ -643,6 +772,13 @@ CMS.load().then(() => {
     btn.textContent = 'Subscribing...';
     btn.disabled = true;
     
+    // Collect UTM data
+    const utmData = {};
+    ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','referrer'].forEach(k => {
+      const v = sessionStorage.getItem(k);
+      if (v) utmData[k] = v;
+    });
+    
     try {
       await fetch('zoho.php', {
         method: 'POST',
@@ -651,10 +787,11 @@ CMS.load().then(() => {
           action: 'newsletter',
           first_name: document.getElementById('nlFirstName').value,
           email: document.getElementById('nlEmail').value,
-          source: 'newsletter_popup'
+          source: 'newsletter_popup',
+          ...utmData
         })
       });
-    } catch(err) { /* still show success — email was likely saved */ }
+    } catch(err) {}
     
     form.style.display = 'none';
     document.getElementById('nlSuccess').style.display = 'block';

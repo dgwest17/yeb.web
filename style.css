@@ -127,20 +127,27 @@ small { font-size: 0.82rem; color: var(--slate); }
   background: rgba(255,255,255,.95);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--gray-200);
-  transition: box-shadow .3s;
+  transition: box-shadow .3s, height .3s, padding .3s;
 }
 .nav.scrolled { box-shadow: var(--shadow); }
 body { padding-top: 72px; }
+
+/* Shrink header on deeper scroll */
+.nav.shrink .nav__inner { height: 56px; }
+.nav.shrink .nav__logo img { height: 50px; }
+
 .nav__inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: 72px;
+  transition: height .3s;
 }
 .nav__logo img {
   height: 70px;
   width: auto;
   object-fit: contain;
+  transition: height .3s;
 }
 
 /* Desktop nav links */
@@ -207,8 +214,16 @@ body { padding-top: 72px; }
   width: 26px; height: 3px;
   background: var(--navy);
   border-radius: 2px;
-  transition: .3s;
+  transition: transform .3s, opacity .3s;
+  transform-origin: center;
 }
+/* Hamburger → X animation */
+.nav__toggle.active span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+.nav__toggle.active span:nth-child(2) { opacity: 0; }
+.nav__toggle.active span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+/* Body scroll lock when mobile nav is open */
+body.nav-open { overflow: hidden; }
 
 /* Scrolled state - nav link colors */
 .nav.scrolled .nav__links a:not(.nav__cta-btn) {
@@ -1204,7 +1219,6 @@ body { padding-top: 72px; }
   }
 
   .nav__links {
-    display: none;
     position: fixed;
     right: 0;
     top: 72px;
@@ -1212,33 +1226,48 @@ body { padding-top: 72px; }
     width: 55%;
     max-width: 320px;
     background: #ffffff;
+    display: flex;
     flex-direction: column;
-    padding: var(--space-xl);
-    gap: var(--space-lg);
+    padding: var(--space-xl) var(--space-xl) 6rem;
+    gap: 0;
     z-index: 101;
     box-shadow: -4px 0 20px rgba(0,0,0,0.2);
     overflow-y: auto;
+    transform: translateX(100%);
+    transition: transform .3s cubic-bezier(0.4, 0, 0.2, 1);
+    visibility: hidden;
   }
-  .nav__links.open { display: flex; }
+  .nav__links.open { transform: translateX(0); visibility: visible; }
 
   /* Dark overlay on left side when menu is open */
   .nav__overlay {
-    display: none;
     position: fixed;
     top: 72px; left: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,0.4);
     z-index: 100;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .3s, visibility .3s;
   }
-  .nav__overlay.open { display: block; }
+  .nav__overlay.open { opacity: 1; visibility: visible; }
 
-  /* Hide desktop CTA in mobile menu */
-  .nav__links .nav__cta-btn { display: none; }
+  /* Show CTA button inside mobile menu */
+  .nav__links .nav__cta-btn {
+    display: block !important;
+    margin-top: auto;
+    text-align: center;
+    padding: 1rem;
+  }
 
-  /* Mobile menu link styling */
+  /* Mobile menu link styling — good tap targets */
   .nav__links a {
-    font-size: 1rem;
+    font-size: 1.05rem;
     color: var(--navy);
-    padding: 0.5rem 0;
+    padding: 0.85rem 0;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--gray-200);
   }
   .nav__links a::after { display: none; }
 
@@ -1286,6 +1315,66 @@ body { padding-top: 72px; }
   .map-pin__label { font-size: 0.6rem; }
   .sticky-cta__text { display: none; }
   .sticky-cta__inner { justify-content: center; gap: 1rem; }
+}
+
+/* ─── Instagram Grid ─── */
+.ig-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+.ig-item {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: var(--radius-sm, 8px);
+  display: block;
+}
+.ig-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .3s;
+}
+.ig-item:hover img { transform: scale(1.05); }
+.ig-item__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(2,48,71,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity .3s;
+  padding: 1rem;
+}
+.ig-item:hover .ig-item__overlay { opacity: 1; }
+.ig-item__overlay p {
+  color: white;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  text-align: center;
+}
+.ig-item--placeholder {
+  background: var(--gray-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ig-item__icon { font-size: 2rem; }
+.ig-skeleton {
+  aspect-ratio: 1;
+  background: linear-gradient(90deg, var(--gray-100) 25%, #e2e8f0 50%, var(--gray-100) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm, 8px);
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+@media (max-width: 680px) {
+  .ig-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 /* ─── Newsletter Popup ─── */

@@ -18,8 +18,8 @@
     .option-card h4 { font-size: 1rem; margin: 0; color: var(--navy); }
     .form-field { margin-bottom: 1.5rem; }
     .form-field label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--navy); }
-    .form-field input { width: 100%; padding: 0.75rem; border: 1px solid var(--gray-200); border-radius: var(--radius-sm); font-size: 1rem; font-family: inherit; }
-    .form-field input:focus { outline: none; border-color: var(--teal); }
+    .form-field input, .form-field select { width: 100%; padding: 0.75rem; border: 1px solid var(--gray-200); border-radius: var(--radius-sm); font-size: 1rem; font-family: inherit; background: var(--white); }
+    .form-field input:focus, .form-field select:focus { outline: none; border-color: var(--teal); }
     .submit-btn { width: 100%; padding: 1rem; background: var(--teal); color: var(--white); border: none; border-radius: var(--radius-sm); font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.3s; font-family: inherit; }
     .submit-btn:hover { background: var(--teal-dark); transform: translateY(-2px); }
     .submit-btn:disabled { background: var(--slate); cursor: not-allowed; }
@@ -85,6 +85,17 @@
       <div class="form-field"><label for="email">Email *</label><input type="email" id="email" required /></div>
       <div class="form-field"><label for="phone">Phone Number *</label><input type="tel" id="phone" required /></div>
       <div class="form-field"><label for="zip">Zip Code *</label><input type="text" id="zip" pattern="[0-9]{5}" required /></div>
+      <div class="form-field">
+        <label for="monthlyBill">Average Monthly Electric Bill *</label>
+        <select id="monthlyBill" required>
+          <option value="" disabled selected>Select your range</option>
+          <option value="Under $100">Under $100</option>
+          <option value="$100-$200">$100 – $200</option>
+          <option value="$200-$400">$200 – $400</option>
+          <option value="$400-$700">$400 – $700</option>
+          <option value="$700+">$700+</option>
+        </select>
+      </div>
       <button type="submit" class="submit-btn" id="submitBtn">Get My Free Quote</button>
       <p class="microcopy" style="text-align:center; margin-top:0.75rem;">Takes 30 seconds · No credit check · No commitment</p>
       <p class="microcopy" style="text-align:center;">Or call us: <a href="tel:7608607862" style="color:var(--teal); font-weight:600;">(760) 860-7862</a></p>
@@ -198,6 +209,13 @@ document.getElementById('quoteForm').addEventListener('submit', async function(e
   const successMsg = document.getElementById('successMsg');
   submitBtn.disabled = true;
   submitBtn.textContent = 'Submitting...';
+  // Collect UTM data
+  const utmFields = {};
+  ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','referrer'].forEach(k => {
+    const v = sessionStorage.getItem(k);
+    if (v) utmFields[k] = v;
+  });
+  
   const formData = {
     action: 'lead',
     customer_option: selectedOption,
@@ -205,17 +223,20 @@ document.getElementById('quoteForm').addEventListener('submit', async function(e
     email: document.getElementById('email').value,
     phone: document.getElementById('phone').value,
     zip: document.getElementById('zip').value,
-    source: 'quote_form'
+    monthly_bill: document.getElementById('monthlyBill').value,
+    source: 'quote_form',
+    ...utmFields
   };
   try {
     const response = await fetch('zoho.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) });
     const result = await response.json();
     if (result.success) {
+      // Show success with scheduling CTA
+      successMsg.innerHTML = '<div style="text-align:center;"><p style="font-size:1.2rem;font-weight:700;color:var(--teal);margin-bottom:1rem;">✓ Submitted!</p><p style="margin-bottom:1.5rem;">Want to schedule your consultation now?</p><a href="https://calendly.com/yourenergybest" class="btn btn--primary" style="display:inline-block;padding:0.75rem 2rem;background:var(--teal);color:white;border-radius:50px;font-weight:700;text-decoration:none;">Schedule Now →</a><p class="microcopy" style="margin-top:0.75rem;">Or we\'ll reach out within 24 hours.</p></div>';
       successMsg.style.display = 'block';
       document.getElementById('quoteForm').style.display = 'none';
       document.getElementById('customerOptions').style.display = 'none';
       if (quoteAccBtn) quoteAccBtn.style.display = 'none';
-      setTimeout(() => { window.location.href = 'https://calendly.com/yourenergybest'; }, 2000);
     } else { throw new Error(result.error || 'Submission failed'); }
   } catch (error) {
     alert('Something went wrong. Please try again or call us directly.');

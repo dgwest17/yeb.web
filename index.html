@@ -7,6 +7,7 @@
   <meta name="description" content="Solar, batteries, and HVAC solutions with $0 down options for eligible San Diego homes." />
   <link rel="icon" type="image/png" href="img/logo.png" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="surf-theme.css" />
   <style>
     .nav { padding: 0.5rem 2rem; }
     .nav__logo img { height: 70px; width: auto; }
@@ -50,11 +51,17 @@
 <!-- ─── HERO ─── -->
 <section class="hero">
   <div class="hero__bg"></div>
+  <!-- Animated rolling waves -->
+  <div class="hero-waves">
+    <div class="hero-waves__layer hero-waves__layer--1"></div>
+    <div class="hero-waves__layer hero-waves__layer--2"></div>
+    <div class="hero-waves__layer hero-waves__layer--3"></div>
+  </div>
   <div class="hero__content">
     <div class="hero__text anim-fadeUp">
-      <span class="eyebrow">San Diego's Solar & HVAC Experts</span>
-      <h1><span class="title-white" id="home-title-part1">Your Home for the Best</span> <span class="title-orange" id="home-title-part2">Energy Upgrades</span></h1>
-      <p id="home-subtitle">Solar, batteries, and HVAC solutions—with $0 down options available for eligible homes.</p>
+      <span class="eyebrow">San Diego's Solar & Energy Experts</span>
+      <h1><span class="title-white" id="home-title-part1">Surf Into</span> <em class="title-orange" id="home-title-part2">Energy Freedom</em></h1>
+      <p id="home-subtitle">Ride the wave to lower bills — solar, batteries, and HVAC with $0 down options for eligible San Diego homes.</p>
       <!-- Accordion trigger -->
       <button class="customer-accordion-trigger" id="accordionTrigger">Start Your Process</button>
     </div>
@@ -91,6 +98,10 @@
 
 <!-- ─── STATS BAR ─── -->
 <section class="stats">
+  <!-- Wave divider on top -->
+  <div class="wave-divider wave-divider--top wave-divider--navy">
+    <svg viewBox="0 0 1440 70" preserveAspectRatio="none"><path d="M0,35 C240,60 480,10 720,35 C960,60 1200,15 1440,35 L1440,70 L0,70Z"/></svg>
+  </div>
   <div class="container">
     <div class="stats__grid" id="cms-stats"></div>
   </div>
@@ -199,6 +210,9 @@
     </div>
   </div>
 </section>
+
+<!-- Animated wave break -->
+<div class="wave-break"></div>
 
 <!-- ─── PROJECT GALLERY ─── -->
 <section class="section">
@@ -335,7 +349,7 @@
 <section class="section">
   <div class="container">
     <div class="cta-banner">
-      <h2>Ready to start saving?</h2>
+      <h2>Ride the Wave to Lower Bills</h2>
       <p>Get a free, no-obligation solar quote in under 48 hours. Zero pressure, zero hidden fees.</p>
       <a href="quote.html" class="btn btn--primary btn--lg">Get Your Free Quote</a>
       <p class="microcopy" style="color: rgba(255,255,255,0.6);">Takes 30 seconds · No credit check · No commitment</p>

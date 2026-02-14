@@ -1,0 +1,580 @@
+/* ============================================================
+   SURF / WAVE AESTHETIC — YOUR ENERGY BEST
+   "Surf Into Energy Freedom"
+   Bold oceanic theme overlay — load AFTER style.css
+   ============================================================ */
+
+/* ─── Ocean Palette Refinement ─── */
+:root {
+  --ocean-deep:    #091B2A;
+  --ocean-mid:     #0F3048;
+  --ocean-bright:  #1A6E8E;
+  --foam:          rgba(255,255,255,0.06);
+  --sand:          #F5EDE0;
+  --sand-light:    #FAF6EF;
+  --sand-warm:     #EDE4D3;
+  --sunset:        #FB9B47;
+  --sunset-glow:   rgba(251,155,71,0.15);
+  --wave-teal:     #22A8B3;
+  --wave-aqua:     #38BEC9;
+  --wave-glow:     rgba(34,168,179,0.12);
+}
+
+/* ─── Typography: Distinctive Surf Display + Clean Body ─── */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,800;0,900;1,400;1,700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
+
+:root {
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body:    'DM Sans', system-ui, sans-serif;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   KEYFRAME ANIMATIONS
+   ═══════════════════════════════════════════════════════════ */
+@keyframes waveRoll1 {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes waveRoll2 {
+  0%   { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+@keyframes waveFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+@keyframes waveFloat2 {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(6px); }
+}
+@keyframes foamShimmer {
+  0%   { opacity: 0.03; }
+  50%  { opacity: 0.06; }
+  100% { opacity: 0.03; }
+}
+@keyframes gentleRise {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes sunGlow {
+  0%, 100% { opacity: 0.12; transform: scale(1); }
+  50%      { opacity: 0.18; transform: scale(1.05); }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BODY & GLOBAL
+   ═══════════════════════════════════════════════════════════ */
+body {
+  background: var(--sand-light);
+  color: var(--ocean-deep);
+}
+
+/* Subtle grain texture for beach feel */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.018;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ═══════════════════════════════════════════════════════════
+   WAVE DIVIDER COMPONENT
+   Usage: <div class="wave-divider wave-divider--bottom wave-divider--white">
+   ═══════════════════════════════════════════════════════════ */
+.wave-divider {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+.wave-divider--bottom { bottom: -1px; }
+.wave-divider--top    { top: -1px; transform: rotate(180deg); }
+
+.wave-divider svg {
+  display: block;
+  width: 100%;
+  height: 50px;
+  fill: var(--sand-light);
+}
+.wave-divider--sand svg   { fill: var(--sand); }
+.wave-divider--white svg  { fill: var(--sand-light); }
+.wave-divider--navy svg   { fill: var(--ocean-deep); }
+.wave-divider--cream svg  { fill: var(--sand-light); }
+
+@media (min-width: 768px) {
+  .wave-divider svg { height: 70px; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   NAVIGATION — Dark ocean glass
+   ═══════════════════════════════════════════════════════════ */
+.nav {
+  background: rgba(9,27,42,0.92);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(56,190,201,0.08);
+}
+.nav.scrolled {
+  background: rgba(9,27,42,0.97);
+  box-shadow: 0 4px 30px rgba(0,0,0,0.25);
+  border-bottom-color: rgba(56,190,201,0.12);
+}
+.nav__links a                      { color: rgba(255,255,255,0.78) !important; transition: color 0.2s; }
+.nav__links a:hover                { color: var(--wave-aqua) !important; }
+.nav__links a.active               { color: var(--wave-aqua) !important; }
+.nav__phone                        { color: rgba(255,255,255,0.7) !important; }
+.nav__phone:hover                  { color: var(--sunset) !important; }
+.nav__cta-btn {
+  background: linear-gradient(135deg, var(--sunset) 0%, var(--orange-dark) 100%) !important;
+  color: var(--white) !important;
+  box-shadow: 0 4px 16px rgba(251,155,71,0.3);
+}
+.nav.scrolled .nav__links a:not(.nav__cta-btn) { color: rgba(255,255,255,0.78) !important; }
+.nav.scrolled .nav__links a:not(.nav__cta-btn):hover { color: var(--wave-aqua) !important; }
+
+/* ═══════════════════════════════════════════════════════════
+   HERO — Full Ocean Immersion
+   ═══════════════════════════════════════════════════════════ */
+.hero {
+  background: linear-gradient(175deg, var(--ocean-deep) 0%, var(--ocean-mid) 35%, var(--ocean-bright) 70%, #1B8BA0 100%);
+  min-height: 92vh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Ocean gradient orbs */
+.hero__bg {
+  background:
+    radial-gradient(ellipse 100% 80% at 5% 95%, rgba(34,168,179,0.2) 0%, transparent 50%),
+    radial-gradient(ellipse 80% 60% at 95% 5%, var(--sunset-glow) 0%, transparent 45%),
+    radial-gradient(ellipse 50% 40% at 50% 60%, rgba(56,190,201,0.06) 0%, transparent 60%);
+}
+
+/* Sunset glow orb */
+.hero__bg::before {
+  content: '';
+  position: absolute;
+  top: -5%;
+  right: -5%;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(251,155,71,0.12) 0%, transparent 70%);
+  animation: sunGlow 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Animated rolling wave layers */
+.hero-waves {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 220px;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+.hero-waves__layer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  background-repeat: repeat-x;
+  background-size: 50% 100%;
+}
+.hero-waves__layer--1 {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 220'%3E%3Cpath fill='rgba(34,168,179,0.07)' d='M0,110 C180,170 360,50 540,110 C720,170 900,60 1080,120 C1260,170 1380,90 1440,110 L1440,220 L0,220Z'/%3E%3C/svg%3E");
+  animation: waveRoll1 14s linear infinite;
+}
+.hero-waves__layer--2 {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 180'%3E%3Cpath fill='rgba(255,255,255,0.04)' d='M0,90 C240,140 480,40 720,100 C960,160 1200,60 1440,90 L1440,180 L0,180Z'/%3E%3C/svg%3E");
+  animation: waveRoll2 18s linear infinite;
+  bottom: -10px;
+}
+.hero-waves__layer--3 {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 120'%3E%3Cpath fill='rgba(56,190,201,0.05)' d='M0,60 C200,100 400,20 600,70 C800,120 1000,40 1200,80 C1320,100 1440,60 1440,60 L1440,120 L0,120Z'/%3E%3C/svg%3E");
+  animation: waveRoll1 22s linear infinite;
+  bottom: -5px;
+}
+
+/* Hero text */
+.hero__text h1 {
+  text-shadow: 0 3px 30px rgba(0,0,0,0.2);
+  letter-spacing: -0.01em;
+}
+.title-orange, .hero__text h1 em {
+  color: var(--sunset) !important;
+  font-style: italic;
+  text-shadow: 0 3px 40px rgba(251,155,71,0.3);
+}
+
+.hero__text .eyebrow {
+  background: rgba(56,190,201,0.12);
+  border: 1px solid rgba(56,190,201,0.2);
+  backdrop-filter: blur(10px);
+}
+
+/* Hero cards — frosted glass ocean */
+.hero__card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(16px);
+  border-radius: 16px;
+  transition: all 0.35s;
+}
+.hero__card:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(56,190,201,0.35);
+  box-shadow: 0 8px 40px rgba(34,168,179,0.15);
+  transform: translateY(-4px);
+}
+
+/* Hero savings CTA shimmer */
+.hero__savings-cta a {
+  position: relative;
+  overflow: hidden;
+}
+.hero__savings-cta a::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(56,190,201,0.08), transparent);
+  animation: waveRoll2 4s ease-in-out infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   STATS BAR — Deep ocean floor
+   ═══════════════════════════════════════════════════════════ */
+.stats {
+  background: linear-gradient(135deg, var(--ocean-deep) 0%, var(--ocean-mid) 100%);
+  position: relative;
+}
+.stat__number {
+  color: var(--sunset);
+  text-shadow: 0 2px 16px rgba(251,155,71,0.3);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TRUST BAR — Sandy shore
+   ═══════════════════════════════════════════════════════════ */
+.trust-bar {
+  background: var(--sand);
+  border-top: none;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SECTION TAGS — Teal wave accent
+   ═══════════════════════════════════════════════════════════ */
+.section-head .tag {
+  color: var(--wave-teal);
+  position: relative;
+}
+.section-head .tag::after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 2px;
+  margin-top: 4px;
+  background: linear-gradient(90deg, var(--wave-teal), var(--wave-aqua), transparent);
+  border-radius: 2px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HOW IT WORKS — Sand background
+   ═══════════════════════════════════════════════════════════ */
+#how-it-works {
+  background: var(--sand-light);
+  position: relative;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   REBATE SECTION — Warm sand
+   ═══════════════════════════════════════════════════════════ */
+/* Already cream — make it sand */
+
+/* ═══════════════════════════════════════════════════════════
+   WHY US — Clean white on sand
+   ═══════════════════════════════════════════════════════════ */
+#why-yeb {
+  background: var(--white);
+  position: relative;
+}
+.diff-card {
+  border: 1px solid rgba(34,168,179,0.1);
+  transition: all 0.35s;
+}
+.diff-card:hover {
+  border-color: var(--wave-teal);
+  box-shadow: 0 8px 32px var(--wave-glow);
+  transform: translateY(-4px);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   COMPARISON — Deep ocean table
+   ═══════════════════════════════════════════════════════════ */
+/* The section already has navy bg — enhance */
+
+/* ═══════════════════════════════════════════════════════════
+   GALLERY — Soft sand
+   ═══════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════
+   TESTIMONIALS — Warm sand cards
+   ═══════════════════════════════════════════════════════════ */
+#testimonials {
+  background: var(--sand) !important;
+  position: relative;
+}
+.testimonial {
+  background: var(--white);
+  border: 1px solid rgba(0,0,0,0.04);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+.testimonial__quote {
+  color: var(--wave-teal);
+  opacity: 0.25;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PARTNERS — Sandy strip
+   ═══════════════════════════════════════════════════════════ */
+.partners {
+  background: var(--sand-warm);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   INSTALL MAP — On sand
+   ═══════════════════════════════════════════════════════════ */
+#install-map {
+  background: var(--sand-light) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   INSTAGRAM — Sand gradient
+   ═══════════════════════════════════════════════════════════ */
+.instagram-section {
+  background: linear-gradient(180deg, var(--sand-light) 0%, var(--sand) 100%);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ABOUT SECTION — Deep ocean with wave animation
+   ═══════════════════════════════════════════════════════════ */
+.about-section {
+  background: linear-gradient(160deg, var(--ocean-deep) 0%, var(--ocean-mid) 40%, var(--ocean-bright) 100%);
+  position: relative;
+  overflow: hidden;
+}
+.about-section::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 200%;
+  height: 80px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 80'%3E%3Cpath fill='rgba(255,255,255,0.03)' d='M0,40 C360,70 720,10 1080,40 C1260,55 1380,30 1440,40 L1440,80 L0,80Z'/%3E%3C/svg%3E") repeat-x;
+  background-size: 50% 100%;
+  animation: waveRoll1 20s linear infinite;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FAQ — Sand background
+   ═══════════════════════════════════════════════════════════ */
+.faq__q:hover { color: var(--wave-teal); }
+.faq__item.open .faq__q .icon { background: var(--wave-teal); }
+
+/* ═══════════════════════════════════════════════════════════
+   CTA BANNER — Ocean sunset gradient
+   ═══════════════════════════════════════════════════════════ */
+.cta-banner {
+  background: linear-gradient(135deg, var(--ocean-deep) 0%, var(--ocean-mid) 40%, var(--ocean-bright) 100%);
+  position: relative;
+  overflow: hidden;
+}
+.cta-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 80% at 85% 100%, rgba(251,155,71,0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 50% at 15% 0%, rgba(56,190,201,0.08) 0%, transparent 50%);
+  pointer-events: none;
+}
+.cta-banner::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 200%;
+  height: 60px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 60'%3E%3Cpath fill='rgba(255,255,255,0.03)' d='M0,30 C240,50 480,10 720,35 C960,55 1200,15 1440,30 L1440,60 L0,60Z'/%3E%3C/svg%3E") repeat-x;
+  background-size: 50% 100%;
+  animation: waveRoll2 16s linear infinite;
+  pointer-events: none;
+}
+.cta-banner h2, .cta-banner p, .cta-banner .btn { position: relative; z-index: 2; }
+
+/* ═══════════════════════════════════════════════════════════
+   FOOTER — Ocean deep with teal accent line
+   ═══════════════════════════════════════════════════════════ */
+.footer {
+  background: var(--ocean-deep);
+  position: relative;
+}
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--wave-teal), var(--sunset), var(--wave-aqua), var(--wave-teal));
+  background-size: 200% 100%;
+  animation: waveRoll2 8s linear infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BUTTONS — Ocean refined
+   ═══════════════════════════════════════════════════════════ */
+.btn--primary {
+  background: linear-gradient(135deg, var(--sunset) 0%, var(--orange-dark) 100%);
+  box-shadow: 0 4px 20px rgba(251,155,71,0.3);
+}
+.btn--primary:hover {
+  background: linear-gradient(135deg, var(--orange-dark) 0%, #d4750a 100%);
+  box-shadow: 0 6px 28px rgba(251,155,71,0.45);
+}
+.btn--teal {
+  background: linear-gradient(135deg, var(--wave-teal) 0%, var(--ocean-bright) 100%);
+  box-shadow: 0 4px 16px rgba(34,168,179,0.25);
+}
+.btn--teal:hover {
+  box-shadow: 0 6px 24px rgba(34,168,179,0.4);
+}
+
+/* Customer accordion button — sunset glow */
+.customer-accordion-trigger {
+  background: linear-gradient(135deg, var(--sunset) 0%, var(--orange-dark) 100%);
+  box-shadow: 0 6px 24px rgba(251,155,71,0.35);
+}
+.customer-accordion-trigger:hover {
+  background: linear-gradient(135deg, var(--orange-dark) 0%, #d4750a 100%);
+  box-shadow: 0 10px 36px rgba(251,155,71,0.5);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PAGE HERO (quote.html, blog.html, etc.)
+   ═══════════════════════════════════════════════════════════ */
+.page-hero {
+  background: linear-gradient(160deg, var(--ocean-deep) 0%, var(--ocean-mid) 60%, var(--ocean-bright) 100%);
+  position: relative;
+  overflow: hidden;
+}
+.page-hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 200%;
+  height: 60px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 60'%3E%3Cpath fill='rgba(56,190,201,0.05)' d='M0,30 C360,55 720,5 1080,30 C1260,45 1380,20 1440,30 L1440,60 L0,60Z'/%3E%3C/svg%3E") repeat-x;
+  background-size: 50% 100%;
+  animation: waveRoll1 12s linear infinite;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   STICKY CTA — Ocean glass
+   ═══════════════════════════════════════════════════════════ */
+.sticky-cta {
+  background: rgba(9,27,42,0.95) !important;
+  backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(56,190,201,0.12);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   NEWSLETTER POPUP — Ocean accent
+   ═══════════════════════════════════════════════════════════ */
+.newsletter-popup__content {
+  border-top: 4px solid var(--wave-teal);
+  box-shadow: 0 20px 60px rgba(9,27,42,0.25);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MOBILE MENU — Dark ocean
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .nav__links {
+    background: var(--ocean-deep) !important;
+    border-left: 1px solid rgba(56,190,201,0.08);
+  }
+  .nav__links a {
+    color: rgba(255,255,255,0.85) !important;
+    border-bottom: 1px solid rgba(56,190,201,0.06) !important;
+  }
+  .nav__links a:hover,
+  .nav__links a.active {
+    color: var(--wave-aqua) !important;
+  }
+  .nav__cta-mobile {
+    background: linear-gradient(135deg, var(--sunset), var(--orange-dark)) !important;
+    color: var(--white) !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PARALLAX WAVE BREAK — decorative between sections
+   ═══════════════════════════════════════════════════════════ */
+.wave-break {
+  height: 80px;
+  background: linear-gradient(180deg, var(--ocean-mid) 0%, var(--ocean-bright) 100%);
+  position: relative;
+  overflow: hidden;
+}
+.wave-break::before,
+.wave-break::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  background-repeat: repeat-x;
+  background-size: 50% 100%;
+}
+.wave-break::before {
+  top: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 80'%3E%3Cpath fill='rgba(255,255,255,0.06)' d='M0,40 C240,65 480,15 720,40 C960,65 1200,20 1440,40 L1440,80 L0,80Z'/%3E%3C/svg%3E");
+  animation: waveRoll1 16s linear infinite;
+}
+.wave-break::after {
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 60'%3E%3Cpath fill='rgba(34,168,179,0.08)' d='M0,30 C180,50 360,10 540,35 C720,55 900,15 1080,30 C1260,50 1380,20 1440,30 L1440,60 L0,60Z'/%3E%3C/svg%3E");
+  animation: waveRoll2 20s linear infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ANIMATION UTILITIES
+   ═══════════════════════════════════════════════════════════ */
+.anim-fadeUp { animation: gentleRise 0.8s ease-out both; }
+.anim-delay-1 { animation-delay: 0.15s; }
+.anim-delay-2 { animation-delay: 0.3s; }
+.anim-delay-3 { animation-delay: 0.45s; }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0s !important;
+    transition-duration: 0.2s !important;
+  }
+}

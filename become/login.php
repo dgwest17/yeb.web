@@ -42,6 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body class="login-page">
 
+<div class="login-bg"></div>
+
 <div class="login-waves">
   <div class="login-waves__layer login-waves__layer--1"></div>
   <div class="login-waves__layer login-waves__layer--2"></div>
@@ -50,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div class="login-container">
   <div class="login-box">
-    <div class="login-box__icon">🏄</div>
+    <img src="../img/build-hero.png" alt="Door Knocking" class="login-box__hero-img">
     <h1>Become</h1>
     <p class="login-box__sub">Training Portal</p>
     

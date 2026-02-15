@@ -1,0 +1,61 @@
+{
+  "hero": {
+    "title": "Solar Service & Maintenance",
+    "subtitle": "Keep your system performing at its peak. Professional audits, inspections, and ongoing care."
+  },
+  "services": [
+    {
+      "id": "self-audit",
+      "title": "Self-Audit",
+      "price": "$49",
+      "price_period": "one-time",
+      "icon": "📊",
+      "description": "Unlock your solar audit to determine system health and performance.",
+      "features": [
+        "System performance analysis",
+        "Production vs. consumption review",
+        "Inverter & panel health check",
+        "Savings verification report",
+        "Delivered within 48 hours"
+      ],
+      "opportunity_type": "Solar Owner – Audit / Review",
+      "paypal_price": 49
+    },
+    {
+      "id": "full-inspection",
+      "title": "Full Inspection & Audit",
+      "price": "$389",
+      "price_period": "one-time",
+      "icon": "🔍",
+      "description": "Complete on-site inspection and audit report of your entire system.",
+      "features": [
+        "Everything in Self-Audit",
+        "On-site roof & electrical inspection",
+        "Panel-level diagnostics",
+        "Detailed audit report with photos",
+        "Repair recommendations & quote",
+        "60-min expert consultation"
+      ],
+      "opportunity_type": "Solar Owner – Service / Repair",
+      "paypal_price": 389
+    },
+    {
+      "id": "yearly-plan",
+      "title": "Yearly Service Plan",
+      "price": "$109",
+      "price_period": "/year",
+      "icon": "🛡️",
+      "description": "Upfront audit and yearly inspections of your system.",
+      "features": [
+        "Initial full system audit",
+        "Annual on-site inspection",
+        "Performance monitoring review",
+        "Priority scheduling for repairs",
+        "10% discount on all services",
+        "Yearly report with recommendations"
+      ],
+      "opportunity_type": "Solar Owner – Under Service Plan",
+      "paypal_price": 109
+    }
+  ]
+}

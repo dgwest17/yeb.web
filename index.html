@@ -8,6 +8,7 @@
   <link rel="icon" type="image/png" href="img/logo.png" />
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="surf-theme.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
   <style>
     .nav { padding: 0.5rem 2rem; }
     .nav__logo img { height: 70px; width: auto; }
@@ -281,9 +282,8 @@
       <h2>Solar Across San Diego</h2>
       <p>We've installed in neighborhoods across the county — maybe even on your street.</p>
     </div>
-    <div class="install-map__container" id="installMap">
-      <!-- Map will be rendered by JS -->
-    </div>
+    <div id="installMapLeaflet" style="height:500px;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.1);"></div>
+    <p class="text-center" style="margin-top:0.75rem;font-size:0.85rem;color:var(--slate);">270+ installations · Click and zoom to explore</p>
     <div class="text-center" style="margin-top: var(--space-lg);">
       <a href="quote.html" class="btn btn--primary">Join Your Neighbors — Get a Quote</a>
       <p class="microcopy">Takes 30 seconds · No credit check · No commitment</p>
@@ -417,6 +417,22 @@
       <p>✓ You're in! Watch your inbox.</p>
     </div>
   </div>
+</div>
+
+<!-- ─── INCENTIVE SIDEBAR (slide-in) ─── -->
+<div class="incentive-tab" id="incentiveTab" onclick="document.getElementById('incentiveSidebar').classList.add('open')">
+  <span>⚡ 30% OFF</span>
+</div>
+<div class="incentive-sidebar" id="incentiveSidebar">
+  <button class="incentive-sidebar__close" onclick="this.parentElement.classList.remove('open')">✕</button>
+  <div class="incentive-sidebar__badge">⚡ TIME-SENSITIVE</div>
+  <h3>Federal Incentives END 2027</h3>
+  <p>Start your project now to get <strong>30%+ off</strong> any solar or battery system through the Federal Investment Tax Credit.</p>
+  <div class="incentive-sidebar__countdown">
+    <div class="incentive-sidebar__stat"><span id="incentiveDays">--</span><small>days left</small></div>
+  </div>
+  <a href="quote.html" class="incentive-sidebar__cta">Check My Savings →</a>
+  <p class="incentive-sidebar__fine">Limited time. Subject to federal policy changes.</p>
 </div>
 
 <!-- ─── STICKY BOTTOM CTA BAR (Rec #6) ─── -->
@@ -560,44 +576,50 @@ const statsObserver = new IntersectionObserver((entries) => {
   });
 }, { threshold: 0.5 });
 
-// Install Map
+// Install Map — Interactive Leaflet with wave-colored pins
 function renderInstallMap() {
-  const installs = [
-    { name: 'Encinitas', lat: 33.0370, lng: -117.2920 },
-    { name: 'Chula Vista', lat: 32.6401, lng: -117.0842 },
-    { name: 'La Mesa', lat: 32.7678, lng: -117.0231 },
-    { name: 'Oceanside', lat: 33.1959, lng: -117.3795 },
-    { name: 'Carlsbad', lat: 33.1581, lng: -117.3506 },
-    { name: 'Escondido', lat: 33.1192, lng: -117.0864 },
-    { name: 'San Marcos', lat: 33.1434, lng: -117.1661 },
-    { name: 'Vista', lat: 33.2000, lng: -117.2425 },
-    { name: 'El Cajon', lat: 32.7948, lng: -116.9625 },
-    { name: 'Poway', lat: 32.9628, lng: -117.0359 },
-    { name: 'Mission Valley', lat: 32.7700, lng: -117.1590 },
-    { name: 'Rancho Bernardo', lat: 33.0174, lng: -117.0753 },
-    { name: 'Santee', lat: 32.8384, lng: -116.9739 },
-    { name: 'National City', lat: 32.6781, lng: -117.0992 },
-    { name: 'Spring Valley', lat: 32.7448, lng: -116.9989 },
-  ];
+  const mapEl = document.getElementById('installMapLeaflet');
+  if (!mapEl) return;
   
-  const mapEl = document.getElementById('installMap');
-  const minLat = 32.55, maxLat = 33.25, minLng = -117.45, maxLng = -116.85;
+  // Lazy load Leaflet
+  const script = document.createElement('script');
+  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';
+  script.onload = () => initLeafletMap();
+  document.head.appendChild(script);
+}
+
+function initLeafletMap() {
+  const PINS=[[33.0375,-117.2864],[33.1244,-117.0914],[33.2051,-117.2474],[33.1535,-117.3497],[32.9583,-117.0382],[33.9314,-116.9758],[33.1142,-117.0917],[33.8819,-118.4149],[33.8697,-117.9246],[33.1385,-117.163],[33.1985,-117.2412],[32.5804,-117.109],[33.0351,-117.2917],[33.1388,-117.1655],[33.1589,-117.3542],[33.2024,-117.2401],[33.8541,-118.0699],[33.1587,-117.3511],[33.1418,-117.1603],[33.9319,-117.941],[33.7462,-117.8691],[32.7185,-117.1626],[33.1604,-117.3556],[33.1553,-117.3453],[33.0406,-117.2918],[33.4983,-117.1532],[33.1615,-117.3551],[33.1576,-117.3512],[33.8666,-117.9262],[33.2056,-117.2408],[33.1618,-117.3508],[33.8304,-118.3356],[33.1443,-117.163],[33.1582,-117.3505],[33.1905,-117.3745],[33.1439,-117.169],[33.1417,-117.1626],[33.0416,-117.2885],[33.7686,-118.1957],[33.1542,-117.3489],[33.1445,-117.1617],[33.1632,-117.3528],[33.1603,-117.3508],[33.1599,-117.3528],[33.1526,-117.3489],[32.8398,-117.2804],[33.7708,-118.1971],[33.7649,-118.1917],[33.0367,-117.2919],[32.7211,-117.1629],[33.1595,-117.3568],[33.7658,-118.1901],[33.1997,-117.2437],[33.4976,-117.6666],[33.7756,-118.1947],[32.7211,-117.1619],[33.1619,-117.3458],[33.0369,-117.2899],[33.802,-118.0684],[33.5258,-117.7125],[33.1603,-117.3518],[33.1635,-117.35],[32.7128,-117.1655],[33.1943,-117.38],[32.7216,-117.1598],[33.1548,-117.3508],[33.7237,-116.3736],[33.1421,-117.1637],[32.7187,-117.1603],[33.1615,-117.3508],[33.1587,-117.3474],[33.1581,-117.3514],[33.1622,-117.3528],[33.1522,-117.3562],[33.1614,-117.3472],[33.1586,-117.3515],[33.1987,-117.2413],[32.7206,-117.1602],[33.161,-117.3536],[33.5548,-116.6712],[33.0215,-117.2816],[33.1561,-117.3477],[32.7209,-117.1657],[33.2004,-117.374],[33.8898,-117.8179],[33.8553,-118.1346],[32.7115,-117.1569],[33.0374,-117.2946],[33.1563,-117.3543],[33.1603,-117.3503],[33.8509,-118.1295],[33.1636,-117.3534],[33.16,-117.35],[33.1574,-117.3524],[32.7907,-116.9579],[33.1527,-117.3494],[33.197,-117.3841],[33.1538,-117.3529],[32.7912,-116.969],[33.1579,-117.3541],[32.718,-117.1657],[33.0356,-117.2976],[33.1638,-117.3545],[33.1523,-117.3463],[33.1556,-117.3467],[33.1602,-117.3564],[33.1579,-117.3523],[33.156,-117.3494],[33.1525,-117.3519],[33.1606,-117.3562],[33.153,-117.3456],[32.7194,-117.1576],[32.7214,-117.1574],[32.719,-117.165],[33.1959,-117.3743],[33.1199,-117.0906],[33.1472,-117.1709],[32.8362,-116.98],[33.9817,-118.0348],[33.0318,-117.2977],[33.038,-117.2872],[33.1473,-117.163],[33.0216,-117.2696],[32.6497,-117.0724],[32.837,-116.9731],[32.8539,-117.2844],[33.1936,-117.3914],[32.6471,-117.0398],[32.7213,-117.1512],[33.1232,-117.0867],[32.7938,-116.9529],[32.9576,-117.0411],[32.7485,-116.9909],[32.6774,-117.096],[33.2072,-117.3916],[33.1607,-117.3517],[32.84,-117.2647],[33.126,-117.0912],[33.1981,-117.3916],[32.9627,-117.0361],[33.0382,-117.2818],[32.9656,-117.0381],[33.1545,-117.1579],[32.8426,-116.9693],[32.8323,-117.2665],[32.6585,-117.0328],[32.8351,-116.9651],[33.1261,-117.089],[33.2108,-117.2342],[32.8447,-116.9844],[32.7073,-117.1698],[32.7486,-117.006],[32.6514,-117.0388],[33.1433,-117.1727],[32.6608,-117.028],[33.044,-117.2928],[32.7777,-117.0128],[32.8356,-117.284],[32.8483,-116.9686],[32.7878,-116.9678],[33.0343,-117.2822],[32.8328,-117.2784],[33.1939,-117.2445],[32.8421,-117.2743],[33.2044,-117.3811],[32.8311,-116.9635],[32.8411,-117.278],[33.1572,-117.3473],[32.6331,-117.088],[32.854,-117.2846],[32.9556,-117.0264],[32.8286,-116.9775],[32.834,-117.2803],[33.1896,-117.3867],[32.6509,-117.0903],[33.1496,-117.1734],[33.1961,-117.2547],[32.6408,-117.092],[32.9511,-117.032],[32.9576,-117.0295],[32.9521,-117.0276],[32.672,-117.1095],[32.6845,-117.0931],[32.8301,-116.9626],[32.6643,-117.0291],[33.1953,-117.2371],[33.201,-117.38],[32.6783,-117.0918],[32.9579,-117.0373],[32.7584,-117.0243],[33.1484,-117.1562],[32.7782,-117.0349],[32.789,-116.9592],[33.2032,-117.378],[33.1432,-117.1686],[33.0178,-117.2817],[33.2041,-117.3745],[32.6432,-117.0956],[32.8058,-116.9626],[32.675,-117.1081],[32.841,-116.9632],[32.6723,-117.0916],[33.1946,-117.233],[32.8458,-117.2813],[32.7142,-117.1555],[32.8474,-116.9759],[33.1463,-117.3469],[33.0428,-117.2967],[32.6707,-117.0878],[32.6435,-117.0927],[32.641,-117.0916],[32.7882,-116.9647],[33.193,-117.2546],[32.7695,-117.0264],[32.6297,-117.0752],[32.973,-117.0348],[33.1667,-117.3621],[32.6778,-117.094],[32.7692,-117.0271],[32.6382,-117.0906],[33.1212,-117.0972],[33.1931,-117.3881]];
+
+  const map = L.map('installMapLeaflet', { scrollWheelZoom: false }).setView([32.95, -117.15], 10);
   
-  let pinsHTML = installs.map(loc => {
-    const x = ((loc.lng - minLng) / (maxLng - minLng)) * 100;
-    const y = ((maxLat - loc.lat) / (maxLat - minLat)) * 100;
-    return `<div class="map-pin" style="left:${x}%;top:${y}%;" title="${loc.name}">
-      <div class="map-pin__dot"></div>
-      <span class="map-pin__label">${loc.name}</span>
-    </div>`;
-  }).join('');
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '',
+    maxZoom: 19
+  }).addTo(map);
   
-  mapEl.innerHTML = `
-    <div class="install-map__map">
-      <div class="install-map__bg"></div>
-      ${pinsHTML}
-      <div class="install-map__count">${installs.length}+ neighborhoods served</div>
-    </div>`;
+  // Wave-colored SVG pin icon
+  const waveIcon = L.divIcon({
+    className: 'wave-pin',
+    html: `<svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="#22A8B3" stroke="#38BEC9" stroke-width="1.5" opacity="0.85"/></svg>`,
+    iconSize: [14, 14],
+    iconAnchor: [7, 7]
+  });
+  const waveIconOrange = L.divIcon({
+    className: 'wave-pin',
+    html: `<svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="#FB9B47" stroke="#FCD34D" stroke-width="1.5" opacity="0.85"/></svg>`,
+    iconSize: [14, 14],
+    iconAnchor: [7, 7]
+  });
+  
+  PINS.forEach((p, i) => {
+    const icon = i % 3 === 0 ? waveIconOrange : waveIcon;
+    L.marker([p[0], p[1]], { icon }).addTo(map);
+  });
+
+  // Enable scroll zoom on click
+  map.on('click', () => map.scrollWheelZoom.enable());
+  map.on('mouseout', () => map.scrollWheelZoom.disable());
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -644,7 +666,6 @@ function renderComparison(data) {
 // ═══════════════════════════════════════════════════════════
 function loadInstagramFeed() {
   const grid = document.getElementById('igGrid');
-  // Lazy load: only fetch when section is near viewport
   const igObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -662,11 +683,17 @@ function loadInstagramFeed() {
                   <div class="ig-item__icon">📸</div>
                 </a>`;
               }
+              // Handle VIDEO posts
+              if (post.media_type === 'VIDEO') {
+                return `<a href="${post.permalink}" target="_blank" rel="noopener" class="ig-item ig-item--video">
+                  <video src="${post.media_url}" muted playsinline loop preload="metadata" onmouseenter="this.play()" onmouseleave="this.pause()"></video>
+                  <div class="ig-item__play">▶</div>
+                  <div class="ig-item__overlay"><p>${post.caption || ''}</p></div>
+                </a>`;
+              }
               return `<a href="${post.permalink}" target="_blank" rel="noopener" class="ig-item">
                 <img src="${post.media_url}" alt="${post.caption || 'Instagram post'}" loading="lazy" />
-                <div class="ig-item__overlay">
-                  <p>${post.caption || ''}</p>
-                </div>
+                <div class="ig-item__overlay"><p>${post.caption || ''}</p></div>
               </a>`;
             }).join('');
           })
@@ -758,6 +785,12 @@ CMS.load().then(() => {
   
   // Google Reviews (async update)
   loadGoogleReviews();
+  
+  // Incentive sidebar countdown
+  const endDate = new Date('2027-12-31T23:59:59');
+  const daysLeft = Math.max(0, Math.ceil((endDate - new Date()) / (1000*60*60*24)));
+  const daysEl = document.getElementById('incentiveDays');
+  if (daysEl) daysEl.textContent = daysLeft;
 });
 
 // ─── Newsletter Popup ───

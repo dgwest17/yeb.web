@@ -578,3 +578,161 @@ body::after {
     transition-duration: 0.2s !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   INCENTIVE SIDEBAR
+   ═══════════════════════════════════════════════════════════ */
+.incentive-tab {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 90;
+  background: linear-gradient(180deg, #DC2626, #B91C1C);
+  color: white;
+  padding: 1rem 0.5rem;
+  border-radius: 8px 0 0 8px;
+  cursor: pointer;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  box-shadow: -2px 2px 12px rgba(220,38,38,0.3);
+  transition: all 0.3s;
+}
+.incentive-tab:hover {
+  padding-right: 0.75rem;
+  box-shadow: -4px 2px 20px rgba(220,38,38,0.45);
+}
+.incentive-tab span { display: flex; align-items: center; gap: 0.3rem; }
+
+.incentive-sidebar {
+  position: fixed;
+  right: -360px;
+  top: 0;
+  width: 340px;
+  height: 100vh;
+  background: linear-gradient(180deg, #1A0505 0%, #2D0A0A 40%, #1A0505 100%);
+  border-left: 2px solid rgba(220,38,38,0.2);
+  z-index: 100;
+  padding: 2.5rem 2rem;
+  transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto;
+  box-shadow: -8px 0 40px rgba(0,0,0,0.5);
+}
+.incentive-sidebar.open { right: 0; }
+.incentive-sidebar.open ~ .incentive-tab { right: 340px; }
+
+.incentive-sidebar__close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.4);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+.incentive-sidebar__badge {
+  display: inline-block;
+  background: rgba(220,38,38,0.15);
+  border: 1px solid rgba(220,38,38,0.3);
+  color: #FCA5A5;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.25rem 0.75rem;
+  border-radius: 50px;
+  letter-spacing: 0.05em;
+  margin-bottom: 1.25rem;
+}
+.incentive-sidebar h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  color: white;
+  margin-bottom: 0.75rem;
+  line-height: 1.3;
+}
+.incentive-sidebar p {
+  color: rgba(255,255,255,0.6);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+.incentive-sidebar p strong { color: #FCA5A5; }
+
+.incentive-sidebar__countdown {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+.incentive-sidebar__stat {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+.incentive-sidebar__stat span {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #EF4444;
+}
+.incentive-sidebar__stat small {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.incentive-sidebar__cta {
+  display: block;
+  text-align: center;
+  padding: 0.85rem;
+  background: linear-gradient(135deg, #DC2626, #B91C1C);
+  color: white;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 1rem;
+  text-decoration: none;
+  box-shadow: 0 4px 20px rgba(220,38,38,0.3);
+  transition: all 0.3s;
+  margin-bottom: 1rem;
+}
+.incentive-sidebar__cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 28px rgba(220,38,38,0.45);
+}
+.incentive-sidebar__fine {
+  font-size: 0.75rem !important;
+  color: rgba(255,255,255,0.25) !important;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .incentive-sidebar { width: 100%; right: -100%; }
+  .incentive-sidebar.open ~ .incentive-tab { display: none; }
+}
+
+/* ─── Instagram video items ─── */
+.ig-item--video { position: relative; }
+.ig-item--video video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ig-item__play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  background: rgba(0,0,0,0.5);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.9rem;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+.ig-item--video:hover .ig-item__play { opacity: 0; }
+
+/* ─── Wave pin styles for Leaflet ─── */
+.wave-pin { background: none !important; border: none !important; }

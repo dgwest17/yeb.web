@@ -3,6 +3,7 @@
 
 # Enable rewrite engine
 RewriteEngine On
+RewriteBase /
 
 # Force HTTPS (redirect HTTP to HTTPS)
 RewriteCond %{HTTPS} off
@@ -12,14 +13,16 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
 RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
 
-# Clean URL for build page: /build works without /index.html
-RewriteRule ^build/?$ build/index.html [L]
+# Clean URLs — map friendly paths to actual files
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^services/?$ /services.html [L]
 
-# Clean URL: /services → services.html
-RewriteRule ^services/?$ services.html [L]
+# /become/ uses become/index.php (Apache serves index.php from folders automatically)
 
-# Clean URL: /train → portal.html
-RewriteRule ^train/?$ portal.html [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^build/?$ /build/index.html [L]
 
 # Prevent directory browsing
 Options -Indexes

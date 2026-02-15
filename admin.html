@@ -80,6 +80,16 @@
     .badge-checkpoint { background: #fce7f3; color: #9d174d; }
     /* Services editor */
     .svc-card { background: #f9f9f9; border: 2px solid #e0e0e0; border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem; }
+    /* User card */
+    .user-card { background: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .user-card__avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #219EBC, #126782); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; }
+    .user-card__info { flex: 1; min-width: 140px; }
+    .user-card__name { font-weight: 700; font-size: 0.95rem; color: #023047; }
+    .user-card__username { font-size: 0.8rem; color: #666; }
+    .user-card__fields { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+    .user-card__fields select, .user-card__fields input { padding: 0.35rem 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.85rem; }
+    .user-card__fields select { width: 100px; }
+    .user-card__level-input { width: 70px !important; text-align: center; }
     .svc-features { margin-top: 0.5rem; }
     .svc-feature-row { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.4rem; }
     .svc-feature-row input { flex: 1; }
@@ -111,6 +121,7 @@
     <button class="tab" onclick="switchTab('quote', this)">📝 Quote Page</button>
     <button class="tab" onclick="switchTab('blog', this)">📰 Blog</button>
     <button class="tab" onclick="switchTab('train', this)">🏄 Train</button>
+    <button class="tab" onclick="switchTab('train-users', this)">👥 Users</button>
     <button class="tab" onclick="switchTab('services', this)">🔧 Services</button>
     <button class="tab" onclick="switchTab('global', this)">⚙️ Global Settings</button>
   </div>
@@ -230,6 +241,18 @@
         </div>
         <p style="font-size:0.85rem;color:#666;margin-bottom:1rem;">Click a manual to expand its levels, folders, and modules. Add content using the Quote/Response/Tip pattern.</p>
         <div id="train-manuals"></div>
+      </div>
+    </div>
+
+    <!-- TRAIN USERS TAB -->
+    <div id="tab-train-users" class="tab-panel">
+      <div class="section-card">
+        <div class="section-header">
+          <h3>Training Portal Users</h3>
+          <button class="btn btn-add btn-sm" onclick="addTrainUser()">+ Add Rep</button>
+        </div>
+        <p style="font-size:0.85rem;color:#666;margin-bottom:1rem;">Manage rep accounts for the training portal at <strong>/become</strong>. All reps log in with their username + the portal password.</p>
+        <div id="train-users-list"></div>
       </div>
     </div>
 
@@ -951,8 +974,9 @@ function downloadBackup() {
 // ═══════════════════════════════════════════════════════════
 let trainContent = {};
 let servicesContent = {};
+let trainUsers = {};
 
-// Load train + services content alongside main content
+// Load train + services + users content alongside main content
 async function loadTrainContent() {
   try {
     const res = await fetch('train-content.json?' + Date.now());
@@ -973,12 +997,23 @@ async function loadServicesContent() {
   renderServicesEditor();
 }
 
+async function loadTrainUsers() {
+  try {
+    const res = await fetch('train-users.json?' + Date.now());
+    trainUsers = await res.json();
+  } catch(e) {
+    trainUsers = { users: [] };
+  }
+  renderTrainUsers();
+}
+
 // Override loadContent to also load train + services
 const _origLoadContent = loadContent;
 loadContent = async function() {
   await _origLoadContent();
   await loadTrainContent();
   await loadServicesContent();
+  await loadTrainUsers();
   renderDiffCards();
 };
 
@@ -1400,6 +1435,89 @@ function removeSvcFeature(i, fi) {
 }
 
 // ═══════════════════════════════════════════════════════════
+// TRAIN USERS EDITOR
+// ═══════════════════════════════════════════════════════════
+function renderTrainUsers() {
+  const el = document.getElementById('train-users-list');
+  if (!el) return;
+  const users = trainUsers.users || [];
+  
+  // Build level options from train content
+  const levels = [];
+  const builder = (trainContent.manuals || []).find(m => m.id === 'builder');
+  if (builder) {
+    (builder.folders || []).forEach(f => {
+      levels.push({ value: f.level || 0, label: f.title || 'Level ' + (f.level||0)/10 });
+    });
+  }
+  if (levels.length === 0) {
+    for (let l = 0; l <= 90; l += 10) levels.push({ value: l, label: 'Level ' + l/10 });
+  }
+  
+  el.innerHTML = users.length === 0 
+    ? '<p style="color:#666;font-style:italic;">No reps added yet. Click "+ Add Rep" to create a user.</p>'
+    : users.map((u, i) => {
+      const initials = ((u.first_name||'')[0] || '') + ((u.last_name||'')[0] || '');
+      const levelOpts = levels.map(l => 
+        `<option value="${l.value}" ${(u.unlocked_level||0) === l.value ? 'selected' : ''}>${l.label}</option>`
+      ).join('');
+      
+      return `
+      <div class="user-card">
+        <div class="user-card__avatar">${initials.toUpperCase()}</div>
+        <div class="user-card__info">
+          <div class="user-card__name">${u.first_name||''} ${u.last_name||''}</div>
+          <div class="user-card__username">@${u.username||''}</div>
+        </div>
+        <div class="user-card__fields">
+          <input value="${u.first_name||''}" placeholder="First" style="width:90px;" oninput="trainUsers.users[${i}].first_name=this.value"/>
+          <input value="${u.last_name||''}" placeholder="Last" style="width:90px;" oninput="trainUsers.users[${i}].last_name=this.value"/>
+          <input value="${u.username||''}" placeholder="Username" style="width:100px;" oninput="trainUsers.users[${i}].username=this.value"/>
+          <select oninput="trainUsers.users[${i}].role=this.value">
+            <option value="rep" ${u.role==='rep'?'selected':''}>Rep</option>
+            <option value="trainer" ${u.role==='trainer'?'selected':''}>Trainer</option>
+            <option value="admin" ${u.role==='admin'?'selected':''}>Admin</option>
+          </select>
+          <input value="${u.password||''}" placeholder="Custom pw (or uses portal pw)" style="width:140px;font-size:0.8rem;" oninput="trainUsers.users[${i}].password=this.value" type="text"/>
+          <label style="font-size:0.8rem;color:#666;">Level:</label>
+          <select class="user-card__level-input" oninput="trainUsers.users[${i}].unlocked_level=parseInt(this.value)">
+            ${levelOpts}
+          </select>
+          <button class="btn btn-sm btn-danger" onclick="removeTrainUser(${i})">✕</button>
+        </div>
+      </div>`;
+    }).join('');
+}
+
+function addTrainUser() {
+  if (!trainUsers.users) trainUsers.users = [];
+  const id = 'user-' + Date.now();
+  trainUsers.users.push({
+    id: id,
+    username: '',
+    first_name: '',
+    last_name: '',
+    role: 'rep',
+    unlocked_level: 0,
+    created_at: new Date().toISOString().split('T')[0]
+  });
+  renderTrainUsers();
+  // Focus the first name field of the new user
+  setTimeout(() => {
+    const cards = document.querySelectorAll('.user-card');
+    const last = cards[cards.length - 1];
+    if (last) last.querySelector('input')?.focus();
+  }, 50);
+}
+
+function removeTrainUser(i) {
+  const u = trainUsers.users[i];
+  if (!confirm(`Remove ${u.first_name||''} ${u.last_name||''} (@${u.username||''})? They won't be able to log in anymore.`)) return;
+  trainUsers.users.splice(i, 1);
+  renderTrainUsers();
+}
+
+// ═══════════════════════════════════════════════════════════
 // EXPANDED SAVE — saves content.json + train-content.json + services-content.json
 // ═══════════════════════════════════════════════════════════
 const _origSaveContent = saveContent;
@@ -1496,6 +1614,11 @@ saveContent = async function() {
     const r3 = await fetch('save.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...servicesContent, _save_target: 'services' }) });
     const j3 = await r3.json();
     if (!j3.success) throw new Error('services-content.json save failed');
+
+    // Save train-users.json
+    const r4 = await fetch('save.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...trainUsers, _save_target: 'train-users' }) });
+    const j4 = await r4.json();
+    if (!j4.success) throw new Error('train-users.json save failed');
 
     btn.textContent = '✓ All Saved!';
     setTimeout(() => { btn.textContent = '💾 Save All Changes'; btn.disabled = false; }, 2000);

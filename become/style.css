@@ -204,6 +204,46 @@ img { max-width: 100%; display: block; }
   transition: all 0.2s;
 }
 .train-header__logout:hover { color: var(--white); border-color: var(--white); }
+.train-header__user {
+  color: rgba(255,255,255,0.7);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* ─── Personalized Greeting ─── */
+.dash-greeting {
+  background: linear-gradient(135deg, var(--ocean-deep) 0%, var(--ocean-mid) 50%, var(--ocean-bright) 100%);
+  padding: 2.5rem 2rem 2rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.dash-greeting::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 200%;
+  height: 40px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 40'%3E%3Cpath fill='%23FFFFFF' d='M0,20 C360,35 720,5 1080,20 C1260,30 1380,12 1440,20 L1440,40 L0,40Z'/%3E%3C/svg%3E") repeat-x;
+  background-size: 50% 100%;
+  animation: waveRoll 14s linear infinite;
+  pointer-events: none;
+}
+.dash-greeting__inner { position: relative; z-index: 1; max-width: 600px; margin: 0 auto; }
+.dash-greeting__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  color: var(--white);
+  margin-bottom: 0.5rem;
+  font-weight: 800;
+}
+.dash-greeting__title em {
+  color: var(--sunset);
+  font-style: italic;
+  text-shadow: 0 2px 20px rgba(251,155,71,0.3);
+}
+.dash-greeting__sub { color: rgba(255,255,255,0.6); font-size: 1rem; }
 
 .header-waves { position: relative; height: 30px; overflow: hidden; }
 .header-waves__layer {

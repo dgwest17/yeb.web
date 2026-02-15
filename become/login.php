@@ -1,7 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
 
-// Already logged in? Go to dashboard
 if (isTrainAuthenticated()) {
     header('Location: index.php');
     exit;
@@ -9,14 +8,26 @@ if (isTrainAuthenticated()) {
 
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $pw = $_POST['password'] ?? '';
-    if ($pw === getPortalPassword()) {
-        $_SESSION['train_auth'] = true;
-        $_SESSION['train_level'] = $_SESSION['train_level'] ?? 0;
+    $username = trim($_POST['username'] ?? '');
+    $password = $_POST['password'] ?? '';
+    
+    $user = findUser($username);
+    
+    if (!$user) {
+        $error = 'Username not found. Check with your team leader.';
+    } elseif (!checkUserPassword($user, $password)) {
+        $error = 'Incorrect access code.';
+    } else {
+        // Success — set session
+        $_SESSION['train_user_id'] = $user['id'];
+        $_SESSION['train_username'] = $user['username'];
+        $_SESSION['train_first_name'] = $user['first_name'] ?? '';
+        $_SESSION['train_last_name'] = $user['last_name'] ?? '';
+        $_SESSION['train_role'] = $user['role'] ?? 'rep';
+        $_SESSION['train_unlocked_level'] = $user['unlocked_level'] ?? 0;
+        
         header('Location: index.php');
         exit;
-    } else {
-        $error = 'Incorrect access code. Try again.';
     }
 }
 ?>
@@ -48,11 +59,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
     
     <div class="login-form">
-      <input type="password" id="pwInput" placeholder="Access Code" autofocus>
+      <input type="text" name="username" id="usernameInput" placeholder="Username" autocomplete="username" autocapitalize="off" autofocus value="<?= esc($_POST['username'] ?? '') ?>">
+      <input type="password" name="password" id="pwInput" placeholder="Access Code" autocomplete="current-password">
       <button id="loginBtn" onclick="submitLogin()">Enter the Wave →</button>
     </div>
     
-    <p class="login-box__hint">Don't have access? Talk to your team leader.</p>
+    <p class="login-box__hint">Your team leader will provide your username.</p>
   </div>
 </div>
 
@@ -60,20 +72,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 document.getElementById('pwInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') submitLogin();
 });
+document.getElementById('usernameInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('pwInput').focus();
+});
 
 function submitLogin() {
+  const username = document.getElementById('usernameInput').value.trim();
   const pw = document.getElementById('pwInput').value;
-  if (!pw) return;
+  if (!username) { document.getElementById('usernameInput').focus(); return; }
+  if (!pw) { document.getElementById('pwInput').focus(); return; }
   
-  // Submit via hidden form to keep it server-side
   const form = document.createElement('form');
   form.method = 'POST';
   form.action = 'login.php';
-  const input = document.createElement('input');
-  input.type = 'hidden';
-  input.name = 'password';
-  input.value = pw;
-  form.appendChild(input);
+  
+  const u = document.createElement('input');
+  u.type = 'hidden'; u.name = 'username'; u.value = username;
+  form.appendChild(u);
+  
+  const p = document.createElement('input');
+  p.type = 'hidden'; p.name = 'password'; p.value = pw;
+  form.appendChild(p);
+  
   document.body.appendChild(form);
   form.submit();
 }

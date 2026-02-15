@@ -1,5 +1,11 @@
 # Protect live content edited via admin panel
 content.json
+train-content.json
+train-users.json
+services-content.json
+
+# Database config (contains credentials)
+config.php
 
 # Backups created by save.php
 backups/

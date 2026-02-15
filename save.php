@@ -40,6 +40,7 @@ $fileMap = [
     'content'  => __DIR__ . '/content.json',
     'train'    => __DIR__ . '/train-content.json',
     'services' => __DIR__ . '/services-content.json',
+    'train-users' => __DIR__ . '/train-users.json',
 ];
 
 if (!isset($fileMap[$target])) {

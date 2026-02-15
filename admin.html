@@ -1603,22 +1603,22 @@ saveContent = async function() {
     // Save content.json
     const r1 = await fetch('save.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...content, _save_target: 'content' }) });
     const j1 = await r1.json();
-    if (!j1.success) throw new Error('content.json save failed');
+    if (!j1.success) throw new Error('content.json: ' + (j1.error || 'failed'));
 
     // Save train-content.json
     const r2 = await fetch('save.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...trainContent, _save_target: 'train' }) });
     const j2 = await r2.json();
-    if (!j2.success) throw new Error('train-content.json save failed');
+    if (!j2.success) throw new Error('train-content.json: ' + (j2.error || 'failed'));
 
     // Save services-content.json
     const r3 = await fetch('save.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...servicesContent, _save_target: 'services' }) });
     const j3 = await r3.json();
-    if (!j3.success) throw new Error('services-content.json save failed');
+    if (!j3.success) throw new Error('services-content.json: ' + (j3.error || 'failed'));
 
     // Save train-users.json
     const r4 = await fetch('save.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...trainUsers, _save_target: 'train-users' }) });
     const j4 = await r4.json();
-    if (!j4.success) throw new Error('train-users.json save failed');
+    if (!j4.success) throw new Error('train-users.json: ' + (j4.error || 'failed'));
 
     btn.textContent = '✓ All Saved!';
     setTimeout(() => { btn.textContent = '💾 Save All Changes'; btn.disabled = false; }, 2000);

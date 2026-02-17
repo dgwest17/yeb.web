@@ -7,6 +7,10 @@ services-content.json
 # Database config (contains credentials)
 config.php
 
+# Cache files
+map-pins-cache.json
+ig_cache.json
+
 # Backups created by save.php
 backups/
 

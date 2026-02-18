@@ -1,109 +1,62 @@
 <?php
-// become/includes/auth.php — Username-based auth with admin-managed users
+/**
+ * /become/includes/auth.php — SECURED Session Auth
+ * 
+ * Include at the top of every /become/ page that requires login.
+ * Replaces the old plain-text password check.
+ * 
+ * Usage:
+ *   require_once __DIR__ . '/includes/auth.php';
+ *   // $current_user is now available with user data
+ */
 
-session_start();
+require_once __DIR__ . '/../../security-config.php';
 
-function getTrainContent() {
-    static $data = null;
-    if ($data === null) {
-        $file = __DIR__ . '/../../train-content.json';
-        $data = file_exists($file) ? json_decode(file_get_contents($file), true) : ['manuals' => [], 'settings' => []];
+/**
+ * Require portal authentication — redirects to login if not authenticated
+ */
+function require_portal_auth() {
+    if (empty($_SESSION['portal_user'])) {
+        header('Location: /become/login.php');
+        exit;
     }
-    return $data;
-}
-
-function getTrainUsers() {
-    static $data = null;
-    if ($data === null) {
-        $file = __DIR__ . '/../../train-users.json';
-        $data = file_exists($file) ? json_decode(file_get_contents($file), true) : ['users' => []];
-    }
-    return $data;
-}
-
-function findUser($username) {
-    $data = getTrainUsers();
-    foreach ($data['users'] ?? [] as $u) {
-        if (strtolower($u['username']) === strtolower($username)) return $u;
-    }
-    return null;
-}
-
-function getPortalPassword() {
-    $tc = getTrainContent();
-    return $tc['settings']['portal_password'] ?? 'Become';
-}
-
-function checkUserPassword($user, $password) {
-    // If user has a personal password set, use that
-    if (!empty($user['password'])) {
-        return $password === $user['password'];
-    }
-    // Otherwise fall back to the shared portal password
-    return $password === getPortalPassword();
-}
-
-function isTrainAuthenticated() {
-    return !empty($_SESSION['train_user_id']);
-}
-
-function requireTrainAuth() {
-    if (!isTrainAuthenticated()) {
-        header('Location: login.php');
+    
+    // Session timeout: 8 hours for training portal
+    if (time() - ($_SESSION['portal_login_time'] ?? 0) > 28800) {
+        session_destroy();
+        header('Location: /become/login.php?expired=1');
         exit;
     }
 }
 
-function currentTrainUser() {
-    return [
-        'id'              => $_SESSION['train_user_id'] ?? null,
-        'username'        => $_SESSION['train_username'] ?? null,
-        'first_name'      => $_SESSION['train_first_name'] ?? '',
-        'last_name'       => $_SESSION['train_last_name'] ?? '',
-        'role'            => $_SESSION['train_role'] ?? 'rep',
-        'unlocked_level'  => $_SESSION['train_unlocked_level'] ?? 0,
-    ];
-}
-
-function refreshUserFromFile() {
-    // Re-read user data from JSON in case admin changed their level
-    if (!empty($_SESSION['train_username'])) {
-        $user = findUser($_SESSION['train_username']);
-        if ($user) {
-            $_SESSION['train_unlocked_level'] = $user['unlocked_level'] ?? 0;
-            $_SESSION['train_first_name'] = $user['first_name'] ?? '';
-            $_SESSION['train_last_name'] = $user['last_name'] ?? '';
-            $_SESSION['train_role'] = $user['role'] ?? 'rep';
+/**
+ * Get current portal user data from train-users.json
+ */
+function get_current_user() {
+    if (empty($_SESSION['portal_user'])) return null;
+    
+    $users = load_train_users();
+    foreach ($users as $user) {
+        if (strtolower($user['username'] ?? '') === strtolower($_SESSION['portal_user'])) {
+            return $user;
         }
     }
+    
+    // User was deleted from JSON — force logout
+    session_destroy();
+    header('Location: /become/login.php');
+    exit;
 }
 
-function getTrainProgress() {
-    // Per-user progress stored in session (JSON mode)
-    $uid = $_SESSION['train_user_id'] ?? 'anon';
-    return $_SESSION['train_progress_' . $uid] ?? [];
+/**
+ * Check if current user has a specific role
+ */
+function has_role($required_role) {
+    $role = $_SESSION['portal_role'] ?? 'rep';
+    $hierarchy = ['rep' => 1, 'trainer' => 2, 'admin' => 3];
+    return ($hierarchy[$role] ?? 0) >= ($hierarchy[$required_role] ?? 0);
 }
 
-function markModuleComplete($moduleId) {
-    $uid = $_SESSION['train_user_id'] ?? 'anon';
-    $key = 'train_progress_' . $uid;
-    if (!isset($_SESSION[$key])) $_SESSION[$key] = [];
-    if (!in_array($moduleId, $_SESSION[$key])) {
-        $_SESSION[$key][] = $moduleId;
-    }
-}
-
-function getUserLevel() {
-    return $_SESSION['train_unlocked_level'] ?? 0;
-}
-
-function formatLevel($levelInt) {
-    if ($levelInt === 0) return '0';
-    $major = intdiv($levelInt, 10);
-    $minor = $levelInt % 10;
-    return $minor > 0 ? "{$major}.{$minor}" : "{$major}.0";
-}
-
-function esc($str) {
-    return htmlspecialchars($str ?? '', ENT_QUOTES, 'UTF-8');
-}
+// ─── Auto-run auth check when this file is included ───
+require_portal_auth();
+$current_user = get_current_user();

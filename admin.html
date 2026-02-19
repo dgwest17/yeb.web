@@ -100,8 +100,9 @@
 <div id="loginScreen" class="login-screen">
   <div class="login-box">
     <h2>🔐 Admin Login</h2>
-    <div class="error" id="loginError">Incorrect password. Please try again.</div>
-    <input type="password" id="passwordInput" placeholder="Enter password" onkeypress="if(event.key==='Enter')login()" />
+    <div class="error" id="loginError">Incorrect credentials. Please try again.</div>
+    <input type="text" id="usernameInput" placeholder="Username" onkeypress="if(event.key==='Enter')document.getElementById('passwordInput').focus()" style="margin-bottom:0.5rem;" />
+    <input type="password" id="passwordInput" placeholder="Password" onkeypress="if(event.key==='Enter')login()" />
     <button onclick="login()">Login</button>
   </div>
 </div>
@@ -111,7 +112,7 @@
     <h1>⚡ Your Energy Best Admin</h1>
     <div style="display:flex; gap:1rem; flex-wrap:wrap;">
       <button class="btn btn-primary" onclick="downloadBackup()" style="background:#8ECAE6; color:#023047;">📥 Backup</button>
-      <button class="btn btn-primary" onclick="logout()">Logout</button>
+      <button class="btn btn-primary" onclick="adminLogout()">Logout</button>
     </div>
   </div>
 
@@ -345,41 +346,61 @@
 
 <script>
 let content = {};
-let sessionToken = null;
+let csrfToken = null;
 
-// ─── Login (server-side check) ───
+// ─── Login (server-side auth via admin-auth.php) ───
 async function login() {
+  const username = document.getElementById('usernameInput').value.trim();
   const pw = document.getElementById('passwordInput').value;
+  const errorEl = document.getElementById('loginError');
+
+  if (!username || !pw) {
+    errorEl.textContent = 'Please enter both username and password.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
   try {
-    const res = await fetch('save.php', {
+    const res = await fetch('admin-auth.php?action=login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'login', password: pw })
+      body: JSON.stringify({ username, password: pw })
     });
     const result = await res.json();
     if (result.success) {
-      sessionToken = result.token || pw;
+      csrfToken = result.csrf_token;
       document.getElementById('loginScreen').classList.add('hidden');
       document.getElementById('adminInterface').classList.remove('hidden');
       loadContent();
     } else {
-      document.getElementById('loginError').style.display = 'block';
+      errorEl.textContent = result.error || 'Login failed.';
+      errorEl.style.display = 'block';
+      document.getElementById('passwordInput').value = '';
     }
   } catch(e) {
-    // Fallback: simple client check if save.php doesn't support login action yet
-    if (pw === 'beacons') {
-      sessionToken = pw;
-      document.getElementById('loginScreen').classList.add('hidden');
-      document.getElementById('adminInterface').classList.remove('hidden');
-      loadContent();
-    } else {
-      document.getElementById('loginError').style.display = 'block';
-    }
+    errorEl.textContent = 'Connection error. Please try again.';
+    errorEl.style.display = 'block';
   }
 }
 
-function logout() {
-  sessionToken = null;
+// ─── Check if already logged in on page load ───
+async function checkSession() {
+  try {
+    const res = await fetch('admin-auth.php?action=check');
+    const data = await res.json();
+    if (data.authenticated) {
+      csrfToken = data.csrf_token;
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('adminInterface').classList.remove('hidden');
+      loadContent();
+    }
+  } catch(e) { /* stay on login screen */ }
+}
+document.addEventListener('DOMContentLoaded', checkSession);
+
+async function adminLogout() {
+  try { await fetch('admin-auth.php?action=logout', { method: 'POST' }); } catch(e) {}
+  csrfToken = null;
   document.getElementById('loginScreen').classList.remove('hidden');
   document.getElementById('adminInterface').classList.add('hidden');
 }
@@ -391,9 +412,9 @@ function switchTab(tab, btn) {
   document.getElementById('tab-' + tab).classList.add('active');
 }
 
-// ─── Load Content ───
+// ─── Load Content (via PHP proxy since .htaccess blocks direct .json access) ───
 async function loadContent() {
-  const res = await fetch('content.json?' + Date.now());
+  const res = await fetch('load-content.php?target=content&t=' + Date.now());
   content = await res.json();
   renderAll();
 }
@@ -849,11 +870,12 @@ function removeCompRow(i) {
   renderCompRows();
 }
 
-// ─── Image Upload ───
+// ─── Image Upload (with CSRF) ───
 async function uploadImages(e, targetPath) {
   for (const file of e.target.files) {
     const formData = new FormData();
     formData.append('image', file);
+    formData.append('_csrf_token', csrfToken);
     const res = await fetch('upload-image.php', { method: 'POST', body: formData });
     const result = await res.json();
     if (result.success) {
@@ -871,87 +893,9 @@ async function uploadImages(e, targetPath) {
   e.target.value = '';
 }
 
-// ─── Save ───
+// ─── Save (placeholder — overridden by expanded save below) ───
 async function saveContent() {
-  if (!confirm('Save all changes? This will update your live website.')) return;
-  const btn = document.getElementById('saveBtn');
-  btn.textContent = '💾 Saving...';
-  btn.disabled = true;
-
-  // Gather all text fields into content object
-  content.home = content.home || {};
-  content.home.hero_eyebrow = getVal('home-eyebrow');
-  content.home.hero_title_part1 = getVal('home-title-part1');
-  content.home.hero_title_part2 = getVal('home-title-part2');
-  content.home.hero_subtitle = getVal('home-subtitle');
-  content.home.about_text = getVal('home-about');
-  content.home.referral_text = getVal('home-referral');
-  content.home.accordion_btn_closed = getVal('accordion-btn-closed');
-  content.home.accordion_btn_open = getVal('accordion-btn-open');
-
-  content.build = content.build || {};
-  if (!content.build.hero) content.build.hero = {};
-  content.build.hero.title = getVal('build-hero-title');
-  content.build.hero.subtitle = getVal('build-hero-subtitle');
-  content.build.cta_text = getVal('build-cta-text');
-  content.build.section_title = getVal('build-section-title');
-  content.build.section_text = getVal('build-section-text');
-
-  content.stats = content.stats || {};
-  content.stats.savings = getVal('stats-savings');
-  content.stats.savings_label = getVal('stats-savings-label');
-  content.stats.hours = getVal('stats-hours');
-  content.stats.hours_label = getVal('stats-hours-label');
-  content.stats.installations = getVal('stats-installations');
-  content.stats.installations_label = getVal('stats-installations-label');
-  content.stats.customers = getVal('stats-customers');
-  content.stats.customers_label = getVal('stats-customers-label');
-
-  content.rebate_alert = content.rebate_alert || {};
-  content.rebate_alert.heading = getVal('rebate-heading');
-  content.rebate_alert.text = getVal('rebate-text');
-  content.rebate_alert.home_link_text = getVal('rebate-home-link');
-  content.rebate_alert.quote_link_text = getVal('rebate-quote-link');
-  content.rebate_alert.quote_modal_text = getVal('rebate-modal-text');
-  // Rebuild links array from text fields
-  content.rebate_alert.links = [
-    { label: getVal('rebate-home-link') || 'See what you qualify for', url: 'quote.html', external: false },
-    { label: 'SD Community Power Rebates', url: 'https://sdcommunitypower.org/solar-battery-savings/', external: true }
-  ];
-
-  content.contact = content.contact || {};
-  content.contact.phone = getVal('contact-phone');
-  content.contact.phone_formatted = formatPhone(getVal('contact-phone'));
-  content.contact.email = getVal('contact-email');
-
-  content.quote = content.quote || {};
-  content.quote.hero_eyebrow = getVal('quote-eyebrow');
-  content.quote.hero_title = getVal('quote-title');
-  content.quote.hero_subtitle = getVal('quote-subtitle');
-  content.quote.form_title = getVal('quote-form-title');
-  content.quote.success_message = getVal('quote-success');
-
-  // Ensure testimonials structure
-  ensureTestimonials();
-  content.testimonials.rating = document.getElementById('testimonials-rating')?.value || '5.0';
-  content.testimonials.total_reviews = document.getElementById('testimonials-total')?.value || '';
-
-  try {
-    const res = await fetch('save.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(content)
-    });
-    const result = await res.json();
-    if (result.success) {
-      btn.textContent = '✓ Saved!';
-      setTimeout(() => { btn.textContent = '💾 Save All Changes'; btn.disabled = false; }, 2000);
-    } else throw new Error(result.error || 'Save failed');
-  } catch (err) {
-    btn.textContent = '✕ Save Failed';
-    btn.disabled = false;
-    alert('Save failed: ' + err.message);
-  }
+  // This gets replaced by the expanded multi-target save below
 }
 
 function formatPhone(phone) {
@@ -979,7 +923,7 @@ let trainUsers = {};
 // Load train + services + users content alongside main content
 async function loadTrainContent() {
   try {
-    const res = await fetch('train-content.json?' + Date.now());
+    const res = await fetch('load-content.php?target=train&t=' + Date.now());
     trainContent = await res.json();
   } catch(e) {
     trainContent = { manuals: [], settings: { portal_password: 'Become' } };
@@ -989,7 +933,7 @@ async function loadTrainContent() {
 
 async function loadServicesContent() {
   try {
-    const res = await fetch('services-content.json?' + Date.now());
+    const res = await fetch('load-content.php?target=services&t=' + Date.now());
     servicesContent = await res.json();
   } catch(e) {
     servicesContent = { hero: { title: '', subtitle: '' }, services: [] };
@@ -999,7 +943,7 @@ async function loadServicesContent() {
 
 async function loadTrainUsers() {
   try {
-    const res = await fetch('train-users.json?' + Date.now());
+    const res = await fetch('load-content.php?target=train-users&t=' + Date.now());
     trainUsers = await res.json();
   } catch(e) {
     trainUsers = { users: [] };
@@ -1478,7 +1422,7 @@ function renderTrainUsers() {
             <option value="trainer" ${u.role==='trainer'?'selected':''}>Trainer</option>
             <option value="admin" ${u.role==='admin'?'selected':''}>Admin</option>
           </select>
-          <input value="${u.password||''}" placeholder="Custom pw (or uses portal pw)" style="width:140px;font-size:0.8rem;" oninput="trainUsers.users[${i}].password=this.value" type="text"/>
+          <input value="${u.password && !u.password.startsWith('$2y$') ? u.password : ''}" placeholder="${u.password && u.password.startsWith('$2y$') ? '(encrypted)' : 'Custom pw (or uses portal pw)'}" style="width:140px;font-size:0.8rem;" oninput="trainUsers.users[${i}].password=this.value" type="text"/>
           <label style="font-size:0.8rem;color:#666;">Level:</label>
           <select class="user-card__level-input" oninput="trainUsers.users[${i}].unlocked_level=parseInt(this.value)">
             ${levelOpts}
@@ -1600,23 +1544,25 @@ saveContent = async function() {
 
   let allOk = true;
   try {
+    const authHeaders = { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken };
+
     // Save content.json
-    const r1 = await fetch('save.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...content, _save_target: 'content' }) });
+    const r1 = await fetch('save.php', { method: 'POST', headers: authHeaders, body: JSON.stringify({ ...content, _save_target: 'content' }) });
     const j1 = await r1.json();
     if (!j1.success) throw new Error('content.json: ' + (j1.error || 'failed'));
 
     // Save train-content.json
-    const r2 = await fetch('save.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...trainContent, _save_target: 'train' }) });
+    const r2 = await fetch('save.php', { method: 'POST', headers: authHeaders, body: JSON.stringify({ ...trainContent, _save_target: 'train' }) });
     const j2 = await r2.json();
     if (!j2.success) throw new Error('train-content.json: ' + (j2.error || 'failed'));
 
     // Save services-content.json
-    const r3 = await fetch('save.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...servicesContent, _save_target: 'services' }) });
+    const r3 = await fetch('save.php', { method: 'POST', headers: authHeaders, body: JSON.stringify({ ...servicesContent, _save_target: 'services' }) });
     const j3 = await r3.json();
     if (!j3.success) throw new Error('services-content.json: ' + (j3.error || 'failed'));
 
     // Save train-users.json
-    const r4 = await fetch('save.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...trainUsers, _save_target: 'train-users' }) });
+    const r4 = await fetch('save.php', { method: 'POST', headers: authHeaders, body: JSON.stringify({ ...trainUsers, _save_target: 'train-users' }) });
     const j4 = await r4.json();
     if (!j4.success) throw new Error('train-users.json: ' + (j4.error || 'failed'));
 

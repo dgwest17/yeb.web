@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Panel – Your Energy Best</title>
+  <!-- Quill Rich Text Editor -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; }
@@ -93,6 +95,15 @@
     .svc-features { margin-top: 0.5rem; }
     .svc-feature-row { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.4rem; }
     .svc-feature-row input { flex: 1; }
+    /* Quill rich text editor overrides */
+    .rich-editor-wrap { border: 2px solid #e0e0e0; border-radius: 6px; overflow: hidden; margin-bottom: 0.5rem; }
+    .rich-editor-wrap:focus-within { border-color: #219EBC; }
+    .rich-editor-wrap .ql-toolbar { background: #f9f9f9; border: none; border-bottom: 1px solid #e0e0e0; padding: 4px 8px; }
+    .rich-editor-wrap .ql-container { border: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 1rem; }
+    .rich-editor-wrap .ql-editor { min-height: 80px; padding: 0.75rem; }
+    .rich-editor-wrap .ql-editor p { margin-bottom: 0.5em; }
+    .rich-editor-wrap.compact .ql-editor { min-height: 40px; }
+    .rich-editor-wrap.tall .ql-editor { min-height: 180px; }
   </style>
 </head>
 <body>
@@ -135,7 +146,7 @@
         <div class="field"><label>Eyebrow Text</label><input type="text" id="home-eyebrow" /></div>
         <div class="field"><label>Hero Title - First Part (White)</label><input type="text" id="home-title-part1" /></div>
         <div class="field"><label>Hero Title - Second Part (Orange)</label><input type="text" id="home-title-part2" /></div>
-        <div class="field"><label>Subtitle</label><textarea id="home-subtitle"></textarea></div>
+        <div class="field"><label>Subtitle</label><div class="rich-editor-wrap"><div id="home-subtitle" class="rich-edit"></div></div></div>
       </div>
       <div class="section-card">
         <div class="section-header"><h3>Customer Option Cards</h3></div>
@@ -159,8 +170,8 @@
       </div>
       <div class="section-card">
         <div class="section-header"><h3>About Section</h3></div>
-        <div class="field"><label>About Text</label><textarea id="home-about"></textarea></div>
-        <div class="field"><label>Referral Text</label><textarea id="home-referral"></textarea></div>
+        <div class="field"><label>About Text</label><div class="rich-editor-wrap"><div id="home-about" class="rich-edit"></div></div></div>
+        <div class="field"><label>Referral Text</label><div class="rich-editor-wrap"><div id="home-referral" class="rich-edit"></div></div></div>
       </div>
       <div class="section-card">
         <div class="section-header"><h3>"What Makes Us Different" Section</h3></div>
@@ -176,13 +187,13 @@
       <div class="section-card">
         <div class="section-header"><h3>Hero Section</h3></div>
         <div class="field"><label>Hero Title</label><input type="text" id="build-hero-title" /></div>
-        <div class="field"><label>Hero Subtitle</label><textarea id="build-hero-subtitle"></textarea></div>
+        <div class="field"><label>Hero Subtitle</label><div class="rich-editor-wrap"><div id="build-hero-subtitle" class="rich-edit"></div></div></div>
         <div class="field"><label>CTA Button Text</label><input type="text" id="build-cta-text" /></div>
       </div>
       <div class="section-card">
         <div class="section-header"><h3>"Why Door-to-Door?" Section</h3></div>
         <div class="field"><label>Section Title</label><input type="text" id="build-section-title" /></div>
-        <div class="field"><label>Section Text</label><textarea id="build-section-text"></textarea></div>
+        <div class="field"><label>Section Text</label><div class="rich-editor-wrap"><div id="build-section-text" class="rich-edit"></div></div></div>
       </div>
       <div class="section-card">
         <div class="section-header"><h3>Benefits Cards</h3></div>
@@ -212,7 +223,7 @@
         <div class="section-header"><h3>Quote Page Content</h3></div>
         <div class="field"><label>Hero Eyebrow</label><input type="text" id="quote-eyebrow" /></div>
         <div class="field"><label>Hero Title</label><input type="text" id="quote-title" /></div>
-        <div class="field"><label>Hero Subtitle</label><textarea id="quote-subtitle"></textarea></div>
+        <div class="field"><label>Hero Subtitle</label><div class="rich-editor-wrap"><div id="quote-subtitle" class="rich-edit"></div></div></div>
         <div class="field"><label>Form Title</label><input type="text" id="quote-form-title" /></div>
         <div class="field"><label>Success Message</label><input type="text" id="quote-success" /></div>
       </div>
@@ -262,7 +273,7 @@
       <div class="section-card">
         <div class="section-header"><h3>Services Page Hero</h3></div>
         <div class="field"><label>Page Title</label><input type="text" id="svc-hero-title" /></div>
-        <div class="field"><label>Page Subtitle</label><textarea id="svc-hero-subtitle"></textarea></div>
+        <div class="field"><label>Page Subtitle</label><div class="rich-editor-wrap"><div id="svc-hero-subtitle" class="rich-edit"></div></div></div>
       </div>
       <div class="section-card">
         <div class="section-header">
@@ -307,7 +318,7 @@
       <div class="section-card">
         <div class="section-header"><h3>Rebate / Urgency Alert</h3></div>
         <div class="field"><label>Heading</label><input type="text" id="rebate-heading" /></div>
-        <div class="field"><label>Text</label><textarea id="rebate-text"></textarea></div>
+        <div class="field"><label>Text</label><div class="rich-editor-wrap"><div id="rebate-text" class="rich-edit"></div></div></div>
         <div class="row">
           <div class="field"><label>Home Page Link Text</label><input type="text" id="rebate-home-link" /></div>
           <div class="field"><label>Quote Page Link Text</label><input type="text" id="rebate-quote-link" /></div>
@@ -343,6 +354,181 @@
     <button class="btn btn-primary" id="saveBtn" onclick="saveContent()">💾 Save All Changes</button>
   </div>
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════════
+// RICH TEXT EDITOR SYSTEM (Quill.js)
+// ═══════════════════════════════════════════════════════════
+
+// Registry of all active Quill editors: { elementId: quillInstance }
+const richEditors = {};
+
+// Toolbar config — bold, italic, underline, size, color, lists, links, clean
+const RICH_TOOLBAR = [
+  ['bold', 'italic', 'underline', 'strike'],
+  [{ 'size': ['small', false, 'large', 'huge'] }],
+  [{ 'color': [] }, { 'background': [] }],
+  [{ 'header': [1, 2, 3, false] }],
+  [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+  [{ 'align': [] }],
+  ['link'],
+  ['clean']
+];
+
+// Compact toolbar for smaller fields (customer quotes, tips, descriptions)
+const COMPACT_TOOLBAR = [
+  ['bold', 'italic', 'underline'],
+  [{ 'size': ['small', false, 'large'] }],
+  [{ 'color': [] }],
+  [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+  ['link', 'clean']
+];
+
+/**
+ * Initialize a Quill editor on a div element.
+ * @param {string} id - Element ID
+ * @param {string} initialContent - HTML content to load
+ * @param {Function} onChange - Callback with (html) on change
+ * @param {object} opts - { compact: bool, tall: bool }
+ * @returns {Quill} instance
+ */
+function initRichEditor(id, initialContent, onChange, opts = {}) {
+  const el = document.getElementById(id);
+  if (!el) return null;
+
+  // Destroy existing editor if re-initializing
+  if (richEditors[id]) {
+    delete richEditors[id];
+    // Quill doesn't have a clean destroy — the container gets re-rendered by our render functions
+  }
+
+  const quill = new Quill('#' + id, {
+    theme: 'snow',
+    modules: { toolbar: opts.compact ? COMPACT_TOOLBAR : RICH_TOOLBAR },
+    placeholder: opts.placeholder || 'Type here...'
+  });
+
+  // Set initial content
+  if (initialContent) {
+    // If content looks like plain text (no HTML tags), wrap in <p>
+    if (initialContent && !initialContent.includes('<')) {
+      quill.root.innerHTML = '<p>' + initialContent.replace(/\n/g, '</p><p>') + '</p>';
+    } else {
+      quill.root.innerHTML = initialContent;
+    }
+  }
+
+  // Wrap container for styling
+  const wrap = el.closest('.rich-editor-wrap');
+  if (wrap) {
+    if (opts.compact) wrap.classList.add('compact');
+    if (opts.tall) wrap.classList.add('tall');
+  }
+
+  // On change callback
+  if (onChange) {
+    quill.on('text-change', () => {
+      const html = quill.root.innerHTML;
+      // Quill uses <p><br></p> for empty — normalize
+      const clean = html === '<p><br></p>' ? '' : html;
+      onChange(clean);
+    });
+  }
+
+  richEditors[id] = quill;
+  return quill;
+}
+
+/**
+ * Get HTML content from a rich editor or fall back to input value
+ */
+function getRichVal(id) {
+  if (richEditors[id]) {
+    const html = richEditors[id].root.innerHTML;
+    return html === '<p><br></p>' ? '' : html;
+  }
+  // Fallback to regular input
+  const el = document.getElementById(id);
+  return el ? el.value : '';
+}
+
+/**
+ * Set content in a rich editor or fall back to input value
+ */
+function setRichVal(id, val) {
+  if (richEditors[id]) {
+    richEditors[id].root.innerHTML = val || '';
+    return;
+  }
+  // Fallback to regular input
+  const el = document.getElementById(id);
+  if (el) el.value = val || '';
+}
+
+/**
+ * Initialize all static rich editors (the ones in the HTML, not dynamic)
+ */
+function initStaticEditors() {
+  document.querySelectorAll('.rich-edit').forEach(el => {
+    if (!richEditors[el.id]) {
+      initRichEditor(el.id, '', null, {});
+    }
+  });
+}
+
+/**
+ * Convert a dynamically-rendered textarea into a rich editor.
+ * Call this after innerHTML rendering for dynamic sections.
+ * 
+ * Usage in render functions:
+ *   After setting innerHTML, call:
+ *     upgradeTextareasToRich(containerEl);
+ * 
+ * The textarea must have: data-rich="true" and data-path="content.faq[0].answer"
+ */
+function upgradeTextareasToRich(containerEl) {
+  if (!containerEl) return;
+  containerEl.querySelectorAll('textarea[data-rich]').forEach(ta => {
+    const uid = 'rte-' + Math.random().toString(36).substr(2, 9);
+    const path = ta.getAttribute('data-path');
+    const content = ta.value;
+    const isCompact = ta.hasAttribute('data-compact');
+    const isTall = ta.hasAttribute('data-tall');
+
+    // Create rich editor div to replace textarea
+    const wrap = document.createElement('div');
+    wrap.className = 'rich-editor-wrap' + (isCompact ? ' compact' : '') + (isTall ? ' tall' : '');
+    const editorDiv = document.createElement('div');
+    editorDiv.id = uid;
+    wrap.appendChild(editorDiv);
+    ta.parentNode.replaceChild(wrap, ta);
+
+    initRichEditor(uid, content, (html) => {
+      // Use the data-path to set the value on the correct object
+      setNestedValue(path, html);
+    }, { compact: isCompact });
+  });
+}
+
+/**
+ * Set a value deep in an object using a dot-bracket path like
+ * "content.faq[0].answer" or "trainContent.manuals[0].folders[1].description"
+ */
+function setNestedValue(path, value) {
+  if (!path) return;
+  // Parse path: "content.home.about_text" or "content.faq[0].answer"
+  const parts = path.replace(/\[(\d+)\]/g, '.$1').split('.');
+  let obj = window; // start from global scope
+  for (let i = 0; i < parts.length - 1; i++) {
+    const key = isNaN(parts[i]) ? parts[i] : parseInt(parts[i]);
+    if (obj[key] === undefined) return;
+    obj = obj[key];
+  }
+  const lastKey = isNaN(parts[parts.length-1]) ? parts[parts.length-1] : parseInt(parts[parts.length-1]);
+  obj[lastKey] = value;
+}
+</script>
 
 <script>
 let content = {};
@@ -484,10 +670,19 @@ function renderAll() {
   renderTestimonials();
   renderGlobalFaq();
   renderBlogPosts();
+
+  // Initialize rich text editors on static fields after values are set
+  setTimeout(() => initStaticEditors(), 50);
 }
 
-function setVal(id, val) { const el = document.getElementById(id); if (el) el.value = val || ''; }
-function getVal(id) { const el = document.getElementById(id); return el ? el.value : ''; }
+function setVal(id, val) {
+  if (richEditors[id]) { richEditors[id].root.innerHTML = val || ''; return; }
+  const el = document.getElementById(id); if (el) el.value = val || '';
+}
+function getVal(id) {
+  if (richEditors[id]) { const h = richEditors[id].root.innerHTML; return h === '<p><br></p>' ? '' : h; }
+  const el = document.getElementById(id); return el ? el.value : '';
+}
 
 // ─── Sync text fields back to content (prevents loss on re-render) ───
 function syncTextFields() {
@@ -678,8 +873,9 @@ function renderCustomerOptions() {
     </div></div>
     <div class="row"><div class="field"><label>Icon</label><input value="${o.icon||''}" oninput="content.home.customer_options[${i}].icon=this.value"/></div>
     <div class="field"><label>Title</label><input value="${o.title||''}" oninput="content.home.customer_options[${i}].title=this.value"/></div></div>
-    <div class="field"><label>Description</label><textarea oninput="content.home.customer_options[${i}].description=this.value">${o.description||''}</textarea></div></div>
+    <div class="field"><label>Description</label><textarea data-rich data-compact data-path="content.home.customer_options[${i}].description">${o.description||''}</textarea></div></div>
   `).join('');
+  upgradeTextareasToRich(document.getElementById('home-customer-options'));
 }
 function addCustomerOption() { addToArray('home.customer_options', {icon:'☀️', title:'', description:'', link:'quote.html'}); }
 
@@ -714,8 +910,9 @@ function renderBuildBenefits() {
       <button class="btn btn-sm btn-danger" onclick="removeItem('build.benefits',${i})">✕</button></div></div>
     <div class="row"><div class="field"><label>Icon</label><input value="${item.icon||''}" oninput="content.build.benefits[${i}].icon=this.value"/></div>
     <div class="field"><label>Title</label><input value="${item.title||''}" oninput="content.build.benefits[${i}].title=this.value"/></div></div>
-    <div class="field"><label>Description</label><textarea oninput="content.build.benefits[${i}].text=this.value">${item.text||''}</textarea></div></div>
+    <div class="field"><label>Description</label><textarea data-rich data-compact data-path="content.build.benefits[${i}].text">${item.text||''}</textarea></div></div>
   `).join('');
+  upgradeTextareasToRich(document.getElementById('build-benefits'));
 }
 
 function renderBuildGallery() {
@@ -749,8 +946,9 @@ function renderBuildFaq() {
       <button class="btn btn-sm btn-down" onclick="moveItem('build.faq',${i},1)">↓</button>
       <button class="btn btn-sm btn-danger" onclick="removeItem('build.faq',${i})">✕</button></div></div>
     <div class="field"><label>Question</label><input value="${item.question||''}" oninput="content.build.faq[${i}].question=this.value"/></div>
-    <div class="field"><label>Answer</label><textarea oninput="content.build.faq[${i}].answer=this.value">${item.answer||''}</textarea></div></div>
+    <div class="field"><label>Answer</label><textarea data-rich data-compact data-path="content.build.faq[${i}].answer">${item.answer||''}</textarea></div></div>
   `).join('');
+  upgradeTextareasToRich(document.getElementById('build-faq'));
 }
 
 // ─── Testimonials (uses .items structure) ───
@@ -768,9 +966,10 @@ function renderTestimonials() {
     <div class="row"><div class="field"><label>Name</label><input value="${item.name||''}" oninput="content.testimonials.items[${i}].name=this.value"/></div>
     <div class="field"><label>Role</label><input value="${item.role||''}" oninput="content.testimonials.items[${i}].role=this.value"/></div>
     <div class="field"><label>Initials</label><input value="${item.initials||''}" maxlength="2" oninput="content.testimonials.items[${i}].initials=this.value"/></div></div>
-    <div class="field"><label>Quote</label><textarea oninput="content.testimonials.items[${i}].text=this.value">${item.text||''}</textarea></div></div>
+    <div class="field"><label>Quote</label><textarea data-rich data-compact data-path="content.testimonials.items[${i}].text">${item.text||''}</textarea></div></div>
   `).join('');
   document.getElementById('global-testimonials').innerHTML = ratingHTML + itemsHTML;
+  upgradeTextareasToRich(document.getElementById('global-testimonials'));
 }
 
 function ensureTestimonials() {
@@ -792,8 +991,9 @@ function renderGlobalFaq() {
       <button class="btn btn-sm btn-down" onclick="moveItem('faq',${i},1)">↓</button>
       <button class="btn btn-sm btn-danger" onclick="removeItem('faq',${i})">✕</button></div></div>
     <div class="field"><label>Question</label><input value="${item.question||''}" oninput="content.faq[${i}].question=this.value"/></div>
-    <div class="field"><label>Answer</label><textarea oninput="content.faq[${i}].answer=this.value">${item.answer||''}</textarea></div></div>
+    <div class="field"><label>Answer</label><textarea data-rich data-compact data-path="content.faq[${i}].answer">${item.answer||''}</textarea></div></div>
   `).join('');
+  upgradeTextareasToRich(document.getElementById('global-faq'));
 }
 
 // ─── Blog Posts ───
@@ -812,9 +1012,10 @@ function renderBlogPosts() {
       <div class="field"><label>Date</label><input type="date" value="${p.date||''}" oninput="content.blog_posts[${i}].date=this.value"/></div>
       <div class="field"><label>Read Time</label><input value="${p.readtime||''}" oninput="content.blog_posts[${i}].readtime=this.value" placeholder="5 min read"/></div>
     </div>
-    <div class="field"><label>Body (supports **bold**, *italic*, ## headings, - bullet lists)</label>
-      <textarea style="min-height:200px;" oninput="content.blog_posts[${i}].body=this.value">${p.body||''}</textarea></div></div>
+    <div class="field"><label>Body</label>
+      <textarea data-rich data-tall data-path="content.blog_posts[${i}].body">${p.body||''}</textarea></div></div>
   `).join('');
+  upgradeTextareasToRich(document.getElementById('blog-list'));
 }
 
 function addBlogPost() {
@@ -989,8 +1190,9 @@ function renderDiffCards() {
       <div class="field" style="flex:0 0 80px"><label>Icon</label><input value="${c.icon||''}" oninput="content.home.differentiators.cards[${i}].icon=this.value"/></div>
       <div class="field"><label>Title</label><input value="${c.title||''}" oninput="content.home.differentiators.cards[${i}].title=this.value"/></div>
     </div>
-    <div class="field"><label>Description</label><textarea oninput="content.home.differentiators.cards[${i}].description=this.value">${c.description||''}</textarea></div></div>
+    <div class="field"><label>Description</label><textarea data-rich data-compact data-path="content.home.differentiators.cards[${i}].description">${c.description||''}</textarea></div></div>
   `).join('');
+  upgradeTextareasToRich(document.getElementById('diff-cards'));
 }
 
 function addDiffCard() {
@@ -1034,7 +1236,7 @@ function renderTrainEditor() {
           <div class="field"><label>Manual Title</label><input value="${m.title||''}" oninput="trainContent.manuals[${mi}].title=this.value"/></div>
           <div class="field"><label>Icon</label><input value="${m.icon||''}" oninput="trainContent.manuals[${mi}].icon=this.value" style="width:60px;"/></div>
         </div>
-        <div class="field" style="margin-bottom:1rem;"><label>Description</label><textarea oninput="trainContent.manuals[${mi}].description=this.value">${m.description||''}</textarea></div>
+        <div class="field" style="margin-bottom:1rem;"><label>Description</label><textarea data-rich data-compact data-path="trainContent.manuals[${mi}].description">${m.description||''}</textarea></div>
         
         <h5 style="margin-bottom:0.5rem;color:#023047;">Levels / Folders</h5>
         <div id="manual-${mi}-folders">
@@ -1044,6 +1246,8 @@ function renderTrainEditor() {
       </div>
     </div>
   `).join('');
+  // Upgrade all rich textareas in train panel after render
+  setTimeout(() => upgradeTextareasToRich(document.getElementById('train-manuals')), 50);
 }
 
 function renderLevelBlock(mi, fi, folder) {
@@ -1066,7 +1270,7 @@ function renderLevelBlock(mi, fi, folder) {
           <div class="field"><label>Title</label><input value="${folder.title||''}" oninput="trainContent.manuals[${mi}].folders[${fi}].title=this.value"/></div>
           <div class="field" style="flex:0 0 100px"><label>Level (x10)</label><input type="number" value="${folder.level||0}" oninput="trainContent.manuals[${mi}].folders[${fi}].level=parseInt(this.value)||0"/><div class="hint">15 = Level 1.5</div></div>
         </div>
-        <div class="field"><label>Description</label><textarea oninput="trainContent.manuals[${mi}].folders[${fi}].description=this.value">${folder.description||''}</textarea></div>
+        <div class="field"><label>Description</label><textarea data-rich data-compact data-path="trainContent.manuals[${mi}].folders[${fi}].description">${folder.description||''}</textarea></div>
         
         <h6 style="margin:0.75rem 0 0.5rem;color:#023047;">Modules</h6>
         ${modules.map((mod, modi) => renderModuleBlock(mi, fi, modi, mod)).join('')}
@@ -1115,7 +1319,7 @@ function renderModuleBlock(mi, fi, modi, mod) {
             <option value="passoff" ${mod.type==='passoff'?'selected':''}>Passoff</option>
           </select></div>
       </div>
-      <div class="field"><label>Description</label><textarea style="min-height:50px;" oninput="trainContent.manuals[${mi}].folders[${fi}].modules[${modi}].description=this.value">${mod.description||''}</textarea></div>
+      <div class="field"><label>Description</label><textarea data-rich data-compact data-path="trainContent.manuals[${mi}].folders[${fi}].modules[${modi}].description">${mod.description||''}</textarea></div>
       <div class="field"><label>Next Step Guidance</label><input value="${mod.next_step||''}" oninput="trainContent.manuals[${mi}].folders[${fi}].modules[${modi}].next_step=this.value" placeholder="Complete this, then move on to..."/></div>
       
       <details style="margin-top:0.5rem;"><summary style="cursor:pointer;font-weight:600;font-size:0.85rem;color:#219EBC;">Sections (${(mod.sections||[]).length}) — Quote / Response / Tip</summary>
@@ -1130,8 +1334,8 @@ function renderModuleBlock(mi, fi, modi, mod) {
                 <button class="btn btn-sm btn-danger" onclick="removeSection(${mi},${fi},${modi},${si})">✕</button>
               </div>
             </div>
-            <div class="field"><label><strong>Customer Quote</strong></label><textarea class="quote-field" style="min-height:40px;" oninput="trainContent.manuals[${mi}].folders[${fi}].modules[${modi}].sections[${si}].customer_quote=this.value">${s.customer_quote||''}</textarea></div>
-            <div class="field"><label>Rep Response</label><textarea style="min-height:60px;" oninput="trainContent.manuals[${mi}].folders[${fi}].modules[${modi}].sections[${si}].rep_response=this.value">${s.rep_response||''}</textarea></div>
+            <div class="field"><label><strong>Customer Quote</strong></label><textarea data-rich data-compact data-path="trainContent.manuals[${mi}].folders[${fi}].modules[${modi}].sections[${si}].customer_quote">${s.customer_quote||''}</textarea></div>
+            <div class="field"><label>Rep Response</label><textarea data-rich data-compact data-path="trainContent.manuals[${mi}].folders[${fi}].modules[${modi}].sections[${si}].rep_response">${s.rep_response||''}</textarea></div>
             <div class="field"><label><em>Tip (optional)</em></label><input class="tip-field" value="${s.tip||''}" oninput="trainContent.manuals[${mi}].folders[${fi}].modules[${modi}].sections[${si}].tip=this.value" placeholder="Tip: When to use this response..."/></div>
           </div>
         `).join('')}
@@ -1161,14 +1365,14 @@ function renderSubModuleBlock(mi, fi, sfi, modi, mod) {
         <button class="btn btn-sm btn-danger" onclick="removeSubModule(${mi},${fi},${sfi},${modi})">✕</button>
       </div>
       <div class="field"><label>Title</label><input value="${mod.title||''}" oninput="trainContent.manuals[${mi}].folders[${fi}].folders[${sfi}].modules[${modi}].title=this.value"/></div>
-      <div class="field"><label>Description</label><textarea style="min-height:40px;" oninput="trainContent.manuals[${mi}].folders[${fi}].folders[${sfi}].modules[${modi}].description=this.value">${mod.description||''}</textarea></div>
+      <div class="field"><label>Description</label><textarea data-rich data-compact data-path="trainContent.manuals[${mi}].folders[${fi}].folders[${sfi}].modules[${modi}].description">${mod.description||''}</textarea></div>
       
       <details style="margin-top:0.5rem;"><summary style="cursor:pointer;font-weight:600;font-size:0.85rem;color:#219EBC;">Sections (${(mod.sections||[]).length})</summary>
       <div style="padding:0.5rem 0;">
         ${(mod.sections||[]).map((s, si) => `
           <div class="section-block">
-            <div class="field"><label><strong>Customer Quote</strong></label><textarea class="quote-field" style="min-height:40px;" oninput="trainContent.manuals[${mi}].folders[${fi}].folders[${sfi}].modules[${modi}].sections[${si}].customer_quote=this.value">${s.customer_quote||''}</textarea></div>
-            <div class="field"><label>Rep Response</label><textarea style="min-height:60px;" oninput="trainContent.manuals[${mi}].folders[${fi}].folders[${sfi}].modules[${modi}].sections[${si}].rep_response=this.value">${s.rep_response||''}</textarea></div>
+            <div class="field"><label><strong>Customer Quote</strong></label><textarea data-rich data-compact data-path="trainContent.manuals[${mi}].folders[${fi}].folders[${sfi}].modules[${modi}].sections[${si}].customer_quote">${s.customer_quote||''}</textarea></div>
+            <div class="field"><label>Rep Response</label><textarea data-rich data-compact data-path="trainContent.manuals[${mi}].folders[${fi}].folders[${sfi}].modules[${modi}].sections[${si}].rep_response">${s.rep_response||''}</textarea></div>
             <div class="field"><label><em>Tip</em></label><input class="tip-field" value="${s.tip||''}" oninput="trainContent.manuals[${mi}].folders[${fi}].folders[${sfi}].modules[${modi}].sections[${si}].tip=this.value"/></div>
           </div>
         `).join('')}
@@ -1334,7 +1538,7 @@ function renderServicesEditor() {
         <div class="field"><label>Price Period</label><input value="${p.price_period||''}" oninput="servicesContent.services[${i}].price_period=this.value" placeholder="one-time, /month, /year"/></div>
         <div class="field"><label>PayPal Price (number)</label><input type="number" value="${p.paypal_price||''}" oninput="servicesContent.services[${i}].paypal_price=parseFloat(this.value)||0"/></div>
       </div>
-      <div class="field"><label>Description</label><textarea oninput="servicesContent.services[${i}].description=this.value">${p.description||''}</textarea></div>
+      <div class="field"><label>Description</label><textarea data-rich data-compact data-path="servicesContent.services[${i}].description">${p.description||''}</textarea></div>
       <div class="field"><label>Opportunity Type (Zoho)</label><input value="${p.opportunity_type||''}" oninput="servicesContent.services[${i}].opportunity_type=this.value"/></div>
       
       <div class="svc-features">
@@ -1349,6 +1553,7 @@ function renderServicesEditor() {
       </div>
     </div>
   `).join('');
+  upgradeTextareasToRich(document.getElementById('svc-plans'));
 }
 
 function addServicePlan() {

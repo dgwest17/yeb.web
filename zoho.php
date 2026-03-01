@@ -301,19 +301,31 @@ if ($action === 'recruit') {
         ];
     }
     
+    // Build rep notes with all extra fields
+    $repNotesParts = [];
+    if (!empty($input['d2d_experience']))   $repNotesParts[] = "D2D Experience: {$input['d2d_experience']}";
+    if (!empty($input['sales_experience'])) $repNotesParts[] = "Sales Experience: {$input['sales_experience']}";
+    if (!empty($input['blitz_available']))  $repNotesParts[] = "Blitz Available: {$input['blitz_available']}";
+    if (!empty($input['why_good_fit']))     $repNotesParts[] = "Why Good Fit:\n{$input['why_good_fit']}";
+    $repNotesParts[] = "Source: {$sourceForm} | Trace: {$traceId}";
+    $repNotes = implode("\n\n", $repNotesParts);
+
     $recruitData = [
-        'Name'              => $nameParts['First'],
-        'Last_Name'         => $nameParts['Last'],
-        'Email'             => $email,
-        'Phone_1'           => $input['phone'] ?? '',
-        'How_you_found_us'  => 'Website - Training Portal',
-        'Status'            => 'New',
-        'Tag'               => 'TRAINING_ACCESS_REQUEST',
-        'Rep_Notes'         => "Training access requested | Trace: {$traceId}",
+        'Name'                => $nameParts['First'],   // Recruits First Name (CRM maps 'Name' → first)
+        'Last_Name'           => $nameParts['Last'],    // Last Name
+        'Email'               => $email,                // Email
+        'Phone_1'             => $input['phone'] ?? '', // Phone 1
+        'How_you_found_us'    => $input['lead_source'] ?? 'Website - Build Page',
+        'D2D_Experience'      => $input['d2d_experience'] ?? '',    // D2D Experience (Pick List)
+        'Sales_Experience'    => $input['sales_experience'] ?? '',  // Sales Experience (Pick List)
+        'Blitz_Availability'  => $input['blitz_available'] ?? '',   // Blitz availability (Pick List)
+        'Rep_Notes'           => $repNotes,             // Rep Notes (why good fit + trace)
+        'Status'              => 'New',
+        'Tag'                 => 'BUILD_PAGE_WAITLIST',
     ];
     
     if ($isTest) {
-        $recruitData['Tag'] = 'TEST_RECRUIT,TRAINING_ACCESS_REQUEST';
+        $recruitData['Tag'] = 'TEST_RECRUIT,BUILD_PAGE_WAITLIST';
     }
     
     logDebug("Recruit payload: " . json_encode($recruitData));

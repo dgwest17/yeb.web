@@ -6,7 +6,7 @@
   <title>Build With Us – Your Energy Best</title>
   <link rel="icon" type="image/png" href="../img/logo.png" />
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
     * { box-sizing: border-box; margin: 0; padding: 0; }
     :root { --gold: #F59E0B; --gold-light: #FCD34D; --white: #FFFFFF; --gray: #9CA3AF; --gray-light: #D1D5DB; }
     body { font-family: 'Inter', sans-serif; background: #000; color: var(--white); line-height: 1.6; overflow-x: hidden; }
@@ -60,14 +60,8 @@
       background: linear-gradient(to left, rgba(10,10,10,0) 0%, rgba(10,10,10,0.9) 100%);
       z-index: 1;
     }
-    .hero-image-container:hover {
-      opacity: 0.7;
-    }
-    .hero-image-container img { 
-      width: 100%; 
-      height: auto; 
-      display: block; 
-    }
+    .hero-image-container:hover { opacity: 0.7; }
+    .hero-image-container img { width: 100%; height: auto; display: block; }
     
     .cta-btn { 
       display: inline-block; background: var(--gold); color: #000; padding: 1.2rem 3rem; 
@@ -90,13 +84,287 @@
     .gallery-item { flex: 0 0 350px; height: 450px; border-radius: 15px; overflow: hidden; }
     .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
     .gallery-placeholder { width: 100%; height: 100%; background: rgba(255, 255, 255, 0.05); display: flex; align-items: center; justify-content: center; color: var(--gray); }
+
+
     
-    .form-section { padding: 6rem 2rem; background: linear-gradient(to bottom, #0a0a0a, #000); }
-    .form-container { max-width: 700px; margin: 0 auto; text-align: center; }
-    .form-container h2 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 1rem; color: var(--gold-light); }
-    .form-container p { font-size: 1.2rem; color: var(--gray-light); margin-bottom: 3rem; }
-    .zoho-iframe { width: 100%; min-height: 600px; border: none; border-radius: 20px; }
-    
+    /* ═══════════════════════════════════════════════
+       CUSTOM RECRUITMENT FORM — EPIC EDITION
+    ═══════════════════════════════════════════════ */
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
+
+    .form-section {
+      padding: 7rem 2rem;
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+    /* Background image layer */
+    .form-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url('../img/form-bg.png');
+      background-size: cover;
+      background-position: center top;
+      background-attachment: fixed;
+      opacity: 0.28;
+      z-index: -2;
+    }
+    /* Dark gradient overlay so form stays readable */
+    .form-section::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.72) 0%,
+        rgba(0,0,0,0.55) 40%,
+        rgba(0,0,0,0.75) 100%
+      );
+      z-index: -1;
+    }
+
+    .form-container {
+      max-width: 720px;
+      margin: 0 auto;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    .form-container h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3.5rem, 8vw, 6rem);
+      letter-spacing: 0.04em;
+      line-height: 1;
+      margin-bottom: 0.6rem;
+      color: var(--gold-light);
+      text-shadow: 0 0 60px rgba(245,158,11,0.4), 0 4px 20px rgba(0,0,0,0.8);
+    }
+    .form-container > p {
+      font-family: 'Oswald', sans-serif;
+      font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      color: var(--gray-light);
+      margin-bottom: 3rem;
+      text-transform: uppercase;
+    }
+
+    /* The form card */
+    .recruit-form-card {
+      background: rgba(5, 5, 5, 0.82);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 24px;
+      padding: 2.8rem;
+      text-align: left;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(245,158,11,0.1);
+    }
+
+    .form-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .form-header h3 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.4rem, 5vw, 3.4rem);
+      letter-spacing: 0.05em;
+      color: var(--white);
+      line-height: 1;
+      margin-bottom: 0.6rem;
+    }
+    .form-header p {
+      font-family: 'Oswald', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 400;
+      color: var(--gray);
+      line-height: 1.6;
+      letter-spacing: 0.02em;
+    }
+
+    /* Form rows */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 1rem;
+    }
+    .form-group.full { grid-column: 1 / -1; }
+
+    .form-label {
+      font-family: 'Oswald', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--gray-light);
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .form-label .required-star {
+      color: var(--gold);
+      margin-left: 3px;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 10px;
+      padding: 1rem 1.2rem;
+      font-size: 1.05rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      color: var(--white);
+      outline: none;
+      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+      width: 100%;
+    }
+    .form-input::placeholder { color: rgba(156, 163, 175, 0.4); font-weight: 400; }
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      border-color: var(--gold);
+      background: rgba(245, 158, 11, 0.06);
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12);
+    }
+    .form-input.error,
+    .form-select.error,
+    .form-textarea.error { border-color: #ef4444; }
+
+    .form-select {
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239CA3AF' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      cursor: pointer;
+    }
+    .form-select option { background: #111; color: var(--white); }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 120px;
+      line-height: 1.6;
+    }
+
+    /* Radio/toggle group for blitz */
+    .radio-group { display: flex; gap: 0.75rem; }
+    .radio-option { flex: 1; position: relative; }
+    .radio-option input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+    .radio-option label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      font-family: 'Oswald', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: var(--gray);
+      cursor: pointer;
+      transition: all 0.2s;
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .radio-option input[type="radio"]:checked + label {
+      background: rgba(245, 158, 11, 0.15);
+      border-color: var(--gold);
+      color: var(--gold-light);
+      box-shadow: 0 0 20px rgba(245,158,11,0.15);
+    }
+    .radio-option label:hover { border-color: rgba(245, 158, 11, 0.4); color: var(--gray-light); }
+
+    /* Error messages */
+    .field-error { font-size: 0.8rem; color: #f87171; margin-top: 0.4rem; display: none; }
+    .field-error.show { display: block; }
+
+    /* Submit button */
+    .form-submit-btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--gold) 0%, #e08c00 100%);
+      color: #000;
+      padding: 1.3rem 2rem;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      letter-spacing: 0.1em;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      box-shadow: 0 8px 30px rgba(245,158,11,0.3);
+    }
+    .form-submit-btn:hover:not(:disabled) {
+      background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
+      transform: translateY(-3px);
+      box-shadow: 0 16px 50px rgba(245, 158, 11, 0.45);
+    }
+    .form-submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .btn-spinner {
+      width: 22px; height: 22px;
+      border: 2px solid rgba(0,0,0,0.3);
+      border-top-color: #000;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    .form-submit-btn.loading .btn-spinner { display: block; }
+    .form-submit-btn.loading .btn-text { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Success state */
+    .form-success { display: none; text-align: center; padding: 3rem 1rem; }
+    .form-success.show { display: block; }
+    .success-icon { font-size: 5rem; margin-bottom: 1rem; }
+    .form-success h3 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3rem;
+      letter-spacing: 0.05em;
+      color: var(--gold-light);
+      margin-bottom: 0.75rem;
+    }
+    .form-success p { color: var(--gray-light); font-size: 1.1rem; line-height: 1.8; }
+
+    .form-error-msg {
+      display: none;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 10px;
+      padding: 1rem;
+      color: #fca5a5;
+      font-size: 0.95rem;
+      margin-top: 1rem;
+      text-align: center;
+    }
+    .form-error-msg.show { display: block; }
+
+    /* Dividers & section labels */
+    .form-divider { height: 1px; background: rgba(255,255,255,0.07); margin: 1.5rem 0; }
+    .form-section-label {
+      font-family: 'Oswald', sans-serif;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--gold);
+      font-weight: 600;
+      margin-bottom: 1rem;
+      margin-top: 0.25rem;
+    }
+    /* ═══════════════════════════════════════════════ */
+
     .videos { padding: 6rem 2rem; background: #000; }
     .videos h2 { text-align: center; font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 3rem; color: var(--gold-light); }
     .videos-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; }
@@ -115,38 +383,25 @@
     .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s; padding: 0 1.5rem; color: var(--gray-light); line-height: 1.7; }
     .faq-item.open .faq-answer { max-height: 500px; padding: 0 1.5rem 1.5rem; }
     
-    /* Sticky Join Button */
     .sticky-join-btn {
-      position: fixed;
-      bottom: 2rem;
-      right: 2rem;
-      background: var(--gold);
-      color: #000;
-      padding: 1rem 2rem;
-      border-radius: 50px;
-      font-weight: 700;
-      font-size: 1.1rem;
+      position: fixed; bottom: 2rem; right: 2rem;
+      background: var(--gold); color: #000;
+      padding: 1rem 2rem; border-radius: 50px;
+      font-weight: 700; font-size: 1.1rem;
       box-shadow: 0 10px 40px rgba(245, 158, 11, 0.4);
-      cursor: pointer;
-      border: none;
-      z-index: 1000;
-      opacity: 0;
-      transform: translateY(20px);
-      transition: all 0.3s;
+      cursor: pointer; border: none; z-index: 1000;
+      opacity: 0; transform: translateY(20px); transition: all 0.3s;
     }
-    .sticky-join-btn.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .sticky-join-btn:hover {
-      background: var(--gold-light);
-      transform: translateY(-2px);
-      box-shadow: 0 15px 50px rgba(245, 158, 11, 0.5);
-    }
+    .sticky-join-btn.show { opacity: 1; transform: translateY(0); }
+    .sticky-join-btn:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: 0 15px 50px rgba(245, 158, 11, 0.5); }
     
     @media (max-width: 968px) {
       .hero-image-section { flex-direction: column; }
       .hero-image-container { flex: 0 0 auto; width: 100%; max-width: 500px; }
+    }
+    @media (max-width: 600px) {
+      .form-row { grid-template-columns: 1fr; }
+      .recruit-form-card { padding: 1.5rem; }
     }
   </style>
 </head>
@@ -172,65 +427,277 @@
 
 <section class="benefits"><div class="benefits-grid" id="build-benefits"></div></section>
 <section class="gallery"><h2>See Us In Action</h2><div class="gallery-scroll" id="build-gallery"></div></section>
+
+<!-- ═══════════════ CUSTOM RECRUITMENT FORM ═══════════════ -->
 <section class="form-section" id="apply">
   <div class="form-container">
-    <h2>Ready to Build Your Future?</h2>
-    <p>Fill out the form below and we'll be in touch within 24 hours.</p>
-    <iframe class="zoho-iframe" src="https://forms.zohopublic.com/dwestyourene1/form/RecruitmentInformationForm/formperma/uKd7gJaa2xhpJqSx45B5RZMSKctOyroQ4ikTaAl0XYw"></iframe>
+    <h2 id="form-section-heading">Ready to Build Your Future?</h2>
+    <p id="form-section-subheading">Fill out the form below and we'll be in touch within 24 hours.</p>
+
+    <div class="recruit-form-card">
+      <!-- Success State -->
+      <div class="form-success" id="formSuccess">
+        <div class="success-icon">🎉</div>
+        <h3>You're on the list!</h3>
+        <p id="form-success-msg">Thanks for reaching out. We'll be in touch within 24 hours to schedule your intro interview. Get ready to level up.</p>
+      </div>
+
+      <!-- The Form -->
+      <div id="recruitFormInner">
+        <div class="form-header">
+          <h3 id="form-title">Join the Waitlist</h3>
+          <p id="form-subtitle">It's time to level up. Enter your details below and we'll reach out to schedule an intro interview.</p>
+        </div>
+
+        <!-- Name -->
+        <div class="form-section-label">Personal Info</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="recruit-first">First Name <span class="required-star">*</span></label>
+            <input class="form-input" type="text" id="recruit-first" placeholder="Jane" autocomplete="given-name" />
+            <span class="field-error" id="err-first">Please enter your first name.</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="recruit-last">Last Name <span class="required-star">*</span></label>
+            <input class="form-input" type="text" id="recruit-last" placeholder="Smith" autocomplete="family-name" />
+            <span class="field-error" id="err-last">Please enter your last name.</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="recruit-phone">Phone Number <span class="required-star">*</span></label>
+            <input class="form-input" type="tel" id="recruit-phone" placeholder="(555) 000-0000" autocomplete="tel" />
+            <span class="field-error" id="err-phone">Please enter a valid phone number.</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="recruit-email">Email <span class="required-star">*</span></label>
+            <input class="form-input" type="email" id="recruit-email" placeholder="jane@example.com" autocomplete="email" />
+            <span class="field-error" id="err-email">Please enter a valid email address.</span>
+          </div>
+        </div>
+
+        <div class="form-divider"></div>
+        <div class="form-section-label">Experience</div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="recruit-d2d">Door-to-Door Experience <span class="required-star">*</span></label>
+            <select class="form-select" id="recruit-d2d">
+              <option value="" disabled selected>Select level</option>
+              <option value="None">None</option>
+              <option value="0-1 Year">0–1 Year</option>
+              <option value="1-2 Years">1–2 Years</option>
+              <option value="3-5 Years">3–5 Years</option>
+              <option value="5+ Years">5+ Years</option>
+            </select>
+            <span class="field-error" id="err-d2d">Please select your D2D experience.</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="recruit-sales">Sales Experience <span class="required-star">*</span></label>
+            <select class="form-select" id="recruit-sales">
+              <option value="" disabled selected>Select level</option>
+              <option value="None">None</option>
+              <option value="0-1 Year">0–1 Year</option>
+              <option value="1-2 Years">1–2 Years</option>
+              <option value="3-5 Years">3–5 Years</option>
+              <option value="5+ Years">5+ Years</option>
+            </select>
+            <span class="field-error" id="err-sales">Please select your sales experience.</span>
+          </div>
+        </div>
+
+        <div class="form-divider"></div>
+        <div class="form-section-label">Availability</div>
+
+        <div class="form-group">
+          <label class="form-label" id="blitz-label">Can you make our <span id="blitz-dates">March 18–28th</span> Blitz in <span id="blitz-location">San Diego</span>?</label>
+          <div class="radio-group">
+            <div class="radio-option">
+              <input type="radio" name="blitz" id="blitz-yes" value="Yes" />
+              <label for="blitz-yes">✅ Yes</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" name="blitz" id="blitz-no" value="No" />
+              <label for="blitz-no">❌ No</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-divider"></div>
+
+        <div class="form-group">
+          <label class="form-label" for="recruit-why">Why do you think you'd be a good fit?</label>
+          <textarea class="form-textarea" id="recruit-why" placeholder="Tell us what drives you, what you're looking for, and why Your Energy Best..."></textarea>
+        </div>
+
+        <button class="form-submit-btn" id="recruitSubmitBtn" onclick="submitRecruitForm()">
+          <div class="btn-spinner"></div>
+          <span class="btn-text">Submit Application</span>
+        </button>
+
+        <div class="form-error-msg" id="formErrorMsg">
+          Something went wrong. Please try again or email us at <strong>info@yourenergybest.com</strong>.
+        </div>
+      </div>
+    </div>
   </div>
 </section>
+<!-- ═══════════════ END CUSTOM FORM ═══════════════ -->
+
 <section class="videos" id="build-videos" style="display:none;"><h2>Hear From The Team</h2><div class="videos-grid" id="build-videos-grid"></div></section>
 <section class="faq"><h2>Common Questions</h2><div class="faq-container" id="build-faq"></div></section>
 
-<!-- Sticky Join Button -->
 <button class="sticky-join-btn" id="stickyJoinBtn" onclick="document.getElementById('apply').scrollIntoView({behavior:'smooth'})">Join Team Waitlist</button>
 
 <script>
-// Show/hide sticky button on scroll
+// ─── Sticky button ───
 window.addEventListener('scroll', () => {
   const btn = document.getElementById('stickyJoinBtn');
-  if (window.scrollY > 500) {
-    btn.classList.add('show');
-  } else {
-    btn.classList.remove('show');
-  }
+  btn.classList.toggle('show', window.scrollY > 500);
 });
 
+// ─── Form submission ───
+async function submitRecruitForm() {
+  const btn = document.getElementById('recruitSubmitBtn');
+  const errorMsg = document.getElementById('formErrorMsg');
+  errorMsg.classList.remove('show');
+
+  // Collect values
+  const first  = document.getElementById('recruit-first').value.trim();
+  const last   = document.getElementById('recruit-last').value.trim();
+  const phone  = document.getElementById('recruit-phone').value.trim();
+  const email  = document.getElementById('recruit-email').value.trim();
+  const d2d    = document.getElementById('recruit-d2d').value;
+  const sales  = document.getElementById('recruit-sales').value;
+  const blitz  = document.querySelector('input[name="blitz"]:checked')?.value || '';
+  const why    = document.getElementById('recruit-why').value.trim();
+
+  // Validate
+  let valid = true;
+
+  function setError(fieldId, errId, condition) {
+    const field = document.getElementById(fieldId);
+    const err = document.getElementById(errId);
+    if (condition) {
+      field.classList.add('error');
+      err.classList.add('show');
+      valid = false;
+    } else {
+      field.classList.remove('error');
+      err.classList.remove('show');
+    }
+  }
+
+  setError('recruit-first', 'err-first', !first);
+  setError('recruit-last',  'err-last',  !last);
+  setError('recruit-phone', 'err-phone', !phone || phone.replace(/\D/g,'').length < 10);
+  setError('recruit-email', 'err-email', !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
+  setError('recruit-d2d',   'err-d2d',   !d2d);
+  setError('recruit-sales', 'err-sales', !sales);
+
+  if (!valid) return;
+
+  // Submit
+  btn.disabled = true;
+  btn.classList.add('loading');
+
+  try {
+    const payload = {
+      action:            'recruit',
+      source_form:       'BuildPageWaitlist',
+      first_name:        first,
+      last_name:         last,
+      phone:             phone,
+      email:             email,
+      d2d_experience:    d2d,
+      sales_experience:  sales,
+      blitz_available:   blitz,
+      why_good_fit:      why,
+      lead_source:       'Website - Build Page'
+    };
+
+    const res = await fetch('../zoho.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      document.getElementById('recruitFormInner').style.display = 'none';
+      document.getElementById('formSuccess').classList.add('show');
+      // Scroll success into view
+      document.getElementById('apply').scrollIntoView({ behavior: 'smooth' });
+    } else {
+      throw new Error('Server returned failure');
+    }
+  } catch (err) {
+    console.error(err);
+    errorMsg.classList.add('show');
+    btn.disabled = false;
+    btn.classList.remove('loading');
+  }
+}
+
+// ─── Clear errors on input ───
+['recruit-first','recruit-last','recruit-phone','recruit-email','recruit-d2d','recruit-sales'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', () => el.classList.remove('error'));
+});
+
+// ─── Load content.json ───
 async function loadBuildContent() {
   try {
     const res = await fetch('../content.json?' + Date.now());
     const data = await res.json();
-    
-    if (data.build && data.build.hero) {
-      document.getElementById('build-hero-title').textContent = data.build.hero.title || document.getElementById('build-hero-title').textContent;
-      document.getElementById('build-hero-subtitle').textContent = data.build.hero.subtitle || document.getElementById('build-hero-subtitle').textContent;
+    const b = data.build;
+    if (!b) return;
+
+    if (b.hero) {
+      document.getElementById('build-hero-title').textContent    = b.hero.title    || document.getElementById('build-hero-title').textContent;
+      document.getElementById('build-hero-subtitle').textContent = b.hero.subtitle || document.getElementById('build-hero-subtitle').textContent;
     }
-    
-    if (data.build && data.build.section_title) document.getElementById('build-section-title').textContent = data.build.section_title;
-    if (data.build && data.build.section_text) document.getElementById('build-section-text').textContent = data.build.section_text;
-    if (data.build && data.build.cta_text) document.getElementById('build-cta').textContent = data.build.cta_text;
-    
-    if (data.build && data.build.benefits) {
-      document.getElementById('build-benefits').innerHTML = data.build.benefits.map(b => `
-        <div class="benefit-card"><div class="benefit-icon">${b.icon}</div><h3>${b.title}</h3><p>${b.text}</p></div>
+    if (b.section_title) document.getElementById('build-section-title').textContent = b.section_title;
+    if (b.section_text)  document.getElementById('build-section-text').textContent  = b.section_text;
+    if (b.cta_text)      document.getElementById('build-cta').textContent           = b.cta_text;
+
+    // ── Form text (admin-editable) ──
+    if (b.form) {
+      if (b.form.heading)     document.getElementById('form-section-heading').textContent = b.form.heading;
+      if (b.form.subheading)  document.getElementById('form-section-subheading').textContent = b.form.subheading;
+      if (b.form.title)       document.getElementById('form-title').textContent = b.form.title;
+      if (b.form.subtitle)    document.getElementById('form-subtitle').textContent = b.form.subtitle;
+      if (b.form.blitz_dates) document.getElementById('blitz-dates').textContent = b.form.blitz_dates;
+      if (b.form.blitz_location) document.getElementById('blitz-location').textContent = b.form.blitz_location;
+      if (b.form.success_msg) document.getElementById('form-success-msg').textContent = b.form.success_msg;
+      if (b.form.submit_btn)  document.querySelector('.btn-text').textContent = b.form.submit_btn;
+      if (b.form.bg_image)    document.querySelector('.form-section').style.setProperty('--form-bg-image', `url(${b.form.bg_image})`);
+    }
+
+    if (b.benefits) {
+      document.getElementById('build-benefits').innerHTML = b.benefits.map(bn => `
+        <div class="benefit-card"><div class="benefit-icon">${bn.icon}</div><h3>${bn.title}</h3><p>${bn.text}</p></div>
       `).join('');
     }
-    
-    if (data.build && data.build.gallery) {
-      document.getElementById('build-gallery').innerHTML = data.build.gallery.map(item => 
-        item.url ? `<div class="gallery-item"><img src="${item.url}" alt="${item.caption || 'Team'}" /></div>` : `<div class="gallery-item"><div class="gallery-placeholder">Photo placeholder</div></div>`
+
+    if (b.gallery) {
+      document.getElementById('build-gallery').innerHTML = b.gallery.map(item => 
+        item.url ? `<div class="gallery-item"><img src="${item.url}" alt="${item.caption || 'Team'}" /></div>`
+                 : `<div class="gallery-item"><div class="gallery-placeholder">Photo placeholder</div></div>`
       ).join('');
     }
-    
-    if (data.build && data.build.videos && data.build.videos.length > 0) {
+
+    if (b.videos && b.videos.length > 0) {
       document.getElementById('build-videos').style.display = 'block';
-      document.getElementById('build-videos-grid').innerHTML = data.build.videos.map(v => `
+      document.getElementById('build-videos-grid').innerHTML = b.videos.map(v => `
         <div class="video-card"><iframe src="https://www.youtube.com/embed/${v.youtube_id}" frameborder="0" allowfullscreen></iframe><div class="video-title">${v.title}</div></div>
       `).join('');
     }
-    
-    if (data.build && data.build.faq) {
-      document.getElementById('build-faq').innerHTML = data.build.faq.map((item, i) => `
+
+    if (b.faq) {
+      document.getElementById('build-faq').innerHTML = b.faq.map((item, i) => `
         <div class="faq-item"><button class="faq-question" onclick="toggleFaq(${i})">${item.question}<span class="faq-icon">+</span></button><div class="faq-answer">${item.answer}</div></div>
       `).join('');
     }

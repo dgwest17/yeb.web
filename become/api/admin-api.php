@@ -1,0 +1,212 @@
+<?php
+/**
+ * become/api/admin.php — Admin API for Training Manager
+ * Location: public_html/become/api/admin.php
+ * 
+ * Handles all admin CRUD for the progression engine.
+ * Requires admin/leader session.
+ */
+session_start();
+header('Content-Type: application/json');
+
+// Auth check — must be leader or admin
+$role = $_SESSION['portal_role'] ?? '';
+if (!in_array($role, ['leader', 'admin'])) {
+    http_response_code(403);
+    echo json_encode(['error' => 'Admin access required. Log into the portal first.']);
+    exit;
+}
+
+require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/ProgressionEngine.php';
+
+$db = Database::getInstance();
+$engine = new ProgressionEngine();
+$userId = (int)($_SESSION['portal_user_id'] ?? 0);
+
+// ── Route ──
+$method = $_SERVER['REQUEST_METHOD'];
+
+try {
+    if ($method === 'GET') {
+        $action = $_GET['action'] ?? '';
+
+        if ($action === 'all') {
+            // Load everything for the admin panel
+            $folders  = $db->prepare("SELECT * FROM folders WHERE is_active=1 ORDER BY folder_order")->execute() ? [] : [];
+            $s = $db->prepare("SELECT * FROM folders WHERE is_active=1 ORDER BY folder_order"); $s->execute(); $folders = $s->fetchAll();
+            $s = $db->prepare("SELECT * FROM modules WHERE is_active=1 ORDER BY module_order"); $s->execute(); $modules = $s->fetchAll();
+            $s = $db->prepare("SELECT * FROM segments WHERE is_active=1 ORDER BY segment_order"); $s->execute(); $segments = $s->fetchAll();
+            $s = $db->prepare("SELECT id, username, first_name, last_name, role, is_active, created_at FROM training_users ORDER BY created_at"); $s->execute(); $users = $s->fetchAll();
+            $s = $db->prepare("SELECT * FROM level_thresholds ORDER BY level"); $s->execute(); $thresholds = $s->fetchAll();
+
+            // Parse JSON fields
+            foreach ($folders as &$f) { $f['unlock_rule'] = json_decode($f['unlock_rule'] ?? 'null', true); }
+            foreach ($modules as &$m) { $m['unlock_rule'] = json_decode($m['unlock_rule'] ?? 'null', true); $m['drip_rule'] = json_decode($m['drip_rule'] ?? 'null', true); }
+
+            echo json_encode(['folders'=>$folders, 'modules'=>$modules, 'segments'=>$segments, 'users'=>$users, 'thresholds'=>$thresholds]);
+            exit;
+        }
+
+        echo json_encode(['error' => 'Unknown GET action']);
+        exit;
+    }
+
+    // POST actions
+    $input = json_decode(file_get_contents('php://input'), true) ?? [];
+    $action = $input['action'] ?? '';
+
+    switch ($action) {
+        // ── FOLDERS ──
+        case 'add_folder':
+            $s = $db->prepare("SELECT COALESCE(MAX(folder_order),0)+1 n FROM folders");
+            $s->execute(); $order = (int)$s->fetch()['n'];
+            $s = $db->prepare("INSERT INTO folders (title, parent_id, folder_order) VALUES (?, ?, ?)");
+            $s->execute([$input['title'] ?? 'New Folder', $input['parent_id'] ?? null, $order]);
+            echo json_encode(['success'=>true, 'id'=>(int)$db->lastInsertId()]);
+            break;
+
+        case 'update_folder':
+            $id = (int)($input['id'] ?? 0);
+            $allowed = ['title','icon','description','folder_order','folder_type','xp_reward','unlock_rule','is_active'];
+            $sets = []; $vals = [];
+            foreach ($allowed as $k) {
+                if (array_key_exists($k, $input)) {
+                    $v = $input[$k];
+                    if ($k === 'unlock_rule' && is_array($v)) $v = json_encode($v);
+                    if ($k === 'unlock_rule' && is_string($v)) { json_decode($v); if (json_last_error() !== JSON_ERROR_NONE) $v = null; }
+                    $sets[] = "$k = ?"; $vals[] = $v;
+                }
+            }
+            if ($sets) { $vals[] = $id; $db->prepare("UPDATE folders SET ".implode(',',$sets)." WHERE id=?")->execute($vals); }
+            echo json_encode(['success'=>true]);
+            break;
+
+        case 'delete_folder':
+            $db->prepare("DELETE FROM folders WHERE id=?")->execute([(int)$input['id']]);
+            echo json_encode(['success'=>true]);
+            break;
+
+        // ── MODULES ──
+        case 'add_module':
+            $fid = (int)($input['folder_id'] ?? 0);
+            $s = $db->prepare("SELECT COALESCE(MAX(module_order),0)+1 n FROM modules WHERE folder_id=?");
+            $s->execute([$fid]); $order = (int)$s->fetch()['n'];
+            $s = $db->prepare("INSERT INTO modules (folder_id, title, module_order) VALUES (?, ?, ?)");
+            $s->execute([$fid, $input['title'] ?? 'New Module', $order]);
+            echo json_encode(['success'=>true, 'id'=>(int)$db->lastInsertId()]);
+            break;
+
+        case 'update_module':
+            $id = (int)($input['id'] ?? 0);
+            $allowed = ['title','icon','description','module_order','module_type','xp_reward','unlock_rule','drip_rule','next_step_text','is_active'];
+            $sets = []; $vals = [];
+            foreach ($allowed as $k) {
+                if (array_key_exists($k, $input)) {
+                    $v = $input[$k];
+                    if (in_array($k, ['unlock_rule','drip_rule']) && is_array($v)) $v = json_encode($v);
+                    if (in_array($k, ['unlock_rule','drip_rule']) && is_string($v)) { json_decode($v); if (json_last_error() !== JSON_ERROR_NONE) $v = null; }
+                    $sets[] = "$k = ?"; $vals[] = $v;
+                }
+            }
+            if ($sets) { $vals[] = $id; $db->prepare("UPDATE modules SET ".implode(',',$sets)." WHERE id=?")->execute($vals); }
+            echo json_encode(['success'=>true]);
+            break;
+
+        case 'delete_module':
+            $db->prepare("DELETE FROM modules WHERE id=?")->execute([(int)$input['id']]);
+            echo json_encode(['success'=>true]);
+            break;
+
+        // ── SEGMENTS ──
+        case 'add_segment':
+            $mid = (int)($input['module_id'] ?? 0);
+            $s = $db->prepare("SELECT COALESCE(MAX(segment_order),0)+1 n FROM segments WHERE module_id=?");
+            $s->execute([$mid]); $order = (int)$s->fetch()['n'];
+            $s = $db->prepare("INSERT INTO segments (module_id, title, segment_order) VALUES (?, ?, ?)");
+            $s->execute([$mid, $input['title'] ?? 'New Segment', $order]);
+            echo json_encode(['success'=>true, 'id'=>(int)$db->lastInsertId()]);
+            break;
+
+        case 'update_segment':
+            $id = (int)($input['id'] ?? 0);
+            $allowed = ['title','segment_order','content_html','customer_quote','rep_response','tip','xp_reward','unlock_rule','is_active'];
+            $sets = []; $vals = [];
+            foreach ($allowed as $k) {
+                if (array_key_exists($k, $input)) {
+                    $v = $input[$k];
+                    if ($k === 'unlock_rule' && is_array($v)) $v = json_encode($v);
+                    $sets[] = "$k = ?"; $vals[] = $v;
+                }
+            }
+            if ($sets) { $vals[] = $id; $db->prepare("UPDATE segments SET ".implode(',',$sets)." WHERE id=?")->execute($vals); }
+            echo json_encode(['success'=>true]);
+            break;
+
+        case 'delete_segment':
+            $db->prepare("DELETE FROM segments WHERE id=?")->execute([(int)$input['id']]);
+            echo json_encode(['success'=>true]);
+            break;
+
+        // ── USERS ──
+        case 'add_user':
+            $hash = password_hash($input['password'] ?? '', PASSWORD_DEFAULT);
+            $s = $db->prepare("INSERT INTO training_users (username, first_name, last_name, password_hash, role) VALUES (?, ?, ?, ?, ?)");
+            $s->execute([$input['username'], $input['first_name']??'', $input['last_name']??'', $hash, $input['role']??'rep']);
+            $newId = (int)$db->lastInsertId();
+            $db->prepare("INSERT INTO user_progress (user_id, xp, level, join_date) VALUES (?, 0, 1, CURDATE())")->execute([$newId]);
+            echo json_encode(['success'=>true, 'id'=>$newId]);
+            break;
+
+        case 'update_user':
+            $id = (int)($input['id'] ?? 0);
+            $allowed = ['first_name','last_name','role','is_active'];
+            $sets = []; $vals = [];
+            foreach ($allowed as $k) {
+                if (array_key_exists($k, $input)) { $sets[] = "$k = ?"; $vals[] = $input[$k]; }
+            }
+            if ($sets) { $vals[] = $id; $db->prepare("UPDATE training_users SET ".implode(',',$sets)." WHERE id=?")->execute($vals); }
+            echo json_encode(['success'=>true]);
+            break;
+
+        case 'reset_password':
+            $hash = password_hash($input['password'] ?? '', PASSWORD_DEFAULT);
+            $db->prepare("UPDATE training_users SET password_hash=? WHERE id=?")->execute([$hash, (int)$input['id']]);
+            echo json_encode(['success'=>true]);
+            break;
+
+        case 'delete_user':
+            $db->prepare("DELETE FROM training_users WHERE id=?")->execute([(int)$input['id']]);
+            echo json_encode(['success'=>true]);
+            break;
+
+        // ── MARKDOWN IMPORT ──
+        case 'import_markdown':
+            $result = $engine->importMarkdown(
+                (int)($input['folder_id'] ?? 0),
+                $input['module_title'] ?? 'Imported Module',
+                $input['markdown_text'] ?? '',
+                $input['default_unlock_rule'] ?? null
+            );
+            echo json_encode(['success'=>true, 'result'=>$result]);
+            break;
+
+        // ── MANUAL UNLOCK ──
+        case 'manual_unlock':
+            $engine->manualUnlock(
+                (int)($input['user_id'] ?? 0),
+                $input['entity_type'] ?? 'folder',
+                (int)($input['entity_id'] ?? 0),
+                $userId
+            );
+            echo json_encode(['success'=>true]);
+            break;
+
+        default:
+            echo json_encode(['error'=>'Unknown action: '.$action]);
+    }
+
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['error'=>$e->getMessage()]);
+}

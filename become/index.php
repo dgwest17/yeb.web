@@ -1,208 +1,169 @@
 <?php
+/**
+ * become/index.php — Training Dashboard
+ * Location: public_html/become/index.php
+ */
 require_once __DIR__ . '/includes/auth.php';
-requireTrainAuth();
-refreshUserFromFile(); // Pick up any admin-side level changes
+require_once __DIR__ . '/includes/ProgressionEngine.php';
 
-$user = currentTrainUser();
-$tc = getTrainContent();
-$manuals = $tc['manuals'] ?? [];
-$progress = getTrainProgress();
-$userLevel = getUserLevel();
-$totalModules = 0;
-$completedModules = count($progress);
+$engine   = new ProgressionEngine();
+$userId   = (int)$current_user['id'];
+$stats    = $engine->getUserStats($userId);
+$next     = $engine->resolveNextAction($userId);
+$content  = $engine->getAccessibleContent($userId);
+$isLeader = is_leader();
+$name     = htmlspecialchars($current_user['first_name'] ?: $current_user['username']);
 
-foreach ($manuals as $m) {
-    foreach ($m['folders'] ?? [] as $f) {
-        if (($f['level'] ?? 0) <= $userLevel) {
-            $totalModules += count($f['modules'] ?? []);
-            foreach ($f['folders'] ?? [] as $sf) {
-                $totalModules += count($sf['modules'] ?? []);
-            }
-        }
-    }
-}
-
-$progressPct = $totalModules > 0 ? min(100, round(($completedModules / $totalModules) * 100)) : 0;
+$core = array_filter($content, fn($f) => ($f['folder_type'] ?? 'core') === 'core');
+$side = array_filter($content, fn($f) => ($f['folder_type'] ?? 'core') === 'sidequest');
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Become | Dashboard</title>
-  <link rel="icon" type="image/png" href="../img/logo.png">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Become — Your Energy Best</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/become/portal.css">
 </head>
-<body class="dashboard-page">
+<body>
+<div class="portal">
 
-<header class="train-header">
-  <div class="train-header__inner">
-    <div class="train-header__left">
-      <h1 class="train-header__title">Become</h1>
-      <span class="train-header__level">Level <?= esc(formatLevel($userLevel)) ?></span>
-    </div>
-    <div class="train-header__right">
-      <span class="train-header__user"><?= esc($user['first_name']) ?></span>
-      <a href="logout.php" class="train-header__logout">Log Out</a>
-    </div>
-  </div>
-  <div class="header-waves">
-    <div class="header-waves__layer header-waves__layer--1"></div>
-    <div class="header-waves__layer header-waves__layer--2"></div>
-  </div>
-</header>
+    <!-- HEADER -->
+    <header class="hdr">
+        <div>
+            <h1 class="hdr-title">Level Up, <?= $name ?></h1>
+            <p class="hdr-sub"><?= $stats['level_icon'] ?> Level <?= $stats['level'] ?> — <?= $stats['level_title'] ?></p>
+        </div>
+        <div class="hdr-right">
+            <?php if ($isLeader): ?><span class="badge-leader">✏️ Leader</span><?php endif; ?>
+            <a href="/become/logout.php" class="hdr-logout">Log Out</a>
+        </div>
+    </header>
 
-<!-- Personalized Greeting -->
-<section class="dash-greeting">
-  <div class="dash-greeting__inner">
-    <h2 class="dash-greeting__title">Time to Level Up, <em><?= esc($user['first_name']) ?></em></h2>
-    <p class="dash-greeting__sub">You're on Level <?= esc(formatLevel($userLevel)) ?>. Keep grinding — the next wave is coming.</p>
-  </div>
-</section>
-
-<!-- Progress Overview -->
-<section class="dash-progress">
-  <div class="dash-progress__inner">
-    <div class="dash-progress__stats">
-      <div class="dash-stat">
-        <span class="dash-stat__number"><?= esc(formatLevel($userLevel)) ?></span>
-        <span class="dash-stat__label">Current Level</span>
-      </div>
-      <div class="dash-stat">
-        <span class="dash-stat__number"><?= $completedModules ?></span>
-        <span class="dash-stat__label">Completed</span>
-      </div>
-      <div class="dash-stat">
-        <span class="dash-stat__number"><?= $totalModules ?></span>
-        <span class="dash-stat__label">Available</span>
-      </div>
-      <div class="dash-stat">
-        <span class="dash-stat__number"><?= $progressPct ?>%</span>
-        <span class="dash-stat__label">Progress</span>
-      </div>
+    <!-- XP BAR -->
+    <div class="card xp-card">
+        <div class="xp-top">
+            <span class="xp-label"><?= $stats['level_icon'] ?> Level <?= $stats['level'] ?></span>
+            <span class="xp-num"><?= number_format($stats['xp']) ?> XP</span>
+        </div>
+        <div class="bar"><div class="bar-fill" style="width:<?= $stats['level_progress'] ?>%"></div></div>
+        <p class="xp-hint">
+            <?php if ($stats['next_level_title']): ?>
+                <?= $stats['xp_in_level'] ?> / <?= $stats['xp_for_next_level'] ?> XP to <?= $stats['next_level_icon'] ?> <?= $stats['next_level_title'] ?>
+            <?php else: ?>
+                Max level reached!
+            <?php endif; ?>
+        </p>
     </div>
-    <div class="dash-progress__bar">
-      <div class="dash-progress__fill" style="width: <?= $progressPct ?>%"></div>
-    </div>
-  </div>
-</section>
 
-<!-- Manuals Grid -->
-<section class="dash-manuals">
-  <?php foreach ($manuals as $manual): 
-    // Count accessible modules for this manual
-    $manualTotal = 0;
-    $manualDone = 0;
-    foreach ($manual['folders'] ?? [] as $f) {
-        if (($f['level'] ?? 0) <= $userLevel) {
-            $manualTotal += count($f['modules'] ?? []);
-            foreach ($f['modules'] ?? [] as $mod) {
-                if (in_array($mod['id'], $progress)) $manualDone++;
-            }
-        }
-    }
-  ?>
-  <a href="manual.php?id=<?= urlencode($manual['id']) ?>" class="manual-card">
-    <div class="manual-card__icon"><?= $manual['icon'] ?? '📘' ?></div>
-    <div class="manual-card__info">
-      <h2><?= esc($manual['title']) ?></h2>
-      <p><?= esc($manual['description'] ?? '') ?></p>
-      <div class="manual-card__meta">
-        <span class="manual-card__count"><?= count($manual['folders'] ?? []) ?> levels</span>
-        <?php if ($manualTotal > 0): ?>
-          <span class="manual-card__progress"><?= $manualDone ?>/<?= $manualTotal ?> done</span>
+    <!-- NEXT ACTION -->
+    <?php if ($next): ?>
+    <div class="card next-card">
+        <div class="next-top"><span class="next-icon">🎯</span><span class="next-label">NEXT ACTION</span></div>
+        <p class="next-text"><?= htmlspecialchars($next['label']) ?></p>
+        <?php if (($next['type'] ?? '') === 'segment'): ?>
+            <a href="/become/module.php?id=<?= $next['module_id'] ?>#seg-<?= $next['segment_id'] ?>" class="btn-teal">Continue →</a>
         <?php endif; ?>
-      </div>
     </div>
-    <div class="manual-card__arrow">→</div>
-  </a>
-  <?php endforeach; ?>
-</section>
+    <?php endif; ?>
 
-<!-- Level Path (Builder Manual) -->
-<?php
-$builder = null;
-foreach ($manuals as $m) {
-    if ($m['id'] === 'builder') { $builder = $m; break; }
-}
-if ($builder):
-?>
-<section class="level-path">
-  <h2 class="level-path__title">Your Path</h2>
-  <div class="level-path__timeline">
-    <?php foreach ($builder['folders'] ?? [] as $i => $folder):
-      $folderLevel = $folder['level'] ?? 0;
-      $isUnlocked = $userLevel >= $folderLevel;
-      $isCurrent = false;
-      
-      $nextFolder = $builder['folders'][$i + 1] ?? null;
-      if ($isUnlocked && (!$nextFolder || $userLevel < ($nextFolder['level'] ?? 999))) {
-          $isCurrent = true;
-      }
-      
-      $stateClass = $isCurrent ? 'current' : ($isUnlocked ? 'completed' : 'locked');
-      $moduleCount = count($folder['modules'] ?? []);
-      $completedInLevel = 0;
-      foreach ($folder['modules'] ?? [] as $mod) {
-          if (in_array($mod['id'], $progress)) $completedInLevel++;
-      }
-    ?>
-    <div class="level-node level-node--<?= $stateClass ?>">
-      <div class="level-node__dot">
-        <?php if ($stateClass === 'completed'): ?>✓
-        <?php elseif ($stateClass === 'current'): ?>🏄
-        <?php else: ?>🔒<?php endif; ?>
-      </div>
-      <div class="level-node__info">
-        <h3><?= esc($folder['title']) ?></h3>
-        <p><?= esc($folder['description'] ?? '') ?></p>
-        <?php if ($isUnlocked && $moduleCount > 0): ?>
-          <span class="level-node__progress"><?= $completedInLevel ?>/<?= $moduleCount ?> modules</span>
-        <?php endif; ?>
-      </div>
+    <!-- QUICK STATS -->
+    <div class="stats-grid">
+        <div class="stat"><span class="stat-n"><?= $stats['completed_segments'] ?></span><span class="stat-l">Segments</span></div>
+        <div class="stat"><span class="stat-n"><?= $stats['completed_modules'] ?></span><span class="stat-l">Modules</span></div>
+        <div class="stat"><span class="stat-n"><?= $stats['completed_folders'] ?></span><span class="stat-l">Folders</span></div>
+        <div class="stat"><span class="stat-n"><?= $stats['days_active'] ?></span><span class="stat-l">Days</span></div>
     </div>
-    <?php endforeach; ?>
-  </div>
-</section>
-<?php endif; ?>
 
-<!-- Level Up Modal -->
-<div class="level-up-modal" id="levelUpModal">
-  <div class="level-up-modal__content">
-    <div class="level-up-modal__icon">🏄‍♂️</div>
-    <h2>LEVEL UP!</h2>
-    <p id="levelUpText">You've reached a new level!</p>
-    <button onclick="closeLevelUp()">Let's Go →</button>
-  </div>
+    <!-- CORE TRAINING -->
+    <section class="section">
+        <h2 class="sec-title">📚 Core Training</h2>
+        <?php foreach ($core as $f): ?><?= folder_card($f) ?><?php endforeach; ?>
+    </section>
+
+    <!-- SIDE QUESTS -->
+    <?php if ($side): ?>
+    <section class="section sq-section">
+        <h2 class="sec-title">🗺️ Side Quests</h2>
+        <p class="sec-sub">Bonus training that unlocks over time</p>
+        <?php foreach ($side as $f): ?><?= folder_card($f) ?><?php endforeach; ?>
+    </section>
+    <?php endif; ?>
+
 </div>
-
-<script>
-function showLevelUp(levelName) {
-  document.getElementById('levelUpText').textContent = 'Welcome to ' + levelName + ', <?= esc($user['first_name']) ?>!';
-  document.getElementById('levelUpModal').classList.add('visible');
-  createConfetti();
-}
-function closeLevelUp() {
-  document.getElementById('levelUpModal').classList.remove('visible');
-}
-function createConfetti() {
-  const modal = document.querySelector('.level-up-modal__content');
-  const colors = ['#22A8B3', '#FB9B47', '#38BEC9', '#FFD700', '#06D6A0'];
-  for (let i = 0; i < 50; i++) {
-    const c = document.createElement('div');
-    c.className = 'confetti';
-    c.style.left = Math.random() * 100 + '%';
-    c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-    c.style.animationDelay = Math.random() * 0.5 + 's';
-    c.style.animationDuration = (1 + Math.random() * 2) + 's';
-    modal.appendChild(c);
-    setTimeout(() => c.remove(), 3000);
-  }
-}
-const params = new URLSearchParams(window.location.search);
-if (params.get('levelup')) {
-  setTimeout(() => showLevelUp(params.get('levelup')), 500);
-}
-</script>
+<script src="/become/portal.js"></script>
 </body>
 </html>
+<?php
+
+function folder_card($f, $depth = 0) {
+    $id = (int)$f['id'];
+    $locked = !empty($f['locked']);
+    $icon = htmlspecialchars($f['icon'] ?? '📁');
+    $title = htmlspecialchars($f['title'] ?? '');
+    $pct = (int)($f['progress'] ?? 0);
+    $mt = (int)($f['modules_total'] ?? 0);
+    $md = (int)($f['modules_completed'] ?? 0);
+    $isSQ = ($f['folder_type'] ?? '') === 'sidequest';
+
+    $cls = 'folder';
+    if ($locked) $cls .= ' folder--locked';
+    if ($isSQ)   $cls .= ' folder--sq';
+    if ($depth)  $cls .= ' folder--child';
+
+    $o = "<div class='{$cls}' data-id='{$id}'>";
+
+    if ($locked) $o .= "<div class='folder-lock'>🔒</div>";
+
+    $o .= "<div class='folder-hdr' onclick='toggleFolder(this)'>";
+    $o .= "<span class='folder-icon'>{$icon}</span>";
+    $o .= "<div class='folder-info'><h3>{$title}</h3><span class='folder-meta'>{$md}/{$mt} modules</span></div>";
+    if (!$locked && $mt) $o .= "<span class='folder-pct'>{$pct}%</span>";
+    $o .= "<span class='folder-arrow'>▸</span>";
+    $o .= "</div>";
+
+    if (!$locked) {
+        $o .= "<div class='bar bar--sm'><div class='bar-fill' style='width:{$pct}%'></div></div>";
+        $o .= "<div class='folder-body'>";
+        foreach ($f['modules'] ?? [] as $m) $o .= module_item($m);
+
+        // Children (subfolders)
+        foreach ($f['children'] ?? [] as $child) $o .= folder_card($child, $depth + 1);
+
+        $o .= "</div>";
+    }
+
+    $o .= "</div>";
+    return $o;
+}
+
+function module_item($m) {
+    $id = (int)$m['id'];
+    $locked = !empty($m['locked']);
+    $done = !empty($m['completed']);
+    $title = htmlspecialchars($m['title'] ?? '');
+    $pct = (int)($m['progress'] ?? 0);
+    $st = (int)($m['segments_total'] ?? 0);
+    $sd = (int)($m['segments_completed'] ?? 0);
+
+    $ico = $locked ? '🔒' : ($done ? '✅' : '📖');
+    $cls = 'mod';
+    if ($locked) $cls .= ' mod--locked';
+    if ($done)   $cls .= ' mod--done';
+
+    $tag = $locked ? 'div' : 'a';
+    $href = $locked ? '' : " href='/become/module.php?id={$id}'";
+
+    $o = "<{$tag} class='{$cls}'{$href}>";
+    $o .= "<span class='mod-ico'>{$ico}</span>";
+    $o .= "<div class='mod-info'><span class='mod-title'>{$title}</span>";
+    if (!$locked) $o .= "<span class='mod-meta'>{$sd}/{$st} segments</span>";
+    $o .= "</div>";
+    if (!$locked && !$done && $st) $o .= "<div class='mod-bar'><div class='mod-bar-fill' style='width:{$pct}%'></div></div>";
+    if (!$locked && !$done) $o .= "<span class='mod-xp'>+{$m['xp_reward']} XP</span>";
+    $o .= "</{$tag}>";
+    return $o;
+}
+?>

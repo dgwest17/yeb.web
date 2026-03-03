@@ -1,252 +1,193 @@
 <?php
+/**
+ * become/module.php — Module View
+ * Location: public_html/become/module.php
+ */
 require_once __DIR__ . '/includes/auth.php';
-requireTrainAuth();
+require_once __DIR__ . '/includes/ProgressionEngine.php';
 
-$tc = getTrainContent();
-$manualId = $_GET['manual'] ?? '';
-$folderIdx = intval($_GET['folder'] ?? 0);
-$subfolderIdx = isset($_GET['subfolder']) ? intval($_GET['subfolder']) : null;
-$moduleIdx = intval($_GET['module'] ?? 0);
+$engine   = new ProgressionEngine();
+$userId   = (int)$current_user['id'];
+$modId    = (int)($_GET['id'] ?? 0);
+$isLeader = is_leader();
 
-// Find the module
-$manual = null;
-foreach ($tc['manuals'] ?? [] as $m) {
-    if ($m['id'] === $manualId) { $manual = $m; break; }
-}
-if (!$manual) { header('Location: index.php'); exit; }
+if (!$modId) { header('Location: /become/'); exit; }
 
-$folder = $manual['folders'][$folderIdx] ?? null;
-if (!$folder) { header('Location: manual.php?id=' . urlencode($manualId)); exit; }
+$db = Database::getInstance();
 
-$module = null;
-if ($subfolderIdx !== null) {
-    $subfolder = $folder['folders'][$subfolderIdx] ?? null;
-    $module = $subfolder['modules'][$moduleIdx] ?? null;
-} else {
-    $module = $folder['modules'][$moduleIdx] ?? null;
-}
-if (!$module) { header('Location: manual.php?id=' . urlencode($manualId)); exit; }
+// Module + folder info
+$s = $db->prepare("SELECT m.*, f.title AS ftitle, f.icon AS ficon FROM modules m JOIN folders f ON m.folder_id=f.id WHERE m.id=?");
+$s->execute([$modId]);
+$mod = $s->fetch();
+if (!$mod) { header('Location: /become/'); exit; }
 
-// Check level lock
-$userLevel = getUserLevel();
-$requiredLevel = $folder['level'] ?? 0;
-$isLocked = $userLevel < $requiredLevel;
+// Segments
+$s = $db->prepare("SELECT * FROM segments WHERE module_id=? AND is_active=1 ORDER BY segment_order");
+$s->execute([$modId]);
+$segs = $s->fetchAll();
 
-$progress = getTrainProgress();
-$isCompleted = in_array($module['id'], $progress);
-
-// Handle completion POST
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['complete']) && !$isLocked) {
-    markModuleComplete($module['id']);
-    $isCompleted = true;
-    
-    // Check if all modules in this level are now complete
-    $allDone = true;
-    foreach ($folder['modules'] ?? [] as $m) {
-        if (!in_array($m['id'], getTrainProgress())) { $allDone = false; break; }
-    }
-    
-    // Redirect with completion flag
-    $redirectUrl = $_SERVER['REQUEST_URI'];
-    if ($allDone) {
-        $redirectUrl = 'index.php?levelup=' . urlencode($folder['title']);
-    }
-    header('Location: ' . $redirectUrl . (strpos($redirectUrl, '?') !== false ? '&' : '?') . 'completed=1');
-    exit;
+// Media grouped by segment
+$media = [];
+$sids = array_column($segs, 'id');
+if ($sids) {
+    $ph = implode(',', array_fill(0, count($sids), '?'));
+    $s = $db->prepare("SELECT * FROM segment_media WHERE segment_id IN ({$ph}) ORDER BY media_order");
+    $s->execute($sids);
+    foreach ($s->fetchAll() as $r) $media[$r['segment_id']][] = $r;
 }
 
-$justCompleted = isset($_GET['completed']);
-$sections = $module['sections'] ?? [];
-$videos = $module['videos'] ?? [];
-
-// Find next module
-$nextModule = null;
-$nextUrl = null;
-if ($subfolderIdx !== null) {
-    $sf = $folder['folders'][$subfolderIdx];
-    if (isset($sf['modules'][$moduleIdx + 1])) {
-        $nextModule = $sf['modules'][$moduleIdx + 1];
-        $nextUrl = "module.php?manual=" . urlencode($manualId) . "&folder={$folderIdx}&subfolder={$subfolderIdx}&module=" . ($moduleIdx + 1);
-    }
-} else {
-    if (isset($folder['modules'][$moduleIdx + 1])) {
-        $nextModule = $folder['modules'][$moduleIdx + 1];
-        $nextUrl = "module.php?manual=" . urlencode($manualId) . "&folder={$folderIdx}&module=" . ($moduleIdx + 1);
-    }
+// Completion status
+$compSegs = $engine->getCompletedSegmentIds($userId);
+$total = count($segs);
+$done = 0;
+foreach ($segs as &$seg) {
+    $seg['done'] = in_array((int)$seg['id'], $compSegs);
+    $seg['media'] = $media[$seg['id']] ?? [];
+    if ($seg['done']) $done++;
 }
+unset($seg);
+$pct = $total ? round(($done/$total)*100) : 0;
+$stats = $engine->getUserStats($userId);
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><?= esc($module['title']) ?> | Become</title>
-  <link rel="icon" type="image/png" href="../img/logo.png">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= htmlspecialchars($mod['title']) ?> — Become</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/become/portal.css">
+    <?php if ($isLeader): ?>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css" rel="stylesheet">
+    <?php endif; ?>
 </head>
-<body class="module-page">
+<body>
+<div class="portal">
 
-<header class="train-header">
-  <div class="train-header__inner">
-    <div class="train-header__left">
-      <a href="manual.php?id=<?= urlencode($manualId) ?>" class="train-header__back">← <?= esc($folder['title']) ?></a>
-    </div>
-    <div class="train-header__right">
-      <span class="train-header__level">Level <?= esc(formatLevel($userLevel)) ?></span>
-    </div>
-  </div>
-  <div class="header-waves">
-    <div class="header-waves__layer header-waves__layer--1"></div>
-    <div class="header-waves__layer header-waves__layer--2"></div>
-  </div>
-</header>
+    <!-- BREADCRUMB -->
+    <nav class="crumb">
+        <a href="/become/">← Dashboard</a>
+        <span>/</span>
+        <span><?= htmlspecialchars($mod['ficon'].' '.$mod['ftitle']) ?></span>
+        <span>/</span>
+        <span class="crumb-cur"><?= htmlspecialchars($mod['title']) ?></span>
+    </nav>
 
-<?php if ($isLocked): ?>
-<!-- LOCKED STATE -->
-<div class="module-locked">
-  <div class="module-locked__icon">🔒</div>
-  <h2>This module is locked</h2>
-  <p>Reach Level <?= esc(formatLevel($requiredLevel)) ?> to unlock this content.</p>
-  <a href="index.php" class="module-btn">Back to Dashboard</a>
+    <!-- MODULE HEADER -->
+    <div class="card mod-hdr-card">
+        <div class="mod-hdr-top">
+            <h1 class="mod-page-title" data-mod="<?= $modId ?>"><?= htmlspecialchars($mod['title']) ?></h1>
+            <?php if ($isLeader): ?>
+                <button class="edit-btn" onclick="toggleTitleEdit(this)" title="Edit title">✏️</button>
+            <?php endif; ?>
+        </div>
+        <?php if ($mod['description']): ?>
+            <p class="mod-desc"><?= $mod['description'] ?></p>
+        <?php endif; ?>
+        <div class="prog-wrap">
+            <div class="prog-info"><span><?= $done ?>/<?= $total ?> segments</span><span><?= $pct ?>%</span></div>
+            <div class="bar"><div class="bar-fill" style="width:<?= $pct ?>%"></div></div>
+        </div>
+    </div>
+
+    <!-- SEGMENTS -->
+    <div class="seg-list">
+        <?php foreach ($segs as $i => $seg):
+            $sid = (int)$seg['id'];
+            $isDone = $seg['done'];
+            $prevDone = ($i === 0) ? true : $segs[$i-1]['done'];
+            $isLocked = !$isDone && $i > 0 && !$prevDone;
+
+            $cls = 'seg';
+            if ($isDone)   $cls .= ' seg--done';
+            elseif ($isLocked) $cls .= ' seg--locked';
+            else $cls .= ' seg--active';
+
+            $ico = $isDone ? '✅' : ($isLocked ? '🔒' : '📄');
+        ?>
+        <div class="<?= $cls ?>" id="seg-<?= $sid ?>" data-seg="<?= $sid ?>">
+
+            <div class="seg-hdr">
+                <span class="seg-ico"><?= $ico ?></span>
+                <h3 class="seg-title"><?= htmlspecialchars($seg['title']) ?></h3>
+                <?php if (!$isLocked && !$isDone): ?>
+                    <span class="seg-xp">+<?= $seg['xp_reward'] ?> XP</span>
+                <?php endif; ?>
+            </div>
+
+            <?php if (!$isLocked): ?>
+            <div class="seg-body" id="body-<?= $sid ?>">
+
+                <?php if ($seg['content_html']): ?>
+                    <div class="seg-rich"><?= $seg['content_html'] ?></div>
+                <?php endif; ?>
+
+                <?php if ($seg['customer_quote']): ?>
+                <div class="seg-convo">
+                    <div class="bubble bubble--cust">
+                        <span class="bubble-who">Customer:</span>
+                        <p><?= $seg['customer_quote'] ?></p>
+                    </div>
+                    <?php if ($seg['rep_response']): ?>
+                    <div class="bubble bubble--rep">
+                        <span class="bubble-who">You:</span>
+                        <p><?= $seg['rep_response'] ?></p>
+                    </div>
+                    <?php endif; ?>
+                    <?php if ($seg['tip']): ?>
+                    <div class="bubble bubble--tip">
+                        <span class="bubble-who">💡 Tip:</span>
+                        <p><?= $seg['tip'] ?></p>
+                    </div>
+                    <?php endif; ?>
+                </div>
+                <?php endif; ?>
+
+                <?php foreach ($seg['media'] as $m): ?>
+                <div class="seg-media">
+                    <?php if ($m['media_type'] === 'image'): ?>
+                        <img src="<?= htmlspecialchars($m['url']) ?>" alt="" class="seg-img" loading="lazy">
+                    <?php elseif (in_array($m['media_type'], ['youtube','vimeo','video'])): ?>
+                        <div class="seg-vid"><iframe src="<?= htmlspecialchars($m['url']) ?>" frameborder="0" allowfullscreen></iframe></div>
+                    <?php elseif ($m['media_type'] === 'pdf'): ?>
+                        <a href="<?= htmlspecialchars($m['url']) ?>" target="_blank" class="seg-pdf">📄 <?= htmlspecialchars($m['title'] ?? 'View PDF') ?></a>
+                    <?php endif; ?>
+                </div>
+                <?php endforeach; ?>
+
+                <?php if ($isLeader): ?>
+                    <button class="edit-btn edit-btn--seg" onclick="startEdit(<?= $sid ?>)">✏️ Edit</button>
+                <?php endif; ?>
+            </div>
+
+            <?php if (!$isDone): ?>
+                <div class="seg-actions">
+                    <button class="btn-complete" onclick="completeSeg(<?= $sid ?>,this)">✓ Mark Complete (+<?= $seg['xp_reward'] ?> XP)</button>
+                </div>
+            <?php else: ?>
+                <div class="seg-done-badge">✅ Completed</div>
+            <?php endif; ?>
+
+            <?php else: ?>
+                <p class="seg-locked-msg">Complete the previous segment to unlock</p>
+            <?php endif; ?>
+        </div>
+        <?php endforeach; ?>
+    </div>
+
+    <?php if ($mod['next_step_text']): ?>
+        <div class="card next-step">👉 <?= htmlspecialchars($mod['next_step_text']) ?></div>
+    <?php endif; ?>
+
 </div>
-
-<?php else: ?>
-<!-- MODULE CONTENT -->
-<div class="module-wrapper">
-  <!-- Module Header -->
-  <div class="module-hero">
-    <div class="module-hero__type">
-      <?php
-      $typeLabel = match($module['type'] ?? 'lesson') {
-          'quiz' => '📝 Quiz',
-          'passoff' => '🎯 Passoff',
-          default => '📄 Lesson'
-      };
-      echo $typeLabel;
-      ?>
-    </div>
-    <h1><?= esc($module['title']) ?></h1>
-    <?php if (!empty($module['description'])): ?>
-      <p class="module-hero__desc"><?= esc($module['description']) ?></p>
-    <?php endif; ?>
-    <?php if ($isCompleted): ?>
-      <div class="module-hero__badge">✓ Completed</div>
-    <?php endif; ?>
-  </div>
-
-  <!-- Videos -->
-  <?php if (!empty($videos)): ?>
-  <div class="module-videos">
-    <?php foreach ($videos as $video):
-      $embedUrl = $video['url'] ?? '';
-      // Convert YouTube watch URLs to embed
-      if (strpos($embedUrl, 'youtube.com/watch') !== false) {
-          preg_match('/v=([^&]+)/', $embedUrl, $matches);
-          if (!empty($matches[1])) $embedUrl = 'https://www.youtube.com/embed/' . $matches[1];
-      } elseif (strpos($embedUrl, 'youtu.be/') !== false) {
-          $embedUrl = 'https://www.youtube.com/embed/' . basename(parse_url($embedUrl, PHP_URL_PATH));
-      } elseif (strpos($embedUrl, 'vimeo.com/') !== false) {
-          preg_match('/vimeo\.com\/(\d+)/', $embedUrl, $matches);
-          if (!empty($matches[1])) $embedUrl = 'https://player.vimeo.com/video/' . $matches[1];
-      }
-    ?>
-    <div class="module-video">
-      <?php if (!empty($video['title'])): ?>
-        <h3 class="module-video__title"><?= esc($video['title']) ?></h3>
-      <?php endif; ?>
-      <div class="module-video__embed">
-        <iframe src="<?= esc($embedUrl) ?>" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-      </div>
-    </div>
-    <?php endforeach; ?>
-  </div>
-  <?php endif; ?>
-
-  <!-- Sections (Quote / Response / Tip) -->
-  <?php if (!empty($sections)): ?>
-  <div class="module-sections">
-    <?php foreach ($sections as $si => $section): ?>
-    <div class="section-card" style="animation-delay: <?= $si * 0.1 ?>s">
-      <?php if (!empty($section['customer_quote'])): ?>
-        <div class="section-card__quote">
-          <span class="section-card__quote-mark">"</span>
-          <?= esc($section['customer_quote']) ?>
-          <span class="section-card__quote-mark">"</span>
-        </div>
-      <?php endif; ?>
-      
-      <?php if (!empty($section['rep_response'])): ?>
-        <div class="section-card__response">
-          <?= nl2br(esc($section['rep_response'])) ?>
-        </div>
-      <?php endif; ?>
-      
-      <?php if (!empty($section['tip'])): ?>
-        <div class="section-card__tip">
-          <em><?= esc($section['tip']) ?></em>
-        </div>
-      <?php endif; ?>
-    </div>
-    <?php endforeach; ?>
-  </div>
-  <?php endif; ?>
-
-  <!-- Next Step Guidance -->
-  <?php if (!empty($module['next_step'])): ?>
-  <div class="module-nextstep">
-    <strong>What's Next:</strong> <?= esc($module['next_step']) ?>
-  </div>
-  <?php endif; ?>
-
-  <!-- Completion -->
-  <div class="module-complete">
-    <?php if ($isCompleted): ?>
-      <div class="module-complete__done">
-        <span>✓ Module Complete</span>
-      </div>
-      <?php if ($nextModule): ?>
-        <a href="<?= esc($nextUrl) ?>" class="module-btn module-btn--next">
-          Next: <?= esc($nextModule['title']) ?> →
-        </a>
-      <?php else: ?>
-        <a href="manual.php?id=<?= urlencode($manualId) ?>" class="module-btn">
-          Back to <?= esc($manual['title']) ?>
-        </a>
-      <?php endif; ?>
-    <?php else: ?>
-      <form method="POST" style="text-align:center;">
-        <input type="hidden" name="complete" value="1">
-        <button type="submit" class="module-btn module-btn--complete">
-          Mark as Complete 🏄
-        </button>
-      </form>
-    <?php endif; ?>
-  </div>
-</div>
-
-<?php if ($justCompleted && !$isCompleted === false): ?>
 <script>
-// Completion celebration
-document.addEventListener('DOMContentLoaded', () => {
-  const badge = document.querySelector('.module-complete__done');
-  if (badge) {
-    badge.classList.add('celebrate');
-    // Small confetti burst
-    for (let i = 0; i < 20; i++) {
-      const c = document.createElement('div');
-      c.className = 'confetti';
-      c.style.left = (30 + Math.random() * 40) + '%';
-      c.style.backgroundColor = ['#22A8B3','#FB9B47','#38BEC9','#FFD700','#06D6A0'][Math.floor(Math.random()*5)];
-      c.style.animationDelay = Math.random() * 0.3 + 's';
-      c.style.animationDuration = (1 + Math.random()) + 's';
-      document.querySelector('.module-complete').appendChild(c);
-      setTimeout(() => c.remove(), 2500);
-    }
-  }
-});
+const IS_LEADER = <?= $isLeader ? 'true' : 'false' ?>;
+const MOD_ID = <?= $modId ?>;
 </script>
+<?php if ($isLeader): ?>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
 <?php endif; ?>
-
-<?php endif; ?>
+<script src="/become/portal.js"></script>
 </body>
 </html>

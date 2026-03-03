@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Energy Options — Your Energy Best</title>
+<meta name="description" content="Compare 4 energy paths for your home. Prepaid Power, Power Purchase, Home Battery Lease, and Cash Purchase. See estimated savings.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* =============================================
+   options.css — Energy Options Page
+   Premium editorial dark theme
+   Brand: #023047 navy · #219EBC teal · #FFB703 gold
+   ============================================= */
+
+:root {
+    --navy: #023047;
+    --navy-deep: #011627;
+    --teal: #219EBC;
+    --teal-light: #8ECAE6;
+    --gold: #FFB703;
+    --green: #06D6A0;
+    --coral: #EF476F;
+    --cream: #FAF8F5;
+    --warm-white: #FFFDF9;
+    --text: #0B1D2C;
+    --text-light: rgba(255,255,255,0.7);
+    --text-muted: rgba(255,255,255,0.4);
+    --heading: 'Cormorant Garamond', Georgia, serif;
+    --body: 'Outfit', -apple-system, sans-serif;
+    --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --r: 12px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+    font-family: var(--body);
+    background: var(--navy-deep);
+    color: #fff;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+
+.container { max-width: 1120px; margin: 0 auto; padding: 0 1.5rem; }
+
+.hide-mobile { display: inline; }
+@media (max-width: 640px) { .hide-mobile { display: none; } }
+
+/* ─── HERO ─── */
+.hero {
+    position: relative;
+    min-height: 85vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+}
+.hero-bg {
+    position: absolute; inset: 0;
+    background:
+        radial-gradient(ellipse at 30% 60%, rgba(33,158,188,0.12) 0%, transparent 55%),
+        radial-gradient(ellipse at 70% 30%, rgba(255,183,3,0.06) 0%, transparent 55%),
+        linear-gradient(170deg, var(--navy-deep) 0%, #02304790 50%, var(--navy-deep) 100%);
+}
+.hero-bg::after {
+    content: ''; position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 30h60M30 0v60' stroke='%23219EBC' stroke-width='.3' opacity='.07'/%3E%3C/svg%3E");
+}
+.hero-inner { position: relative; z-index: 1; }
+.hero-eyebrow {
+    font-family: var(--body);
+    font-weight: 500;
+    font-size: 0.85rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.25rem;
+    animation: fadeUp 0.8s var(--ease-out) both;
+}
+.hero-title {
+    font-family: var(--heading);
+    font-weight: 600;
+    font-size: clamp(2.4rem, 5.5vw, 4.2rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.25rem;
+    animation: fadeUp 0.8s var(--ease-out) 0.1s both;
+}
+.hero-sub {
+    font-size: 1.1rem;
+    font-weight: 300;
+    color: var(--text-light);
+    line-height: 1.7;
+    max-width: 560px;
+    margin: 0 auto 2.5rem;
+    animation: fadeUp 0.8s var(--ease-out) 0.2s both;
+}
+.hero-cta {
+    display: inline-block;
+    padding: 0.9rem 2.2rem;
+    background: transparent;
+    border: 1.5px solid rgba(255,255,255,0.25);
+    color: #fff;
+    border-radius: 100px;
+    font-family: var(--body);
+    font-weight: 500;
+    font-size: 0.95rem;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: all 0.4s var(--ease);
+    animation: fadeUp 0.8s var(--ease-out) 0.3s both;
+}
+.hero-cta:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: var(--teal);
+    color: var(--teal-light);
+    transform: translateY(-1px);
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── SECTION SHARED ─── */
+.section-label {
+    font-family: var(--body);
+    font-weight: 500;
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.75rem;
+}
+.section-heading {
+    font-family: var(--heading);
+    font-weight: 600;
+    font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+}
+
+/* ─── OPTIONS SECTION ─── */
+.options-section {
+    padding: 6rem 0;
+    background: var(--navy-deep);
+    position: relative;
+}
+.section-intro {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+@media (max-width: 768px) {
+    .options-grid { grid-template-columns: 1fr; }
+}
+
+/* ─── OPTION CARD ─── */
+.option-card {
+    position: relative;
+    border-radius: var(--r);
+    overflow: hidden;
+    min-height: 420px;
+    cursor: pointer;
+    transition: transform 0.4s var(--ease);
+}
+.option-card:hover { transform: translateY(-4px); }
+.option-bg {
+    position: absolute; inset: 0;
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.6s var(--ease);
+}
+.option-card:hover .option-bg { transform: scale(1.04); }
+.option-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(1,22,39,0.75) 0%, rgba(1,22,39,0.92) 100%);
+    transition: background 0.4s var(--ease);
+}
+.option-card:hover .option-overlay {
+    background: linear-gradient(180deg, rgba(1,22,39,0.65) 0%, rgba(1,22,39,0.88) 100%);
+}
+.option-content {
+    position: relative; z-index: 1;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.option-number {
+    font-family: var(--heading);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+}
+.option-title {
+    font-family: var(--heading);
+    font-size: 1.7rem;
+    font-weight: 600;
+    margin-bottom: 0.15rem;
+}
+.option-aka {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1.25rem;
+}
+.option-details { flex: 1; }
+.option-details h4 {
+    font-family: var(--body);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--teal-light);
+    margin-bottom: 0.5rem;
+}
+.option-pros { margin-bottom: 1.25rem; }
+.option-tradeoffs { margin-bottom: 1.25rem; }
+.option-tradeoffs h4 { color: var(--gold); }
+.option-details ul {
+    list-style: none;
+    padding: 0;
+}
+.option-details li {
+    font-size: 0.88rem;
+    font-weight: 300;
+    color: rgba(255,255,255,0.8);
+    padding: 0.2rem 0 0.2rem 1.1rem;
+    position: relative;
+    line-height: 1.5;
+}
+.option-pros li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--green);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+.option-tradeoffs li::before {
+    content: '○';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+    font-size: 0.7rem;
+}
+.option-fit {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
+}
+.option-fit p {
+    font-size: 0.85rem;
+    font-weight: 300;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.6;
+}
+.option-fit strong { color: var(--teal-light); font-weight: 500; }
+
+/* ─── FORM SECTION ─── */
+.form-section {
+    padding: 6rem 0;
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(33,158,188,0.06) 0%, transparent 50%),
+        var(--navy-deep);
+}
+.form-intro {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+.form-sub {
+    font-size: 1rem;
+    font-weight: 300;
+    color: var(--text-light);
+    margin-top: 0.75rem;
+}
+
+/* ─── STEPPER CARD ─── */
+.stepper-card {
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 2.5rem;
+    max-width: 680px;
+    margin: 0 auto;
+    backdrop-filter: blur(8px);
+}
+@media (max-width: 600px) { .stepper-card { padding: 1.5rem; } }
+
+/* Progress */
+.progress-wrap { margin-bottom: 2rem; }
+.progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+.progress-fill {
+    height: 100%;
+    width: 11.11%;
+    background: linear-gradient(90deg, var(--teal), var(--green));
+    border-radius: 2px;
+    transition: width 0.5s var(--ease-out);
+    box-shadow: 0 0 12px rgba(33,158,188,0.3);
+}
+.progress-text {
+    font-size: 0.78rem;
+    font-weight: 400;
+    color: var(--text-muted);
+}
+
+/* Steps */
+.step {
+    display: none;
+    animation: fadeUp 0.4s var(--ease-out) both;
+}
+.step.active { display: block; }
+.step-question {
+    font-family: var(--heading);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+}
+.step-hint {
+    font-size: 0.85rem;
+    font-weight: 300;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+}
+
+/* Slider */
+.slider-wrap { margin-bottom: 1.25rem; position: relative; }
+.range-slider {
+    width: 100%;
+    height: 6px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+    outline: none;
+}
+.range-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--teal);
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(33,158,188,0.4);
+    transition: transform 0.2s;
+}
+.range-slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
+.range-slider::-moz-range-thumb {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--teal);
+    border: none;
+    cursor: pointer;
+}
+.slider-value {
+    text-align: center;
+    font-family: var(--heading);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--teal-light);
+    margin-top: 0.75rem;
+}
+.quick-picks { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.quick-pick {
+    padding: 0.45rem 1rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-light);
+    border-radius: 100px;
+    font-family: var(--body);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.25s var(--ease);
+}
+.quick-pick:hover { border-color: var(--teal); color: #fff; }
+.quick-pick.active { background: var(--teal); border-color: var(--teal); color: #fff; }
+
+/* Text Input */
+.step-input {
+    width: 100%;
+    max-width: 280px;
+    padding: 0.9rem 1.2rem;
+    background: rgba(255,255,255,0.05);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: var(--r);
+    color: #fff;
+    font-family: var(--body);
+    font-size: 1.2rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    outline: none;
+    transition: border-color 0.3s;
+}
+.step-input:focus { border-color: var(--teal); }
+.step-input::placeholder { color: rgba(255,255,255,0.2); }
+
+/* Choice Buttons */
+.choice-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+.choice-grid--wide { grid-template-columns: 1fr 1fr; }
+@media (max-width: 500px) {
+    .choice-grid--wide { grid-template-columns: 1fr; }
+}
+.choice-btn {
+    padding: 1rem 1.2rem;
+    background: rgba(255,255,255,0.03);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    border-radius: var(--r);
+    color: rgba(255,255,255,0.8);
+    font-family: var(--body);
+    font-size: 0.92rem;
+    font-weight: 400;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.25s var(--ease);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+.choice-btn:hover {
+    border-color: var(--teal);
+    background: rgba(33,158,188,0.06);
+    color: #fff;
+}
+.choice-btn.selected {
+    border-color: var(--teal);
+    background: rgba(33,158,188,0.12);
+    color: #fff;
+    box-shadow: 0 0 0 1px var(--teal);
+}
+.choice-icon { font-size: 1.3rem; }
+
+/* Navigation */
+.step-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+}
+.nav-btn {
+    padding: 0.7rem 1.8rem;
+    border-radius: 100px;
+    font-family: var(--body);
+    font-size: 0.92rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s var(--ease);
+    border: none;
+}
+.nav-back {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--text-light);
+}
+.nav-back:hover:not(:disabled) { border-color: rgba(255,255,255,0.3); color: #fff; }
+.nav-back:disabled { opacity: 0.3; cursor: not-allowed; }
+.nav-next {
+    background: linear-gradient(135deg, var(--teal), #1a8a93);
+    color: #fff;
+}
+.nav-next:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(33,158,188,0.3); }
+
+/* ─── RESULTS SECTION ─── */
+.results-section {
+    padding: 5rem 0 3rem;
+    background:
+        radial-gradient(ellipse at 30% 20%, rgba(6,214,160,0.05) 0%, transparent 50%),
+        var(--navy-deep);
+    animation: fadeUp 0.6s var(--ease-out) both;
+}
+
+/* Recommendation Card */
+.rec-card {
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 3rem;
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+@media (max-width: 600px) { .rec-card { padding: 2rem 1.5rem; } }
+.rec-eyebrow {
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+.rec-title {
+    font-family: var(--heading);
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+}
+.rec-highlight {
+    display: inline-block;
+    padding: 1.5rem 3rem;
+    background: linear-gradient(135deg, rgba(33,158,188,0.12), rgba(6,214,160,0.08));
+    border: 1px solid rgba(33,158,188,0.25);
+    border-radius: var(--r);
+    margin-bottom: 2rem;
+}
+.rec-option {
+    font-family: var(--heading);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--teal-light);
+}
+.rec-aka {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 0.2rem;
+}
+.rec-reasons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+.rec-reason {
+    font-size: 0.95rem;
+    font-weight: 400;
+    color: rgba(255,255,255,0.75);
+    padding: 0.4rem 0;
+}
+.rec-reason::before {
+    content: '→ ';
+    color: var(--teal);
+    font-weight: 600;
+}
+.rec-features {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: center;
+}
+.rec-feature {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.92rem;
+    color: rgba(255,255,255,0.7);
+}
+.rec-feature em { font-size: 0.8rem; color: var(--text-muted); }
+.rec-feature-icon { font-size: 1.2rem; }
+
+/* Savings Card */
+.savings-card {
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 3rem;
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+@media (max-width: 600px) { .savings-card { padding: 2rem 1rem; } }
+.savings-big-numbers {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin: 2.5rem 0;
+}
+@media (max-width: 500px) { .savings-big-numbers { grid-template-columns: 1fr; gap: 1rem; } }
+.savings-num {
+    text-align: center;
+}
+.savings-num-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    margin-bottom: 0.3rem;
+}
+.savings-num-value {
+    display: block;
+    font-family: var(--heading);
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--green);
+}
+@media (max-width: 600px) { .savings-num-value { font-size: 1.8rem; } }
+
+.chart-wrap {
+    margin: 2rem 0;
+    border-radius: var(--r);
+    overflow: hidden;
+}
+canvas { width: 100% !important; height: auto !important; }
+
+.savings-basis {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 1rem;
+}
+.savings-disclaimer {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.3);
+    margin-top: 0.5rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.5;
+}
+
+/* CTA Card */
+.cta-card {
+    text-align: center;
+    padding: 3rem;
+    background: linear-gradient(135deg, rgba(33,158,188,0.08), rgba(255,183,3,0.04));
+    border: 1px solid rgba(33,158,188,0.15);
+    border-radius: 16px;
+    margin-bottom: 2rem;
+}
+.cta-title {
+    font-family: var(--heading);
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+.cta-sub {
+    font-size: 1rem;
+    font-weight: 300;
+    color: var(--text-light);
+    margin-bottom: 2rem;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.cta-btn {
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    background: linear-gradient(135deg, var(--gold), #e5a400);
+    color: var(--navy-deep);
+    border: none;
+    border-radius: 100px;
+    font-family: var(--body);
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.01em;
+    transition: all 0.3s var(--ease);
+    text-decoration: none;
+}
+.cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(255,183,3,0.3);
+}
+.cta-btn--outline {
+    background: transparent;
+    border: 2px solid var(--teal);
+    color: var(--teal-light);
+    margin-top: 1rem;
+}
+.cta-btn--outline:hover { background: rgba(33,158,188,0.1); box-shadow: none; }
+
+.calendly-wrap { margin-top: 2rem; }
+.calendly-placeholder {
+    padding: 2rem;
+    background: rgba(255,255,255,0.03);
+    border: 1px dashed rgba(255,255,255,0.12);
+    border-radius: var(--r);
+}
+.calendly-placeholder p { margin-bottom: 0.5rem; color: var(--text-light); }
+.calendly-placeholder .hint { font-size: 0.8rem; color: var(--text-muted); }
+
+/* ─── FOOTER ─── */
+.page-footer {
+    padding: 2.5rem 0;
+    text-align: center;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+.footer-note {
+    margin-top: 0.5rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.5;
+}
+
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     HERO
+     ═══════════════════════════════════════════════ -->
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="container hero-inner">
+        <p class="hero-eyebrow">Your Energy Best</p>
+        <h1 class="hero-title">Understand Your<br>Energy Options</h1>
+        <p class="hero-sub">Four paths. One goal — lower energy costs, more control,<br class="hide-mobile"> and a home that works smarter for you.</p>
+        <a href="#options" class="hero-cta">Explore Your Options ↓</a>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 1 — OPTIONS GRID
+     ═══════════════════════════════════════════════ -->
+<section id="options" class="options-section">
+    <div class="container">
+        <div class="section-intro">
+            <p class="section-label">The Four Paths</p>
+            <h2 class="section-heading">Every home is different.<br class="hide-mobile"> Here's how each option works.</h2>
+        </div>
+
+        <div class="options-grid">
+
+            <!-- OPTION 1: Prepaid Power -->
+            <div class="option-card" data-option="prepaid">
+                <div class="option-bg" style="background-image:url('https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&q=60')"></div>
+                <div class="option-overlay"></div>
+                <div class="option-content">
+                    <span class="option-number">01</span>
+                    <h3 class="option-title">Prepaid Power</h3>
+                    <p class="option-aka">Financing / Solar Loan</p>
+                    <div class="option-details">
+                        <div class="option-pros">
+                            <h4>Advantages</h4>
+                            <ul>
+                                <li>$0 down options available</li>
+                                <li>You own the system from day one</li>
+                                <li>Federal tax credit applies (if eligible)</li>
+                                <li>Potential immediate monthly savings</li>
+                                <li>Increases home value</li>
+                            </ul>
+                        </div>
+                        <div class="option-tradeoffs">
+                            <h4>Trade-offs</h4>
+                            <ul>
+                                <li>Monthly loan payment replaces utility bill</li>
+                                <li>Credit approval required</li>
+                                <li>Longer-term financial commitment</li>
+                            </ul>
+                        </div>
+                        <div class="option-fit">
+                            <p><strong>This might be right for you if…</strong> you want to start saving immediately without a large upfront investment, and you'd rather build equity in your own energy system instead of paying a utility company.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OPTION 2: Power Purchase -->
+            <div class="option-card" data-option="ppa">
+                <div class="option-bg" style="background-image:url('https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&q=60')"></div>
+                <div class="option-overlay"></div>
+                <div class="option-content">
+                    <span class="option-number">02</span>
+                    <h3 class="option-title">Power Purchase</h3>
+                    <p class="option-aka">PPA / Solar Lease</p>
+                    <div class="option-details">
+                        <div class="option-pros">
+                            <h4>Advantages</h4>
+                            <ul>
+                                <li>$0 down, $0 maintenance</li>
+                                <li>Lower rate than the utility company</li>
+                                <li>No system ownership responsibilities</li>
+                                <li>Monitoring and repairs included</li>
+                            </ul>
+                        </div>
+                        <div class="option-tradeoffs">
+                            <h4>Trade-offs</h4>
+                            <ul>
+                                <li>You don't own the system</li>
+                                <li>Annual rate escalator (typically 1–3%)</li>
+                                <li>Long-term contract (20–25 years)</li>
+                                <li>Tax credit goes to the provider</li>
+                            </ul>
+                        </div>
+                        <div class="option-fit">
+                            <p><strong>This might be right for you if…</strong> you want a hands-off experience with no upfront cost, and you're comfortable paying less than the utility without owning the equipment.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OPTION 3: Battery Lease -->
+            <div class="option-card" data-option="battery">
+                <div class="option-bg" style="background-image:url('https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=800&q=60')"></div>
+                <div class="option-overlay"></div>
+                <div class="option-content">
+                    <span class="option-number">03</span>
+                    <h3 class="option-title">Home Battery Lease</h3>
+                    <p class="option-aka">Virtual Power Plant / Storage</p>
+                    <div class="option-details">
+                        <div class="option-pros">
+                            <h4>Advantages</h4>
+                            <ul>
+                                <li>Backup power during outages</li>
+                                <li>No upfront cost in some programs</li>
+                                <li>Time-of-use optimization</li>
+                                <li>Can pair with existing solar</li>
+                            </ul>
+                        </div>
+                        <div class="option-tradeoffs">
+                            <h4>Trade-offs</h4>
+                            <ul>
+                                <li>Monthly lease payment</li>
+                                <li>Limited energy offset without solar</li>
+                                <li>Program availability varies by area</li>
+                            </ul>
+                        </div>
+                        <div class="option-fit">
+                            <p><strong>This might be right for you if…</strong> you already have solar or want backup power, and you're in an area with time-of-use rates where shifting usage makes a real difference.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OPTION 4: Cash Purchase -->
+            <div class="option-card" data-option="cash">
+                <div class="option-bg" style="background-image:url('https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=800&q=60')"></div>
+                <div class="option-overlay"></div>
+                <div class="option-content">
+                    <span class="option-number">04</span>
+                    <h3 class="option-title">Cash Purchase</h3>
+                    <p class="option-aka">Outright Ownership</p>
+                    <div class="option-details">
+                        <div class="option-pros">
+                            <h4>Advantages</h4>
+                            <ul>
+                                <li>Maximum long-term savings</li>
+                                <li>No monthly payments</li>
+                                <li>Full federal tax credit (if eligible)</li>
+                                <li>Best ROI over system lifetime</li>
+                                <li>Greatest home value increase</li>
+                            </ul>
+                        </div>
+                        <div class="option-tradeoffs">
+                            <h4>Trade-offs</h4>
+                            <ul>
+                                <li>Large upfront investment ($15k–$35k+)</li>
+                                <li>Capital tied up in the home</li>
+                                <li>Maintenance responsibility is yours</li>
+                            </ul>
+                        </div>
+                        <div class="option-fit">
+                            <p><strong>This might be right for you if…</strong> you have available capital, plan to stay in your home long-term, and want the highest overall return on your investment.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 2 — INTERACTIVE FORM
+     ═══════════════════════════════════════════════ -->
+<section id="assessment" class="form-section">
+    <div class="container">
+        <div class="form-intro">
+            <p class="section-label">Personalized Insight</p>
+            <h2 class="section-heading">Want to see which option<br class="hide-mobile"> may work best for you?</h2>
+            <p class="form-sub">Answer a few quick questions. No commitment — just clarity.</p>
+        </div>
+
+        <div class="stepper-card">
+            <!-- Progress Bar -->
+            <div class="progress-wrap">
+                <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+                <span class="progress-text" id="progressText">Step 1 of 9</span>
+            </div>
+
+            <!-- Steps Container -->
+            <div class="steps-container" id="stepsContainer">
+
+                <!-- Step 1: Monthly Bill -->
+                <div class="step active" data-step="1">
+                    <h3 class="step-question">What's your average monthly electric bill?</h3>
+                    <p class="step-hint">Drag the slider or tap a range</p>
+                    <div class="slider-wrap">
+                        <input type="range" id="billSlider" min="0" max="700" step="10" value="200" class="range-slider">
+                        <div class="slider-value" id="sliderValue">$200</div>
+                    </div>
+                    <div class="quick-picks">
+                        <button class="quick-pick" data-val="100">$100</button>
+                        <button class="quick-pick" data-val="150">$150</button>
+                        <button class="quick-pick active" data-val="200">$200</button>
+                        <button class="quick-pick" data-val="300">$300</button>
+                        <button class="quick-pick" data-val="500">$500+</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Zip Code -->
+                <div class="step" data-step="2">
+                    <h3 class="step-question">What's your zip code?</h3>
+                    <p class="step-hint">Helps us check local programs and rates</p>
+                    <input type="text" id="zipCode" class="step-input" placeholder="e.g. 92024" maxlength="5" inputmode="numeric" pattern="[0-9]*">
+                </div>
+
+                <!-- Step 3: Homeowner -->
+                <div class="step" data-step="3">
+                    <h3 class="step-question">Are you a homeowner?</h3>
+                    <div class="choice-grid">
+                        <button class="choice-btn" data-field="homeowner" data-val="yes">
+                            <span class="choice-icon">🏠</span>
+                            <span>Yes</span>
+                        </button>
+                        <button class="choice-btn" data-field="homeowner" data-val="no">
+                            <span class="choice-icon">🏢</span>
+                            <span>No, I rent</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 4: How long in home -->
+                <div class="step" data-step="4">
+                    <h3 class="step-question">How long have you lived in your home?</h3>
+                    <div class="choice-grid choice-grid--wide">
+                        <button class="choice-btn" data-field="yearsInHome" data-val="<2">Less than 2 years</button>
+                        <button class="choice-btn" data-field="yearsInHome" data-val="2-5">2–5 years</button>
+                        <button class="choice-btn" data-field="yearsInHome" data-val="5-10">5–10 years</button>
+                        <button class="choice-btn" data-field="yearsInHome" data-val="10+">10+ years</button>
+                    </div>
+                </div>
+
+                <!-- Step 5: Plan to stay -->
+                <div class="step" data-step="5">
+                    <h3 class="step-question">How long do you plan to stay?</h3>
+                    <div class="choice-grid choice-grid--wide">
+                        <button class="choice-btn" data-field="planToStay" data-val="<3">Less than 3 years</button>
+                        <button class="choice-btn" data-field="planToStay" data-val="3-7">3–7 years</button>
+                        <button class="choice-btn" data-field="planToStay" data-val="7-15">7–15 years</button>
+                        <button class="choice-btn" data-field="planToStay" data-val="15+">15+ years / forever</button>
+                    </div>
+                </div>
+
+                <!-- Step 6: Usage increase -->
+                <div class="step" data-step="6">
+                    <h3 class="step-question">Any plans that would increase your energy usage?</h3>
+                    <p class="step-hint">Select all that apply</p>
+                    <div class="choice-grid choice-grid--wide">
+                        <button class="choice-btn choice-btn--multi" data-field="usageIncrease" data-val="ev">🚗 Electric vehicle</button>
+                        <button class="choice-btn choice-btn--multi" data-field="usageIncrease" data-val="pool">🏊 Pool / hot tub</button>
+                        <button class="choice-btn choice-btn--multi" data-field="usageIncrease" data-val="hvac">❄️ New HVAC system</button>
+                        <button class="choice-btn choice-btn--multi" data-field="usageIncrease" data-val="addition">🏗️ Home addition</button>
+                        <button class="choice-btn choice-btn--multi" data-field="usageIncrease" data-val="none">None of these</button>
+                    </div>
+                </div>
+
+                <!-- Step 7: What would you use more -->
+                <div class="step" data-step="7">
+                    <h3 class="step-question">What would you use more if it didn't cost more?</h3>
+                    <p class="step-hint">Select all that apply</p>
+                    <div class="choice-grid choice-grid--wide">
+                        <button class="choice-btn choice-btn--multi" data-field="wouldUseMore" data-val="ac">🌡️ Air conditioning</button>
+                        <button class="choice-btn choice-btn--multi" data-field="wouldUseMore" data-val="heat">🔥 Heating</button>
+                        <button class="choice-btn choice-btn--multi" data-field="wouldUseMore" data-val="ev-charging">⚡ EV charging</button>
+                        <button class="choice-btn choice-btn--multi" data-field="wouldUseMore" data-val="appliances">🍳 Appliances</button>
+                        <button class="choice-btn choice-btn--multi" data-field="wouldUseMore" data-val="nothing">I'm good as-is</button>
+                    </div>
+                </div>
+
+                <!-- Step 8: Other investments -->
+                <div class="step" data-step="8">
+                    <h3 class="step-question">Are you planning any other major home investments?</h3>
+                    <p class="step-hint">Roof, windows, renovation, etc.</p>
+                    <div class="choice-grid">
+                        <button class="choice-btn" data-field="otherInvestments" data-val="yes">
+                            <span>Yes, within 1–2 years</span>
+                        </button>
+                        <button class="choice-btn" data-field="otherInvestments" data-val="no">
+                            <span>No, not right now</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 9: Payment style -->
+                <div class="step" data-step="9">
+                    <h3 class="step-question">When it comes to financing, do you prefer to…</h3>
+                    <div class="choice-grid">
+                        <button class="choice-btn" data-field="paymentStyle" data-val="payoff">
+                            <span class="choice-icon">🏁</span>
+                            <span>Pay it off early</span>
+                        </button>
+                        <button class="choice-btn" data-field="paymentStyle" data-val="minimum">
+                            <span class="choice-icon">📊</span>
+                            <span>Keep payments low</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="step-nav">
+                <button class="nav-btn nav-back" id="btnBack" onclick="stepper.prev()" disabled>← Back</button>
+                <button class="nav-btn nav-next" id="btnNext" onclick="stepper.next()">Continue →</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 3 — RECOMMENDATION + SAVINGS
+     ═══════════════════════════════════════════════ -->
+<section id="results" class="results-section" style="display:none">
+    <div class="container">
+
+        <!-- Recommendation Card -->
+        <div class="rec-card">
+            <p class="rec-eyebrow">Based on what you shared</p>
+            <h2 class="rec-title">Here's a strong starting point:</h2>
+            <div class="rec-highlight">
+                <h3 class="rec-option">Prepaid Power</h3>
+                <p class="rec-aka">Financing Option</p>
+            </div>
+            <div class="rec-reasons" id="recReasons">
+                <!-- Populated by JS -->
+            </div>
+            <div class="rec-features">
+                <div class="rec-feature">
+                    <span class="rec-feature-icon">💵</span>
+                    <span>$0 down options available</span>
+                </div>
+                <div class="rec-feature">
+                    <span class="rec-feature-icon">📉</span>
+                    <span>Estimated day-one savings around ~20% compared to your current bill <em>(estimate)</em></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Savings Projection -->
+        <div class="savings-card">
+            <p class="section-label">Projected Savings</p>
+            <h2 class="section-heading">What this could look like over time</h2>
+
+            <div class="savings-big-numbers" id="savingsBigNumbers">
+                <!-- Populated by JS -->
+            </div>
+
+            <div class="chart-wrap">
+                <canvas id="savingsChart" width="800" height="350"></canvas>
+            </div>
+
+            <p class="savings-basis">Based on ~20% estimated reduction and 5% annual utility escalation assumption.</p>
+            <p class="savings-disclaimer">These projections are estimates based on assumed utility escalation. Actual savings vary based on system size, financing terms, incentives, usage, and eligibility.</p>
+        </div>
+
+        <!-- CTA -->
+        <div class="cta-card" id="ctaCard">
+            <h2 class="cta-title">Ready to see your real numbers?</h2>
+            <p class="cta-sub">Book a free consultation. We'll design a custom plan for your home — no pressure, no obligation.</p>
+            <button class="cta-btn" id="ctaBtn" onclick="revealCalendly()">Get Your Official Quote →</button>
+            <div id="calendlyEmbed" class="calendly-wrap" style="display:none">
+                <!-- Calendly will be embedded here -->
+                <div class="calendly-placeholder">
+                    <p>📅 Calendly scheduling widget loads here</p>
+                    <p class="hint">Replace CALENDLY_URL in options.js with your actual link</p>
+                    <a href="#" id="calendlyLink" class="cta-btn cta-btn--outline" target="_blank" rel="noopener">Open Scheduling Page →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════════ -->
+<footer class="page-footer">
+    <div class="container">
+        <p>© 2026 Your Energy Best · San Diego, CA</p>
+        <p class="footer-note">This page is for educational purposes. All savings figures are estimates. Consult a licensed professional for specific financial advice.</p>
+    </div>
+</footer>
+
+<script>
+/* =============================================
+   options.js — Energy Options Interactive Page
+   
+   Modules:
+     CONFIG          — Tunable parameters
+     state           — Form state manager
+     savingsEngine   — Exponential compounding calculator
+     stepper         — Multi-step form controller
+     recommendation  — Dynamic recommendation builder
+     chart           — Canvas chart renderer
+     calendly        — CTA / embed reveal
+   ============================================= */
+
+// ══════════════════════════════════════
+// CONFIG — Easy to update
+// ══════════════════════════════════════
+const CONFIG = {
+    savingsReductionRate: 0.20,   // ~20% estimated savings
+    escalationRate: 0.05,         // 5% annual utility increase
+    defaultRecommendation: 'prepaid',
+    calendlyUrl: 'https://calendly.com/YOUR_LINK_HERE', // ← Replace
+    totalSteps: 9,
+};
+
+
+// ══════════════════════════════════════
+// STATE MANAGER
+// ══════════════════════════════════════
+const state = {
+    currentStep: 1,
+    data: {
+        monthlyBill: 200,
+        zipCode: '',
+        homeowner: null,
+        yearsInHome: null,
+        planToStay: null,
+        usageIncrease: [],
+        wouldUseMore: [],
+        otherInvestments: null,
+        paymentStyle: null,
+    },
+
+    set(key, value) {
+        this.data[key] = value;
+    },
+
+    get(key) {
+        return this.data[key];
+    },
+
+    toggleMulti(key, value) {
+        const arr = this.data[key] || [];
+        // "none" / "nothing" clears others
+        if (value === 'none' || value === 'nothing') {
+            this.data[key] = arr.includes(value) ? [] : [value];
+            return;
+        }
+        // Remove "none"/"nothing" if selecting something else
+        const filtered = arr.filter(v => v !== 'none' && v !== 'nothing');
+        const idx = filtered.indexOf(value);
+        if (idx > -1) filtered.splice(idx, 1);
+        else filtered.push(value);
+        this.data[key] = filtered;
+    },
+};
+
+
+// ══════════════════════════════════════
+// SAVINGS ENGINE — Exponential Compounding
+// ══════════════════════════════════════
+const savingsEngine = {
+    /**
+     * Calculate projected savings with exponential compounding.
+     * Formula: Savings_N = annual_savings_year1 * (1 + escalationRate)^(N-1)
+     * Cumulative = Sum from year 1 to N
+     */
+    calculate(monthlyBill, years) {
+        const annualBill = monthlyBill * 12;
+        const annualSavingsY1 = annualBill * CONFIG.savingsReductionRate;
+
+        let cumulative = 0;
+        const yearlyBreakdown = [];
+
+        for (let n = 1; n <= years; n++) {
+            const yearlySavings = annualSavingsY1 * Math.pow(1 + CONFIG.escalationRate, n - 1);
+            cumulative += yearlySavings;
+            yearlyBreakdown.push({
+                year: n,
+                annual: Math.round(yearlySavings),
+                cumulative: Math.round(cumulative),
+            });
+        }
+
+        const findCumulative = (y) => {
+            const entry = yearlyBreakdown.find(e => e.year === y);
+            return entry ? entry.cumulative : 0;
+        };
+
+        return {
+            fiveYearTotal: findCumulative(5),
+            tenYearTotal: findCumulative(10),
+            twentyYearTotal: findCumulative(Math.min(years, 20)),
+            yearlyBreakdown,
+        };
+    },
+
+    formatCurrency(n) {
+        return '$' + n.toLocaleString('en-US');
+    },
+};
+
+
+// ══════════════════════════════════════
+// STEPPER CONTROLLER
+// ══════════════════════════════════════
+const stepper = {
+    init() {
+        this.bindSlider();
+        this.bindQuickPicks();
+        this.bindChoiceButtons();
+        this.bindZipInput();
+        this.updateUI();
+    },
+
+    next() {
+        if (state.currentStep >= CONFIG.totalSteps) {
+            this.complete();
+            return;
+        }
+        state.currentStep++;
+        this.updateUI();
+    },
+
+    prev() {
+        if (state.currentStep <= 1) return;
+        state.currentStep--;
+        this.updateUI();
+    },
+
+    updateUI() {
+        const step = state.currentStep;
+
+        // Show active step
+        document.querySelectorAll('.step').forEach(el => {
+            el.classList.remove('active');
+            if (parseInt(el.dataset.step) === step) el.classList.add('active');
+        });
+
+        // Progress bar
+        const pct = (step / CONFIG.totalSteps) * 100;
+        document.getElementById('progressFill').style.width = pct + '%';
+        document.getElementById('progressText').textContent = `Step ${step} of ${CONFIG.totalSteps}`;
+
+        // Back button
+        document.getElementById('btnBack').disabled = (step === 1);
+
+        // Next button text
+        const nextBtn = document.getElementById('btnNext');
+        nextBtn.textContent = step === CONFIG.totalSteps ? 'See My Results →' : 'Continue →';
+
+        // Restore selections for multi-select steps
+        this.restoreSelections();
+    },
+
+    restoreSelections() {
+        // Restore single selects
+        document.querySelectorAll('.choice-btn:not(.choice-btn--multi)').forEach(btn => {
+            const field = btn.dataset.field;
+            const val = btn.dataset.val;
+            if (field && state.get(field) === val) {
+                btn.classList.add('selected');
+            }
+        });
+
+        // Restore multi selects
+        document.querySelectorAll('.choice-btn--multi').forEach(btn => {
+            const field = btn.dataset.field;
+            const val = btn.dataset.val;
+            const arr = state.get(field) || [];
+            btn.classList.toggle('selected', arr.includes(val));
+        });
+    },
+
+    complete() {
+        // Hide form, show results
+        document.getElementById('assessment').style.display = 'none';
+        document.getElementById('results').style.display = 'block';
+
+        // Scroll to results
+        document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        // Build recommendation
+        recommendation.render();
+
+        // Render savings
+        const savings = savingsEngine.calculate(state.get('monthlyBill'), 20);
+        this.renderSavings(savings);
+        chart.render(savings.yearlyBreakdown);
+    },
+
+    renderSavings(savings) {
+        document.getElementById('savingsBigNumbers').innerHTML = `
+            <div class="savings-num">
+                <span class="savings-num-label">5-Year Estimate</span>
+                <span class="savings-num-value">${savingsEngine.formatCurrency(savings.fiveYearTotal)}</span>
+            </div>
+            <div class="savings-num">
+                <span class="savings-num-label">10-Year Estimate</span>
+                <span class="savings-num-value">${savingsEngine.formatCurrency(savings.tenYearTotal)}</span>
+            </div>
+            <div class="savings-num">
+                <span class="savings-num-label">20-Year Estimate</span>
+                <span class="savings-num-value">${savingsEngine.formatCurrency(savings.twentyYearTotal)}</span>
+            </div>
+        `;
+    },
+
+    // ── Event Bindings ──
+
+    bindSlider() {
+        const slider = document.getElementById('billSlider');
+        const display = document.getElementById('sliderValue');
+        if (!slider) return;
+
+        const update = () => {
+            const val = parseInt(slider.value);
+            display.textContent = val >= 700 ? '$700+' : '$' + val;
+            state.set('monthlyBill', val);
+
+            // Update quick picks
+            document.querySelectorAll('.quick-pick').forEach(btn => {
+                btn.classList.toggle('active', parseInt(btn.dataset.val) === val);
+            });
+        };
+
+        slider.addEventListener('input', update);
+        update();
+    },
+
+    bindQuickPicks() {
+        document.querySelectorAll('.quick-pick').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const val = parseInt(btn.dataset.val);
+                document.getElementById('billSlider').value = val;
+                document.getElementById('billSlider').dispatchEvent(new Event('input'));
+            });
+        });
+    },
+
+    bindChoiceButtons() {
+        document.querySelectorAll('.choice-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const field = btn.dataset.field;
+                const val = btn.dataset.val;
+                if (!field) return;
+
+                if (btn.classList.contains('choice-btn--multi')) {
+                    // Multi-select
+                    state.toggleMulti(field, val);
+                    // Update all buttons in same group
+                    const group = btn.closest('.choice-grid');
+                    group.querySelectorAll('.choice-btn--multi').forEach(b => {
+                        const arr = state.get(field) || [];
+                        b.classList.toggle('selected', arr.includes(b.dataset.val));
+                    });
+                } else {
+                    // Single select
+                    state.set(field, val);
+                    const group = btn.closest('.choice-grid');
+                    group.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+
+                    // Auto-advance after short delay
+                    setTimeout(() => stepper.next(), 350);
+                }
+            });
+        });
+    },
+
+    bindZipInput() {
+        const input = document.getElementById('zipCode');
+        if (!input) return;
+        input.addEventListener('input', () => {
+            state.set('zipCode', input.value.replace(/\D/g, '').slice(0, 5));
+            input.value = state.get('zipCode');
+        });
+    },
+};
+
+
+// ══════════════════════════════════════
+// RECOMMENDATION ENGINE
+// ══════════════════════════════════════
+const recommendation = {
+    render() {
+        const reasons = this.buildReasons();
+        const el = document.getElementById('recReasons');
+        el.innerHTML = reasons.map(r => `<p class="rec-reason">${r}</p>`).join('');
+    },
+
+    buildReasons() {
+        const d = state.data;
+        const reasons = [];
+
+        // Reason 1: Based on bill
+        if (d.monthlyBill >= 200) {
+            reasons.push(`Your $${d.monthlyBill}/mo bill suggests meaningful savings potential`);
+        } else {
+            reasons.push(`Even at $${d.monthlyBill}/mo, locking in a lower rate protects against rising costs`);
+        }
+
+        // Reason 2: Based on tenure
+        if (d.planToStay === '7-15' || d.planToStay === '15+') {
+            reasons.push('Your long-term plans align well with building equity in a solar system');
+        } else if (d.planToStay === '3-7') {
+            reasons.push('Solar can increase home value before your next move');
+        } else {
+            reasons.push('A flexible financing option lets you start saving now');
+        }
+
+        // Reason 3: Based on usage
+        if (d.usageIncrease.length > 0 && !d.usageIncrease.includes('none')) {
+            const plans = d.usageIncrease.map(v => {
+                const labels = { ev: 'EV', pool: 'pool', hvac: 'HVAC', addition: 'addition' };
+                return labels[v] || v;
+            });
+            reasons.push(`Planned usage increase (${plans.join(', ')}) makes locking in rates even smarter`);
+        } else {
+            reasons.push('$0 down options mean you can start without upfront cost');
+        }
+
+        return reasons.slice(0, 3);
+    },
+};
+
+
+// ══════════════════════════════════════
+// CHART RENDERER — Pure Canvas
+// ══════════════════════════════════════
+const chart = {
+    render(yearlyData) {
+        const canvas = document.getElementById('savingsChart');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.parentElement.getBoundingClientRect();
+
+        canvas.width = rect.width * dpr;
+        canvas.height = 350 * dpr;
+        canvas.style.width = rect.width + 'px';
+        canvas.style.height = '350px';
+        ctx.scale(dpr, dpr);
+
+        const W = rect.width;
+        const H = 350;
+        const pad = { top: 50, right: 30, bottom: 50, left: 70 };
+        const chartW = W - pad.left - pad.right;
+        const chartH = H - pad.top - pad.bottom;
+
+        const maxVal = yearlyData[yearlyData.length - 1].cumulative;
+        const yMax = Math.ceil(maxVal / 5000) * 5000;
+
+        // Background
+        ctx.fillStyle = 'rgba(1,22,39,0.6)';
+        ctx.fillRect(0, 0, W, H);
+
+        // Grid lines
+        ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+        ctx.lineWidth = 1;
+        const gridSteps = 5;
+        for (let i = 0; i <= gridSteps; i++) {
+            const y = pad.top + (chartH / gridSteps) * i;
+            ctx.beginPath();
+            ctx.moveTo(pad.left, y);
+            ctx.lineTo(W - pad.right, y);
+            ctx.stroke();
+
+            // Y-axis labels
+            const val = yMax - (yMax / gridSteps) * i;
+            ctx.fillStyle = 'rgba(255,255,255,0.3)';
+            ctx.font = '11px Outfit, sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText('$' + (val / 1000).toFixed(0) + 'k', pad.left - 10, y + 4);
+        }
+
+        // X-axis labels
+        ctx.textAlign = 'center';
+        ctx.fillStyle = 'rgba(255,255,255,0.3)';
+        for (let i = 0; i < yearlyData.length; i++) {
+            if ((i + 1) % 5 === 0 || i === 0) {
+                const x = pad.left + (i / (yearlyData.length - 1)) * chartW;
+                ctx.fillText('Year ' + yearlyData[i].year, x, H - pad.bottom + 25);
+            }
+        }
+
+        // Gradient fill
+        const gradient = ctx.createLinearGradient(0, pad.top, 0, H - pad.bottom);
+        gradient.addColorStop(0, 'rgba(33,158,188,0.25)');
+        gradient.addColorStop(1, 'rgba(33,158,188,0.02)');
+
+        ctx.beginPath();
+        ctx.moveTo(pad.left, H - pad.bottom);
+        yearlyData.forEach((d, i) => {
+            const x = pad.left + (i / (yearlyData.length - 1)) * chartW;
+            const y = pad.top + chartH - (d.cumulative / yMax) * chartH;
+            ctx.lineTo(x, y);
+        });
+        ctx.lineTo(pad.left + chartW, H - pad.bottom);
+        ctx.closePath();
+        ctx.fillStyle = gradient;
+        ctx.fill();
+
+        // Line
+        ctx.beginPath();
+        yearlyData.forEach((d, i) => {
+            const x = pad.left + (i / (yearlyData.length - 1)) * chartW;
+            const y = pad.top + chartH - (d.cumulative / yMax) * chartH;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        });
+        ctx.strokeStyle = '#219EBC';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        // Highlight points: 5, 10, 20
+        [4, 9, 19].forEach(idx => {
+            if (idx >= yearlyData.length) return;
+            const d = yearlyData[idx];
+            const x = pad.left + (idx / (yearlyData.length - 1)) * chartW;
+            const y = pad.top + chartH - (d.cumulative / yMax) * chartH;
+
+            // Dot
+            ctx.beginPath();
+            ctx.arc(x, y, 5, 0, Math.PI * 2);
+            ctx.fillStyle = '#06D6A0';
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(6,214,160,0.3)';
+            ctx.lineWidth = 8;
+            ctx.stroke();
+
+            // Label above
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 13px Outfit, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(savingsEngine.formatCurrency(d.cumulative), x, y - 18);
+        });
+    },
+};
+
+
+// ══════════════════════════════════════
+// CALENDLY REVEAL
+// ══════════════════════════════════════
+function revealCalendly() {
+    const embed = document.getElementById('calendlyEmbed');
+    const btn = document.getElementById('ctaBtn');
+    const link = document.getElementById('calendlyLink');
+
+    embed.style.display = 'block';
+    btn.style.display = 'none';
+
+    if (link) link.href = CONFIG.calendlyUrl;
+
+    embed.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+    stepper.init();
+});
+
+// Resize handler for chart
+window.addEventListener('resize', () => {
+    const resultsVisible = document.getElementById('results').style.display !== 'none';
+    if (resultsVisible) {
+        const savings = savingsEngine.calculate(state.get('monthlyBill'), 20);
+        chart.render(savings.yearlyBreakdown);
+    }
+});
+
+</script>
+</body>
+</html>

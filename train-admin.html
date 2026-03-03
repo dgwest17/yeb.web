@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Training Admin — Your Energy Best</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f5f5;color:#1a1a1a}
+.topbar{background:#023047;color:#fff;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+.topbar h1{font-size:1.3rem}
+.topbar a{color:#8ECAE6;text-decoration:none;font-size:.9rem}
+.topbar a:hover{text-decoration:underline}
+.tabs{display:flex;background:#fff;border-bottom:2px solid #ddd;overflow-x:auto}
+.tab{padding:.8rem 1.5rem;border:none;background:none;cursor:pointer;font-size:.95rem;font-weight:500;color:#666;border-bottom:3px solid transparent;white-space:nowrap}
+.tab:hover{background:#f9f9f9}
+.tab.active{color:#219EBC;border-bottom-color:#219EBC}
+.wrap{max-width:1100px;margin:0 auto;padding:1.5rem}
+.panel{display:none}.panel.active{display:block}
+.card{background:#fff;border-radius:8px;padding:1.5rem;margin-bottom:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.card-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:2px solid #f0f0f0}
+.card-hdr h3{font-size:1.1rem;color:#023047}
+.field{margin-bottom:1rem}
+.field label{display:block;font-weight:600;color:#333;margin-bottom:.3rem;font-size:.9rem}
+.field input,.field textarea,.field select{width:100%;padding:.6rem;border:2px solid #e0e0e0;border-radius:6px;font-size:.95rem;font-family:inherit}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:#219EBC}
+.field textarea{min-height:80px;resize:vertical}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+.btn{padding:.5rem 1rem;border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:.9rem;transition:opacity .2s}
+.btn:hover{opacity:.85}
+.btn-primary{background:#219EBC;color:#fff}
+.btn-add{background:#06D6A0;color:#fff}
+.btn-danger{background:#EF476F;color:#fff}
+.btn-warn{background:#FFB703;color:#023047}
+.btn-sm{padding:.3rem .6rem;font-size:.85rem}
+.btn-outline{background:#fff;border:2px solid #219EBC;color:#219EBC}
+.hint{font-size:.8rem;color:#888;margin-top:.2rem}
+.msg{padding:.75rem 1rem;border-radius:6px;margin-bottom:1rem;font-size:.9rem}
+.msg-ok{background:#d1fae5;color:#065f46;border:1px solid #6ee7b7}
+.msg-err{background:#fce7f3;color:#9d174d;border:1px solid #f9a8d4}
+/* Folder tree */
+.f-item{border:1px solid #e0e0e0;border-radius:8px;margin-bottom:.5rem;overflow:hidden}
+.f-item--child{margin-left:1.5rem;border-left:3px solid #FFB703}
+.f-hdr{display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;cursor:pointer;background:#fff;transition:background .15s}
+.f-hdr:hover{background:#f9fafb}
+.f-icon{font-size:1.3rem}
+.f-title{flex:1;font-weight:600;font-size:.95rem}
+.f-meta{font-size:.8rem;color:#888}
+.f-arrow{color:#bbb;transition:transform .2s}
+.f-item.open > .f-hdr .f-arrow{transform:rotate(90deg)}
+.f-body{display:none;padding:1rem;background:#fafbfc;border-top:1px solid #eee}
+.f-item.open > .f-body{display:block}
+/* Module item */
+.m-item{background:#f0f9ff;border:1px solid #bae6fd;border-radius:6px;padding:.75rem;margin-bottom:.5rem}
+.m-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem}
+.m-hdr h4{font-size:.9rem;color:#023047;margin:0}
+.m-actions{display:flex;gap:.3rem}
+/* Segment item */
+.s-item{background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:.75rem;margin-bottom:.5rem}
+.s-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem}
+.s-hdr span{font-size:.85rem;color:#64748b}
+/* User card */
+.u-card{background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:1rem;margin-bottom:.75rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.u-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#219EBC,#126782);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0}
+.u-info{flex:1;min-width:140px}
+.u-name{font-weight:700;font-size:.95rem;color:#023047}
+.u-user{font-size:.8rem;color:#666}
+.u-fields{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.u-fields select,.u-fields input{padding:.35rem .5rem;border:1px solid #ddd;border-radius:4px;font-size:.85rem}
+/* Markdown import */
+.md-preview{background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:1rem;margin-top:.75rem;max-height:300px;overflow-y:auto;font-size:.9rem;line-height:1.6}
+.md-preview h2{color:#023047;margin:.5rem 0 .25rem}
+.md-preview hr{border:none;border-top:2px dashed #219EBC;margin:.75rem 0}
+/* Badge */
+.badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:.75rem;font-weight:600}
+.badge-core{background:#dbeafe;color:#1e40af}
+.badge-sidequest{background:#fef3c7;color:#92400e}
+.badge-locked{background:#f3f4f6;color:#6b7280}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+    <h1>🏄 Training Admin</h1>
+    <div>
+        <a href="/admin.html">← Main Admin</a>
+        <a href="/become/" style="margin-left:1rem">View Portal →</a>
+    </div>
+</div>
+
+<div class="tabs">
+    <button class="tab active" onclick="switchTab('folders',this)">📁 Folders & Content</button>
+    <button class="tab" onclick="switchTab('import',this)">📝 Markdown Import</button>
+    <button class="tab" onclick="switchTab('users',this)">👥 Users</button>
+    <button class="tab" onclick="switchTab('unlocks',this)">🔓 Unlock Manager</button>
+    <button class="tab" onclick="switchTab('levels',this)">⚡ Levels & XP</button>
+</div>
+
+<div class="wrap">
+    <div id="msg-area"></div>
+
+    <!-- FOLDERS & CONTENT -->
+    <div id="panel-folders" class="panel active">
+        <div class="card">
+            <div class="card-hdr">
+                <h3>Folder Tree</h3>
+                <button class="btn btn-add btn-sm" onclick="addFolder()">+ Add Folder</button>
+            </div>
+            <p class="hint" style="margin-bottom:1rem">Click a folder to expand. Manage modules and segments inside each folder. Changes save to MySQL automatically.</p>
+            <div id="folder-tree">Loading...</div>
+        </div>
+    </div>
+
+    <!-- MARKDOWN IMPORT -->
+    <div id="panel-import" class="panel">
+        <div class="card">
+            <div class="card-hdr"><h3>Bulk Markdown Import</h3></div>
+            <p class="hint" style="margin-bottom:1rem">Paste markdown content. Use <code>---</code> on its own line to separate segments. Use <code>## Title</code> for segment titles.</p>
+            <div class="row">
+                <div class="field">
+                    <label>Target Folder</label>
+                    <select id="import-folder"></select>
+                </div>
+                <div class="field">
+                    <label>Module Title</label>
+                    <input id="import-title" placeholder="e.g. The Door Approach">
+                </div>
+            </div>
+            <div class="field">
+                <label>Markdown Content</label>
+                <textarea id="import-md" style="min-height:250px;font-family:monospace;font-size:.9rem" placeholder="## First Segment Title
+
+Content here...
+
+---
+
+## Second Segment Title
+
+More content..."></textarea>
+            </div>
+            <div style="display:flex;gap:.75rem;align-items:center">
+                <button class="btn btn-primary" onclick="previewImport()">Preview</button>
+                <button class="btn btn-add" onclick="doImport()" id="import-btn" disabled>Import →</button>
+            </div>
+            <div id="import-preview"></div>
+        </div>
+    </div>
+
+    <!-- USERS -->
+    <div id="panel-users" class="panel">
+        <div class="card">
+            <div class="card-hdr">
+                <h3>Training Portal Users</h3>
+                <button class="btn btn-add btn-sm" onclick="showAddUser()">+ Add User</button>
+            </div>
+            <div id="add-user-form" style="display:none;margin-bottom:1.5rem;padding:1rem;background:#f0f9ff;border-radius:8px;border:1px solid #bae6fd">
+                <div class="row">
+                    <div class="field"><label>Username</label><input id="new-username"></div>
+                    <div class="field"><label>First Name</label><input id="new-first"></div>
+                    <div class="field"><label>Last Name</label><input id="new-last"></div>
+                </div>
+                <div class="row">
+                    <div class="field"><label>Password</label><input type="password" id="new-pass"></div>
+                    <div class="field"><label>Role</label>
+                        <select id="new-role"><option value="rep">Rep</option><option value="trainer">Trainer</option><option value="leader">Leader</option><option value="admin">Admin</option></select>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="createUser()">Create User</button>
+                <button class="btn btn-outline btn-sm" onclick="document.getElementById('add-user-form').style.display='none'" style="margin-left:.5rem">Cancel</button>
+            </div>
+            <div id="user-list">Loading...</div>
+        </div>
+    </div>
+
+    <!-- UNLOCK MANAGER -->
+    <div id="panel-unlocks" class="panel">
+        <div class="card">
+            <div class="card-hdr"><h3>Manual Unlock Override</h3></div>
+            <p class="hint" style="margin-bottom:1rem">Force-unlock a folder, module, or segment for a specific user — bypasses level/time requirements.</p>
+            <div class="row">
+                <div class="field"><label>User</label><select id="unlock-user"></select></div>
+                <div class="field"><label>Entity Type</label>
+                    <select id="unlock-type" onchange="loadUnlockTargets()">
+                        <option value="folder">Folder</option>
+                        <option value="module">Module</option>
+                        <option value="segment">Segment</option>
+                    </select>
+                </div>
+                <div class="field"><label>Target</label><select id="unlock-target"></select></div>
+            </div>
+            <button class="btn btn-warn" onclick="doUnlock()">🔓 Unlock</button>
+        </div>
+    </div>
+
+    <!-- LEVELS & XP -->
+    <div id="panel-levels" class="panel">
+        <div class="card">
+            <div class="card-hdr"><h3>Level Thresholds</h3></div>
+            <p class="hint" style="margin-bottom:1rem">Current XP thresholds for each level. Edit directly in phpMyAdmin's <code>level_thresholds</code> table.</p>
+            <div id="levels-table">Loading...</div>
+        </div>
+        <div class="card">
+            <div class="card-hdr"><h3>XP Rewards</h3></div>
+            <p class="hint" style="margin-bottom:1rem">Default XP: Segment = 10, Module = 50, Folder = 200. Edit per-item in the folder tree above.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+const API = '/become/api/admin.php';
+let allFolders = [], allModules = [], allSegments = [], allUsers = [];
+
+// ── TAB SWITCHING ──
+function switchTab(id, btn) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('panel-' + id).classList.add('active');
+    btn.classList.add('active');
+}
+
+// ── MESSAGES ──
+function showMsg(text, ok) {
+    const area = document.getElementById('msg-area');
+    area.innerHTML = '<div class="msg ' + (ok ? 'msg-ok' : 'msg-err') + '">' + text + '</div>';
+    setTimeout(() => area.innerHTML = '', 4000);
+}
+
+// ── API HELPERS ──
+async function api(action, data) {
+    const res = await fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, ...data })
+    });
+    return res.json();
+}
+
+async function apiGet(action) {
+    const res = await fetch(API + '?action=' + action);
+    return res.json();
+}
+
+// ══════════════════════════════════════
+// LOAD ALL DATA
+// ══════════════════════════════════════
+async function loadAll() {
+    try {
+        const data = await apiGet('all');
+        allFolders  = data.folders  || [];
+        allModules  = data.modules  || [];
+        allSegments = data.segments || [];
+        allUsers    = data.users    || [];
+        renderFolderTree();
+        renderImportFolderSelect();
+        renderUsers();
+        renderUnlockDropdowns();
+        renderLevels(data.thresholds || []);
+    } catch(e) {
+        showMsg('Failed to load data: ' + e.message, false);
+    }
+}
+
+// ══════════════════════════════════════
+// FOLDER TREE
+// ══════════════════════════════════════
+function renderFolderTree() {
+    const top = allFolders.filter(f => !f.parent_id);
+    const el = document.getElementById('folder-tree');
+    el.innerHTML = top.map(f => renderFolder(f)).join('');
+}
+
+function renderFolder(f) {
+    const children = allFolders.filter(c => c.parent_id == f.id);
+    const mods = allModules.filter(m => m.folder_id == f.id);
+    const badge = f.folder_type === 'sidequest' ? '<span class="badge badge-sidequest">sidequest</span>' : '<span class="badge badge-core">core</span>';
+    const isChild = !!f.parent_id;
+
+    return '<div class="f-item' + (isChild ? ' f-item--child' : '') + '" id="f-' + f.id + '">' +
+        '<div class="f-hdr" onclick="toggleF(' + f.id + ')">' +
+            '<span class="f-icon">' + (f.icon || '📁') + '</span>' +
+            '<span class="f-title">' + esc(f.title) + ' ' + badge + '</span>' +
+            '<span class="f-meta">' + mods.length + ' modules</span>' +
+            '<span class="f-arrow">▸</span>' +
+        '</div>' +
+        '<div class="f-body">' +
+            '<div class="row">' +
+                '<div class="field"><label>Title</label><input value="' + esc(f.title) + '" onchange="updateFolder(' + f.id + ',\'title\',this.value)"></div>' +
+                '<div class="field" style="max-width:80px"><label>Icon</label><input value="' + esc(f.icon||'') + '" onchange="updateFolder(' + f.id + ',\'icon\',this.value)"></div>' +
+                '<div class="field" style="max-width:120px"><label>Type</label><select onchange="updateFolder(' + f.id + ',\'folder_type\',this.value)"><option value="core"' + (f.folder_type==='core'?' selected':'') + '>Core</option><option value="sidequest"' + (f.folder_type==='sidequest'?' selected':'') + '>Sidequest</option></select></div>' +
+                '<div class="field" style="max-width:80px"><label>XP</label><input type="number" value="' + (f.xp_reward||200) + '" onchange="updateFolder(' + f.id + ',\'xp_reward\',this.value)"></div>' +
+                '<div class="field" style="max-width:80px"><label>Order</label><input type="number" value="' + (f.folder_order||0) + '" onchange="updateFolder(' + f.id + ',\'folder_order\',this.value)"></div>' +
+            '</div>' +
+            '<div class="field"><label>Unlock Rule (JSON)</label><input value=\'' + esc(JSON.stringify(f.unlock_rule||'')) + '\' onchange="updateFolder(' + f.id + ',\'unlock_rule\',this.value)" placeholder=\'{"kind":"level","value":2}\'><div class="hint">{"kind":"level|daysSinceJoin|manual","value":N}</div></div>' +
+            '<div class="field"><label>Description</label><textarea onchange="updateFolder(' + f.id + ',\'description\',this.value)">' + esc(f.description||'') + '</textarea></div>' +
+            '<div style="display:flex;gap:.5rem;margin-bottom:1rem"><button class="btn btn-add btn-sm" onclick="addModule(' + f.id + ')">+ Add Module</button><button class="btn btn-sm btn-outline" onclick="addSubfolder(' + f.id + ')">+ Subfolder</button><button class="btn btn-sm btn-danger" onclick="deleteFolder(' + f.id + ')">Delete Folder</button></div>' +
+            mods.map(m => renderModule(m)).join('') +
+            children.map(c => renderFolder(c)).join('') +
+        '</div>' +
+    '</div>';
+}
+
+function renderModule(m) {
+    const segs = allSegments.filter(s => s.module_id == m.id);
+    return '<div class="m-item" id="m-' + m.id + '">' +
+        '<div class="m-hdr"><h4>' + esc(m.title) + ' <span class="badge badge-core">' + (m.module_type||'lesson') + '</span></h4>' +
+        '<div class="m-actions"><button class="btn btn-sm btn-danger" onclick="deleteModule(' + m.id + ')">✕</button></div></div>' +
+        '<div class="row">' +
+            '<div class="field"><label>Title</label><input value="' + esc(m.title) + '" onchange="updateModule(' + m.id + ',\'title\',this.value)"></div>' +
+            '<div class="field" style="max-width:100px"><label>XP</label><input type="number" value="' + (m.xp_reward||50) + '" onchange="updateModule(' + m.id + ',\'xp_reward\',this.value)"></div>' +
+            '<div class="field" style="max-width:80px"><label>Order</label><input type="number" value="' + (m.module_order||0) + '" onchange="updateModule(' + m.id + ',\'module_order\',this.value)"></div>' +
+        '</div>' +
+        '<div class="field"><label>Unlock Rule</label><input value=\'' + esc(JSON.stringify(m.unlock_rule||'')) + '\' onchange="updateModule(' + m.id + ',\'unlock_rule\',this.value)"><div class="hint">Leave empty = sequential (after previous module)</div></div>' +
+        '<details style="margin-top:.5rem"><summary style="cursor:pointer;font-weight:600;font-size:.85rem;color:#219EBC">Segments (' + segs.length + ')</summary><div style="padding:.5rem 0">' +
+            segs.map(s => renderSegment(s)).join('') +
+            '<button class="btn btn-add btn-sm" onclick="addSegment(' + m.id + ')">+ Add Segment</button>' +
+        '</div></details>' +
+    '</div>';
+}
+
+function renderSegment(s) {
+    return '<div class="s-item" id="s-' + s.id + '">' +
+        '<div class="s-hdr"><span>Seg #' + (s.segment_order||0) + ': ' + esc(s.title) + '</span>' +
+        '<div class="m-actions"><button class="btn btn-sm btn-danger" onclick="deleteSegment(' + s.id + ')">✕</button></div></div>' +
+        '<div class="field"><label>Title</label><input value="' + esc(s.title) + '" onchange="updateSegment(' + s.id + ',\'title\',this.value)"></div>' +
+        '<div class="field"><label>Content (HTML)</label><textarea style="min-height:100px" onchange="updateSegment(' + s.id + ',\'content_html\',this.value)">' + esc(s.content_html||'') + '</textarea></div>' +
+        '<div class="row">' +
+            '<div class="field"><label>Customer Quote</label><textarea style="min-height:40px" onchange="updateSegment(' + s.id + ',\'customer_quote\',this.value)">' + esc(s.customer_quote||'') + '</textarea></div>' +
+            '<div class="field"><label>Rep Response</label><textarea style="min-height:40px" onchange="updateSegment(' + s.id + ',\'rep_response\',this.value)">' + esc(s.rep_response||'') + '</textarea></div>' +
+        '</div>' +
+        '<div class="row"><div class="field"><label>Tip</label><input value="' + esc(s.tip||'') + '" onchange="updateSegment(' + s.id + ',\'tip\',this.value)"></div>' +
+        '<div class="field" style="max-width:80px"><label>XP</label><input type="number" value="' + (s.xp_reward||10) + '" onchange="updateSegment(' + s.id + ',\'xp_reward\',this.value)"></div>' +
+        '<div class="field" style="max-width:80px"><label>Order</label><input type="number" value="' + (s.segment_order||0) + '" onchange="updateSegment(' + s.id + ',\'segment_order\',this.value)"></div></div>' +
+    '</div>';
+}
+
+function toggleF(id) { document.getElementById('f-' + id).classList.toggle('open'); }
+function esc(s) { if(!s)return''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+// ── CRUD ──
+async function updateFolder(id, field, val) {
+    if (field === 'unlock_rule') { try { val = JSON.parse(val); } catch(e) { val = null; } }
+    await api('update_folder', { id, [field]: val });
+}
+async function updateModule(id, field, val) {
+    if (field === 'unlock_rule') { try { val = JSON.parse(val); } catch(e) { val = null; } }
+    await api('update_module', { id, [field]: val });
+}
+async function updateSegment(id, field, val) {
+    await api('update_segment', { id, [field]: val });
+}
+
+async function addFolder() {
+    const r = await api('add_folder', { title: 'New Folder', parent_id: null });
+    if (r.success) { showMsg('Folder created', true); loadAll(); }
+}
+async function addSubfolder(parentId) {
+    const r = await api('add_folder', { title: 'New Subfolder', parent_id: parentId });
+    if (r.success) { showMsg('Subfolder created', true); loadAll(); }
+}
+async function deleteFolder(id) {
+    if (!confirm('Delete folder and ALL its modules/segments?')) return;
+    const r = await api('delete_folder', { id });
+    if (r.success) { showMsg('Deleted', true); loadAll(); }
+}
+async function addModule(folderId) {
+    const r = await api('add_module', { folder_id: folderId, title: 'New Module' });
+    if (r.success) { showMsg('Module added', true); loadAll(); }
+}
+async function deleteModule(id) {
+    if (!confirm('Delete module and ALL its segments?')) return;
+    const r = await api('delete_module', { id });
+    if (r.success) { showMsg('Deleted', true); loadAll(); }
+}
+async function addSegment(moduleId) {
+    const r = await api('add_segment', { module_id: moduleId, title: 'New Segment' });
+    if (r.success) { showMsg('Segment added', true); loadAll(); }
+}
+async function deleteSegment(id) {
+    if (!confirm('Delete segment?')) return;
+    const r = await api('delete_segment', { id });
+    if (r.success) { showMsg('Deleted', true); loadAll(); }
+}
+
+// ══════════════════════════════════════
+// MARKDOWN IMPORT
+// ══════════════════════════════════════
+function renderImportFolderSelect() {
+    const sel = document.getElementById('import-folder');
+    sel.innerHTML = allFolders.map(f => '<option value="' + f.id + '">' + (f.parent_id ? '  └ ' : '') + (f.icon||'📁') + ' ' + esc(f.title) + '</option>').join('');
+}
+
+function previewImport() {
+    const md = document.getElementById('import-md').value;
+    if (!md.trim()) return;
+    const parts = md.split(/\n---\n|\n---$|^---\n/).filter(p => p.trim());
+    let html = '<div class="md-preview"><p><strong>' + parts.length + ' segments detected:</strong></p>';
+    parts.forEach((p, i) => {
+        const titleMatch = p.match(/^##\s+(.+)$/m);
+        const title = titleMatch ? titleMatch[1] : 'Segment ' + (i + 1);
+        html += '<hr><h2>' + esc(title) + '</h2><p style="color:#666;font-size:.85rem">' + p.trim().substring(0, 150) + '...</p>';
+    });
+    html += '</div>';
+    document.getElementById('import-preview').innerHTML = html;
+    document.getElementById('import-btn').disabled = false;
+}
+
+async function doImport() {
+    const folderId = document.getElementById('import-folder').value;
+    const title = document.getElementById('import-title').value || 'Imported Module';
+    const md = document.getElementById('import-md').value;
+    if (!md.trim()) return;
+
+    document.getElementById('import-btn').textContent = '⏳ Importing...';
+    try {
+        const r = await api('import_markdown', { folder_id: parseInt(folderId), module_title: title, markdown_text: md });
+        if (r.success) {
+            showMsg('Imported: ' + (r.result.segments||[]).length + ' segments into "' + r.result.title + '"', true);
+            document.getElementById('import-md').value = '';
+            document.getElementById('import-preview').innerHTML = '';
+            document.getElementById('import-btn').disabled = true;
+            loadAll();
+        }
+    } catch(e) { showMsg('Import failed: ' + e.message, false); }
+    document.getElementById('import-btn').textContent = 'Import →';
+}
+
+// ══════════════════════════════════════
+// USERS
+// ══════════════════════════════════════
+function renderUsers() {
+    const el = document.getElementById('user-list');
+    el.innerHTML = allUsers.map(u => {
+        const initials = ((u.first_name||'')[0]||'') + ((u.last_name||'')[0]||'');
+        return '<div class="u-card">' +
+            '<div class="u-avatar">' + esc(initials||'?') + '</div>' +
+            '<div class="u-info"><div class="u-name">' + esc(u.first_name||'') + ' ' + esc(u.last_name||'') + '</div><div class="u-user">@' + esc(u.username) + '</div></div>' +
+            '<div class="u-fields">' +
+                '<select onchange="updateUser(' + u.id + ',\'role\',this.value)">' +
+                    '<option value="rep"' + (u.role==='rep'?' selected':'') + '>Rep</option>' +
+                    '<option value="trainer"' + (u.role==='trainer'?' selected':'') + '>Trainer</option>' +
+                    '<option value="leader"' + (u.role==='leader'?' selected':'') + '>Leader</option>' +
+                    '<option value="admin"' + (u.role==='admin'?' selected':'') + '>Admin</option>' +
+                '</select>' +
+                '<button class="btn btn-sm btn-outline" onclick="resetPassword(' + u.id + ')">Reset PW</button>' +
+                '<button class="btn btn-sm btn-danger" onclick="deleteUser(' + u.id + ')">✕</button>' +
+            '</div>' +
+        '</div>';
+    }).join('') || '<p style="color:#888">No users yet.</p>';
+}
+
+function showAddUser() { document.getElementById('add-user-form').style.display = 'block'; }
+
+async function createUser() {
+    const data = {
+        username: document.getElementById('new-username').value,
+        first_name: document.getElementById('new-first').value,
+        last_name: document.getElementById('new-last').value,
+        password: document.getElementById('new-pass').value,
+        role: document.getElementById('new-role').value
+    };
+    if (!data.username || !data.password) { showMsg('Username and password required', false); return; }
+    const r = await api('add_user', data);
+    if (r.success) { showMsg('User created', true); document.getElementById('add-user-form').style.display = 'none'; loadAll(); }
+    else showMsg(r.error || 'Failed', false);
+}
+
+async function updateUser(id, field, val) { await api('update_user', { id, [field]: val }); }
+
+async function resetPassword(id) {
+    const pw = prompt('New password:');
+    if (!pw) return;
+    const r = await api('reset_password', { id, password: pw });
+    if (r.success) showMsg('Password reset', true);
+}
+
+async function deleteUser(id) {
+    if (!confirm('Delete this user?')) return;
+    const r = await api('delete_user', { id });
+    if (r.success) { showMsg('Deleted', true); loadAll(); }
+}
+
+// ══════════════════════════════════════
+// UNLOCK MANAGER
+// ══════════════════════════════════════
+function renderUnlockDropdowns() {
+    document.getElementById('unlock-user').innerHTML = allUsers.map(u => '<option value="' + u.id + '">' + esc(u.first_name||u.username) + '</option>').join('');
+    loadUnlockTargets();
+}
+
+function loadUnlockTargets() {
+    const type = document.getElementById('unlock-type').value;
+    const sel = document.getElementById('unlock-target');
+    if (type === 'folder') {
+        sel.innerHTML = allFolders.map(f => '<option value="' + f.id + '">' + (f.icon||'') + ' ' + esc(f.title) + '</option>').join('');
+    } else if (type === 'module') {
+        sel.innerHTML = allModules.map(m => '<option value="' + m.id + '">' + esc(m.title) + '</option>').join('');
+    } else {
+        sel.innerHTML = allSegments.map(s => '<option value="' + s.id + '">' + esc(s.title) + '</option>').join('');
+    }
+}
+
+async function doUnlock() {
+    const r = await api('manual_unlock', {
+        user_id: parseInt(document.getElementById('unlock-user').value),
+        entity_type: document.getElementById('unlock-type').value,
+        entity_id: parseInt(document.getElementById('unlock-target').value)
+    });
+    if (r.success) showMsg('Unlocked!', true);
+}
+
+// ══════════════════════════════════════
+// LEVELS TABLE
+// ══════════════════════════════════════
+function renderLevels(thresholds) {
+    document.getElementById('levels-table').innerHTML = '<table style="width:100%;border-collapse:collapse">' +
+        '<tr style="border-bottom:2px solid #eee"><th style="text-align:left;padding:.5rem">Level</th><th>XP Required</th><th>Title</th><th>Badge</th></tr>' +
+        thresholds.map(t => '<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:.5rem;font-weight:700">Level ' + t.level + '</td><td style="text-align:center">' + t.xp_required + '</td><td>' + esc(t.title) + '</td><td style="text-align:center;font-size:1.3rem">' + (t.badge_icon||'') + '</td></tr>').join('') +
+    '</table>';
+}
+
+// ── INIT ──
+loadAll();
+</script>
+</body>
+</html>

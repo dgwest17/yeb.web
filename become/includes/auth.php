@@ -1,27 +1,26 @@
 <?php
 /**
- * /become/includes/auth.php — SECURED Session Auth
+ * become/includes/auth.php — Portal Auth (MySQL-backed)
+ * Location: public_html/become/includes/auth.php
  * 
- * Include at the top of every /become/ page that requires login.
- * Replaces the old plain-text password check.
- * 
- * Usage:
- *   require_once __DIR__ . '/includes/auth.php';
- *   // $current_user is now available with user data
+ * Checks session, loads user from MySQL.
+ * Sets $_SESSION['portal_user_id'] and $_SESSION['portal_role'] for the API.
  */
 
-require_once __DIR__ . '/../../security-config.php';
+session_start();
 
-/**
- * Require portal authentication — redirects to login if not authenticated
- */
 function require_portal_auth() {
-    if (empty($_SESSION['portal_user'])) {
+    if (empty($_SESSION['portal_user_id'])) {
+        if (strpos($_SERVER['REQUEST_URI'], '/api/') !== false) {
+            http_response_code(401);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Authentication required']);
+            exit;
+        }
         header('Location: /become/login.php');
         exit;
     }
-    
-    // Session timeout: 8 hours for training portal
+    // 8-hour timeout
     if (time() - ($_SESSION['portal_login_time'] ?? 0) > 28800) {
         session_destroy();
         header('Location: /become/login.php?expired=1');
@@ -29,34 +28,31 @@ function require_portal_auth() {
     }
 }
 
-/**
- * Get current portal user data from train-users.json
- */
 function get_current_user() {
-    if (empty($_SESSION['portal_user'])) return null;
-    
-    $users = load_train_users();
-    foreach ($users as $user) {
-        if (strtolower($user['username'] ?? '') === strtolower($_SESSION['portal_user'])) {
-            return $user;
-        }
+    if (empty($_SESSION['portal_user_id'])) return null;
+    try {
+        require_once __DIR__ . '/db.php';
+        $db = Database::getInstance();
+        $s = $db->prepare("SELECT * FROM training_users WHERE id = ? AND is_active = 1");
+        $s->execute([$_SESSION['portal_user_id']]);
+        return $s->fetch() ?: null;
+    } catch (Exception $e) {
+        return null;
     }
-    
-    // User was deleted from JSON — force logout
+}
+
+function has_role($required) {
+    $hierarchy = ['rep'=>1, 'trainer'=>2, 'leader'=>3, 'admin'=>4];
+    $role = $_SESSION['portal_role'] ?? 'rep';
+    return ($hierarchy[$role] ?? 0) >= ($hierarchy[$required] ?? 0);
+}
+
+function is_leader() { return has_role('leader'); }
+
+require_portal_auth();
+$current_user = get_current_user();
+if (!$current_user) {
     session_destroy();
     header('Location: /become/login.php');
     exit;
 }
-
-/**
- * Check if current user has a specific role
- */
-function has_role($required_role) {
-    $role = $_SESSION['portal_role'] ?? 'rep';
-    $hierarchy = ['rep' => 1, 'trainer' => 2, 'admin' => 3];
-    return ($hierarchy[$role] ?? 0) >= ($hierarchy[$required_role] ?? 0);
-}
-
-// ─── Auto-run auth check when this file is included ───
-require_portal_auth();
-$current_user = get_current_user();

@@ -26,6 +26,7 @@ $targets = [
     'train'       => ['file' => 'train-content.json',    'public' => false],
     'services'    => ['file' => 'services-content.json',  'public' => true],
     'train-users' => ['file' => 'train-users.json',      'public' => false],
+    'options'     => ['file' => 'options-content.json',   'public' => true],
 ];
 
 if (!isset($targets[$target])) {
@@ -52,6 +53,7 @@ if (!file_exists($file)) {
         'train' => '{"manuals":[],"settings":{"portal_password":"Become"}}',
         'services' => '{"hero":{"title":"","subtitle":""},"services":[]}',
         'train-users' => '{"users":[]}',
+        'options' => '{}',
     ];
     echo $defaults[$target] ?? '{}';
     exit;

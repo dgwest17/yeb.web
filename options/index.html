@@ -159,116 +159,171 @@ body {
 
 .options-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
 }
-@media (max-width: 768px) {
-    .options-grid { grid-template-columns: 1fr; }
+@media (max-width: 1100px) {
+    .options-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 700px) {
+    .options-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+    .options-grid { grid-template-columns: 1fr; max-width: 320px; margin-inline: auto; }
 }
 
-/* ─── OPTION CARD ─── */
-.option-card {
-    position: relative;
-    border-radius: var(--r);
-    overflow: hidden;
-    min-height: 420px;
-    cursor: pointer;
-    transition: transform 0.4s var(--ease);
+/* ─── FLIP CARD ─── */
+.flip-wrap {
+    perspective: 900px;
+    height: 380px;
 }
-.option-card:hover { transform: translateY(-4px); }
-.option-bg {
+.flip-card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    transform-style: preserve-3d;
+    transition: transform 0.6s var(--ease-out);
+}
+.flip-wrap:hover .flip-card,
+.flip-wrap.flipped .flip-card {
+    transform: rotateY(180deg);
+}
+.flip-front, .flip-back {
+    position: absolute; inset: 0;
+    border-radius: var(--r);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    overflow: hidden;
+}
+
+/* ── FRONT ── */
+.flip-front {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 1.5rem 1rem;
+}
+.flip-front-bg {
     position: absolute; inset: 0;
     background-size: cover;
     background-position: center;
-    transition: transform 0.6s var(--ease);
 }
-.option-card:hover .option-bg { transform: scale(1.04); }
-.option-overlay {
+.flip-front-overlay {
     position: absolute; inset: 0;
-    background: linear-gradient(180deg, rgba(1,22,39,0.75) 0%, rgba(1,22,39,0.92) 100%);
-    transition: background 0.4s var(--ease);
+    background: linear-gradient(180deg, rgba(1,22,39,0.6) 0%, rgba(1,22,39,0.88) 100%);
 }
-.option-card:hover .option-overlay {
-    background: linear-gradient(180deg, rgba(1,22,39,0.65) 0%, rgba(1,22,39,0.88) 100%);
-}
-.option-content {
+.flip-front-content {
     position: relative; z-index: 1;
-    padding: 2rem;
     display: flex;
     flex-direction: column;
-    height: 100%;
+    align-items: center;
+    gap: 0.3rem;
 }
-.option-number {
+.flip-number {
     font-family: var(--heading);
-    font-size: 0.95rem;
+    font-size: 0.8rem;
     font-weight: 600;
     color: var(--gold);
-    letter-spacing: 0.05em;
-    margin-bottom: 0.5rem;
+    letter-spacing: 0.08em;
 }
-.option-title {
+.flip-title {
     font-family: var(--heading);
-    font-size: 1.7rem;
+    font-size: 1.35rem;
     font-weight: 600;
-    margin-bottom: 0.15rem;
+    color: #fff;
+    line-height: 1.2;
 }
-.option-aka {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    margin-bottom: 1.25rem;
-}
-.option-details { flex: 1; }
-.option-details h4 {
-    font-family: var(--body);
+.flip-aka {
     font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+}
+.flip-hint {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.3);
+    margin-top: auto;
+    padding-top: 1rem;
+    letter-spacing: 0.05em;
+}
+
+/* ── BACK ── */
+.flip-back {
+    transform: rotateY(180deg);
+    background: rgba(2,48,71,0.97);
+    border: 1px solid rgba(33,158,188,0.2);
+    padding: 1.25rem 1rem;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(33,158,188,0.3) transparent;
+}
+.flip-back::-webkit-scrollbar { width: 4px; }
+.flip-back::-webkit-scrollbar-thumb { background: rgba(33,158,188,0.3); border-radius: 2px; }
+.flip-back-title {
+    font-family: var(--heading);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--teal-light);
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+/* Reuse option-details styles on back */
+.flip-back .option-details h4 {
+    font-family: var(--body);
+    font-size: 0.65rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.12em;
     color: var(--teal-light);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.35rem;
 }
-.option-pros { margin-bottom: 1.25rem; }
-.option-tradeoffs { margin-bottom: 1.25rem; }
-.option-tradeoffs h4 { color: var(--gold); }
-.option-details ul {
-    list-style: none;
-    padding: 0;
-}
-.option-details li {
-    font-size: 0.88rem;
+.flip-back .option-pros { margin-bottom: 0.75rem; }
+.flip-back .option-tradeoffs { margin-bottom: 0.75rem; }
+.flip-back .option-tradeoffs h4 { color: var(--gold); }
+.flip-back .option-details ul { list-style: none; padding: 0; }
+.flip-back .option-details li {
+    font-size: 0.78rem;
     font-weight: 300;
     color: rgba(255,255,255,0.8);
-    padding: 0.2rem 0 0.2rem 1.1rem;
+    padding: 0.15rem 0 0.15rem 1rem;
     position: relative;
+    line-height: 1.45;
+}
+.flip-back .option-pros li::before {
+    content: '✓'; position: absolute; left: 0;
+    color: var(--green); font-size: 0.72rem; font-weight: 600;
+}
+.flip-back .option-tradeoffs li::before {
+    content: '○'; position: absolute; left: 0;
+    color: var(--gold); font-size: 0.65rem;
+}
+.flip-back .option-fit {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+}
+.flip-back .option-fit p {
+    font-size: 0.75rem;
+    font-weight: 300;
+    color: rgba(255,255,255,0.55);
     line-height: 1.5;
 }
-.option-pros li::before {
-    content: '✓';
-    position: absolute;
-    left: 0;
-    color: var(--green);
-    font-size: 0.8rem;
-    font-weight: 600;
+.flip-back .option-fit strong { color: var(--teal-light); font-weight: 500; }
+
+/* Utility card accent */
+.flip-wrap[data-option="utility"] .flip-front-overlay {
+    background: linear-gradient(180deg, rgba(60,20,20,0.5) 0%, rgba(1,22,39,0.92) 100%);
 }
-.option-tradeoffs li::before {
-    content: '○';
-    position: absolute;
-    left: 0;
-    color: var(--gold);
-    font-size: 0.7rem;
+.flip-wrap[data-option="utility"] .flip-back {
+    border-color: rgba(239,71,111,0.25);
 }
-.option-fit {
-    margin-top: auto;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(255,255,255,0.08);
+.flip-wrap[data-option="utility"] .flip-back-title {
+    color: var(--coral);
 }
-.option-fit p {
-    font-size: 0.85rem;
-    font-weight: 300;
-    color: rgba(255,255,255,0.65);
-    line-height: 1.6;
-}
-.option-fit strong { color: var(--teal-light); font-weight: 500; }
 
 /* ─── FORM SECTION ─── */
 .form-section {
@@ -728,142 +783,216 @@ canvas { width: 100% !important; height: auto !important; }
 <section id="options" class="options-section">
     <div class="container">
         <div class="section-intro">
-            <p class="section-label" id="cms-section-label">The Four Paths</p>
+            <p class="section-label" id="cms-section-label">Your Five Options</p>
             <h2 class="section-heading" id="cms-section-heading">Every home is different.<br class="hide-mobile"> Here's how each option works.</h2>
         </div>
 
         <div class="options-grid" id="cms-options-grid">
 
-            <!-- OPTION 1: Prepaid Power -->
-            <div class="option-card" data-option="prepaid">
-                <div class="option-bg" style="background-image:url('https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&q=60')"></div>
-                <div class="option-overlay"></div>
-                <div class="option-content">
-                    <span class="option-number">01</span>
-                    <h3 class="option-title">Prepaid Power</h3>
-                    <p class="option-aka">Financing / Solar Loan</p>
-                    <div class="option-details">
-                        <div class="option-pros">
-                            <h4>Advantages</h4>
-                            <ul>
-                                <li>$0 down options available</li>
-                                <li>You own the system from day one</li>
-                                <li>Federal tax credit applies (if eligible)</li>
-                                <li>Potential immediate monthly savings</li>
-                                <li>Increases home value</li>
-                            </ul>
+            <!-- OPTION 1: Utility (Stay as-is) -->
+            <div class="flip-wrap" data-option="utility" onclick="this.classList.toggle('flipped')">
+                <div class="flip-card">
+                    <div class="flip-front">
+                        <div class="flip-front-bg" style="background-image:url('https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=800&q=60')"></div>
+                        <div class="flip-front-overlay"></div>
+                        <div class="flip-front-content">
+                            <span class="flip-number">01</span>
+                            <h3 class="flip-title">Utility</h3>
+                            <p class="flip-aka">Stay with Your Current Provider</p>
+                            <p class="flip-hint">Tap to see pros &amp; cons</p>
                         </div>
-                        <div class="option-tradeoffs">
-                            <h4>Trade-offs</h4>
-                            <ul>
-                                <li>Monthly loan payment replaces utility bill</li>
-                                <li>Credit approval required</li>
-                                <li>Longer-term financial commitment</li>
-                            </ul>
-                        </div>
-                        <div class="option-fit">
-                            <p><strong>This might be right for you if…</strong> you want to start saving immediately without a large upfront investment, and you'd rather build equity in your own energy system instead of paying a utility company.</p>
+                    </div>
+                    <div class="flip-back">
+                        <h4 class="flip-back-title">Utility</h4>
+                        <div class="option-details">
+                            <div class="option-pros">
+                                <h4>Advantages</h4>
+                                <ul>
+                                    <li>No upfront cost or commitment</li>
+                                    <li>No equipment or maintenance</li>
+                                    <li>Familiar billing — nothing changes</li>
+                                </ul>
+                            </div>
+                            <div class="option-tradeoffs">
+                                <h4>Trade-offs</h4>
+                                <ul>
+                                    <li>Rates increase 5–8% per year on average</li>
+                                    <li>No protection from rate hikes</li>
+                                    <li>No home value increase</li>
+                                    <li>No backup during outages</li>
+                                    <li>No tax credits or incentives</li>
+                                </ul>
+                            </div>
+                            <div class="option-fit">
+                                <p><strong>This is where you are now if…</strong> you haven't explored alternatives yet. Most homeowners start here — the question is whether staying makes sense as rates keep climbing.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- OPTION 2: Power Purchase -->
-            <div class="option-card" data-option="ppa">
-                <div class="option-bg" style="background-image:url('https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&q=60')"></div>
-                <div class="option-overlay"></div>
-                <div class="option-content">
-                    <span class="option-number">02</span>
-                    <h3 class="option-title">Power Purchase</h3>
-                    <p class="option-aka">PPA / Solar Lease</p>
-                    <div class="option-details">
-                        <div class="option-pros">
-                            <h4>Advantages</h4>
-                            <ul>
-                                <li>$0 down, $0 maintenance</li>
-                                <li>Lower rate than the utility company</li>
-                                <li>No system ownership responsibilities</li>
-                                <li>Monitoring and repairs included</li>
-                            </ul>
+            <!-- OPTION 2: Prepaid Power -->
+            <div class="flip-wrap" data-option="prepaid" onclick="this.classList.toggle('flipped')">
+                <div class="flip-card">
+                    <div class="flip-front">
+                        <div class="flip-front-bg" style="background-image:url('https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&q=60')"></div>
+                        <div class="flip-front-overlay"></div>
+                        <div class="flip-front-content">
+                            <span class="flip-number">02</span>
+                            <h3 class="flip-title">Prepaid Power</h3>
+                            <p class="flip-aka">Financing / Solar Loan</p>
+                            <p class="flip-hint">Tap to see pros &amp; cons</p>
                         </div>
-                        <div class="option-tradeoffs">
-                            <h4>Trade-offs</h4>
-                            <ul>
-                                <li>You don't own the system</li>
-                                <li>Annual rate escalator (typically 1–3%)</li>
-                                <li>Long-term contract (20–25 years)</li>
-                                <li>Tax credit goes to the provider</li>
-                            </ul>
-                        </div>
-                        <div class="option-fit">
-                            <p><strong>This might be right for you if…</strong> you want a hands-off experience with no upfront cost, and you're comfortable paying less than the utility without owning the equipment.</p>
+                    </div>
+                    <div class="flip-back">
+                        <h4 class="flip-back-title">Prepaid Power</h4>
+                        <div class="option-details">
+                            <div class="option-pros">
+                                <h4>Advantages</h4>
+                                <ul>
+                                    <li>$0 down options available</li>
+                                    <li>You own the system from day one</li>
+                                    <li>Federal tax credit applies (if eligible)</li>
+                                    <li>Potential immediate monthly savings</li>
+                                    <li>Increases home value</li>
+                                </ul>
+                            </div>
+                            <div class="option-tradeoffs">
+                                <h4>Trade-offs</h4>
+                                <ul>
+                                    <li>Monthly loan payment replaces utility bill</li>
+                                    <li>Credit approval required</li>
+                                    <li>Longer-term financial commitment</li>
+                                </ul>
+                            </div>
+                            <div class="option-fit">
+                                <p><strong>This might be right for you if…</strong> you want to start saving immediately without a large upfront investment, and you'd rather build equity in your own energy system instead of paying a utility company.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- OPTION 3: Battery Lease -->
-            <div class="option-card" data-option="battery">
-                <div class="option-bg" style="background-image:url('https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=800&q=60')"></div>
-                <div class="option-overlay"></div>
-                <div class="option-content">
-                    <span class="option-number">03</span>
-                    <h3 class="option-title">Home Battery Lease</h3>
-                    <p class="option-aka">Virtual Power Plant / Storage</p>
-                    <div class="option-details">
-                        <div class="option-pros">
-                            <h4>Advantages</h4>
-                            <ul>
-                                <li>Backup power during outages</li>
-                                <li>No upfront cost in some programs</li>
-                                <li>Time-of-use optimization</li>
-                                <li>Can pair with existing solar</li>
-                            </ul>
+            <!-- OPTION 3: Power Purchase -->
+            <div class="flip-wrap" data-option="ppa" onclick="this.classList.toggle('flipped')">
+                <div class="flip-card">
+                    <div class="flip-front">
+                        <div class="flip-front-bg" style="background-image:url('https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&q=60')"></div>
+                        <div class="flip-front-overlay"></div>
+                        <div class="flip-front-content">
+                            <span class="flip-number">03</span>
+                            <h3 class="flip-title">Power Purchase</h3>
+                            <p class="flip-aka">PPA / Solar Lease</p>
+                            <p class="flip-hint">Tap to see pros &amp; cons</p>
                         </div>
-                        <div class="option-tradeoffs">
-                            <h4>Trade-offs</h4>
-                            <ul>
-                                <li>Monthly lease payment</li>
-                                <li>Limited energy offset without solar</li>
-                                <li>Program availability varies by area</li>
-                            </ul>
-                        </div>
-                        <div class="option-fit">
-                            <p><strong>This might be right for you if…</strong> you already have solar or want backup power, and you're in an area with time-of-use rates where shifting usage makes a real difference.</p>
+                    </div>
+                    <div class="flip-back">
+                        <h4 class="flip-back-title">Power Purchase</h4>
+                        <div class="option-details">
+                            <div class="option-pros">
+                                <h4>Advantages</h4>
+                                <ul>
+                                    <li>$0 down, $0 maintenance</li>
+                                    <li>Lower rate than the utility company</li>
+                                    <li>No system ownership responsibilities</li>
+                                    <li>Monitoring and repairs included</li>
+                                </ul>
+                            </div>
+                            <div class="option-tradeoffs">
+                                <h4>Trade-offs</h4>
+                                <ul>
+                                    <li>You don't own the system</li>
+                                    <li>Annual rate escalator (typically 1–3%)</li>
+                                    <li>Long-term contract (20–25 years)</li>
+                                    <li>Tax credit goes to the provider</li>
+                                </ul>
+                            </div>
+                            <div class="option-fit">
+                                <p><strong>This might be right for you if…</strong> you want a hands-off experience with no upfront cost, and you're comfortable paying less than the utility without owning the equipment.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- OPTION 4: Cash Purchase -->
-            <div class="option-card" data-option="cash">
-                <div class="option-bg" style="background-image:url('https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=800&q=60')"></div>
-                <div class="option-overlay"></div>
-                <div class="option-content">
-                    <span class="option-number">04</span>
-                    <h3 class="option-title">Cash Purchase</h3>
-                    <p class="option-aka">Outright Ownership</p>
-                    <div class="option-details">
-                        <div class="option-pros">
-                            <h4>Advantages</h4>
-                            <ul>
-                                <li>Maximum long-term savings</li>
-                                <li>No monthly payments</li>
-                                <li>Full federal tax credit (if eligible)</li>
-                                <li>Best ROI over system lifetime</li>
-                                <li>Greatest home value increase</li>
-                            </ul>
+            <!-- OPTION 4: Battery Lease -->
+            <div class="flip-wrap" data-option="battery" onclick="this.classList.toggle('flipped')">
+                <div class="flip-card">
+                    <div class="flip-front">
+                        <div class="flip-front-bg" style="background-image:url('https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=800&q=60')"></div>
+                        <div class="flip-front-overlay"></div>
+                        <div class="flip-front-content">
+                            <span class="flip-number">04</span>
+                            <h3 class="flip-title">Home Battery Lease</h3>
+                            <p class="flip-aka">Virtual Power Plant / Storage</p>
+                            <p class="flip-hint">Tap to see pros &amp; cons</p>
                         </div>
-                        <div class="option-tradeoffs">
-                            <h4>Trade-offs</h4>
-                            <ul>
-                                <li>Large upfront investment ($15k–$35k+)</li>
-                                <li>Capital tied up in the home</li>
-                                <li>Maintenance responsibility is yours</li>
-                            </ul>
+                    </div>
+                    <div class="flip-back">
+                        <h4 class="flip-back-title">Home Battery Lease</h4>
+                        <div class="option-details">
+                            <div class="option-pros">
+                                <h4>Advantages</h4>
+                                <ul>
+                                    <li>Backup power during outages</li>
+                                    <li>No upfront cost in some programs</li>
+                                    <li>Time-of-use optimization</li>
+                                    <li>Can pair with existing solar</li>
+                                </ul>
+                            </div>
+                            <div class="option-tradeoffs">
+                                <h4>Trade-offs</h4>
+                                <ul>
+                                    <li>Monthly lease payment</li>
+                                    <li>Limited energy offset without solar</li>
+                                    <li>Program availability varies by area</li>
+                                </ul>
+                            </div>
+                            <div class="option-fit">
+                                <p><strong>This might be right for you if…</strong> you already have solar or want backup power, and you're in an area with time-of-use rates where shifting usage makes a real difference.</p>
+                            </div>
                         </div>
-                        <div class="option-fit">
-                            <p><strong>This might be right for you if…</strong> you have available capital, plan to stay in your home long-term, and want the highest overall return on your investment.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OPTION 5: Cash Purchase -->
+            <div class="flip-wrap" data-option="cash" onclick="this.classList.toggle('flipped')">
+                <div class="flip-card">
+                    <div class="flip-front">
+                        <div class="flip-front-bg" style="background-image:url('https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=800&q=60')"></div>
+                        <div class="flip-front-overlay"></div>
+                        <div class="flip-front-content">
+                            <span class="flip-number">05</span>
+                            <h3 class="flip-title">Cash Purchase</h3>
+                            <p class="flip-aka">Outright Ownership</p>
+                            <p class="flip-hint">Tap to see pros &amp; cons</p>
+                        </div>
+                    </div>
+                    <div class="flip-back">
+                        <h4 class="flip-back-title">Cash Purchase</h4>
+                        <div class="option-details">
+                            <div class="option-pros">
+                                <h4>Advantages</h4>
+                                <ul>
+                                    <li>Maximum long-term savings</li>
+                                    <li>No monthly payments</li>
+                                    <li>Full federal tax credit (if eligible)</li>
+                                    <li>Best ROI over system lifetime</li>
+                                    <li>Greatest home value increase</li>
+                                </ul>
+                            </div>
+                            <div class="option-tradeoffs">
+                                <h4>Trade-offs</h4>
+                                <ul>
+                                    <li>Large upfront investment ($15k–$35k+)</li>
+                                    <li>Capital tied up in the home</li>
+                                    <li>Maintenance responsibility is yours</li>
+                                </ul>
+                            </div>
+                            <div class="option-fit">
+                                <p><strong>This might be right for you if…</strong> you have available capital, plan to stay in your home long-term, and want the highest overall return on your investment.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1600,34 +1729,45 @@ window.addEventListener('resize', () => {
         txt('cms-section-label', o.section?.label);
         htm('cms-section-heading', o.section?.heading);
 
-        // Option cards — rebuild the grid if we have cards
+        // Option cards — rebuild the grid with flip cards if we have CMS data
         if (o.cards && o.cards.length > 0) {
             const grid = document.getElementById('cms-options-grid');
             if (grid) {
-                grid.innerHTML = o.cards.map(c => `
-                    <div class="option-card">
-                        <div class="option-bg" style="background-image:url('${(c.bg_image||'').replace(/'/g,"\\'")}')"></div>
-                        <div class="option-overlay"></div>
-                        <div class="option-content">
-                            <span class="option-number">${c.number||''}</span>
-                            <h3 class="option-title">${c.title||''}</h3>
-                            <p class="option-aka">${c.aka||''}</p>
-                            <div class="option-details">
-                                <div class="option-pros">
-                                    <h4>Advantages</h4>
-                                    <ul>${(c.pros||[]).map(p => '<li>'+p+'</li>').join('')}</ul>
+                grid.innerHTML = o.cards.map((c, i) => {
+                    const dataOpt = (c.title||'').toLowerCase().replace(/\s+/g,'-');
+                    const isUtility = dataOpt.includes('utility');
+                    return `
+                    <div class="flip-wrap${isUtility ? '" data-option="utility' : ''}" onclick="this.classList.toggle('flipped')">
+                        <div class="flip-card">
+                            <div class="flip-front">
+                                <div class="flip-front-bg" style="background-image:url('${(c.bg_image||'').replace(/'/g,"\\'")}')"></div>
+                                <div class="flip-front-overlay"></div>
+                                <div class="flip-front-content">
+                                    <span class="flip-number">${c.number||String(i+1).padStart(2,'0')}</span>
+                                    <h3 class="flip-title">${c.title||''}</h3>
+                                    <p class="flip-aka">${c.aka||''}</p>
+                                    <p class="flip-hint">Tap to see pros &amp; cons</p>
                                 </div>
-                                <div class="option-tradeoffs">
-                                    <h4>Trade-offs</h4>
-                                    <ul>${(c.tradeoffs||[]).map(t => '<li>'+t+'</li>').join('')}</ul>
-                                </div>
-                                <div class="option-fit">
-                                    <p><strong>This might be right for you if…</strong> ${c.fit||''}</p>
+                            </div>
+                            <div class="flip-back">
+                                <h4 class="flip-back-title">${c.title||''}</h4>
+                                <div class="option-details">
+                                    <div class="option-pros">
+                                        <h4>Advantages</h4>
+                                        <ul>${(c.pros||[]).map(p => '<li>'+p+'</li>').join('')}</ul>
+                                    </div>
+                                    <div class="option-tradeoffs">
+                                        <h4>Trade-offs</h4>
+                                        <ul>${(c.tradeoffs||[]).map(t => '<li>'+t+'</li>').join('')}</ul>
+                                    </div>
+                                    <div class="option-fit">
+                                        <p><strong>${isUtility ? 'This is where you are now if…' : 'This might be right for you if…'}</strong> ${c.fit||''}</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                `).join('');
+                    </div>`;
+                }).join('');
             }
         }
 

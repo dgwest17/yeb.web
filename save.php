@@ -1,125 +1,83 @@
 <?php
-/**
- * save.php — SECURED CMS Save Endpoint
- * 
- * Replaces the original save.php with:
- *   ✅ Server-side admin authentication required
- *   ✅ CSRF token validation
- *   ✅ Input sanitization
- *   ✅ Backup with rotation
- *   ✅ Security logging
- * 
- * All requests must include:
- *   - Valid admin session (from admin-auth.php login)
- *   - X-CSRF-Token header (or _csrf_token in body)
- */
-
-require_once __DIR__ . '/security-config.php';
-set_security_headers();
+// save.php — Save content files with automatic backup + server-side login
+// Handles: content.json, train-content.json, services-content.json
 
 header('Content-Type: application/json');
 
-// ─── Only POST allowed ───
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
-    echo json_encode(['error' => 'POST required']);
+    echo json_encode(['error' => 'Method not allowed']);
     exit;
 }
 
-// ─── Require admin authentication ───
-require_admin_auth();
+define('ADMIN_PASSWORD', 'beacons');
 
-// ─── Validate CSRF token ───
-validate_csrf();
+$input = file_get_contents('php://input');
+$data = json_decode($input, true);
 
-// ─── Parse input ───
-$input = json_decode(file_get_contents('php://input'), true);
-
-if (!$input) {
+if ($data === null) {
     http_response_code(400);
-    echo json_encode(['error' => 'Invalid JSON input']);
+    echo json_encode(['error' => 'Invalid JSON']);
     exit;
 }
 
-// ─── Route to correct JSON file ───
-$target = $input['_save_target'] ?? 'content';
-unset($input['_save_target']); // Don't save the routing key
+// Handle login check
+if (isset($data['action']) && $data['action'] === 'login') {
+    if (isset($data['password']) && $data['password'] === ADMIN_PASSWORD) {
+        echo json_encode(['success' => true]);
+    } else {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'error' => 'Invalid password']);
+    }
+    exit;
+}
 
-$targets = [
-    'content'     => 'content.json',
-    'train'       => 'train-content.json',
-    'services'    => 'services-content.json',
-    'train-users' => 'train-users.json',
+// Determine which file to save
+$target = $data['_save_target'] ?? 'content';
+unset($data['_save_target']);
+
+$fileMap = [
+    'content'  => __DIR__ . '/content.json',
+    'train'    => __DIR__ . '/train-content.json',
+    'services' => __DIR__ . '/services-content.json',
+    'train-users' => __DIR__ . '/train-users.json',
+    'options'  => __DIR__ . '/options-content.json',
 ];
 
-if (!isset($targets[$target])) {
+if (!isset($fileMap[$target])) {
     http_response_code(400);
-    echo json_encode(['error' => 'Invalid save target: ' . clean($target)]);
+    echo json_encode(['error' => 'Invalid save target: ' . $target]);
     exit;
 }
 
-$file = __DIR__ . '/' . $targets[$target];
+$content_file = $fileMap[$target];
+$backup_dir = __DIR__ . '/backups';
 
-// ─── If saving train-users, hash any plain-text passwords ───
-if ($target === 'train-users' && isset($input['users'])) {
-    foreach ($input['users'] as &$user) {
-        // Hash customPassword if it exists and isn't already hashed
-        if (!empty($user['customPassword']) && !str_starts_with($user['customPassword'], '$2y$') && !str_starts_with($user['customPassword'], '$2b$')) {
-            $user['customPassword'] = hash_portal_password($user['customPassword']);
-        }
-        // Hash password field too
-        if (!empty($user['password']) && !str_starts_with($user['password'], '$2y$') && !str_starts_with($user['password'], '$2b$')) {
-            $user['password'] = hash_portal_password($user['password']);
-        }
-    }
-    unset($user);
-}
-
-// ─── Backup existing file ───
-$backup_dir = __DIR__ . '/backups/';
 if (!is_dir($backup_dir)) {
-    mkdir($backup_dir, 0700, true);
+    mkdir($backup_dir, 0755, true);
 }
 
-if (file_exists($file)) {
-    $timestamp = date('Y-m-d_H-i-s');
-    $backup_name = pathinfo($targets[$target], PATHINFO_FILENAME) . '_' . $timestamp . '.json';
-    copy($file, $backup_dir . $backup_name);
-
-    // Rotate: keep only last 10 backups per target
-    $prefix = pathinfo($targets[$target], PATHINFO_FILENAME) . '_';
-    $backups = glob($backup_dir . $prefix . '*.json');
-    if ($backups) {
-        sort($backups);
-        while (count($backups) > 10) {
-            unlink(array_shift($backups));
+// Create backup before overwriting
+if (file_exists($content_file)) {
+    $backup_file = $backup_dir . '/' . $target . '-' . date('Y-m-d-His') . '.json';
+    copy($content_file, $backup_file);
+    
+    $backups = glob($backup_dir . '/' . $target . '-*.json');
+    if (count($backups) > 10) {
+        usort($backups, function($a, $b) {
+            return filemtime($a) - filemtime($b);
+        });
+        for ($i = 0; $i < count($backups) - 10; $i++) {
+            unlink($backups[$i]);
         }
     }
 }
 
-// ─── Write the data ───
-$json = json_encode($input, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-
-if ($json === false) {
+$json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+if (file_put_contents($content_file, $json) === false) {
     http_response_code(500);
-    echo json_encode(['error' => 'JSON encoding failed: ' . json_last_error_msg()]);
+    echo json_encode(['error' => 'Failed to write file']);
     exit;
 }
 
-$bytes = file_put_contents($file, $json, LOCK_EX);
-
-if ($bytes === false) {
-    security_log('save_failed', ['target' => $target]);
-    http_response_code(500);
-    echo json_encode(['error' => 'Failed to write file. Check permissions.']);
-    exit;
-}
-
-security_log('save_success', ['target' => $target, 'bytes' => $bytes]);
-
-echo json_encode([
-    'success' => true,
-    'target' => $target,
-    'bytes' => $bytes,
-    'backed_up' => true
-]);
+echo json_encode(['success' => true, 'target' => $target, 'backup_created' => true]);

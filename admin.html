@@ -134,6 +134,7 @@
     <button class="tab" onclick="switchTab('blog', this)">📰 Blog</button>
     <button class="tab" onclick="switchTab('train', this)">🏄 Train</button>
     <button class="tab" onclick="switchTab('train-users', this)">👥 Users</button>
+    <button class="tab" onclick="switchTab('options', this)">⚡ Options Page</button>
     <button class="tab" onclick="switchTab('services', this)">🔧 Services</button>
     <button class="tab" onclick="switchTab('global', this)">⚙️ Global Settings</button>
   </div>
@@ -265,6 +266,82 @@
         </div>
         <p style="font-size:0.85rem;color:#666;margin-bottom:1rem;">Manage rep accounts for the training portal at <strong>/become</strong>. All reps log in with their username + the portal password.</p>
         <div id="train-users-list"></div>
+      </div>
+    </div>
+
+    <!-- OPTIONS TAB -->
+    <div id="tab-options" class="tab-panel">
+      <div class="section-card">
+        <div class="section-header"><h3>Hero Section</h3></div>
+        <div class="field"><label>Eyebrow Text</label><div class="rich-editor-wrap compact"><div id="opt-hero-eyebrow" class="rich-edit"></div></div></div>
+        <div class="field"><label>Hero Title</label><div class="rich-editor-wrap compact"><div id="opt-hero-title" class="rich-edit"></div></div></div>
+        <div class="field"><label>Hero Subtitle</label><div class="rich-editor-wrap"><div id="opt-hero-sub" class="rich-edit"></div></div></div>
+        <div class="field"><label>Hero CTA Button Text</label><div class="rich-editor-wrap compact"><div id="opt-hero-cta" class="rich-edit"></div></div></div>
+      </div>
+      <div class="section-card">
+        <div class="section-header"><h3>Options Section Header</h3></div>
+        <div class="field"><label>Section Label</label><div class="rich-editor-wrap compact"><div id="opt-section-label" class="rich-edit"></div></div></div>
+        <div class="field"><label>Section Heading</label><div class="rich-editor-wrap compact"><div id="opt-section-heading" class="rich-edit"></div></div></div>
+      </div>
+      <div class="section-card">
+        <div class="section-header">
+          <h3>Option Cards</h3>
+          <button class="btn btn-add btn-sm" onclick="addOptionCard()">+ Add Option</button>
+        </div>
+        <p style="font-size:0.85rem;color:#666;margin-bottom:1rem;">Each card has a title, subtitle, advantages (pros), trade-offs, and a "fit" description. All fields use rich text.</p>
+        <div id="opt-cards"></div>
+      </div>
+      <div class="section-card">
+        <div class="section-header"><h3>Form Section Header</h3></div>
+        <div class="field"><label>Section Label</label><div class="rich-editor-wrap compact"><div id="opt-form-label" class="rich-edit"></div></div></div>
+        <div class="field"><label>Section Heading</label><div class="rich-editor-wrap compact"><div id="opt-form-heading" class="rich-edit"></div></div></div>
+        <div class="field"><label>Subtitle</label><div class="rich-editor-wrap compact"><div id="opt-form-sub" class="rich-edit"></div></div></div>
+      </div>
+      <div class="section-card">
+        <div class="section-header"><h3>Form Step Questions</h3></div>
+        <p style="font-size:0.85rem;color:#666;margin-bottom:1rem;">Edit the question text and hint for each of the 9 form steps.</p>
+        <div id="opt-steps"></div>
+      </div>
+      <div class="section-card">
+        <div class="section-header"><h3>Results / Recommendation Section</h3></div>
+        <div class="field"><label>Recommendation Eyebrow</label><div class="rich-editor-wrap compact"><div id="opt-rec-eyebrow" class="rich-edit"></div></div></div>
+        <div class="field"><label>Recommendation Title</label><div class="rich-editor-wrap compact"><div id="opt-rec-title" class="rich-edit"></div></div></div>
+        <div class="field"><label>Default Recommendation Name</label><div class="rich-editor-wrap compact"><div id="opt-rec-name" class="rich-edit"></div></div></div>
+        <div class="field"><label>Default Recommendation Subtitle</label><div class="rich-editor-wrap compact"><div id="opt-rec-aka" class="rich-edit"></div></div></div>
+        <div class="row">
+          <div class="field"><label>Feature 1 Icon</label><input id="opt-rec-feat1-icon" /></div>
+          <div class="field"><label>Feature 1 Text</label><div class="rich-editor-wrap compact"><div id="opt-rec-feat1-text" class="rich-edit"></div></div></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Feature 2 Icon</label><input id="opt-rec-feat2-icon" /></div>
+          <div class="field"><label>Feature 2 Text</label><div class="rich-editor-wrap compact"><div id="opt-rec-feat2-text" class="rich-edit"></div></div></div>
+        </div>
+      </div>
+      <div class="section-card">
+        <div class="section-header"><h3>Savings Projection Section</h3></div>
+        <div class="field"><label>Section Label</label><div class="rich-editor-wrap compact"><div id="opt-savings-label" class="rich-edit"></div></div></div>
+        <div class="field"><label>Section Heading</label><div class="rich-editor-wrap compact"><div id="opt-savings-heading" class="rich-edit"></div></div></div>
+        <div class="field"><label>Basis Text</label><div class="rich-editor-wrap compact"><div id="opt-savings-basis" class="rich-edit"></div></div></div>
+        <div class="field"><label>Disclaimer Text</label><div class="rich-editor-wrap"><div id="opt-savings-disclaimer" class="rich-edit"></div></div></div>
+      </div>
+      <div class="section-card">
+        <div class="section-header"><h3>CTA / Calendly Section</h3></div>
+        <div class="field"><label>CTA Title</label><div class="rich-editor-wrap compact"><div id="opt-cta-title" class="rich-edit"></div></div></div>
+        <div class="field"><label>CTA Subtitle</label><div class="rich-editor-wrap compact"><div id="opt-cta-sub" class="rich-edit"></div></div></div>
+        <div class="field"><label>CTA Button Text</label><div class="rich-editor-wrap compact"><div id="opt-cta-btn" class="rich-edit"></div></div></div>
+        <div class="field"><label>Calendly URL</label><input id="opt-calendly-url" placeholder="https://calendly.com/yourenergybest" /></div>
+      </div>
+      <div class="section-card">
+        <div class="section-header"><h3>Footer</h3></div>
+        <div class="field"><label>Footer Copyright Text</label><div class="rich-editor-wrap compact"><div id="opt-footer-text" class="rich-edit"></div></div></div>
+        <div class="field"><label>Footer Disclaimer</label><div class="rich-editor-wrap"><div id="opt-footer-disclaimer" class="rich-edit"></div></div></div>
+      </div>
+      <div class="section-card">
+        <div class="section-header"><h3>Calculator Settings</h3></div>
+        <div class="row">
+          <div class="field"><label>Savings Reduction Rate (%)</label><input type="number" id="opt-calc-reduction" step="1" min="0" max="100" /></div>
+          <div class="field"><label>Escalation Rate (%)</label><input type="number" id="opt-calc-escalation" step="1" min="0" max="100" /></div>
+        </div>
       </div>
     </div>
 
@@ -1166,6 +1243,7 @@ loadContent = async function() {
   await loadTrainContent();
   await loadServicesContent();
   await loadTrainUsers();
+  await loadOptionsContent();
   renderDiffCards();
 };
 
@@ -1590,6 +1668,230 @@ function removeSvcFeature(i, fi) {
   renderServicesEditor();
 }
 
+function removeSvcFeature(i, fi) {
+  servicesContent.services[i].features.splice(fi, 1);
+  renderServicesEditor();
+}
+
+// ═══════════════════════════════════════════════════════════
+// OPTIONS PAGE EDITOR
+// ═══════════════════════════════════════════════════════════
+let optionsContent = {};
+
+async function loadOptionsContent() {
+  try {
+    const res = await fetch('load-content.php?target=options&t=' + Date.now());
+    optionsContent = await res.json();
+  } catch(e) {
+    optionsContent = getDefaultOptionsContent();
+  }
+  renderOptionsEditor();
+}
+
+function getDefaultOptionsContent() {
+  return {
+    hero: { eyebrow: 'Your Energy Best', title: 'Understand Your Energy Options', sub: 'Four paths. One goal — lower energy costs, more control, and a home that works smarter for you.', cta: 'Explore Your Options ↓' },
+    section: { label: 'The Four Paths', heading: 'Every home is different. Here\'s how each option works.' },
+    cards: [
+      { number: '01', title: 'Prepaid Power', aka: 'Financing / Solar Loan', pros: ['$0 down options available','You own the system from day one','Federal tax credit applies (if eligible)','Potential immediate monthly savings','Increases home value'], tradeoffs: ['Monthly loan payment replaces utility bill','Credit approval required','Longer-term financial commitment'], fit: 'you want to start saving immediately without a large upfront investment, and you\'d rather build equity in your own energy system instead of paying a utility company.', bg_image: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&q=60' },
+      { number: '02', title: 'Power Purchase', aka: 'PPA / Solar Lease', pros: ['$0 down, $0 maintenance','Lower rate than the utility company','No system ownership responsibilities','Monitoring and repairs included'], tradeoffs: ['You don\'t own the system','Annual rate escalator (typically 1–3%)','Long-term contract (20–25 years)','Tax credit goes to the provider'], fit: 'you want a hands-off experience with no upfront cost, and you\'re comfortable paying less than the utility without owning the equipment.', bg_image: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&q=60' },
+      { number: '03', title: 'Home Battery Lease', aka: 'Virtual Power Plant / Storage', pros: ['Backup power during outages','No upfront cost in some programs','Time-of-use optimization','Can pair with existing solar'], tradeoffs: ['Monthly lease payment','Limited energy offset without solar','Program availability varies by area'], fit: 'you already have solar or want backup power, and you\'re in an area with time-of-use rates where shifting usage makes a real difference.', bg_image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=800&q=60' },
+      { number: '04', title: 'Cash Purchase', aka: 'Outright Ownership', pros: ['Maximum long-term savings','No monthly payments','Full federal tax credit (if eligible)','Best ROI over system lifetime','Greatest home value increase'], tradeoffs: ['Large upfront investment ($15k–$35k+)','Capital tied up in the home','Maintenance responsibility is yours'], fit: 'you have available capital, plan to stay in your home long-term, and want the highest overall return on your investment.', bg_image: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=800&q=60' }
+    ],
+    form: { label: 'Personalized Insight', heading: 'Want to see which option may work best for you?', sub: 'Answer a few quick questions. No commitment — just clarity.' },
+    steps: [
+      { question: 'What\'s your average monthly electric bill?', hint: 'Drag the slider or tap a range' },
+      { question: 'What\'s your zip code?', hint: 'Helps us check local programs and rates' },
+      { question: 'Are you a homeowner?', hint: '' },
+      { question: 'How long have you lived in your home?', hint: '' },
+      { question: 'How long do you plan to stay?', hint: '' },
+      { question: 'Any plans that would increase your energy usage?', hint: 'Select all that apply' },
+      { question: 'What would you use more if it didn\'t cost more?', hint: 'Select all that apply' },
+      { question: 'Are you planning any other major home investments?', hint: 'Roof, windows, renovation, etc.' },
+      { question: 'When it comes to financing, do you prefer to…', hint: '' }
+    ],
+    rec: { eyebrow: 'Based on what you shared', title: 'Here\'s a strong starting point:', name: 'Prepaid Power', aka: 'Financing Option', feat1_icon: '💵', feat1_text: '$0 down options available', feat2_icon: '📉', feat2_text: 'Estimated day-one savings around ~20% compared to your current bill <em>(estimate)</em>' },
+    savings: { label: 'Projected Savings', heading: 'What this could look like over time', basis: 'Based on ~20% estimated reduction and 5% annual utility escalation assumption.', disclaimer: 'These projections are estimates based on assumed utility escalation. Actual savings vary based on system size, financing terms, incentives, usage, and eligibility.' },
+    cta: { title: 'Ready to see your real numbers?', sub: 'Book a free consultation. We\'ll design a custom plan for your home — no pressure, no obligation.', btn: 'Get Your Official Quote →', calendly_url: 'https://calendly.com/yourenergybest' },
+    footer: { text: '© 2026 Your Energy Best · San Diego, CA', disclaimer: 'This page is for educational purposes. All savings figures are estimates. Consult a licensed professional for specific financial advice.' },
+    calc: { reduction: 20, escalation: 5 }
+  };
+}
+
+function renderOptionsEditor() {
+  const o = optionsContent;
+  const h = o.hero || {};
+  setVal('opt-hero-eyebrow', h.eyebrow);
+  setVal('opt-hero-title', h.title);
+  setVal('opt-hero-sub', h.sub);
+  setVal('opt-hero-cta', h.cta);
+
+  const sec = o.section || {};
+  setVal('opt-section-label', sec.label);
+  setVal('opt-section-heading', sec.heading);
+
+  const f = o.form || {};
+  setVal('opt-form-label', f.label);
+  setVal('opt-form-heading', f.heading);
+  setVal('opt-form-sub', f.sub);
+
+  const r = o.rec || {};
+  setVal('opt-rec-eyebrow', r.eyebrow);
+  setVal('opt-rec-title', r.title);
+  setVal('opt-rec-name', r.name);
+  setVal('opt-rec-aka', r.aka);
+  setVal('opt-rec-feat1-icon', r.feat1_icon);
+  setVal('opt-rec-feat1-text', r.feat1_text);
+  setVal('opt-rec-feat2-icon', r.feat2_icon);
+  setVal('opt-rec-feat2-text', r.feat2_text);
+
+  const sv = o.savings || {};
+  setVal('opt-savings-label', sv.label);
+  setVal('opt-savings-heading', sv.heading);
+  setVal('opt-savings-basis', sv.basis);
+  setVal('opt-savings-disclaimer', sv.disclaimer);
+
+  const ct = o.cta || {};
+  setVal('opt-cta-title', ct.title);
+  setVal('opt-cta-sub', ct.sub);
+  setVal('opt-cta-btn', ct.btn);
+  setVal('opt-calendly-url', ct.calendly_url);
+
+  const ft = o.footer || {};
+  setVal('opt-footer-text', ft.text);
+  setVal('opt-footer-disclaimer', ft.disclaimer);
+
+  const calc = o.calc || {};
+  setVal('opt-calc-reduction', calc.reduction || 20);
+  setVal('opt-calc-escalation', calc.escalation || 5);
+
+  renderOptionCards();
+  renderOptionSteps();
+  setTimeout(() => initStaticEditors(), 50);
+}
+
+function renderOptionCards() {
+  const cards = optionsContent.cards || [];
+  document.getElementById('opt-cards').innerHTML = cards.map((c, i) => `
+    <div class="svc-card" style="border-color:#219EBC;">
+      <div class="item-header" style="margin-bottom:0.75rem;"><h4>${c.number||''} — ${c.title||'Option '+(i+1)}</h4>
+        <div class="item-actions">
+          <button class="btn btn-sm btn-up" onclick="moveOptCard(${i},-1)">↑</button>
+          <button class="btn btn-sm btn-down" onclick="moveOptCard(${i},1)">↓</button>
+          <button class="btn btn-sm btn-danger" onclick="removeOptCard(${i})">✕</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field" style="flex:0 0 80px"><label>Number</label><input value="${c.number||''}" oninput="optionsContent.cards[${i}].number=this.value"/></div>
+        <div class="field"><label>Title</label><textarea data-rich data-compact data-path="optionsContent.cards[${i}].title">${c.title||''}</textarea></div>
+        <div class="field"><label>Subtitle / AKA</label><textarea data-rich data-compact data-path="optionsContent.cards[${i}].aka">${c.aka||''}</textarea></div>
+      </div>
+      <div class="field"><label>Background Image URL</label><input value="${(c.bg_image||'').replace(/"/g,'&quot;')}" oninput="optionsContent.cards[${i}].bg_image=this.value" style="font-size:0.85rem;"/></div>
+      <div class="field"><label>Advantages (Pros)</label>
+        <div class="svc-features" id="opt-pros-${i}">
+          ${(c.pros||[]).map((p, pi) => `
+            <div class="svc-feature-row">
+              <div style="flex:1;"><textarea data-rich data-compact data-path="optionsContent.cards[${i}].pros[${pi}]">${p}</textarea></div>
+              <button class="btn btn-sm btn-danger" onclick="optionsContent.cards[${i}].pros.splice(${pi},1);renderOptionCards();">✕</button>
+            </div>
+          `).join('')}
+          <button class="btn btn-sm" style="background:#06D6A0;color:white;margin-top:0.25rem;" onclick="optionsContent.cards[${i}].pros.push('');renderOptionCards();">+ Advantage</button>
+        </div>
+      </div>
+      <div class="field"><label>Trade-offs</label>
+        <div class="svc-features" id="opt-trade-${i}">
+          ${(c.tradeoffs||[]).map((t, ti) => `
+            <div class="svc-feature-row">
+              <div style="flex:1;"><textarea data-rich data-compact data-path="optionsContent.cards[${i}].tradeoffs[${ti}]">${t}</textarea></div>
+              <button class="btn btn-sm btn-danger" onclick="optionsContent.cards[${i}].tradeoffs.splice(${ti},1);renderOptionCards();">✕</button>
+            </div>
+          `).join('')}
+          <button class="btn btn-sm" style="background:#FFB703;color:#023047;margin-top:0.25rem;" onclick="optionsContent.cards[${i}].tradeoffs.push('');renderOptionCards();">+ Trade-off</button>
+        </div>
+      </div>
+      <div class="field"><label>"This might be right for you if…" Text</label><textarea data-rich data-path="optionsContent.cards[${i}].fit">${c.fit||''}</textarea></div>
+    </div>
+  `).join('');
+  upgradeTextareasToRich(document.getElementById('opt-cards'));
+}
+
+function addOptionCard() {
+  if (!optionsContent.cards) optionsContent.cards = [];
+  const n = String(optionsContent.cards.length + 1).padStart(2, '0');
+  optionsContent.cards.push({ number: n, title: 'New Option', aka: '', pros: [''], tradeoffs: [''], fit: '', bg_image: '' });
+  renderOptionCards();
+}
+function moveOptCard(i, dir) {
+  const arr = optionsContent.cards; const j = i + dir;
+  if (j < 0 || j >= arr.length) return;
+  [arr[i], arr[j]] = [arr[j], arr[i]];
+  renderOptionCards();
+}
+function removeOptCard(i) {
+  if (!confirm('Delete this option card?')) return;
+  optionsContent.cards.splice(i, 1);
+  renderOptionCards();
+}
+
+function renderOptionSteps() {
+  const steps = optionsContent.steps || [];
+  document.getElementById('opt-steps').innerHTML = steps.map((s, i) => `
+    <div class="item-card" style="border-left:3px solid #219EBC;">
+      <h4 style="margin-bottom:0.5rem;color:#023047;">Step ${i+1}</h4>
+      <div class="field"><label>Question</label><textarea data-rich data-compact data-path="optionsContent.steps[${i}].question">${s.question||''}</textarea></div>
+      <div class="field"><label>Hint Text</label><textarea data-rich data-compact data-path="optionsContent.steps[${i}].hint">${s.hint||''}</textarea></div>
+    </div>
+  `).join('');
+  upgradeTextareasToRich(document.getElementById('opt-steps'));
+}
+
+function collectOptionsContent() {
+  optionsContent.hero = optionsContent.hero || {};
+  optionsContent.hero.eyebrow = getVal('opt-hero-eyebrow');
+  optionsContent.hero.title = getVal('opt-hero-title');
+  optionsContent.hero.sub = getVal('opt-hero-sub');
+  optionsContent.hero.cta = getVal('opt-hero-cta');
+
+  optionsContent.section = optionsContent.section || {};
+  optionsContent.section.label = getVal('opt-section-label');
+  optionsContent.section.heading = getVal('opt-section-heading');
+
+  optionsContent.form = optionsContent.form || {};
+  optionsContent.form.label = getVal('opt-form-label');
+  optionsContent.form.heading = getVal('opt-form-heading');
+  optionsContent.form.sub = getVal('opt-form-sub');
+
+  optionsContent.rec = optionsContent.rec || {};
+  optionsContent.rec.eyebrow = getVal('opt-rec-eyebrow');
+  optionsContent.rec.title = getVal('opt-rec-title');
+  optionsContent.rec.name = getVal('opt-rec-name');
+  optionsContent.rec.aka = getVal('opt-rec-aka');
+  optionsContent.rec.feat1_icon = getVal('opt-rec-feat1-icon');
+  optionsContent.rec.feat1_text = getVal('opt-rec-feat1-text');
+  optionsContent.rec.feat2_icon = getVal('opt-rec-feat2-icon');
+  optionsContent.rec.feat2_text = getVal('opt-rec-feat2-text');
+
+  optionsContent.savings = optionsContent.savings || {};
+  optionsContent.savings.label = getVal('opt-savings-label');
+  optionsContent.savings.heading = getVal('opt-savings-heading');
+  optionsContent.savings.basis = getVal('opt-savings-basis');
+  optionsContent.savings.disclaimer = getVal('opt-savings-disclaimer');
+
+  optionsContent.cta = optionsContent.cta || {};
+  optionsContent.cta.title = getVal('opt-cta-title');
+  optionsContent.cta.sub = getVal('opt-cta-sub');
+  optionsContent.cta.btn = getVal('opt-cta-btn');
+  optionsContent.cta.calendly_url = getVal('opt-calendly-url');
+
+  optionsContent.footer = optionsContent.footer || {};
+  optionsContent.footer.text = getVal('opt-footer-text');
+  optionsContent.footer.disclaimer = getVal('opt-footer-disclaimer');
+
+  optionsContent.calc = optionsContent.calc || {};
+  optionsContent.calc.reduction = parseFloat(getVal('opt-calc-reduction')) || 20;
+  optionsContent.calc.escalation = parseFloat(getVal('opt-calc-escalation')) || 5;
+}
+
 // ═══════════════════════════════════════════════════════════
 // TRAIN USERS EDITOR
 // ═══════════════════════════════════════════════════════════
@@ -1754,6 +2056,9 @@ saveContent = async function() {
   servicesContent.hero.title = getVal('svc-hero-title');
   servicesContent.hero.subtitle = getVal('svc-hero-subtitle');
 
+  // 4) Options content
+  collectOptionsContent();
+
   let allOk = true;
   try {
     const authHeaders = { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken };
@@ -1777,6 +2082,11 @@ saveContent = async function() {
     const r4 = await fetch('save.php', { method: 'POST', headers: authHeaders, body: JSON.stringify({ ...trainUsers, _save_target: 'train-users' }) });
     const j4 = await r4.json();
     if (!j4.success) throw new Error('train-users.json: ' + (j4.error || 'failed'));
+
+    // Save options-content.json
+    const r5 = await fetch('save.php', { method: 'POST', headers: authHeaders, body: JSON.stringify({ ...optionsContent, _save_target: 'options' }) });
+    const j5 = await r5.json();
+    if (!j5.success) throw new Error('options-content.json: ' + (j5.error || 'failed'));
 
     btn.textContent = '✓ All Saved!';
     setTimeout(() => { btn.textContent = '💾 Save All Changes'; btn.disabled = false; }, 2000);

@@ -715,10 +715,10 @@ canvas { width: 100% !important; height: auto !important; }
 <section class="hero">
     <div class="hero-bg"></div>
     <div class="container hero-inner">
-        <p class="hero-eyebrow">Your Energy Best</p>
-        <h1 class="hero-title">Understand Your<br>Energy Options</h1>
-        <p class="hero-sub">Four paths. One goal — lower energy costs, more control,<br class="hide-mobile"> and a home that works smarter for you.</p>
-        <a href="#options" class="hero-cta">Explore Your Options ↓</a>
+        <p class="hero-eyebrow" id="cms-hero-eyebrow">Your Energy Best</p>
+        <h1 class="hero-title" id="cms-hero-title">Understand Your<br>Energy Options</h1>
+        <p class="hero-sub" id="cms-hero-sub">Four paths. One goal — lower energy costs, more control,<br class="hide-mobile"> and a home that works smarter for you.</p>
+        <a href="#options" class="hero-cta" id="cms-hero-cta">Explore Your Options ↓</a>
     </div>
 </section>
 
@@ -728,11 +728,11 @@ canvas { width: 100% !important; height: auto !important; }
 <section id="options" class="options-section">
     <div class="container">
         <div class="section-intro">
-            <p class="section-label">The Four Paths</p>
-            <h2 class="section-heading">Every home is different.<br class="hide-mobile"> Here's how each option works.</h2>
+            <p class="section-label" id="cms-section-label">The Four Paths</p>
+            <h2 class="section-heading" id="cms-section-heading">Every home is different.<br class="hide-mobile"> Here's how each option works.</h2>
         </div>
 
-        <div class="options-grid">
+        <div class="options-grid" id="cms-options-grid">
 
             <!-- OPTION 1: Prepaid Power -->
             <div class="option-card" data-option="prepaid">
@@ -879,9 +879,9 @@ canvas { width: 100% !important; height: auto !important; }
 <section id="assessment" class="form-section">
     <div class="container">
         <div class="form-intro">
-            <p class="section-label">Personalized Insight</p>
-            <h2 class="section-heading">Want to see which option<br class="hide-mobile"> may work best for you?</h2>
-            <p class="form-sub">Answer a few quick questions. No commitment — just clarity.</p>
+            <p class="section-label" id="cms-form-label">Personalized Insight</p>
+            <h2 class="section-heading" id="cms-form-heading">Want to see which option<br class="hide-mobile"> may work best for you?</h2>
+            <p class="form-sub" id="cms-form-sub">Answer a few quick questions. No commitment — just clarity.</p>
         </div>
 
         <div class="stepper-card">
@@ -1028,31 +1028,31 @@ canvas { width: 100% !important; height: auto !important; }
 
         <!-- Recommendation Card -->
         <div class="rec-card">
-            <p class="rec-eyebrow">Based on what you shared</p>
-            <h2 class="rec-title">Here's a strong starting point:</h2>
+            <p class="rec-eyebrow" id="cms-rec-eyebrow">Based on what you shared</p>
+            <h2 class="rec-title" id="cms-rec-title">Here's a strong starting point:</h2>
             <div class="rec-highlight">
-                <h3 class="rec-option">Prepaid Power</h3>
-                <p class="rec-aka">Financing Option</p>
+                <h3 class="rec-option" id="cms-rec-name">Prepaid Power</h3>
+                <p class="rec-aka" id="cms-rec-aka">Financing Option</p>
             </div>
             <div class="rec-reasons" id="recReasons">
                 <!-- Populated by JS -->
             </div>
             <div class="rec-features">
                 <div class="rec-feature">
-                    <span class="rec-feature-icon">💵</span>
-                    <span>$0 down options available</span>
+                    <span class="rec-feature-icon" id="cms-rec-feat1-icon">💵</span>
+                    <span id="cms-rec-feat1-text">$0 down options available</span>
                 </div>
                 <div class="rec-feature">
-                    <span class="rec-feature-icon">📉</span>
-                    <span>Estimated day-one savings around ~20% compared to your current bill <em>(estimate)</em></span>
+                    <span class="rec-feature-icon" id="cms-rec-feat2-icon">📉</span>
+                    <span id="cms-rec-feat2-text">Estimated day-one savings around ~20% compared to your current bill <em>(estimate)</em></span>
                 </div>
             </div>
         </div>
 
         <!-- Savings Projection -->
         <div class="savings-card">
-            <p class="section-label">Projected Savings</p>
-            <h2 class="section-heading">What this could look like over time</h2>
+            <p class="section-label" id="cms-savings-label">Projected Savings</p>
+            <h2 class="section-heading" id="cms-savings-heading">What this could look like over time</h2>
 
             <div class="savings-big-numbers" id="savingsBigNumbers">
                 <!-- Populated by JS -->
@@ -1062,15 +1062,15 @@ canvas { width: 100% !important; height: auto !important; }
                 <canvas id="savingsChart" width="800" height="350"></canvas>
             </div>
 
-            <p class="savings-basis">Based on ~20% estimated reduction and 5% annual utility escalation assumption.</p>
-            <p class="savings-disclaimer">These projections are estimates based on assumed utility escalation. Actual savings vary based on system size, financing terms, incentives, usage, and eligibility.</p>
+            <p class="savings-basis" id="cms-savings-basis">Based on ~20% estimated reduction and 5% annual utility escalation assumption.</p>
+            <p class="savings-disclaimer" id="cms-savings-disclaimer">These projections are estimates based on assumed utility escalation. Actual savings vary based on system size, financing terms, incentives, usage, and eligibility.</p>
         </div>
 
         <!-- CTA -->
         <div class="cta-card" id="ctaCard">
-            <h2 class="cta-title">Ready to see your real numbers?</h2>
-            <p class="cta-sub">Book a free consultation. We'll design a custom plan for your home — no pressure, no obligation.</p>
-            <button class="cta-btn" id="ctaBtn" onclick="revealCalendly()">Get Your Official Quote →</button>
+            <h2 class="cta-title" id="cms-cta-title">Ready to see your real numbers?</h2>
+            <p class="cta-sub" id="cms-cta-sub">Book a free consultation. We'll design a custom plan for your home — no pressure, no obligation.</p>
+            <button class="cta-btn" id="ctaBtn" onclick="revealCalendly()"><span id="cms-cta-btn-text">Get Your Official Quote →</span></button>
             <div id="calendlyEmbed" class="calendly-wrap" style="display:none">
                 <!-- Calendly will be embedded here -->
                 <div class="calendly-placeholder">
@@ -1088,8 +1088,8 @@ canvas { width: 100% !important; height: auto !important; }
      ═══════════════════════════════════════════════ -->
 <footer class="page-footer">
     <div class="container">
-        <p>© 2026 Your Energy Best · San Diego, CA</p>
-        <p class="footer-note">This page is for educational purposes. All savings figures are estimates. Consult a licensed professional for specific financial advice.</p>
+        <p id="cms-footer-text">© 2026 Your Energy Best · San Diego, CA</p>
+        <p class="footer-note" id="cms-footer-disclaimer">This page is for educational purposes. All savings figures are estimates. Consult a licensed professional for specific financial advice.</p>
     </div>
 </footer>
 
@@ -1577,6 +1577,112 @@ window.addEventListener('resize', () => {
         chart.render(savings.yearlyBreakdown);
     }
 });
+// ══════════════════════════════════════
+// CMS LOADER — Loads options-content.json
+// ══════════════════════════════════════
+(async function loadOptionsCMS() {
+    try {
+        const res = await fetch('/load-content.php?target=options&t=' + Date.now());
+        const o = await res.json();
+        if (!o || !o.hero) return; // No CMS data yet, use defaults
+
+        // Helper: set text content, stripping HTML tags for plain text elements
+        const txt = (id, val) => { const el = document.getElementById(id); if (el && val) el.textContent = val.replace(/<[^>]*>/g, ''); };
+        const htm = (id, val) => { const el = document.getElementById(id); if (el && val) el.innerHTML = val; };
+
+        // Hero
+        txt('cms-hero-eyebrow', o.hero?.eyebrow);
+        htm('cms-hero-title', o.hero?.title);
+        htm('cms-hero-sub', o.hero?.sub);
+        txt('cms-hero-cta', o.hero?.cta);
+
+        // Section header
+        txt('cms-section-label', o.section?.label);
+        htm('cms-section-heading', o.section?.heading);
+
+        // Option cards — rebuild the grid if we have cards
+        if (o.cards && o.cards.length > 0) {
+            const grid = document.getElementById('cms-options-grid');
+            if (grid) {
+                grid.innerHTML = o.cards.map(c => `
+                    <div class="option-card">
+                        <div class="option-bg" style="background-image:url('${(c.bg_image||'').replace(/'/g,"\\'")}')"></div>
+                        <div class="option-overlay"></div>
+                        <div class="option-content">
+                            <span class="option-number">${c.number||''}</span>
+                            <h3 class="option-title">${c.title||''}</h3>
+                            <p class="option-aka">${c.aka||''}</p>
+                            <div class="option-details">
+                                <div class="option-pros">
+                                    <h4>Advantages</h4>
+                                    <ul>${(c.pros||[]).map(p => '<li>'+p+'</li>').join('')}</ul>
+                                </div>
+                                <div class="option-tradeoffs">
+                                    <h4>Trade-offs</h4>
+                                    <ul>${(c.tradeoffs||[]).map(t => '<li>'+t+'</li>').join('')}</ul>
+                                </div>
+                                <div class="option-fit">
+                                    <p><strong>This might be right for you if…</strong> ${c.fit||''}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Form header
+        txt('cms-form-label', o.form?.label);
+        htm('cms-form-heading', o.form?.heading);
+        txt('cms-form-sub', o.form?.sub);
+
+        // Step questions
+        if (o.steps && o.steps.length > 0) {
+            document.querySelectorAll('.step').forEach((step, i) => {
+                if (o.steps[i]) {
+                    const q = step.querySelector('.step-question');
+                    const h = step.querySelector('.step-hint');
+                    if (q && o.steps[i].question) q.innerHTML = o.steps[i].question;
+                    if (h && o.steps[i].hint !== undefined) h.textContent = o.steps[i].hint.replace(/<[^>]*>/g, '');
+                }
+            });
+        }
+
+        // Recommendation
+        htm('cms-rec-eyebrow', o.rec?.eyebrow);
+        htm('cms-rec-title', o.rec?.title);
+        htm('cms-rec-name', o.rec?.name);
+        htm('cms-rec-aka', o.rec?.aka);
+        txt('cms-rec-feat1-icon', o.rec?.feat1_icon);
+        htm('cms-rec-feat1-text', o.rec?.feat1_text);
+        txt('cms-rec-feat2-icon', o.rec?.feat2_icon);
+        htm('cms-rec-feat2-text', o.rec?.feat2_text);
+
+        // Savings
+        txt('cms-savings-label', o.savings?.label);
+        htm('cms-savings-heading', o.savings?.heading);
+        htm('cms-savings-basis', o.savings?.basis);
+        htm('cms-savings-disclaimer', o.savings?.disclaimer);
+
+        // CTA
+        htm('cms-cta-title', o.cta?.title);
+        htm('cms-cta-sub', o.cta?.sub);
+        htm('cms-cta-btn-text', o.cta?.btn);
+        if (o.cta?.calendly_url) CONFIG.calendlyUrl = o.cta.calendly_url;
+
+        // Footer
+        htm('cms-footer-text', o.footer?.text);
+        htm('cms-footer-disclaimer', o.footer?.disclaimer);
+
+        // Calculator settings
+        if (o.calc?.reduction) CONFIG.savingsReductionRate = o.calc.reduction / 100;
+        if (o.calc?.escalation) CONFIG.escalationRate = o.calc.escalation / 100;
+
+    } catch(e) {
+        // CMS not available — page works fine with hardcoded defaults
+        console.log('Options CMS not loaded, using defaults');
+    }
+})();
 
 </script>
 </body>

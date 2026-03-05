@@ -4,7 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Southern California & San Diego Solar Energy Solutions | Your Energy Best</title>
-  <meta name="description" content="Solar, batteries, and HVAC solutions with $0 down options for eligible San Diego homes." />
+  <meta name="description" content="Solar, batteries, and HVAC solutions with $0 down options for eligible Southern California homes." />
+  <meta property="og:title" content="Southern California Solar Energy Solutions | Your Energy Best" />
+  <meta property="og:description" content="Solar, batteries, and HVAC solutions with $0 down options for eligible Southern California homes." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://yourenergybest.com/" />
+  <meta property="og:image" content="https://yourenergybest.com/img/logo.png" />
   <link rel="icon" type="image/png" href="img/logo.png" />
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="surf-theme.css" />
@@ -17,6 +22,82 @@
     .hero__content { display: flex; flex-direction: column; gap: 3rem; }
     .hero__text { order: 1; }
     .hero__visual { order: 2; }
+
+    /* ─── Mobile Nav Fallback (ensures hamburger works) ─── */
+    @media (max-width: 900px) {
+      .nav__links {
+        position: fixed;
+        top: 0; right: 0;
+        width: 280px;
+        height: 100vh;
+        height: 100dvh;
+        background: #023047;
+        flex-direction: column;
+        padding: 5rem 2rem 2rem;
+        z-index: 1000;
+        transform: translateX(100%);
+        transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        display: flex;
+        list-style: none;
+        gap: 0.25rem;
+        box-shadow: -8px 0 30px rgba(0,0,0,0.3);
+      }
+      .nav__links.open {
+        transform: translateX(0);
+      }
+      .nav__links li { width: 100%; }
+      .nav__links a {
+        display: block;
+        padding: 0.75rem 0;
+        font-size: 1.05rem;
+        color: rgba(255,255,255,0.85);
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+      }
+      .nav__links a:hover,
+      .nav__links a.active { color: #FFB703; }
+      .nav__links .nav__cta-btn {
+        margin-top: 1rem;
+        background: #219EBC;
+        color: #fff;
+        border-radius: 8px;
+        text-align: center;
+        padding: 0.85rem;
+        border: none;
+        font-weight: 600;
+      }
+      .nav__toggle {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        width: 28px;
+        cursor: pointer;
+        z-index: 1001;
+        background: none;
+        border: none;
+        padding: 4px;
+      }
+      .nav__toggle span {
+        display: block;
+        width: 100%;
+        height: 2px;
+        background: #fff;
+        border-radius: 2px;
+        transition: all 0.3s;
+        transform-origin: center;
+      }
+      .nav__toggle.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+      .nav__toggle.active span:nth-child(2) { opacity: 0; }
+      .nav__toggle.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+      .nav__overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 999;
+      }
+      .nav__overlay.open { display: block; }
+      body.nav-open { overflow: hidden; }
+    }
   </style>
 </head>
 <body>
@@ -245,6 +326,10 @@
       <h2>What our customers are saying</h2>
     </div>
     <div id="cms-testimonials"></div>
+    <!-- Options CTA after testimonials -->
+    <div class="text-center" style="margin-top: var(--space-xl);">
+      <a href="options/" class="btn btn--outline" style="border-color: var(--teal); color: var(--teal);">Explore your energy options →</a>
+    </div>
   </div>
 </section>
 

@@ -263,12 +263,25 @@ body {
 .flip-back::-webkit-scrollbar-thumb { background: rgba(33,158,188,0.3); border-radius: 2px; }
 .flip-back-title {
     font-family: var(--heading);
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 600;
     color: var(--teal-light);
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.35rem;
     border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+/* Mobile: taller cards, tighter back content */
+@media (max-width: 700px) {
+    .flip-wrap { height: 420px; }
+    .flip-back { padding: 1rem 0.75rem; }
+    .flip-back-title { font-size: 0.9rem; margin-bottom: 0.35rem; padding-bottom: 0.25rem; }
+    .flip-back .option-details li { font-size: 0.74rem; padding: 0.1rem 0 0.1rem 0.9rem; }
+    .flip-back .option-details h4 { font-size: 0.6rem; margin-bottom: 0.25rem; }
+    .flip-back .option-pros { margin-bottom: 0.5rem; }
+    .flip-back .option-tradeoffs { margin-bottom: 0.5rem; }
+    .flip-back .option-fit p { font-size: 0.7rem; }
+    .flip-back .option-fit { margin-top: 0.25rem; padding-top: 0.35rem; }
 }
 
 /* Reuse option-details styles on back */

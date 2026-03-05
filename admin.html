@@ -1681,7 +1681,13 @@ let optionsContent = {};
 async function loadOptionsContent() {
   try {
     const res = await fetch('load-content.php?target=options&t=' + Date.now());
-    optionsContent = await res.json();
+    const data = await res.json();
+    // If the server returned empty or incomplete data, use defaults
+    if (!data || !data.hero || !data.cards || data.cards.length === 0) {
+      optionsContent = getDefaultOptionsContent();
+    } else {
+      optionsContent = data;
+    }
   } catch(e) {
     optionsContent = getDefaultOptionsContent();
   }
@@ -1722,6 +1728,23 @@ function getDefaultOptionsContent() {
 function renderOptionsEditor() {
   const o = optionsContent;
   const h = o.hero || {};
+
+  // Destroy any existing Quill editors on Options static fields so we can reinit with correct content
+  document.querySelectorAll('#tab-options .rich-edit').forEach(el => {
+    if (richEditors[el.id]) {
+      delete richEditors[el.id];
+      // Reset the container so Quill can reinit cleanly
+      const wrap = el.closest('.rich-editor-wrap');
+      if (wrap) {
+        const newDiv = document.createElement('div');
+        newDiv.id = el.id;
+        newDiv.className = 'rich-edit';
+        wrap.innerHTML = '';
+        wrap.appendChild(newDiv);
+      }
+    }
+  });
+
   setVal('opt-hero-eyebrow', h.eyebrow);
   setVal('opt-hero-title', h.title);
   setVal('opt-hero-sub', h.sub);
@@ -1768,7 +1791,17 @@ function renderOptionsEditor() {
 
   renderOptionCards();
   renderOptionSteps();
-  setTimeout(() => initStaticEditors(), 50);
+
+  // Init all static rich-edit fields in the Options tab
+  setTimeout(() => {
+    document.querySelectorAll('#tab-options .rich-edit').forEach(el => {
+      if (richEditors[el.id]) return;
+      const wrap = el.closest('.rich-editor-wrap');
+      const isCompact = wrap && wrap.classList.contains('compact');
+      const existingContent = el.innerHTML || '';
+      initRichEditor(el.id, existingContent, null, { compact: isCompact });
+    });
+  }, 60);
 }
 
 function renderOptionCards() {

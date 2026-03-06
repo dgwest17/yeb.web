@@ -1781,7 +1781,62 @@ function renderOptionsEditor() {
   }, 30);
 }
 
+// Sync all active Quill editors in Options tab back to optionsContent
+// Called before any re-render to prevent data loss
+function syncOptionsEditors() {
+  // Static fields
+  const h = optionsContent.hero = optionsContent.hero || {};
+  const v = (id) => { if (richEditors[id]) { const h = richEditors[id].root.innerHTML; return h === '<p><br></p>' ? '' : h; } const el = document.getElementById(id); return el ? (el.value || el.innerHTML || '') : ''; };
+  h.eyebrow = v('opt-hero-eyebrow') || h.eyebrow;
+  h.title = v('opt-hero-title') || h.title;
+  h.sub = v('opt-hero-sub') || h.sub;
+  h.cta = v('opt-hero-cta') || h.cta;
+
+  const sec = optionsContent.section = optionsContent.section || {};
+  sec.label = v('opt-section-label') || sec.label;
+  sec.heading = v('opt-section-heading') || sec.heading;
+
+  const f = optionsContent.form = optionsContent.form || {};
+  f.label = v('opt-form-label') || f.label;
+  f.heading = v('opt-form-heading') || f.heading;
+  f.sub = v('opt-form-sub') || f.sub;
+
+  const r = optionsContent.rec = optionsContent.rec || {};
+  r.eyebrow = v('opt-rec-eyebrow') || r.eyebrow;
+  r.title = v('opt-rec-title') || r.title;
+  r.name = v('opt-rec-name') || r.name;
+  r.aka = v('opt-rec-aka') || r.aka;
+  r.feat1_icon = v('opt-rec-feat1-icon') || r.feat1_icon;
+  r.feat1_text = v('opt-rec-feat1-text') || r.feat1_text;
+  r.feat2_icon = v('opt-rec-feat2-icon') || r.feat2_icon;
+  r.feat2_text = v('opt-rec-feat2-text') || r.feat2_text;
+
+  const sv = optionsContent.savings = optionsContent.savings || {};
+  sv.label = v('opt-savings-label') || sv.label;
+  sv.heading = v('opt-savings-heading') || sv.heading;
+  sv.basis = v('opt-savings-basis') || sv.basis;
+  sv.disclaimer = v('opt-savings-disclaimer') || sv.disclaimer;
+
+  const ct = optionsContent.cta = optionsContent.cta || {};
+  ct.title = v('opt-cta-title') || ct.title;
+  ct.sub = v('opt-cta-sub') || ct.sub;
+  ct.btn = v('opt-cta-btn') || ct.btn;
+  ct.calendly_url = v('opt-calendly-url') || ct.calendly_url;
+
+  const ft = optionsContent.footer = optionsContent.footer || {};
+  ft.text = v('opt-footer-text') || ft.text;
+  ft.disclaimer = v('opt-footer-disclaimer') || ft.disclaimer;
+
+  const calc = optionsContent.calc = optionsContent.calc || {};
+  const redEl = document.getElementById('opt-calc-reduction');
+  const escEl = document.getElementById('opt-calc-escalation');
+  if (redEl) calc.reduction = parseFloat(redEl.value) || calc.reduction || 20;
+  if (escEl) calc.escalation = parseFloat(escEl.value) || calc.escalation || 5;
+}
+
 function renderOptionCards() {
+  // Sync all current editor values back to optionsContent before destroying card editors
+  syncOptionsEditors();
   const cards = optionsContent.cards || [];
   document.getElementById('opt-cards').innerHTML = cards.map((c, i) => `
     <div class="svc-card" style="border-color:#219EBC;">
@@ -1845,6 +1900,7 @@ function removeOptCard(i) {
 }
 
 function renderOptionSteps() {
+  syncOptionsEditors();
   const steps = optionsContent.steps || [];
   document.getElementById('opt-steps').innerHTML = steps.map((s, i) => `
     <div class="item-card" style="border-left:3px solid #219EBC;">

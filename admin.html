@@ -269,79 +269,10 @@
       </div>
     </div>
 
-    <!-- OPTIONS TAB -->
+    <!-- OPTIONS TAB (content built dynamically by renderOptionsEditor) -->
     <div id="tab-options" class="tab-panel">
-      <div class="section-card">
-        <div class="section-header"><h3>Hero Section</h3></div>
-        <div class="field"><label>Eyebrow Text</label><div class="rich-editor-wrap compact"><div id="opt-hero-eyebrow" class="rich-edit"></div></div></div>
-        <div class="field"><label>Hero Title</label><div class="rich-editor-wrap compact"><div id="opt-hero-title" class="rich-edit"></div></div></div>
-        <div class="field"><label>Hero Subtitle</label><div class="rich-editor-wrap"><div id="opt-hero-sub" class="rich-edit"></div></div></div>
-        <div class="field"><label>Hero CTA Button Text</label><div class="rich-editor-wrap compact"><div id="opt-hero-cta" class="rich-edit"></div></div></div>
-      </div>
-      <div class="section-card">
-        <div class="section-header"><h3>Options Section Header</h3></div>
-        <div class="field"><label>Section Label</label><div class="rich-editor-wrap compact"><div id="opt-section-label" class="rich-edit"></div></div></div>
-        <div class="field"><label>Section Heading</label><div class="rich-editor-wrap compact"><div id="opt-section-heading" class="rich-edit"></div></div></div>
-      </div>
-      <div class="section-card">
-        <div class="section-header">
-          <h3>Option Cards</h3>
-          <button class="btn btn-add btn-sm" onclick="addOptionCard()">+ Add Option</button>
-        </div>
-        <p style="font-size:0.85rem;color:#666;margin-bottom:1rem;">Each card has a title, subtitle, advantages (pros), trade-offs, and a "fit" description. All fields use rich text.</p>
-        <div id="opt-cards"></div>
-      </div>
-      <div class="section-card">
-        <div class="section-header"><h3>Form Section Header</h3></div>
-        <div class="field"><label>Section Label</label><div class="rich-editor-wrap compact"><div id="opt-form-label" class="rich-edit"></div></div></div>
-        <div class="field"><label>Section Heading</label><div class="rich-editor-wrap compact"><div id="opt-form-heading" class="rich-edit"></div></div></div>
-        <div class="field"><label>Subtitle</label><div class="rich-editor-wrap compact"><div id="opt-form-sub" class="rich-edit"></div></div></div>
-      </div>
-      <div class="section-card">
-        <div class="section-header"><h3>Form Step Questions</h3></div>
-        <p style="font-size:0.85rem;color:#666;margin-bottom:1rem;">Edit the question text and hint for each of the 9 form steps.</p>
-        <div id="opt-steps"></div>
-      </div>
-      <div class="section-card">
-        <div class="section-header"><h3>Results / Recommendation Section</h3></div>
-        <div class="field"><label>Recommendation Eyebrow</label><div class="rich-editor-wrap compact"><div id="opt-rec-eyebrow" class="rich-edit"></div></div></div>
-        <div class="field"><label>Recommendation Title</label><div class="rich-editor-wrap compact"><div id="opt-rec-title" class="rich-edit"></div></div></div>
-        <div class="field"><label>Default Recommendation Name</label><div class="rich-editor-wrap compact"><div id="opt-rec-name" class="rich-edit"></div></div></div>
-        <div class="field"><label>Default Recommendation Subtitle</label><div class="rich-editor-wrap compact"><div id="opt-rec-aka" class="rich-edit"></div></div></div>
-        <div class="row">
-          <div class="field"><label>Feature 1 Icon</label><input id="opt-rec-feat1-icon" /></div>
-          <div class="field"><label>Feature 1 Text</label><div class="rich-editor-wrap compact"><div id="opt-rec-feat1-text" class="rich-edit"></div></div></div>
-        </div>
-        <div class="row">
-          <div class="field"><label>Feature 2 Icon</label><input id="opt-rec-feat2-icon" /></div>
-          <div class="field"><label>Feature 2 Text</label><div class="rich-editor-wrap compact"><div id="opt-rec-feat2-text" class="rich-edit"></div></div></div>
-        </div>
-      </div>
-      <div class="section-card">
-        <div class="section-header"><h3>Savings Projection Section</h3></div>
-        <div class="field"><label>Section Label</label><div class="rich-editor-wrap compact"><div id="opt-savings-label" class="rich-edit"></div></div></div>
-        <div class="field"><label>Section Heading</label><div class="rich-editor-wrap compact"><div id="opt-savings-heading" class="rich-edit"></div></div></div>
-        <div class="field"><label>Basis Text</label><div class="rich-editor-wrap compact"><div id="opt-savings-basis" class="rich-edit"></div></div></div>
-        <div class="field"><label>Disclaimer Text</label><div class="rich-editor-wrap"><div id="opt-savings-disclaimer" class="rich-edit"></div></div></div>
-      </div>
-      <div class="section-card">
-        <div class="section-header"><h3>CTA / Calendly Section</h3></div>
-        <div class="field"><label>CTA Title</label><div class="rich-editor-wrap compact"><div id="opt-cta-title" class="rich-edit"></div></div></div>
-        <div class="field"><label>CTA Subtitle</label><div class="rich-editor-wrap compact"><div id="opt-cta-sub" class="rich-edit"></div></div></div>
-        <div class="field"><label>CTA Button Text</label><div class="rich-editor-wrap compact"><div id="opt-cta-btn" class="rich-edit"></div></div></div>
-        <div class="field"><label>Calendly URL</label><input id="opt-calendly-url" placeholder="https://calendly.com/yourenergybest" /></div>
-      </div>
-      <div class="section-card">
-        <div class="section-header"><h3>Footer</h3></div>
-        <div class="field"><label>Footer Copyright Text</label><div class="rich-editor-wrap compact"><div id="opt-footer-text" class="rich-edit"></div></div></div>
-        <div class="field"><label>Footer Disclaimer</label><div class="rich-editor-wrap"><div id="opt-footer-disclaimer" class="rich-edit"></div></div></div>
-      </div>
-      <div class="section-card">
-        <div class="section-header"><h3>Calculator Settings</h3></div>
-        <div class="row">
-          <div class="field"><label>Savings Reduction Rate (%)</label><input type="number" id="opt-calc-reduction" step="1" min="0" max="100" /></div>
-          <div class="field"><label>Escalation Rate (%)</label><input type="number" id="opt-calc-escalation" step="1" min="0" max="100" /></div>
-        </div>
+      <div class="section-card" style="text-align:center;padding:3rem;">
+        <p style="color:#666;">Click this tab to load Options page editor...</p>
       </div>
     </div>
 
@@ -1682,7 +1613,6 @@ async function loadOptionsContent() {
   try {
     const res = await fetch('load-content.php?target=options&t=' + Date.now());
     const data = await res.json();
-    // If the server returned empty or incomplete data, use defaults
     if (!data || !data.hero || !data.cards || data.cards.length === 0) {
       optionsContent = getDefaultOptionsContent();
     } else {
@@ -1691,8 +1621,21 @@ async function loadOptionsContent() {
   } catch(e) {
     optionsContent = getDefaultOptionsContent();
   }
-  renderOptionsEditor();
+  // Don't render immediately — render when tab is first opened to avoid Quill race conditions
+  optionsTabReady = false;
 }
+
+let optionsTabReady = false;
+
+// Hook into switchTab to render Options content on first open
+const _origSwitchTab = switchTab;
+switchTab = function(tab, btn) {
+  _origSwitchTab(tab, btn);
+  if (tab === 'options' && !optionsTabReady) {
+    optionsTabReady = true;
+    setTimeout(() => renderOptionsEditor(), 50);
+  }
+};
 
 function getDefaultOptionsContent() {
   return {
@@ -1728,80 +1671,114 @@ function getDefaultOptionsContent() {
 function renderOptionsEditor() {
   const o = optionsContent;
   const h = o.hero || {};
-
-  // Destroy any existing Quill editors on Options static fields so we can reinit with correct content
-  document.querySelectorAll('#tab-options .rich-edit').forEach(el => {
-    if (richEditors[el.id]) {
-      delete richEditors[el.id];
-      // Reset the container so Quill can reinit cleanly
-      const wrap = el.closest('.rich-editor-wrap');
-      if (wrap) {
-        const newDiv = document.createElement('div');
-        newDiv.id = el.id;
-        newDiv.className = 'rich-edit';
-        wrap.innerHTML = '';
-        wrap.appendChild(newDiv);
-      }
-    }
-  });
-
-  setVal('opt-hero-eyebrow', h.eyebrow);
-  setVal('opt-hero-title', h.title);
-  setVal('opt-hero-sub', h.sub);
-  setVal('opt-hero-cta', h.cta);
-
   const sec = o.section || {};
-  setVal('opt-section-label', sec.label);
-  setVal('opt-section-heading', sec.heading);
-
   const f = o.form || {};
-  setVal('opt-form-label', f.label);
-  setVal('opt-form-heading', f.heading);
-  setVal('opt-form-sub', f.sub);
-
   const r = o.rec || {};
-  setVal('opt-rec-eyebrow', r.eyebrow);
-  setVal('opt-rec-title', r.title);
-  setVal('opt-rec-name', r.name);
-  setVal('opt-rec-aka', r.aka);
-  setVal('opt-rec-feat1-icon', r.feat1_icon);
-  setVal('opt-rec-feat1-text', r.feat1_text);
-  setVal('opt-rec-feat2-icon', r.feat2_icon);
-  setVal('opt-rec-feat2-text', r.feat2_text);
-
   const sv = o.savings || {};
-  setVal('opt-savings-label', sv.label);
-  setVal('opt-savings-heading', sv.heading);
-  setVal('opt-savings-basis', sv.basis);
-  setVal('opt-savings-disclaimer', sv.disclaimer);
-
   const ct = o.cta || {};
-  setVal('opt-cta-title', ct.title);
-  setVal('opt-cta-sub', ct.sub);
-  setVal('opt-cta-btn', ct.btn);
-  setVal('opt-calendly-url', ct.calendly_url);
-
   const ft = o.footer || {};
-  setVal('opt-footer-text', ft.text);
-  setVal('opt-footer-disclaimer', ft.disclaimer);
-
   const calc = o.calc || {};
-  setVal('opt-calc-reduction', calc.reduction || 20);
-  setVal('opt-calc-escalation', calc.escalation || 5);
+
+  // Build the entire Options tab HTML dynamically to avoid any Quill conflicts
+  const tab = document.getElementById('tab-options');
+  if (!tab) return;
+
+  // Helper to create a rich field
+  function rf(id, label, val, compact) {
+    return `<div class="field"><label>${label}</label><div class="rich-editor-wrap${compact ? ' compact' : ''}"><div id="${id}" class="rich-edit">${val || ''}</div></div></div>`;
+  }
+  function pf(id, label, val) {
+    return `<div class="field"><label>${label}</label><input id="${id}" value="${(val||'').replace(/"/g,'&quot;')}" /></div>`;
+  }
+
+  tab.innerHTML = `
+    <div class="section-card">
+      <div class="section-header"><h3>Hero Section</h3></div>
+      ${rf('opt-hero-eyebrow','Eyebrow Text', h.eyebrow, true)}
+      ${rf('opt-hero-title','Hero Title', h.title, true)}
+      ${rf('opt-hero-sub','Hero Subtitle', h.sub, false)}
+      ${rf('opt-hero-cta','Hero CTA Button Text', h.cta, true)}
+    </div>
+    <div class="section-card">
+      <div class="section-header"><h3>Options Section Header</h3></div>
+      ${rf('opt-section-label','Section Label', sec.label, true)}
+      ${rf('opt-section-heading','Section Heading', sec.heading, true)}
+    </div>
+    <div class="section-card">
+      <div class="section-header">
+        <h3>Option Cards</h3>
+        <button class="btn btn-add btn-sm" onclick="addOptionCard()">+ Add Option</button>
+      </div>
+      <p style="font-size:0.85rem;color:#666;margin-bottom:1rem;">Each card has a title, subtitle, advantages, trade-offs, and a "fit" description.</p>
+      <div id="opt-cards"></div>
+    </div>
+    <div class="section-card">
+      <div class="section-header"><h3>Form Section Header</h3></div>
+      ${rf('opt-form-label','Section Label', f.label, true)}
+      ${rf('opt-form-heading','Section Heading', f.heading, true)}
+      ${rf('opt-form-sub','Subtitle', f.sub, true)}
+    </div>
+    <div class="section-card">
+      <div class="section-header"><h3>Form Step Questions</h3></div>
+      <p style="font-size:0.85rem;color:#666;margin-bottom:1rem;">Edit the question text and hint for each of the 9 form steps.</p>
+      <div id="opt-steps"></div>
+    </div>
+    <div class="section-card">
+      <div class="section-header"><h3>Results / Recommendation Section</h3></div>
+      ${rf('opt-rec-eyebrow','Recommendation Eyebrow', r.eyebrow, true)}
+      ${rf('opt-rec-title','Recommendation Title', r.title, true)}
+      ${rf('opt-rec-name','Default Recommendation Name', r.name, true)}
+      ${rf('opt-rec-aka','Default Recommendation Subtitle', r.aka, true)}
+      <div class="row">
+        ${pf('opt-rec-feat1-icon','Feature 1 Icon', r.feat1_icon)}
+        ${rf('opt-rec-feat1-text','Feature 1 Text', r.feat1_text, true)}
+      </div>
+      <div class="row">
+        ${pf('opt-rec-feat2-icon','Feature 2 Icon', r.feat2_icon)}
+        ${rf('opt-rec-feat2-text','Feature 2 Text', r.feat2_text, true)}
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-header"><h3>Savings Projection Section</h3></div>
+      ${rf('opt-savings-label','Section Label', sv.label, true)}
+      ${rf('opt-savings-heading','Section Heading', sv.heading, true)}
+      ${rf('opt-savings-basis','Basis Text', sv.basis, true)}
+      ${rf('opt-savings-disclaimer','Disclaimer Text', sv.disclaimer, false)}
+    </div>
+    <div class="section-card">
+      <div class="section-header"><h3>CTA / Calendly Section</h3></div>
+      ${rf('opt-cta-title','CTA Title', ct.title, true)}
+      ${rf('opt-cta-sub','CTA Subtitle', ct.sub, true)}
+      ${rf('opt-cta-btn','CTA Button Text', ct.btn, true)}
+      ${pf('opt-calendly-url','Calendly URL', ct.calendly_url)}
+    </div>
+    <div class="section-card">
+      <div class="section-header"><h3>Footer</h3></div>
+      ${rf('opt-footer-text','Footer Copyright Text', ft.text, true)}
+      ${rf('opt-footer-disclaimer','Footer Disclaimer', ft.disclaimer, false)}
+    </div>
+    <div class="section-card">
+      <div class="section-header"><h3>Calculator Settings</h3></div>
+      <div class="row">
+        <div class="field"><label>Savings Reduction Rate (%)</label><input type="number" id="opt-calc-reduction" step="1" min="0" max="100" value="${calc.reduction || 20}" /></div>
+        <div class="field"><label>Escalation Rate (%)</label><input type="number" id="opt-calc-escalation" step="1" min="0" max="100" value="${calc.escalation || 5}" /></div>
+      </div>
+    </div>
+  `;
 
   renderOptionCards();
   renderOptionSteps();
 
-  // Init all static rich-edit fields in the Options tab
+  // Initialize all Quill editors on the freshly built tab
   setTimeout(() => {
-    document.querySelectorAll('#tab-options .rich-edit').forEach(el => {
+    tab.querySelectorAll('.rich-edit').forEach(el => {
       if (richEditors[el.id]) return;
       const wrap = el.closest('.rich-editor-wrap');
       const isCompact = wrap && wrap.classList.contains('compact');
       const existingContent = el.innerHTML || '';
       initRichEditor(el.id, existingContent, null, { compact: isCompact });
     });
-  }, 60);
+  }, 30);
 }
 
 function renderOptionCards() {

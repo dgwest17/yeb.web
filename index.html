@@ -846,16 +846,19 @@ function loadGoogleReviews() {
 // LOAD CMS + RENDER ALL
 // ═══════════════════════════════════════════════════════════
 CMS.load().then(() => {
+  // Helper: strip Quill's HTML wrapper tags to get plain text
+  const strip = (html) => html ? html.replace(/<[^>]*>/g, '').trim() : '';
+
   // Hero text
   if (CMS.data.home) {
-    if (CMS.data.home.hero_eyebrow) document.querySelector('.hero__text .eyebrow').textContent = CMS.data.home.hero_eyebrow;
-    if (CMS.data.home.hero_title_part1) document.getElementById('home-title-part1').textContent = CMS.data.home.hero_title_part1;
-    if (CMS.data.home.hero_title_part2) document.getElementById('home-title-part2').textContent = CMS.data.home.hero_title_part2;
-    if (CMS.data.home.hero_subtitle) document.getElementById('home-subtitle').textContent = CMS.data.home.hero_subtitle;
-    if (CMS.data.home.about_text) document.getElementById('about-text').textContent = CMS.data.home.about_text;
-    if (CMS.data.home.referral_text) document.getElementById('referral-text').textContent = CMS.data.home.referral_text;
-    if (CMS.data.home.accordion_btn_closed) { closedText = CMS.data.home.accordion_btn_closed; accordionBtn.textContent = closedText; }
-    if (CMS.data.home.accordion_btn_open) { openText = CMS.data.home.accordion_btn_open; }
+    if (CMS.data.home.hero_eyebrow) document.querySelector('.hero__text .eyebrow').textContent = strip(CMS.data.home.hero_eyebrow);
+    if (CMS.data.home.hero_title_part1) document.getElementById('home-title-part1').textContent = strip(CMS.data.home.hero_title_part1);
+    if (CMS.data.home.hero_title_part2) document.getElementById('home-title-part2').textContent = strip(CMS.data.home.hero_title_part2);
+    if (CMS.data.home.hero_subtitle) document.getElementById('home-subtitle').textContent = strip(CMS.data.home.hero_subtitle);
+    if (CMS.data.home.about_text) document.getElementById('about-text').textContent = strip(CMS.data.home.about_text);
+    if (CMS.data.home.referral_text) document.getElementById('referral-text').textContent = strip(CMS.data.home.referral_text);
+    if (CMS.data.home.accordion_btn_closed) { closedText = strip(CMS.data.home.accordion_btn_closed); accordionBtn.textContent = closedText; }
+    if (CMS.data.home.accordion_btn_open) { openText = strip(CMS.data.home.accordion_btn_open); }
   }
 
   // Stats with animation

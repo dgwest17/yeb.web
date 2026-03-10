@@ -507,7 +507,9 @@ function upgradeTextareasToRich(containerEl) {
   containerEl.querySelectorAll('textarea[data-rich]').forEach(ta => {
     const uid = 'rte-' + Math.random().toString(36).substr(2, 9);
     const path = ta.getAttribute('data-path');
-    const content = ta.value;
+    // Read content from the actual data object, not the textarea value
+    // (textarea innerHTML breaks when it contains HTML tags from Quill)
+    const content = path ? getNestedValue(path) : (ta.value || '');
     const isCompact = ta.hasAttribute('data-compact');
     const isTall = ta.hasAttribute('data-tall');
 
@@ -532,9 +534,8 @@ function upgradeTextareasToRich(containerEl) {
  */
 function setNestedValue(path, value) {
   if (!path) return;
-  // Parse path: "content.home.about_text" or "content.faq[0].answer"
   const parts = path.replace(/\[(\d+)\]/g, '.$1').split('.');
-  let obj = window; // start from global scope
+  let obj = window;
   for (let i = 0; i < parts.length - 1; i++) {
     const key = isNaN(parts[i]) ? parts[i] : parseInt(parts[i]);
     if (obj[key] === undefined) return;
@@ -542,6 +543,22 @@ function setNestedValue(path, value) {
   }
   const lastKey = isNaN(parts[parts.length-1]) ? parts[parts.length-1] : parseInt(parts[parts.length-1]);
   obj[lastKey] = value;
+}
+
+/**
+ * Get a value from a nested object using a dot-bracket path like
+ * "content.build.faq[0].answer"
+ */
+function getNestedValue(path) {
+  if (!path) return '';
+  const parts = path.replace(/\[(\d+)\]/g, '.$1').split('.');
+  let obj = window;
+  for (let i = 0; i < parts.length; i++) {
+    const key = isNaN(parts[i]) ? parts[i] : parseInt(parts[i]);
+    if (obj === undefined || obj === null) return '';
+    obj = obj[key];
+  }
+  return obj !== undefined && obj !== null ? String(obj) : '';
 }
 </script>
 
@@ -1913,50 +1930,12 @@ function renderOptionSteps() {
 }
 
 function collectOptionsContent() {
-  optionsContent.hero = optionsContent.hero || {};
-  optionsContent.hero.eyebrow = getVal('opt-hero-eyebrow');
-  optionsContent.hero.title = getVal('opt-hero-title');
-  optionsContent.hero.sub = getVal('opt-hero-sub');
-  optionsContent.hero.cta = getVal('opt-hero-cta');
+  // If the Options tab was never opened, don't collect — the editors don't exist
+  // and we'd overwrite optionsContent with empty strings
+  if (!optionsTabReady) return;
 
-  optionsContent.section = optionsContent.section || {};
-  optionsContent.section.label = getVal('opt-section-label');
-  optionsContent.section.heading = getVal('opt-section-heading');
-
-  optionsContent.form = optionsContent.form || {};
-  optionsContent.form.label = getVal('opt-form-label');
-  optionsContent.form.heading = getVal('opt-form-heading');
-  optionsContent.form.sub = getVal('opt-form-sub');
-
-  optionsContent.rec = optionsContent.rec || {};
-  optionsContent.rec.eyebrow = getVal('opt-rec-eyebrow');
-  optionsContent.rec.title = getVal('opt-rec-title');
-  optionsContent.rec.name = getVal('opt-rec-name');
-  optionsContent.rec.aka = getVal('opt-rec-aka');
-  optionsContent.rec.feat1_icon = getVal('opt-rec-feat1-icon');
-  optionsContent.rec.feat1_text = getVal('opt-rec-feat1-text');
-  optionsContent.rec.feat2_icon = getVal('opt-rec-feat2-icon');
-  optionsContent.rec.feat2_text = getVal('opt-rec-feat2-text');
-
-  optionsContent.savings = optionsContent.savings || {};
-  optionsContent.savings.label = getVal('opt-savings-label');
-  optionsContent.savings.heading = getVal('opt-savings-heading');
-  optionsContent.savings.basis = getVal('opt-savings-basis');
-  optionsContent.savings.disclaimer = getVal('opt-savings-disclaimer');
-
-  optionsContent.cta = optionsContent.cta || {};
-  optionsContent.cta.title = getVal('opt-cta-title');
-  optionsContent.cta.sub = getVal('opt-cta-sub');
-  optionsContent.cta.btn = getVal('opt-cta-btn');
-  optionsContent.cta.calendly_url = getVal('opt-calendly-url');
-
-  optionsContent.footer = optionsContent.footer || {};
-  optionsContent.footer.text = getVal('opt-footer-text');
-  optionsContent.footer.disclaimer = getVal('opt-footer-disclaimer');
-
-  optionsContent.calc = optionsContent.calc || {};
-  optionsContent.calc.reduction = parseFloat(getVal('opt-calc-reduction')) || 20;
-  optionsContent.calc.escalation = parseFloat(getVal('opt-calc-escalation')) || 5;
+  // Sync from live editors first
+  syncOptionsEditors();
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -2052,79 +2031,95 @@ saveContent = async function() {
   btn.textContent = '💾 Saving...';
   btn.disabled = true;
 
-  // 1) Gather content.json fields (same as before)
+  // Helper: get value from editor, but never overwrite with empty
+  const safeGet = (id, fallback) => { const v = getVal(id); return (v && v !== '<p><br></p>') ? v : (fallback || ''); };
+
+  // 1) Gather content.json fields
   content.home = content.home || {};
-  content.home.hero_eyebrow = getVal('home-eyebrow');
-  content.home.hero_title_part1 = getVal('home-title-part1');
-  content.home.hero_title_part2 = getVal('home-title-part2');
-  content.home.hero_subtitle = getVal('home-subtitle');
-  content.home.about_text = getVal('home-about');
-  content.home.referral_text = getVal('home-referral');
-  content.home.accordion_btn_closed = getVal('accordion-btn-closed');
-  content.home.accordion_btn_open = getVal('accordion-btn-open');
+  content.home.hero_eyebrow = safeGet('home-eyebrow', content.home.hero_eyebrow);
+  content.home.hero_title_part1 = safeGet('home-title-part1', content.home.hero_title_part1);
+  content.home.hero_title_part2 = safeGet('home-title-part2', content.home.hero_title_part2);
+  content.home.hero_subtitle = safeGet('home-subtitle', content.home.hero_subtitle);
+  content.home.about_text = safeGet('home-about', content.home.about_text);
+  content.home.referral_text = safeGet('home-referral', content.home.referral_text);
+  content.home.accordion_btn_closed = safeGet('accordion-btn-closed', content.home.accordion_btn_closed);
+  content.home.accordion_btn_open = safeGet('accordion-btn-open', content.home.accordion_btn_open);
   
   // Differentiators
   if (content.home.differentiators) {
-    content.home.differentiators.title = getVal('diff-title');
-    content.home.differentiators.subtitle = getVal('diff-subtitle');
+    content.home.differentiators.title = safeGet('diff-title', content.home.differentiators.title);
+    content.home.differentiators.subtitle = safeGet('diff-subtitle', content.home.differentiators.subtitle);
   }
 
   content.build = content.build || {};
   if (!content.build.hero) content.build.hero = {};
-  content.build.hero.title = getVal('build-hero-title');
-  content.build.hero.subtitle = getVal('build-hero-subtitle');
-  content.build.cta_text = getVal('build-cta-text');
-  content.build.section_title = getVal('build-section-title');
-  content.build.section_text = getVal('build-section-text');
+  content.build.hero.title = safeGet('build-hero-title', content.build.hero.title);
+  content.build.hero.subtitle = safeGet('build-hero-subtitle', content.build.hero.subtitle);
+  content.build.cta_text = safeGet('build-cta-text', content.build.cta_text);
+  content.build.section_title = safeGet('build-section-title', content.build.section_title);
+  content.build.section_text = safeGet('build-section-text', content.build.section_text);
 
   content.stats = content.stats || {};
-  content.stats.savings = getVal('stats-savings');
-  content.stats.savings_label = getVal('stats-savings-label');
-  content.stats.hours = getVal('stats-hours');
-  content.stats.hours_label = getVal('stats-hours-label');
-  content.stats.installations = getVal('stats-installations');
-  content.stats.installations_label = getVal('stats-installations-label');
-  content.stats.customers = getVal('stats-customers');
-  content.stats.customers_label = getVal('stats-customers-label');
+  content.stats.savings = safeGet('stats-savings', content.stats.savings);
+  content.stats.savings_label = safeGet('stats-savings-label', content.stats.savings_label);
+  content.stats.hours = safeGet('stats-hours', content.stats.hours);
+  content.stats.hours_label = safeGet('stats-hours-label', content.stats.hours_label);
+  content.stats.installations = safeGet('stats-installations', content.stats.installations);
+  content.stats.installations_label = safeGet('stats-installations-label', content.stats.installations_label);
+  content.stats.customers = safeGet('stats-customers', content.stats.customers);
+  content.stats.customers_label = safeGet('stats-customers-label', content.stats.customers_label);
 
   content.rebate_alert = content.rebate_alert || {};
-  content.rebate_alert.heading = getVal('rebate-heading');
-  content.rebate_alert.text = getVal('rebate-text');
-  content.rebate_alert.home_link_text = getVal('rebate-home-link');
-  content.rebate_alert.quote_link_text = getVal('rebate-quote-link');
-  content.rebate_alert.quote_modal_text = getVal('rebate-modal-text');
+  content.rebate_alert.heading = safeGet('rebate-heading', content.rebate_alert.heading);
+  content.rebate_alert.text = safeGet('rebate-text', content.rebate_alert.text);
+  content.rebate_alert.home_link_text = safeGet('rebate-home-link', content.rebate_alert.home_link_text);
+  content.rebate_alert.quote_link_text = safeGet('rebate-quote-link', content.rebate_alert.quote_link_text);
+  content.rebate_alert.quote_modal_text = safeGet('rebate-modal-text', content.rebate_alert.quote_modal_text);
   content.rebate_alert.links = [
-    { label: getVal('rebate-home-link') || 'See what you qualify for', url: 'quote.html', external: false },
+    { label: safeGet('rebate-home-link', content.rebate_alert.home_link_text) || 'See what you qualify for', url: 'quote.html', external: false },
     { label: 'SD Community Power Rebates', url: 'https://sdcommunitypower.org/solar-battery-savings/', external: true }
   ];
 
   content.contact = content.contact || {};
-  content.contact.phone = getVal('contact-phone');
-  content.contact.phone_formatted = formatPhone(getVal('contact-phone'));
-  content.contact.email = getVal('contact-email');
+  content.contact.phone = safeGet('contact-phone', content.contact.phone);
+  content.contact.phone_formatted = formatPhone(safeGet('contact-phone', content.contact.phone));
+  content.contact.email = safeGet('contact-email', content.contact.email);
 
   content.quote = content.quote || {};
-  content.quote.hero_eyebrow = getVal('quote-eyebrow');
-  content.quote.hero_title = getVal('quote-title');
-  content.quote.hero_subtitle = getVal('quote-subtitle');
-  content.quote.form_title = getVal('quote-form-title');
-  content.quote.success_message = getVal('quote-success');
+  content.quote.hero_eyebrow = safeGet('quote-eyebrow', content.quote.hero_eyebrow);
+  content.quote.hero_title = safeGet('quote-title', content.quote.hero_title);
+  content.quote.hero_subtitle = safeGet('quote-subtitle', content.quote.hero_subtitle);
+  content.quote.form_title = safeGet('quote-form-title', content.quote.form_title);
+  content.quote.success_message = safeGet('quote-success', content.quote.success_message);
+
+  // Comparison table
+  content.comparison = content.comparison || {};
+  content.comparison.title = safeGet('comp-title', content.comparison.title);
+  content.comparison.subtitle = safeGet('comp-subtitle', content.comparison.subtitle);
+  content.comparison.col_utility = safeGet('comp-col-utility', content.comparison.col_utility);
+  content.comparison.col_solar = safeGet('comp-col-solar', content.comparison.col_solar);
 
   ensureTestimonials();
-  content.testimonials.rating = document.getElementById('testimonials-rating')?.value || '5.0';
-  content.testimonials.total_reviews = document.getElementById('testimonials-total')?.value || '';
+  content.testimonials.rating = document.getElementById('testimonials-rating')?.value || content.testimonials.rating || '5.0';
+  content.testimonials.total_reviews = document.getElementById('testimonials-total')?.value || content.testimonials.total_reviews || '';
 
   // 2) Train content
   trainContent.settings = trainContent.settings || {};
-  trainContent.settings.portal_password = getVal('train-password') || 'Become';
+  trainContent.settings.portal_password = safeGet('train-password', trainContent.settings.portal_password) || 'Become';
 
   // 3) Services content
   servicesContent.hero = servicesContent.hero || {};
-  servicesContent.hero.title = getVal('svc-hero-title');
-  servicesContent.hero.subtitle = getVal('svc-hero-subtitle');
+  servicesContent.hero.title = safeGet('svc-hero-title', servicesContent.hero.title);
+  servicesContent.hero.subtitle = safeGet('svc-hero-subtitle', servicesContent.hero.subtitle);
 
   // 4) Options content
   collectOptionsContent();
+
+  // Debug: log what we're about to save
+  console.log('💾 Saving content.json — build.faq count:', (content.build?.faq || []).length);
+  console.log('💾 Saving content.json — build.hero.title:', content.build?.hero?.title);
+  console.log('💾 Saving content.json — faq count:', (content.faq || []).length);
+  console.log('💾 Saving options-content.json — cards count:', (optionsContent.cards || []).length);
 
   let allOk = true;
   try {
@@ -2133,26 +2128,31 @@ saveContent = async function() {
     // Save content.json
     const r1 = await fetch('save.php', { method: 'POST', headers: authHeaders, body: JSON.stringify({ ...content, _save_target: 'content' }) });
     const j1 = await r1.json();
+    console.log('💾 content.json response:', j1);
     if (!j1.success) throw new Error('content.json: ' + (j1.error || 'failed'));
 
     // Save train-content.json
     const r2 = await fetch('save.php', { method: 'POST', headers: authHeaders, body: JSON.stringify({ ...trainContent, _save_target: 'train' }) });
     const j2 = await r2.json();
+    console.log('💾 train-content.json response:', j2);
     if (!j2.success) throw new Error('train-content.json: ' + (j2.error || 'failed'));
 
     // Save services-content.json
     const r3 = await fetch('save.php', { method: 'POST', headers: authHeaders, body: JSON.stringify({ ...servicesContent, _save_target: 'services' }) });
     const j3 = await r3.json();
+    console.log('💾 services-content.json response:', j3);
     if (!j3.success) throw new Error('services-content.json: ' + (j3.error || 'failed'));
 
     // Save train-users.json
     const r4 = await fetch('save.php', { method: 'POST', headers: authHeaders, body: JSON.stringify({ ...trainUsers, _save_target: 'train-users' }) });
     const j4 = await r4.json();
+    console.log('💾 train-users.json response:', j4);
     if (!j4.success) throw new Error('train-users.json: ' + (j4.error || 'failed'));
 
     // Save options-content.json
     const r5 = await fetch('save.php', { method: 'POST', headers: authHeaders, body: JSON.stringify({ ...optionsContent, _save_target: 'options' }) });
     const j5 = await r5.json();
+    console.log('💾 options-content.json response:', j5);
     if (!j5.success) throw new Error('options-content.json: ' + (j5.error || 'failed'));
 
     btn.textContent = '✓ All Saved!';

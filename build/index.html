@@ -537,7 +537,7 @@
         </button>
 
         <div class="form-error-msg" id="formErrorMsg">
-          Something went wrong. Please try again or email us at <strong>info@yourenergybest.com</strong>.
+          Something went wrong. Please try again or email us at <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="274e494148675e48525542494255405e454254530944484a">[email&#160;protected]</a></strong>.
         </div>
       </div>
     </div>
@@ -550,7 +550,7 @@
 
 <button class="sticky-join-btn" id="stickyJoinBtn" onclick="document.getElementById('apply').scrollIntoView({behavior:'smooth'})">Join Team Waitlist</button>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ─── Sticky button ───
 window.addEventListener('scroll', () => {
   const btn = document.getElementById('stickyJoinBtn');
@@ -648,6 +648,9 @@ async function submitRecruitForm() {
 });
 
 // ─── Load content.json ───
+// Helper: strip Quill's HTML wrapper tags for plain text fields
+const strip = (html) => html ? html.replace(/<[^>]*>/g, '').trim() : '';
+
 async function loadBuildContent() {
   try {
     const res = await fetch('../content.json?' + Date.now());
@@ -656,35 +659,35 @@ async function loadBuildContent() {
     if (!b) return;
 
     if (b.hero) {
-      document.getElementById('build-hero-title').textContent    = b.hero.title    || document.getElementById('build-hero-title').textContent;
-      document.getElementById('build-hero-subtitle').textContent = b.hero.subtitle || document.getElementById('build-hero-subtitle').textContent;
+      document.getElementById('build-hero-title').textContent    = strip(b.hero.title)    || document.getElementById('build-hero-title').textContent;
+      document.getElementById('build-hero-subtitle').textContent = strip(b.hero.subtitle) || document.getElementById('build-hero-subtitle').textContent;
     }
-    if (b.section_title) document.getElementById('build-section-title').textContent = b.section_title;
-    if (b.section_text)  document.getElementById('build-section-text').textContent  = b.section_text;
-    if (b.cta_text)      document.getElementById('build-cta').textContent           = b.cta_text;
+    if (b.section_title) document.getElementById('build-section-title').textContent = strip(b.section_title);
+    if (b.section_text)  document.getElementById('build-section-text').textContent  = strip(b.section_text);
+    if (b.cta_text)      document.getElementById('build-cta').textContent           = strip(b.cta_text);
 
     // ── Form text (admin-editable) ──
     if (b.form) {
-      if (b.form.heading)     document.getElementById('form-section-heading').textContent = b.form.heading;
-      if (b.form.subheading)  document.getElementById('form-section-subheading').textContent = b.form.subheading;
-      if (b.form.title)       document.getElementById('form-title').textContent = b.form.title;
-      if (b.form.subtitle)    document.getElementById('form-subtitle').textContent = b.form.subtitle;
-      if (b.form.blitz_dates) document.getElementById('blitz-dates').textContent = b.form.blitz_dates;
-      if (b.form.blitz_location) document.getElementById('blitz-location').textContent = b.form.blitz_location;
-      if (b.form.success_msg) document.getElementById('form-success-msg').textContent = b.form.success_msg;
-      if (b.form.submit_btn)  document.querySelector('.btn-text').textContent = b.form.submit_btn;
+      if (b.form.heading)     document.getElementById('form-section-heading').textContent = strip(b.form.heading);
+      if (b.form.subheading)  document.getElementById('form-section-subheading').textContent = strip(b.form.subheading);
+      if (b.form.title)       document.getElementById('form-title').textContent = strip(b.form.title);
+      if (b.form.subtitle)    document.getElementById('form-subtitle').textContent = strip(b.form.subtitle);
+      if (b.form.blitz_dates) document.getElementById('blitz-dates').textContent = strip(b.form.blitz_dates);
+      if (b.form.blitz_location) document.getElementById('blitz-location').textContent = strip(b.form.blitz_location);
+      if (b.form.success_msg) document.getElementById('form-success-msg').textContent = strip(b.form.success_msg);
+      if (b.form.submit_btn)  document.querySelector('.btn-text').textContent = strip(b.form.submit_btn);
       if (b.form.bg_image)    document.querySelector('.form-section').style.setProperty('--form-bg-image', `url(${b.form.bg_image})`);
     }
 
     if (b.benefits) {
       document.getElementById('build-benefits').innerHTML = b.benefits.map(bn => `
-        <div class="benefit-card"><div class="benefit-icon">${bn.icon}</div><h3>${bn.title}</h3><p>${bn.text}</p></div>
+        <div class="benefit-card"><div class="benefit-icon">${strip(bn.icon)}</div><h3>${strip(bn.title)}</h3><p>${strip(bn.text)}</p></div>
       `).join('');
     }
 
     if (b.gallery) {
       document.getElementById('build-gallery').innerHTML = b.gallery.map(item => 
-        item.url ? `<div class="gallery-item"><img src="${item.url}" alt="${item.caption || 'Team'}" /></div>`
+        item.url ? `<div class="gallery-item"><img src="${item.url}" alt="${strip(item.caption) || 'Team'}" /></div>`
                  : `<div class="gallery-item"><div class="gallery-placeholder">Photo placeholder</div></div>`
       ).join('');
     }
@@ -692,27 +695,17 @@ async function loadBuildContent() {
     if (b.videos && b.videos.length > 0) {
       document.getElementById('build-videos').style.display = 'block';
       document.getElementById('build-videos-grid').innerHTML = b.videos.map(v => `
-        <div class="video-card"><iframe src="https://www.youtube.com/embed/${v.youtube_id}" frameborder="0" allowfullscreen></iframe><div class="video-title">${v.title}</div></div>
+        <div class="video-card"><iframe src="https://www.youtube.com/embed/${v.youtube_id}" frameborder="0" allowfullscreen></iframe><div class="video-title">${strip(v.title)}</div></div>
       `).join('');
     }
 
     if (b.faq) {
       document.getElementById('build-faq').innerHTML = b.faq.map((item, i) => `
-        <div class="faq-item"><button class="faq-question" onclick="toggleFaq(${i})">${item.question}<span class="faq-icon">+</span></button><div class="faq-answer">${item.answer}</div></div>
+        <div class="faq-item"><button class="faq-question" onclick="toggleFaq(${i})">${strip(item.question)}<span class="faq-icon">+</span></button><div class="faq-answer">${item.answer || ''}</div></div>
       `).join('');
     }
   } catch (err) { console.error('Failed to load build content:', err); }
 }
 
 function toggleFaq(index) {
-  const items = document.querySelectorAll('.faq-item');
-  const item = items[index];
-  const isOpen = item.classList.contains('open');
-  items.forEach(i => i.classList.remove('open'));
-  if (!isOpen) item.classList.add('open');
-}
-
-loadBuildContent();
-</script>
-</body>
-</html>
+  const items = document.querySelectorAll('

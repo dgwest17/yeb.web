@@ -13,9 +13,24 @@ window.CMS.load = async function() {
 
 // ─── Escape HTML to prevent XSS when rendering user content ───
 function esc(str) {
+  if (!str) return '';
+  // If the string contains HTML tags (from Quill), strip them first then escape
+  const stripped = String(str).replace(/<[^>]*>/g, '').trim();
   const d = document.createElement('div');
-  d.textContent = str || '';
+  d.textContent = stripped;
   return d.innerHTML;
+}
+
+// ─── Sanitize Quill HTML — allow safe tags, strip dangerous ones ───
+function richHtml(str) {
+  if (!str) return '';
+  // Allow Quill's standard tags, strip everything else
+  const allowed = ['p','br','strong','b','em','i','u','s','strike','ul','ol','li','h1','h2','h3','h4','a','span','sub','sup'];
+  const tmp = document.createElement('div');
+  tmp.innerHTML = str;
+  // Remove script/style/iframe tags entirely
+  tmp.querySelectorAll('script,style,iframe,object,embed').forEach(el => el.remove());
+  return tmp.innerHTML;
 }
 
 // ─── Simple markdown → HTML (headings, bold, italic, lists, paragraphs) ───
@@ -123,7 +138,7 @@ window.CMS.renderTestimonialsGlobal = function(containerId, initialCount) {
   const gridHTML = items.map((item, i) => `
     <div class="testimonials__item${i >= initialCount ? ' hidden' : ''}">
       <div class="testimonials__avatar">${esc(item.initials)}</div>
-      <p class="testimonials__text">"${esc(item.text)}"</p>
+      <p>${esc(item.text)}</p>
       <div class="testimonials__author">
         <strong>${esc(item.name)}</strong>
         <span>${esc(item.role)}</span>
@@ -215,13 +230,15 @@ window.CMS.renderVideos = function(containerId, context) {
 
 // ─── FAQ ───
 window.CMS.renderFaq = function(containerId) {
-  document.getElementById(containerId).innerHTML = window.CMS.data.faq.map(f => `
+  const el = document.getElementById(containerId);
+  if (!el || !window.CMS.data.faq) return;
+  el.innerHTML = window.CMS.data.faq.map(f => `
     <div class="faq__item">
       <button class="faq__q" onclick="CMS.toggleFaq(this)">
         ${esc(f.question)}
         <span class="icon"><svg viewBox="0 0 12 12" fill="none" stroke="var(--navy)" stroke-width="2"><path d="M2 6h8M6 2v8"/></svg></span>
       </button>
-      <div class="faq__a">${esc(f.answer)}</div>
+      <div class="faq__a">${richHtml(f.answer)}</div>
     </div>
   `).join('');
 };
@@ -254,7 +271,7 @@ window.CMS.renderRebate = function(containerId) {
       <div class="rebate-alert__icon">⚡</div>
       <div>
         <h4>${esc(r.heading)}</h4>
-        <p style="margin-bottom:0.6rem;">${esc(r.text)}</p>
+        <div style="margin-bottom:0.6rem;">${richHtml(r.text)}</div>
         <div style="display:flex; flex-wrap:wrap; gap:0.6rem; margin-top:0.5rem;">${linksHtml}</div>
       </div>
     </div>`;

@@ -552,10 +552,19 @@ function setNestedValue(path, value) {
 function getNestedValue(path) {
   if (!path) return '';
   const parts = path.replace(/\[(\d+)\]/g, '.$1').split('.');
-  let obj = window;
-  for (let i = 0; i < parts.length; i++) {
-    const key = isNaN(parts[i]) ? parts[i] : parseInt(parts[i]);
+  // Resolve the root variable — check known local vars first, then window
+  const root = parts[0];
+  let obj;
+  if (root === 'content') obj = content;
+  else if (root === 'optionsContent') obj = optionsContent;
+  else if (root === 'servicesContent') obj = servicesContent;
+  else if (root === 'trainContent') obj = trainContent;
+  else if (root === 'trainUsers') obj = trainUsers;
+  else obj = window[root];
+
+  for (let i = 1; i < parts.length; i++) {
     if (obj === undefined || obj === null) return '';
+    const key = isNaN(parts[i]) ? parts[i] : parseInt(parts[i]);
     obj = obj[key];
   }
   return obj !== undefined && obj !== null ? String(obj) : '';

@@ -535,8 +535,18 @@ function upgradeTextareasToRich(containerEl) {
 function setNestedValue(path, value) {
   if (!path) return;
   const parts = path.replace(/\[(\d+)\]/g, '.$1').split('.');
-  let obj = window;
-  for (let i = 0; i < parts.length - 1; i++) {
+  // Resolve the root variable — check known local vars first, then window
+  const root = parts[0];
+  let obj;
+  if (root === 'content') obj = content;
+  else if (root === 'optionsContent') obj = optionsContent;
+  else if (root === 'servicesContent') obj = servicesContent;
+  else if (root === 'trainContent') obj = trainContent;
+  else if (root === 'trainUsers') obj = trainUsers;
+  else obj = window[root];
+
+  if (obj === undefined) return;
+  for (let i = 1; i < parts.length - 1; i++) {
     const key = isNaN(parts[i]) ? parts[i] : parseInt(parts[i]);
     if (obj[key] === undefined) return;
     obj = obj[key];
@@ -1636,18 +1646,24 @@ function removeSvcFeature(i, fi) {
 let optionsContent = {};
 
 async function loadOptionsContent() {
+  const defaults = getDefaultOptionsContent();
   try {
     const res = await fetch('load-content.php?target=options&t=' + Date.now());
     const data = await res.json();
-    if (!data || !data.hero || !data.cards || data.cards.length === 0) {
-      optionsContent = getDefaultOptionsContent();
+    if (!data || !data.cards || data.cards.length === 0) {
+      optionsContent = defaults;
     } else {
       optionsContent = data;
+      // Merge in any missing top-level sections from defaults
+      for (const key of Object.keys(defaults)) {
+        if (!optionsContent[key] || (typeof optionsContent[key] === 'object' && !Array.isArray(optionsContent[key]) && Object.keys(optionsContent[key]).length === 0)) {
+          optionsContent[key] = defaults[key];
+        }
+      }
     }
   } catch(e) {
-    optionsContent = getDefaultOptionsContent();
+    optionsContent = defaults;
   }
-  // Don't render immediately — render when tab is first opened to avoid Quill race conditions
   optionsTabReady = false;
 }
 

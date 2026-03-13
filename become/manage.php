@@ -154,6 +154,16 @@ select.ed-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
 /* Responsive */
 .content-layout{display:grid;grid-template-columns:320px 1fr;gap:1rem}
 @media(max-width:800px){.content-layout{grid-template-columns:1fr}.tree-panel{max-height:300px;overflow-y:auto}}
+
+/* Drag and Drop */
+.drag-item{cursor:grab;transition:opacity .2s,transform .2s}
+.drag-item:active{cursor:grabbing}
+.drag-item.dragging{opacity:.4;transform:scale(.95)}
+.drag-over{outline:2px dashed var(--teal);outline-offset:-2px;background:rgba(34,168,179,0.06) !important}
+.drop-col{min-height:60px;transition:background .2s}
+.drop-col.drag-over{background:rgba(34,168,179,0.08)}
+.drag-handle{cursor:grab;color:var(--mute);font-size:.9rem;padding:0 .25rem;user-select:none}
+.drag-handle:hover{color:var(--teal)}
 </style>
 </head>
 <body>
@@ -199,7 +209,7 @@ select.ed-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
     <div class="sec-hdr">
       <h2>🗺️ Progression Planner</h2>
     </div>
-    <p style="color:var(--dim);margin-bottom:1.5rem">See the rep's learning journey at a glance. Each column is a level — modules listed under their unlock requirement. Drag is not supported yet but you can change levels from the Content tab.</p>
+    <p style="color:var(--dim);margin-bottom:1.5rem">Drag module cards between columns to change their unlock level. Drop into "Sequential" for linear progression, or into a Level column to unlock at that level.</p>
     <div id="flowBoard" style="overflow-x:auto"></div>
   </div>
 
@@ -221,7 +231,19 @@ select.ed-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
         <div class="ed-field"><label>Last Name</label><input class="ed-input" id="nu-last"></div>
       </div>
       <div class="ed-field"><label>Role</label>
-        <select class="ed-input" id="nu-role"><option value="rep">Rep</option><option value="trainer">Trainer</option><option value="leader">Leader</option><option value="admin">Admin</option></select>
+        <select class="ed-input" id="nu-role" onchange="suggestStartLevel(this.value)"><option value="rep">Rep (Rookie)</option><option value="trainer">Trainer</option><option value="leader">Leader</option><option value="admin">Admin</option></select>
+      </div>
+      <div class="ed-field"><label>Starting Level — Controls what content they can access immediately</label>
+        <select class="ed-input" id="nu-level">
+          <option value="1">Level 1 — Rookie 🌱 (default for new reps)</option>
+          <option value="2">Level 2 — Apprentice ⚡</option>
+          <option value="3">Level 3 — Builder 🔨</option>
+          <option value="4">Level 4 — Closer 🎯</option>
+          <option value="5">Level 5 — Expert 🏆</option>
+          <option value="6">Level 6 — Master 👑</option>
+          <option value="7">Level 7 — Legend 🌟</option>
+        </select>
+        <p style="color:var(--mute);font-size:.75rem;margin-top:.3rem">Higher starting level = more folders and modules unlocked from day one. Leaders and closers typically start at level 4+.</p>
       </div>
       <div style="display:flex;gap:.5rem;margin-top:1rem">
         <button class="btn btn-green" onclick="createUser()">Create</button>
@@ -292,15 +314,17 @@ function folderHTML(f) {
           <button class="btn btn-sm btn-ghost" onclick="event.stopPropagation();openFolderEditor(${f.id})">✏️ Edit</button>
           <button class="btn btn-sm btn-red" onclick="event.stopPropagation();deleteFolder(${f.id})">✕</button>
         </div>
-        ${mods.map(m => {
+        ${mods.map((m, mi) => {
           const segCount = data.segments.filter(s => s.module_id == m.id).length;
           const sel = selectedModId == m.id ? ' selected' : '';
           const mRule = m.unlock_rule;
           const mLvl = mRule && mRule.kind === 'level' ? mRule.value : 0;
           const mBadge = mLvl ? `<span style="font-size:.65rem;padding:1px 5px;border-radius:8px;background:rgba(255,183,3,0.12);color:var(--gold);font-weight:600">L${mLvl}</span>` : '';
-          return `<div class="tree-mod${sel}" onclick="openModuleEditor(${m.id})">
+          return `<div class="tree-mod${sel} drag-item" draggable="true" data-mod-id="${m.id}" data-folder-id="${f.id}" data-order="${mi}"
+            ondragstart="dragModStart(event,${m.id})" ondragover="dragModOver(event)" ondrop="dropMod(event,${f.id},${mi})" ondragend="dragEnd(event)">
+            <span class="drag-handle" title="Drag to reorder">⠿</span>
             <span class="icon">${m.icon||'📄'}</span>
-            <span class="title">${esc(m.title)}</span>
+            <span class="title" onclick="openModuleEditor(${m.id})">${esc(m.title)}</span>
             ${mBadge}
             <span class="count">${segCount} segs</span>
           </div>`;
@@ -521,35 +545,30 @@ function renderFlow() {
   const board = document.getElementById('flowBoard');
   if (!board) return;
 
-  // Group modules by their unlock level
   const levels = {};
-  const seqModules = []; // modules with sequential unlock (level 0)
+  const seqModules = [];
 
   data.modules.forEach(m => {
     const rule = m.unlock_rule;
     const lvl = rule && rule.kind === 'level' ? rule.value : 0;
-    if (lvl === 0) {
-      seqModules.push(m);
-    } else {
-      if (!levels[lvl]) levels[lvl] = [];
-      levels[lvl].push(m);
-    }
+    if (lvl === 0) seqModules.push(m);
+    else { if (!levels[lvl]) levels[lvl] = []; levels[lvl].push(m); }
   });
 
-  // Build columns for each level
   const maxLvl = Math.max(7, ...Object.keys(levels).map(Number));
   const thresholds = data.thresholds || [];
 
-  let html = '<div style="display:flex;gap:1rem;min-width:max-content;padding-bottom:1rem">';
+  let html = '<div style="display:flex;gap:.75rem;min-width:max-content;padding-bottom:1rem">';
 
   // Sequential column
-  html += `<div style="min-width:200px;flex-shrink:0">
+  html += `<div style="min-width:190px;flex-shrink:0">
     <div style="text-align:center;padding:.5rem;background:rgba(6,214,160,0.1);border-radius:8px 8px 0 0;border:1px solid rgba(6,214,160,0.2);border-bottom:none">
       <div style="font-weight:700;font-size:.85rem;color:var(--green)">Sequential</div>
       <div style="font-size:.7rem;color:var(--dim)">Complete in order</div>
     </div>
-    <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:0 0 8px 8px;padding:.5rem;min-height:100px">
-      ${seqModules.length ? seqModules.map(m => flowModCard(m)).join('') : '<p style="color:var(--mute);font-size:.8rem;text-align:center;padding:1rem">None</p>'}
+    <div class="drop-col" data-drop-level="0" ondragover="dragFlowOver(event)" ondragleave="dragFlowLeave(event)" ondrop="dropFlow(event,0)"
+      style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:0 0 8px 8px;padding:.5rem;min-height:100px">
+      ${seqModules.length ? seqModules.map(m => flowModCard(m)).join('') : '<p style="color:var(--mute);font-size:.8rem;text-align:center;padding:1rem">Drop here</p>'}
     </div>
   </div>`;
 
@@ -557,13 +576,14 @@ function renderFlow() {
     const th = thresholds.find(t => t.level == lvl);
     const mods = levels[lvl] || [];
     const hasContent = mods.length > 0;
-    html += `<div style="min-width:200px;flex-shrink:0;${hasContent?'':'opacity:.4'}">
+    html += `<div style="min-width:190px;flex-shrink:0;${hasContent?'':'opacity:.5'}">
       <div style="text-align:center;padding:.5rem;background:rgba(255,183,3,0.08);border-radius:8px 8px 0 0;border:1px solid rgba(255,183,3,0.15);border-bottom:none">
         <div style="font-weight:700;font-size:.85rem;color:var(--gold)">${th?th.badge_icon:''} Level ${lvl}</div>
         <div style="font-size:.7rem;color:var(--dim)">${th?th.title:'—'} · ${th?th.xp_required:0} XP</div>
       </div>
-      <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:0 0 8px 8px;padding:.5rem;min-height:100px">
-        ${mods.length ? mods.map(m => flowModCard(m)).join('') : '<p style="color:var(--mute);font-size:.8rem;text-align:center;padding:1rem">—</p>'}
+      <div class="drop-col" data-drop-level="${lvl}" ondragover="dragFlowOver(event)" ondragleave="dragFlowLeave(event)" ondrop="dropFlow(event,${lvl})"
+        style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:0 0 8px 8px;padding:.5rem;min-height:100px">
+        ${mods.length ? mods.map(m => flowModCard(m)).join('') : '<p style="color:var(--mute);font-size:.8rem;text-align:center;padding:1rem">Drop here</p>'}
       </div>
     </div>`;
   }
@@ -576,7 +596,9 @@ function flowModCard(m) {
   const folder = data.folders.find(f => f.id == m.folder_id);
   const folderName = folder ? folder.title : '?';
   const segCount = data.segments.filter(s => s.module_id == m.id).length;
-  return `<div style="padding:.5rem .6rem;background:var(--card);border:1px solid var(--bdr);border-radius:6px;margin-bottom:.35rem;cursor:pointer" onclick="switchPanel('content',document.querySelector('.mgr-tab'));openModuleEditor(${m.id})">
+  return `<div class="drag-item" draggable="true" data-flow-mod-id="${m.id}"
+    ondragstart="dragFlowStart(event,${m.id})" ondragend="dragEnd(event)"
+    style="padding:.5rem .6rem;background:var(--card);border:1px solid var(--bdr);border-radius:6px;margin-bottom:.35rem;cursor:grab">
     <div style="font-weight:600;font-size:.82rem">${m.icon||'📄'} ${esc(m.title)}</div>
     <div style="font-size:.7rem;color:var(--dim)">${esc(folderName)} · ${segCount} segs · ${m.xp_reward||50} XP</div>
   </div>`;
@@ -747,6 +769,9 @@ function renderUsers() {
         <option value="leader" ${u.role==='leader'?'selected':''}>Leader</option>
         <option value="admin" ${u.role==='admin'?'selected':''}>Admin</option>
       </select>
+      <select class="ed-input" style="width:auto;font-size:.8rem;padding:.3rem .5rem" onchange="setUserLevel(${u.id},parseInt(this.value))" title="Set access level">
+        ${[1,2,3,4,5,6,7].map(l => `<option value="${l}">Lvl ${l}</option>`).join('')}
+      </select>
       <div style="display:flex;gap:.25rem">
         <button class="btn btn-sm btn-ghost" onclick="resetPw(${u.id},'${esc(u.username)}')">🔑</button>
         ${u.role!=='admin'?`<button class="btn btn-sm btn-red" onclick="deleteUser(${u.id},'${esc(u.username)}')">✕</button>`:''}
@@ -758,6 +783,7 @@ function renderUsers() {
 function showAddUser() { document.getElementById('addUserForm').style.display = 'block'; }
 
 async function createUser() {
+  const startLevel = parseInt(document.getElementById('nu-level').value) || 1;
   const d = {
     action:'add_user',
     username: document.getElementById('nu-user').value.trim(),
@@ -767,11 +793,26 @@ async function createUser() {
     role: document.getElementById('nu-role').value
   };
   if (!d.username || !d.password) return toast('Username and password required', true);
-  await api('POST', d);
+  const result = await api('POST', d);
+
+  // Set starting level if higher than 1
+  if (startLevel > 1 && result.id) {
+    // Find the XP needed for that level from thresholds
+    const th = data.thresholds.find(t => t.level == startLevel);
+    const xp = th ? th.xp_required : 0;
+    // Update user_progress directly via a custom API call
+    await fetch(API, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({action:'set_user_level', user_id: result.id, level: startLevel, xp: xp})
+    });
+  }
+
   document.getElementById('addUserForm').style.display = 'none';
   ['nu-user','nu-pass','nu-first','nu-last'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('nu-level').value = '1';
   await loadAll();
-  toast('User created');
+  toast('User created' + (startLevel > 1 ? ' at Level ' + startLevel : ''));
 }
 
 async function updateUser(id, updates) {
@@ -792,6 +833,83 @@ async function deleteUser(id, username) {
   await api('POST', {action:'delete_user', id});
   await loadAll();
   toast('User deleted');
+}
+
+async function setUserLevel(userId, level) {
+  const th = data.thresholds.find(t => t.level == level);
+  const xp = th ? th.xp_required : 0;
+  await api('POST', {action:'set_user_level', user_id: userId, level, xp});
+  toast('Level set to ' + level);
+}
+
+// ─── DRAG AND DROP: Module reorder in tree ───
+let dragModId = null;
+
+function dragModStart(e, modId) {
+  dragModId = modId;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', modId);
+  setTimeout(() => e.target.classList.add('dragging'), 0);
+}
+
+function dragModOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  const target = e.target.closest('.tree-mod');
+  if (target) target.classList.add('drag-over');
+}
+
+async function dropMod(e, folderId, targetOrder) {
+  e.preventDefault();
+  document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+  if (!dragModId) return;
+  // Update the module order
+  await api('POST', {action:'update_module', id: dragModId, module_order: targetOrder});
+  dragModId = null;
+  await loadAll();
+  toast('Reordered');
+}
+
+function dragEnd(e) {
+  e.target.classList.remove('dragging');
+  document.querySelectorAll('.drag-over,.dragging').forEach(el => el.classList.remove('drag-over','dragging'));
+}
+
+// ─── DRAG AND DROP: Flow board (change unlock level) ───
+let dragFlowModId = null;
+
+function dragFlowStart(e, modId) {
+  dragFlowModId = modId;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', modId);
+  setTimeout(() => e.target.classList.add('dragging'), 0);
+}
+
+function dragFlowOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  e.currentTarget.classList.add('drag-over');
+}
+
+function dragFlowLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+
+async function dropFlow(e, level) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  if (!dragFlowModId) return;
+  await setModuleUnlock(dragFlowModId, level);
+  dragFlowModId = null;
+  renderFlow();
+}
+
+// ─── STARTING LEVEL: Auto-suggest based on role ───
+function suggestStartLevel(role) {
+  const levelSelect = document.getElementById('nu-level');
+  if (!levelSelect) return;
+  const suggestions = { rep: '1', trainer: '3', leader: '4', admin: '7' };
+  levelSelect.value = suggestions[role] || '1';
 }
 
 // ─── UI HELPERS ───

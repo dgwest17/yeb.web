@@ -96,18 +96,35 @@ select.ed-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
 /* Quill overrides for dark theme */
 .quill-wrap{border:1px solid var(--bdr);border-radius:8px;overflow:hidden;margin-bottom:.5rem}
 .quill-wrap:focus-within{border-color:var(--teal)}
-.quill-wrap .ql-toolbar{background:rgba(255,255,255,0.03);border:none;border-bottom:1px solid var(--bdr)}
+.quill-wrap .ql-toolbar{background:rgba(255,255,255,0.03);border:none;border-bottom:1px solid var(--bdr);padding:8px 12px;flex-wrap:wrap}
 .quill-wrap .ql-toolbar .ql-stroke{stroke:var(--dim)}
 .quill-wrap .ql-toolbar .ql-fill{fill:var(--dim)}
 .quill-wrap .ql-toolbar .ql-picker-label{color:var(--dim)}
-.quill-wrap .ql-toolbar button:hover .ql-stroke{stroke:var(--teal)}
+.quill-wrap .ql-toolbar button:hover .ql-stroke,.quill-wrap .ql-toolbar .ql-picker-label:hover{stroke:var(--teal);color:var(--teal)}
 .quill-wrap .ql-toolbar button.ql-active .ql-stroke{stroke:var(--teal)}
-.quill-wrap .ql-container{border:none;color:var(--txt);font-family:var(--bf);font-size:.95rem;min-height:200px}
-.quill-wrap .ql-editor{padding:1rem;min-height:200px;line-height:1.7}
+.quill-wrap .ql-toolbar button.ql-active{color:var(--teal)}
+.quill-wrap .ql-toolbar .ql-picker-item:hover{color:var(--teal)}
+.quill-wrap .ql-container{border:none;color:var(--txt);font-family:var(--bf);font-size:1rem;min-height:350px}
+.quill-wrap .ql-editor{padding:1.25rem;min-height:350px;line-height:1.8}
 .quill-wrap .ql-editor.ql-blank::before{color:var(--mute);font-style:italic}
-.quill-wrap .ql-editor h1,.quill-wrap .ql-editor h2,.quill-wrap .ql-editor h3{font-family:var(--hf);color:var(--teal)}
+.quill-wrap .ql-editor h1{font-family:var(--hf);font-size:1.6rem;color:var(--teal);margin:.75rem 0 .5rem}
+.quill-wrap .ql-editor h2{font-family:var(--hf);font-size:1.3rem;color:var(--teal);margin:.75rem 0 .4rem}
+.quill-wrap .ql-editor h3{font-family:var(--hf);font-size:1.1rem;color:var(--orange);margin:.5rem 0 .3rem}
+.quill-wrap .ql-editor p{margin-bottom:.6rem}
 .quill-wrap .ql-editor a{color:var(--teal)}
+.quill-wrap .ql-editor blockquote{border-left:3px solid var(--gold);padding-left:1rem;color:var(--dim);margin:.75rem 0;font-style:italic}
+.quill-wrap .ql-editor pre{background:rgba(255,255,255,0.05);border:1px solid var(--bdr);border-radius:6px;padding:.75rem 1rem;font-family:monospace;font-size:.9rem;margin:.75rem 0;overflow-x:auto}
+.quill-wrap .ql-editor img{max-width:100%;border-radius:8px;margin:.5rem 0}
+.quill-wrap .ql-editor iframe{max-width:100%;border-radius:8px}
+.quill-wrap .ql-editor ul,.quill-wrap .ql-editor ol{padding-left:1.5rem;margin:.5rem 0}
+.quill-wrap .ql-editor li{margin-bottom:.25rem}
+.quill-wrap .ql-editor hr{border:none;border-top:1px solid rgba(255,255,255,0.1);margin:1.5rem 0}
 .quill-wrap .ql-snow .ql-picker-options{background:var(--bg);border-color:var(--bdr)}
+.quill-wrap .ql-snow .ql-picker-options .ql-picker-item{color:var(--dim)}
+.quill-wrap .ql-snow .ql-picker-options .ql-picker-item:hover{color:var(--teal)}
+.quill-wrap .ql-snow .ql-tooltip{background:var(--bg);border-color:var(--bdr);color:var(--txt);box-shadow:0 4px 20px rgba(0,0,0,0.5)}
+.quill-wrap .ql-snow .ql-tooltip input{background:rgba(255,255,255,0.05);border-color:var(--bdr);color:var(--txt)}
+.quill-wrap .ql-snow .ql-tooltip a{color:var(--teal)}
 
 /* Segment list in editor */
 .seg-item{display:flex;align-items:center;gap:.6rem;padding:.6rem .75rem;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:8px;margin-bottom:.4rem;cursor:pointer;transition:all .2s}
@@ -346,35 +363,95 @@ function openSegEditor(segId) {
       </div>
       <div class="ed-field"><label>Content</label>
         <div class="quill-wrap"><div id="quill-seg"></div></div>
-        <button class="btn btn-teal" onclick="saveSegContent(${segId})" style="margin-top:.5rem">💾 Save Content</button>
+        <div style="display:flex;gap:.5rem;align-items:center;margin-top:.5rem;flex-wrap:wrap">
+          <button class="btn btn-teal" onclick="saveSegContent(${segId})">💾 Save Content</button>
+          <button class="btn btn-ghost btn-sm" onclick="insertPDF(${segId})">📎 Attach PDF</button>
+          <button class="btn btn-ghost btn-sm" onclick="insertDivider()">— Divider</button>
+          <span id="save-status" style="color:var(--green);font-size:.8rem;margin-left:auto"></span>
+        </div>
+        <p style="color:var(--mute);font-size:.75rem;margin-top:.5rem">Tip: Shift+Enter = new line · Enter = new paragraph · Ctrl+B = bold · Ctrl+I = italic · Ctrl+K = link</p>
       </div>
       <div style="border-top:1px solid rgba(255,255,255,0.05);margin-top:1.25rem;padding-top:1.25rem">
-        <label style="font-size:.8rem;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:.75rem">💬 Conversation Bubble (optional)</label>
-        <div class="ed-field"><label>Customer Quote</label>
-          <input class="ed-input" id="ed-seg-cq" value="${esc(seg.customer_quote||'')}" placeholder="What the customer says..." onchange="updateSegment(${segId},{customer_quote:this.value})">
+        <label style="font-size:.8rem;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:.75rem">💬 Conversation Bubble (optional — shows as a role-play example)</label>
+        <div class="ed-field"><label>🗣️ Customer Quote</label>
+          <textarea class="ed-input" id="ed-seg-cq" rows="2" placeholder="What the customer might say..." onchange="updateSegment(${segId},{customer_quote:this.value})" style="resize:vertical;min-height:60px">${esc(seg.customer_quote||'')}</textarea>
         </div>
-        <div class="ed-field"><label>Rep Response</label>
-          <input class="ed-input" id="ed-seg-rr" value="${esc(seg.rep_response||'')}" placeholder="How to respond..." onchange="updateSegment(${segId},{rep_response:this.value})">
+        <div class="ed-field"><label>💪 Rep Response</label>
+          <textarea class="ed-input" id="ed-seg-rr" rows="2" placeholder="How to respond..." onchange="updateSegment(${segId},{rep_response:this.value})" style="resize:vertical;min-height:60px">${esc(seg.rep_response||'')}</textarea>
         </div>
-        <div class="ed-field"><label>💡 Tip</label>
-          <input class="ed-input" id="ed-seg-tip" value="${esc(seg.tip||'')}" placeholder="Pro tip for the rep..." onchange="updateSegment(${segId},{tip:this.value})">
+        <div class="ed-field"><label>💡 Pro Tip</label>
+          <textarea class="ed-input" id="ed-seg-tip" rows="2" placeholder="Pro tip for the rep..." onchange="updateSegment(${segId},{tip:this.value})" style="resize:vertical;min-height:60px">${esc(seg.tip||'')}</textarea>
         </div>
       </div>
     </div>`;
 
   quillEditor = new Quill('#quill-seg', {
     theme:'snow',
-    placeholder:'Write your training content here...',
-    modules:{toolbar:[
-      ['bold','italic','underline','strike'],
-      [{header:[1,2,3,false]}],
-      [{list:'ordered'},{list:'bullet'}],
-      [{color:[]},{background:[]}],
-      ['link','image','video'],
-      ['clean']
-    ]}
+    placeholder:'Start writing your training content...\n\nTip: Use headers to organize sections, bold for key terms, and lists for steps.',
+    modules:{
+      toolbar: {
+        container: [
+          [{ 'header': [1, 2, 3, false] }],
+          [{ 'size': ['small', false, 'large', 'huge'] }],
+          ['bold', 'italic', 'underline', 'strike'],
+          [{ 'color': [] }, { 'background': [] }],
+          [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+          [{ 'indent': '-1' }, { 'indent': '+1' }],
+          [{ 'align': [] }],
+          ['blockquote', 'code-block'],
+          ['link', 'image', 'video'],
+          [{ 'script': 'sub' }, { 'script': 'super' }],
+          ['clean']
+        ],
+        handlers: {
+          'image': function() {
+            const url = prompt('Image URL (paste a link to an image):');
+            if (url) {
+              const range = this.quill.getSelection(true);
+              this.quill.insertEmbed(range.index, 'image', url);
+              this.quill.setSelection(range.index + 1);
+            }
+          }
+        }
+      },
+      keyboard: {
+        bindings: {
+          // Shift+Enter inserts a line break (Quill default handles this, but ensure it's explicit)
+          linebreak: {
+            key: 13,
+            shiftKey: true,
+            handler: function(range) {
+              this.quill.insertText(range.index, '\n');
+              this.quill.setSelection(range.index + 1);
+              return false;
+            }
+          }
+        }
+      }
+    }
   });
   quillEditor.root.innerHTML = seg.content_html || '';
+
+  // Auto-save after 2 seconds of inactivity
+  let autoSaveTimer = null;
+  const statusEl = document.getElementById('save-status');
+  quillEditor.on('text-change', function() {
+    if (statusEl) statusEl.textContent = '● Unsaved changes';
+    if (statusEl) statusEl.style.color = 'var(--gold)';
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(async () => {
+      const html = quillEditor.root.innerHTML;
+      const content = html === '<p><br></p>' ? '' : html;
+      try {
+        await api('POST', {action:'update_segment', id: segId, content_html: content});
+        const s = data.segments.find(x => x.id == segId);
+        if (s) s.content_html = content;
+        if (statusEl) { statusEl.textContent = '✓ Auto-saved'; statusEl.style.color = 'var(--green)'; }
+      } catch(e) {
+        if (statusEl) { statusEl.textContent = '✕ Save failed'; statusEl.style.color = 'var(--red)'; }
+      }
+    }, 2000);
+  });
 }
 
 function closeSegEditor() {
@@ -386,8 +463,30 @@ function closeSegEditor() {
 async function saveSegContent(segId) {
   if (!quillEditor) return;
   const html = quillEditor.root.innerHTML;
-  if (html === '<p><br></p>') return updateSegment(segId, {content_html:''});
-  await updateSegment(segId, {content_html: html});
+  const content = html === '<p><br></p>' ? '' : html;
+  await updateSegment(segId, {content_html: content});
+  const statusEl = document.getElementById('save-status');
+  if (statusEl) { statusEl.textContent = '✓ Saved'; statusEl.style.color = 'var(--green)'; }
+}
+
+function insertPDF(segId) {
+  const url = prompt('PDF URL (paste a link to the PDF file):');
+  if (!url) return;
+  const title = prompt('Display title for the PDF:', 'View PDF');
+  if (!quillEditor) return;
+  const range = quillEditor.getSelection(true);
+  // Insert as a styled link
+  quillEditor.insertText(range.index, '\n');
+  quillEditor.insertText(range.index + 1, '📄 ' + (title || 'View PDF'), {link: url});
+  quillEditor.insertText(range.index + 1 + title.length + 3, '\n');
+  quillEditor.setSelection(range.index + title.length + 5);
+}
+
+function insertDivider() {
+  if (!quillEditor) return;
+  const range = quillEditor.getSelection(true);
+  quillEditor.insertText(range.index, '\n───────────────────\n');
+  quillEditor.setSelection(range.index + 22);
 }
 
 // ─── CRUD OPERATIONS ───

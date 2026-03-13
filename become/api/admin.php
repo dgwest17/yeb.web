@@ -202,6 +202,14 @@ try {
             echo json_encode(['success'=>true]);
             break;
 
+        case 'set_user_level':
+            $uid = (int)($input['user_id'] ?? 0);
+            $lvl = (int)($input['level'] ?? 1);
+            $xp = (int)($input['xp'] ?? 0);
+            $db->prepare("UPDATE user_progress SET level=?, xp=? WHERE user_id=?")->execute([$lvl, $xp, $uid]);
+            echo json_encode(['success'=>true]);
+            break;
+
         default:
             echo json_encode(['error'=>'Unknown action: '.$action]);
     }

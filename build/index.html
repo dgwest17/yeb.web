@@ -411,7 +411,7 @@
   <div class="hero-content">
     <h1 id="build-hero-title">Unlock Your Potential Through Door-to-Door Sales</h1>
     <p id="build-hero-subtitle">Join Your Energy Best's elite sales team. Solar & HVAC solutions that change lives — starting with yours.</p>
-    <button class="cta-btn" id="build-cta" onclick="document.getElementById('apply').scrollIntoView({behavior:'smooth'})">Join Our Team</button>
+    <button class="cta-btn" id="build-cta">Join Our Team</button>
   </div>
 </section>
 
@@ -531,7 +531,7 @@
           <textarea class="form-textarea" id="recruit-why" placeholder="Tell us what drives you, what you're looking for, and why Your Energy Best..."></textarea>
         </div>
 
-        <button class="form-submit-btn" id="recruitSubmitBtn" onclick="submitRecruitForm()">
+        <button class="form-submit-btn" id="recruitSubmitBtn" type="button">
           <div class="btn-spinner"></div>
           <span class="btn-text">Submit Application</span>
         </button>
@@ -548,7 +548,7 @@
 <section class="videos" id="build-videos" style="display:none;"><h2>Hear From The Team</h2><div class="videos-grid" id="build-videos-grid"></div></section>
 <section class="faq"><h2>Common Questions</h2><div class="faq-container" id="build-faq"></div></section>
 
-<button class="sticky-join-btn" id="stickyJoinBtn" onclick="document.getElementById('apply').scrollIntoView({behavior:'smooth'})">Join Team Waitlist</button>
+<button class="sticky-join-btn" id="stickyJoinBtn">Join Team Waitlist</button>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ─── Sticky button ───
@@ -659,6 +659,15 @@ async function submitRecruitForm() {
   if (el) el.addEventListener('input', () => el.classList.remove('error'));
 });
 
+// ─── Bind buttons (replaces inline onclick — Cloudflare-safe) ───
+document.getElementById('recruitSubmitBtn').addEventListener('click', submitRecruitForm);
+document.getElementById('stickyJoinBtn').addEventListener('click', () => {
+  document.getElementById('apply').scrollIntoView({ behavior: 'smooth' });
+});
+document.getElementById('build-cta').addEventListener('click', () => {
+  document.getElementById('apply').scrollIntoView({ behavior: 'smooth' });
+});
+
 // ─── Load content.json ───
 // Helper: strip Quill's HTML wrapper tags for plain text fields
 const strip = (html) => html ? html.replace(/<[^>]*>/g, '').trim() : '';
@@ -720,4 +729,17 @@ async function loadBuildContent() {
 }
 
 function toggleFaq(index) {
-  const items = document.querySelectorAll('
+  const items = document.querySelectorAll('.faq-item');
+  items.forEach((item, i) => {
+    if (i === index) {
+      item.classList.toggle('active');
+    } else {
+      item.classList.remove('active');
+    }
+  });
+}
+
+loadBuildContent();
+</script>
+</body>
+</html>

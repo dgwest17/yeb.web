@@ -162,6 +162,7 @@ select.ed-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
   <span class="mgr-logo">Become Admin</span>
   <div class="mgr-tabs">
     <button class="mgr-tab active" onclick="switchPanel('content',this)">📚 Content</button>
+    <button class="mgr-tab" onclick="switchPanel('flow',this)">🗺️ Progression</button>
     <button class="mgr-tab" onclick="switchPanel('users',this)">👥 Users</button>
   </div>
   <div class="mgr-hdr-right">
@@ -191,6 +192,15 @@ select.ed-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- PROGRESSION PLANNER -->
+  <div id="panel-flow" class="panel">
+    <div class="sec-hdr">
+      <h2>🗺️ Progression Planner</h2>
+    </div>
+    <p style="color:var(--dim);margin-bottom:1.5rem">See the rep's learning journey at a glance. Each column is a level — modules listed under their unlock requirement. Drag is not supported yet but you can change levels from the Content tab.</p>
+    <div id="flowBoard" style="overflow-x:auto"></div>
   </div>
 
   <!-- USERS PANEL -->
@@ -250,6 +260,7 @@ async function loadAll() {
   data = d;
   renderTree();
   renderUsers();
+  renderFlow();
   if (selectedModId) openModuleEditor(selectedModId);
 }
 
@@ -261,28 +272,36 @@ function renderTree() {
 }
 
 function folderHTML(f) {
-  const mods = data.modules.filter(m => m.folder_id == f.id);
+  const mods = data.modules.filter(m => m.folder_id == f.id).sort((a,b) => a.module_order - b.module_order);
   const children = data.folders.filter(c => c.parent_id == f.id);
+  const rule = f.unlock_rule;
+  const lvlReq = rule && rule.kind === 'level' ? rule.value : 0;
+  const lvlBadge = lvlReq ? `<span style="font-size:.7rem;padding:2px 6px;border-radius:10px;background:rgba(255,183,3,0.15);color:var(--gold);font-weight:700;margin-left:.25rem">Lvl ${lvlReq}+</span>` : '<span style="font-size:.7rem;padding:2px 6px;border-radius:10px;background:rgba(6,214,160,0.15);color:var(--green);font-weight:700;margin-left:.25rem">Open</span>';
   return `
     <div class="tree-folder open" data-id="${f.id}">
       <div class="tree-folder-hdr" onclick="this.parentElement.classList.toggle('open')">
         <span class="icon">${f.icon||'📁'}</span>
         <span class="title">${esc(f.title)}</span>
-        <span class="meta">${mods.length} modules</span>
+        ${lvlBadge}
+        <span class="meta">${mods.length} mod</span>
         <span class="arrow">▸</span>
       </div>
       <div class="tree-folder-body">
         <div style="display:flex;gap:.4rem;margin-bottom:.5rem;padding:.25rem 0">
           <button class="btn btn-sm btn-teal" onclick="event.stopPropagation();addModule(${f.id})">+ Module</button>
-          <button class="btn btn-sm btn-ghost" onclick="event.stopPropagation();editFolder(${f.id})">✏️</button>
+          <button class="btn btn-sm btn-ghost" onclick="event.stopPropagation();openFolderEditor(${f.id})">✏️ Edit</button>
           <button class="btn btn-sm btn-red" onclick="event.stopPropagation();deleteFolder(${f.id})">✕</button>
         </div>
         ${mods.map(m => {
           const segCount = data.segments.filter(s => s.module_id == m.id).length;
           const sel = selectedModId == m.id ? ' selected' : '';
+          const mRule = m.unlock_rule;
+          const mLvl = mRule && mRule.kind === 'level' ? mRule.value : 0;
+          const mBadge = mLvl ? `<span style="font-size:.65rem;padding:1px 5px;border-radius:8px;background:rgba(255,183,3,0.12);color:var(--gold);font-weight:600">L${mLvl}</span>` : '';
           return `<div class="tree-mod${sel}" onclick="openModuleEditor(${m.id})">
             <span class="icon">${m.icon||'📄'}</span>
             <span class="title">${esc(m.title)}</span>
+            ${mBadge}
             <span class="count">${segCount} segs</span>
           </div>`;
         }).join('')}
@@ -303,6 +322,10 @@ function openModuleEditor(modId) {
   if (sel) sel.classList.add('selected');
 
   const area = document.getElementById('editorArea');
+  const curUnlock = mod.unlock_rule;
+  const curLvl = curUnlock && curUnlock.kind === 'level' ? curUnlock.value : 0;
+  const levelOpts = [0,1,2,3,4,5,6,7].map(l => `<option value="${l}" ${curLvl==l?'selected':''}>${l===0?'Sequential (complete previous first)':'Level '+l+' — '+(data.thresholds.find(t=>t.level==l)||{title:'?'}).title}</option>`).join('');
+
   area.innerHTML = `
     <div class="editor">
       <div class="ed-field"><label>Module Title</label>
@@ -311,6 +334,10 @@ function openModuleEditor(modId) {
       <div class="ed-row">
         <div class="ed-field"><label>Icon</label><input class="ed-input" id="ed-mod-icon" value="${mod.icon||''}" style="max-width:80px" onchange="updateModule(${modId},{icon:this.value})"></div>
         <div class="ed-field"><label>XP Reward</label><input class="ed-input" type="number" value="${mod.xp_reward||50}" onchange="updateModule(${modId},{xp_reward:parseInt(this.value)})"></div>
+      </div>
+      <div class="ed-field"><label>🔓 Unlock Requirement</label>
+        <select class="ed-input" onchange="setModuleUnlock(${modId}, parseInt(this.value))">${levelOpts}</select>
+        <p style="color:var(--mute);font-size:.75rem;margin-top:.3rem">Sequential = rep must complete the previous module first. Level-based = unlocks when rep reaches that level (can skip ahead).</p>
       </div>
       <div class="ed-field"><label>Description</label>
         <input class="ed-input" value="${esc(mod.description||'')}" placeholder="Optional short description" onchange="updateModule(${modId},{description:this.value})">
@@ -489,6 +516,72 @@ function insertDivider() {
   quillEditor.setSelection(range.index + 22);
 }
 
+// ─── PROGRESSION FLOW BOARD ───
+function renderFlow() {
+  const board = document.getElementById('flowBoard');
+  if (!board) return;
+
+  // Group modules by their unlock level
+  const levels = {};
+  const seqModules = []; // modules with sequential unlock (level 0)
+
+  data.modules.forEach(m => {
+    const rule = m.unlock_rule;
+    const lvl = rule && rule.kind === 'level' ? rule.value : 0;
+    if (lvl === 0) {
+      seqModules.push(m);
+    } else {
+      if (!levels[lvl]) levels[lvl] = [];
+      levels[lvl].push(m);
+    }
+  });
+
+  // Build columns for each level
+  const maxLvl = Math.max(7, ...Object.keys(levels).map(Number));
+  const thresholds = data.thresholds || [];
+
+  let html = '<div style="display:flex;gap:1rem;min-width:max-content;padding-bottom:1rem">';
+
+  // Sequential column
+  html += `<div style="min-width:200px;flex-shrink:0">
+    <div style="text-align:center;padding:.5rem;background:rgba(6,214,160,0.1);border-radius:8px 8px 0 0;border:1px solid rgba(6,214,160,0.2);border-bottom:none">
+      <div style="font-weight:700;font-size:.85rem;color:var(--green)">Sequential</div>
+      <div style="font-size:.7rem;color:var(--dim)">Complete in order</div>
+    </div>
+    <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:0 0 8px 8px;padding:.5rem;min-height:100px">
+      ${seqModules.length ? seqModules.map(m => flowModCard(m)).join('') : '<p style="color:var(--mute);font-size:.8rem;text-align:center;padding:1rem">None</p>'}
+    </div>
+  </div>`;
+
+  for (let lvl = 1; lvl <= maxLvl; lvl++) {
+    const th = thresholds.find(t => t.level == lvl);
+    const mods = levels[lvl] || [];
+    const hasContent = mods.length > 0;
+    html += `<div style="min-width:200px;flex-shrink:0;${hasContent?'':'opacity:.4'}">
+      <div style="text-align:center;padding:.5rem;background:rgba(255,183,3,0.08);border-radius:8px 8px 0 0;border:1px solid rgba(255,183,3,0.15);border-bottom:none">
+        <div style="font-weight:700;font-size:.85rem;color:var(--gold)">${th?th.badge_icon:''} Level ${lvl}</div>
+        <div style="font-size:.7rem;color:var(--dim)">${th?th.title:'—'} · ${th?th.xp_required:0} XP</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:0 0 8px 8px;padding:.5rem;min-height:100px">
+        ${mods.length ? mods.map(m => flowModCard(m)).join('') : '<p style="color:var(--mute);font-size:.8rem;text-align:center;padding:1rem">—</p>'}
+      </div>
+    </div>`;
+  }
+
+  html += '</div>';
+  board.innerHTML = html;
+}
+
+function flowModCard(m) {
+  const folder = data.folders.find(f => f.id == m.folder_id);
+  const folderName = folder ? folder.title : '?';
+  const segCount = data.segments.filter(s => s.module_id == m.id).length;
+  return `<div style="padding:.5rem .6rem;background:var(--card);border:1px solid var(--bdr);border-radius:6px;margin-bottom:.35rem;cursor:pointer" onclick="switchPanel('content',document.querySelector('.mgr-tab'));openModuleEditor(${m.id})">
+    <div style="font-weight:600;font-size:.82rem">${m.icon||'📄'} ${esc(m.title)}</div>
+    <div style="font-size:.7rem;color:var(--dim)">${esc(folderName)} · ${segCount} segs · ${m.xp_reward||50} XP</div>
+  </div>`;
+}
+
 // ─── CRUD OPERATIONS ───
 async function addFolder() {
   const title = prompt('Folder name:');
@@ -499,13 +592,90 @@ async function addFolder() {
 }
 
 async function editFolder(id) {
+  // Legacy — redirects to new editor
+  openFolderEditor(id);
+}
+
+function openFolderEditor(id) {
   const f = data.folders.find(x => x.id == id);
   if (!f) return;
-  const title = prompt('Folder title:', f.title);
-  if (title === null) return;
-  await api('POST', {action:'update_folder', id, title});
+  selectedModId = null;
+  const rule = f.unlock_rule;
+  const curLvl = rule && rule.kind === 'level' ? rule.value : 0;
+  const levelOpts = [0,1,2,3,4,5,6,7].map(l => `<option value="${l}" ${curLvl==l?'selected':''}>${l===0?'Open to all levels':'Level '+l+' — '+(data.thresholds.find(t=>t.level==l)||{title:'?'}).title}</option>`).join('');
+  const typeOpts = ['core','sidequest'].map(t => `<option value="${t}" ${(f.folder_type||'core')===t?'selected':''}>${t==='core'?'📚 Core Training':'🗺️ Side Quest'}</option>`).join('');
+
+  const area = document.getElementById('editorArea');
+  area.innerHTML = `
+    <div class="editor">
+      <h3 style="font-family:var(--hf);font-size:1.2rem;margin-bottom:1.25rem">📁 Folder Settings: ${esc(f.title)}</h3>
+      <div class="ed-field"><label>Folder Title</label>
+        <input class="ed-input" value="${esc(f.title)}" onchange="updateFolder(${id},{title:this.value})">
+      </div>
+      <div class="ed-row">
+        <div class="ed-field"><label>Icon</label><input class="ed-input" value="${f.icon||'📁'}" style="max-width:80px" onchange="updateFolder(${id},{icon:this.value})"></div>
+        <div class="ed-field"><label>Folder Type</label>
+          <select class="ed-input" onchange="updateFolder(${id},{folder_type:this.value})">${typeOpts}</select>
+        </div>
+      </div>
+      <div class="ed-field"><label>🔓 Access Level — Who can see this folder?</label>
+        <select class="ed-input" onchange="setFolderUnlock(${id}, parseInt(this.value))">${levelOpts}</select>
+        <p style="color:var(--mute);font-size:.75rem;margin-top:.3rem">"Open to all" = visible from day one. Level-based = folder is locked until the rep reaches that level. Reps can still see the folder name (greyed out) but can't access content inside.</p>
+      </div>
+      <div class="ed-field"><label>XP Reward (for completing all modules in this folder)</label>
+        <input class="ed-input" type="number" value="${f.xp_reward||200}" onchange="updateFolder(${id},{xp_reward:parseInt(this.value)})">
+      </div>
+      <div class="ed-field"><label>Description</label>
+        <input class="ed-input" value="${esc(f.description||'')}" placeholder="What's in this folder?" onchange="updateFolder(${id},{description:this.value})">
+      </div>
+
+      <div style="border-top:1px solid rgba(255,255,255,0.05);margin-top:1.5rem;padding-top:1.5rem">
+        <h4 style="font-size:.85rem;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;margin-bottom:1rem">📋 Module Unlock Flow</h4>
+        <p style="color:var(--mute);font-size:.8rem;margin-bottom:1rem">Set which level each module requires. Modules set to "Sequential" require the previous module to be completed first.</p>
+        <div id="folder-flow-${id}">${renderFolderFlow(id)}</div>
+      </div>
+    </div>`;
+}
+
+function renderFolderFlow(folderId) {
+  const mods = data.modules.filter(m => m.folder_id == folderId).sort((a,b) => a.module_order - b.module_order);
+  if (!mods.length) return '<p style="color:var(--mute);font-size:.85rem">No modules yet. Add one from the tree.</p>';
+  return mods.map((m, i) => {
+    const rule = m.unlock_rule;
+    const lvl = rule && rule.kind === 'level' ? rule.value : 0;
+    const levelOpts = [0,1,2,3,4,5,6,7].map(l => `<option value="${l}" ${lvl==l?'selected':''}>${l===0?'Sequential':(data.thresholds.find(t=>t.level==l)||{title:'L'+l}).title+' (L'+l+')'}</option>`).join('');
+    return `<div style="display:flex;align-items:center;gap:.75rem;padding:.5rem .75rem;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:8px;margin-bottom:.35rem">
+      <span style="color:var(--mute);font-size:.8rem;width:24px;text-align:center;font-weight:700">${i+1}</span>
+      <span style="font-size:1rem">${m.icon||'📄'}</span>
+      <span style="flex:1;font-weight:600;font-size:.88rem">${esc(m.title)}</span>
+      <select class="ed-input" style="width:auto;font-size:.8rem;padding:.3rem .5rem" onchange="setModuleUnlock(${m.id},parseInt(this.value))">${levelOpts}</select>
+    </div>`;
+  }).join('');
+}
+
+async function setModuleUnlock(modId, level) {
+  const unlock = level > 0 ? {kind:'level', value:level} : null;
+  await api('POST', {action:'update_module', id:modId, unlock_rule: unlock});
+  // Update local data
+  const m = data.modules.find(x => x.id == modId);
+  if (m) m.unlock_rule = unlock;
+  renderTree();
+  toast('Unlock rule updated');
+}
+
+async function setFolderUnlock(folderId, level) {
+  const unlock = level > 0 ? {kind:'level', value:level} : null;
+  await api('POST', {action:'update_folder', id:folderId, unlock_rule: unlock});
+  const f = data.folders.find(x => x.id == folderId);
+  if (f) f.unlock_rule = unlock;
+  renderTree();
+  toast('Folder access updated');
+}
+
+async function updateFolder(id, updates) {
+  await api('POST', {action:'update_folder', id, ...updates});
   await loadAll();
-  toast('Folder updated');
+  toast('Saved');
 }
 
 async function deleteFolder(id) {

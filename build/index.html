@@ -559,6 +559,7 @@ window.addEventListener('scroll', () => {
 
 // ─── Form submission ───
 async function submitRecruitForm() {
+  console.log('[Build Form] Submit clicked');
   const btn = document.getElementById('recruitSubmitBtn');
   const errorMsg = document.getElementById('formErrorMsg');
   errorMsg.classList.remove('show');
@@ -573,8 +574,11 @@ async function submitRecruitForm() {
   const blitz  = document.querySelector('input[name="blitz"]:checked')?.value || '';
   const why    = document.getElementById('recruit-why').value.trim();
 
+  console.log('[Build Form] Values:', { first, last, phone, email, d2d, sales, blitz });
+
   // Validate
   let valid = true;
+  let firstErrorField = null;
 
   function setError(fieldId, errId, condition) {
     const field = document.getElementById(fieldId);
@@ -582,6 +586,7 @@ async function submitRecruitForm() {
     if (condition) {
       field.classList.add('error');
       err.classList.add('show');
+      if (!firstErrorField) firstErrorField = field;
       valid = false;
     } else {
       field.classList.remove('error');
@@ -596,9 +601,14 @@ async function submitRecruitForm() {
   setError('recruit-d2d',   'err-d2d',   !d2d);
   setError('recruit-sales', 'err-sales', !sales);
 
-  if (!valid) return;
+  if (!valid) {
+    console.log('[Build Form] Validation failed, scrolling to first error');
+    if (firstErrorField) firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
 
   // Submit
+  console.log('[Build Form] Validation passed, submitting...');
   btn.disabled = true;
   btn.classList.add('loading');
 
@@ -617,24 +627,26 @@ async function submitRecruitForm() {
       lead_source:       'Website - Build Page'
     };
 
-    const res = await fetch('../zoho.php', {
+    // Use absolute path so it works from /build/ or /build/index.html
+    const res = await fetch('/zoho.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
 
+    console.log('[Build Form] Response status:', res.status);
     const data = await res.json();
+    console.log('[Build Form] Response data:', data);
 
     if (data.success) {
       document.getElementById('recruitFormInner').style.display = 'none';
       document.getElementById('formSuccess').classList.add('show');
-      // Scroll success into view
       document.getElementById('apply').scrollIntoView({ behavior: 'smooth' });
     } else {
-      throw new Error('Server returned failure');
+      throw new Error(data.error || 'Server returned failure');
     }
   } catch (err) {
-    console.error(err);
+    console.error('[Build Form] Error:', err);
     errorMsg.classList.add('show');
     btn.disabled = false;
     btn.classList.remove('loading');
@@ -653,7 +665,7 @@ const strip = (html) => html ? html.replace(/<[^>]*>/g, '').trim() : '';
 
 async function loadBuildContent() {
   try {
-    const res = await fetch('../content.json?' + Date.now());
+    const res = await fetch('/content.json?' + Date.now());
     const data = await res.json();
     const b = data.build;
     if (!b) return;

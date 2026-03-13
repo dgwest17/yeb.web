@@ -28,7 +28,7 @@ function require_portal_auth() {
     }
 }
 
-function get_current_user() {
+function get_portal_user() {
     if (empty($_SESSION['portal_user_id'])) return null;
     try {
         require_once __DIR__ . '/db.php';
@@ -50,7 +50,7 @@ function has_role($required) {
 function is_leader() { return has_role('leader'); }
 
 require_portal_auth();
-$current_user = get_current_user();
+$current_user = get_portal_user();
 if (!$current_user) {
     session_destroy();
     header('Location: /become/login.php');

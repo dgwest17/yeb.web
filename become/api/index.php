@@ -31,8 +31,90 @@ try {
     // ── Complete segment: POST ?route=segments/{id}/complete ──
     if (preg_match('#^segments/(\d+)/complete$#', $route, $m) && $method === 'POST') {
         $segId = (int)$m[1];
+        $db = Database::getInstance();
+
+        // Check if this is a passoff segment
+        $s = $db->prepare("SELECT segment_type FROM segments WHERE id=?");
+        $s->execute([$segId]);
+        $seg = $s->fetch();
+
+        if ($seg && $seg['segment_type'] === 'passoff') {
+            // Check if already passed
+            $s = $db->prepare("SELECT status FROM passoff_requests WHERE user_id=? AND segment_id=? ORDER BY id DESC LIMIT 1");
+            $s->execute([$userId, $segId]);
+            $req = $s->fetch();
+
+            if ($req && $req['status'] === 'passed') {
+                // Leader already approved — complete the segment
+                $result = $engine->completeSegment($userId, $segId);
+                echo json_encode($result);
+            } elseif ($req && $req['status'] === 'pending') {
+                echo json_encode(['passoff_pending' => true, 'message' => 'Waiting for leader approval']);
+            } else {
+                echo json_encode(['needs_passoff' => true, 'message' => 'This segment requires a leader pass-off']);
+            }
+            exit;
+        }
+
         $result = $engine->completeSegment($userId, $segId);
         echo json_encode($result);
+        exit;
+    }
+
+    // ── Request pass-off: POST ?route=segments/{id}/request-passoff ──
+    if (preg_match('#^segments/(\d+)/request-passoff$#', $route, $m) && $method === 'POST') {
+        $segId = (int)$m[1];
+        $db = Database::getInstance();
+        // Insert or update request
+        $s = $db->prepare("INSERT INTO passoff_requests (user_id, segment_id, status) VALUES (?, ?, 'pending') ON DUPLICATE KEY UPDATE status='pending', requested_at=NOW()");
+        $s->execute([$userId, $segId]);
+        echo json_encode(['success' => true, 'message' => 'Pass-off requested! A leader will review.']);
+        exit;
+    }
+
+    // ── Approve pass-off: POST ?route=passoff/{id}/approve (leader only) ──
+    if (preg_match('#^passoff/(\d+)/approve$#', $route, $m) && $method === 'POST') {
+        if (!in_array($role, ['leader', 'admin'])) {
+            http_response_code(403);
+            echo json_encode(['error' => 'Leader access required']);
+            exit;
+        }
+        $requestId = (int)$m[1];
+        $db = Database::getInstance();
+
+        // Get the request
+        $s = $db->prepare("SELECT * FROM passoff_requests WHERE id=?");
+        $s->execute([$requestId]);
+        $req = $s->fetch();
+        if (!$req) { echo json_encode(['error' => 'Request not found']); exit; }
+
+        // Mark as passed
+        $s = $db->prepare("UPDATE passoff_requests SET status='passed', reviewed_by=?, reviewed_at=NOW() WHERE id=?");
+        $s->execute([$userId, $requestId]);
+
+        // Complete the segment for the user
+        $result = $engine->completeSegment($req['user_id'], $req['segment_id']);
+        echo json_encode(['success' => true, 'completed' => $result]);
+        exit;
+    }
+
+    // ── Get pending pass-offs: GET ?route=passoffs (leader only) ──
+    if ($route === 'passoffs' && $method === 'GET') {
+        if (!in_array($role, ['leader', 'admin'])) {
+            http_response_code(403);
+            echo json_encode(['error' => 'Leader access required']);
+            exit;
+        }
+        $db = Database::getInstance();
+        $s = $db->prepare("SELECT pr.*, tu.username, tu.first_name, tu.last_name, s.title AS seg_title, m.title AS mod_title
+            FROM passoff_requests pr
+            JOIN training_users tu ON pr.user_id = tu.id
+            JOIN segments s ON pr.segment_id = s.id
+            JOIN modules m ON s.module_id = m.id
+            WHERE pr.status = 'pending'
+            ORDER BY pr.requested_at DESC");
+        $s->execute();
+        echo json_encode($s->fetchAll());
         exit;
     }
 

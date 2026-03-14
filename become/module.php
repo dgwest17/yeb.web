@@ -163,7 +163,23 @@ $stats = $engine->getUserStats($userId);
 
             <?php if (!$isDone): ?>
                 <div class="seg-actions">
-                    <button class="btn-complete" onclick="completeSeg(<?= $sid ?>,this)">✓ Mark Complete (+<?= $seg['xp_reward'] ?> XP)</button>
+                    <?php if (($seg['segment_type'] ?? 'lesson') === 'passoff'): ?>
+                        <?php
+                        // Check passoff status
+                        $ps = $db->prepare("SELECT status FROM passoff_requests WHERE user_id=? AND segment_id=? ORDER BY id DESC LIMIT 1");
+                        $ps->execute([$userId, $sid]);
+                        $passoffStatus = $ps->fetch();
+                        ?>
+                        <?php if ($passoffStatus && $passoffStatus['status'] === 'pending'): ?>
+                            <button class="btn-complete" disabled style="background:linear-gradient(135deg,var(--gold),var(--orange));opacity:.8">⏳ Waiting for Leader Approval</button>
+                        <?php elseif ($passoffStatus && $passoffStatus['status'] === 'passed'): ?>
+                            <button class="btn-complete" onclick="completeSeg(<?= $sid ?>,this)">✓ Pass-off Approved — Mark Complete (+<?= $seg['xp_reward'] ?> XP)</button>
+                        <?php else: ?>
+                            <button class="btn-complete" onclick="requestPassoff(<?= $sid ?>,this)" style="background:linear-gradient(135deg,var(--gold),var(--orange))">🎯 Ready? Request Leader Pass-off</button>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <button class="btn-complete" onclick="completeSeg(<?= $sid ?>,this)">✓ Mark Complete (+<?= $seg['xp_reward'] ?> XP)</button>
+                    <?php endif; ?>
                 </div>
             <?php else: ?>
                 <div class="seg-done-badge">✅ Completed</div>
@@ -175,6 +191,31 @@ $stats = $engine->getUserStats($userId);
         </div>
         <?php endforeach; ?>
     </div>
+
+    <!-- CONTINUE BUTTON -->
+    <?php
+    // Find the next uncompleted, unlocked segment or module
+    $nextSeg = null;
+    $allDone = ($done >= $total && $total > 0);
+    foreach ($segs as $i => $seg) {
+        if (!$seg['done']) {
+            $prevDone = ($i === 0) ? true : $segs[$i-1]['done'];
+            if ($prevDone) { $nextSeg = $seg; break; }
+        }
+    }
+    $nextAction = $engine->resolveNextAction($userId);
+    ?>
+    <?php if ($allDone && $nextAction && $nextAction['type'] === 'segment'): ?>
+        <a href="/become/module.php?id=<?= $nextAction['module_id'] ?>#seg-<?= $nextAction['segment_id'] ?>" class="btn-continue">
+            Continue → <?= htmlspecialchars($nextAction['module_title'] ?? 'Next Module') ?>
+        </a>
+    <?php elseif ($allDone): ?>
+        <a href="/become/" class="btn-continue">🎉 Module Complete — Back to Dashboard</a>
+    <?php elseif ($nextSeg): ?>
+        <a href="#seg-<?= $nextSeg['id'] ?>" class="btn-continue" onclick="document.getElementById('seg-<?= $nextSeg['id'] ?>').scrollIntoView({behavior:'smooth',block:'center'});return false;">
+            Continue → <?= htmlspecialchars($nextSeg['title']) ?>
+        </a>
+    <?php endif; ?>
 
     <?php if ($mod['next_step_text']): ?>
         <div class="card next-step">👉 <?= htmlspecialchars($mod['next_step_text']) ?></div>

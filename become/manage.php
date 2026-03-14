@@ -164,6 +164,10 @@ select.ed-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
 .drop-col.drag-over{background:rgba(34,168,179,0.08)}
 .drag-handle{cursor:grab;color:var(--mute);font-size:.9rem;padding:0 .25rem;user-select:none}
 .drag-handle:hover{color:var(--teal)}
+
+/* Glow animation for pending passoffs */
+@keyframes glow{0%,100%{box-shadow:0 0 15px rgba(255,183,3,0.3)}50%{box-shadow:0 0 30px rgba(255,183,3,0.6)}}
+@keyframes pulse{0%,100%{opacity:.8}50%{opacity:1}}
 </style>
 </head>
 <body>
@@ -173,6 +177,7 @@ select.ed-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
   <div class="mgr-tabs">
     <button class="mgr-tab active" onclick="switchPanel('content',this)">📚 Content</button>
     <button class="mgr-tab" onclick="switchPanel('flow',this)">🗺️ Progression</button>
+    <button class="mgr-tab" onclick="switchPanel('passoffs',this)" id="passoff-tab">🎯 Pass-offs <span id="passoff-count" style="display:none;background:var(--red);color:#fff;border-radius:50%;font-size:.7rem;padding:1px 6px;margin-left:.25rem;animation:pulse 1.5s ease infinite"></span></button>
     <button class="mgr-tab" onclick="switchPanel('users',this)">👥 Users</button>
   </div>
   <div class="mgr-hdr-right">
@@ -211,6 +216,18 @@ select.ed-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
     </div>
     <p style="color:var(--dim);margin-bottom:1.5rem">Drag module cards between columns to change their unlock level. Drop into "Sequential" for linear progression, or into a Level column to unlock at that level.</p>
     <div id="flowBoard" style="overflow-x:auto"></div>
+  </div>
+
+  <!-- PASS-OFFS PANEL -->
+  <div id="panel-passoffs" class="panel">
+    <div class="sec-hdr">
+      <h2>🎯 Pending Pass-offs</h2>
+      <button class="btn btn-ghost" onclick="loadPassoffs()">↻ Refresh</button>
+    </div>
+    <p style="color:var(--dim);margin-bottom:1rem">Reps waiting for you to verify their memorization or skill. Click "Pass ✓" to approve and auto-complete the segment for them.</p>
+    <div id="passoffsList" class="card">
+      <div style="text-align:center;padding:2rem;color:var(--mute)">Loading...</div>
+    </div>
   </div>
 
   <!-- USERS PANEL -->
@@ -283,6 +300,7 @@ async function loadAll() {
   renderTree();
   renderUsers();
   renderFlow();
+  loadPassoffs();
   if (selectedModId) openModuleEditor(selectedModId);
 }
 
@@ -378,9 +396,11 @@ function openModuleEditor(modId) {
 }
 
 function segItemHTML(s, i) {
+  const isPassoff = s.segment_type === 'passoff';
   return `<div class="seg-item" id="si-${s.id}" onclick="openSegEditor(${s.id})">
     <span class="num">${i+1}</span>
     <span class="seg-title">${esc(s.title)}</span>
+    ${isPassoff ? '<span style="font-size:.65rem;padding:2px 6px;border-radius:8px;background:rgba(255,183,3,0.15);color:var(--gold);font-weight:700">🎯 Pass-off</span>' : ''}
     <span style="color:var(--green);font-size:.75rem;font-weight:600">+${s.xp_reward} XP</span>
     <div class="seg-actions">
       <button class="btn btn-sm btn-red" onclick="event.stopPropagation();deleteSegment(${s.id})">✕</button>
@@ -411,6 +431,13 @@ function openSegEditor(segId) {
         <div class="ed-field"><label>XP Reward</label>
           <input class="ed-input" type="number" value="${seg.xp_reward||10}" onchange="updateSegment(${segId},{xp_reward:parseInt(this.value)})">
         </div>
+      </div>
+      <div class="ed-field"><label>🎯 Segment Type</label>
+        <select class="ed-input" onchange="updateSegment(${segId},{segment_type:this.value})">
+          <option value="lesson" ${(seg.segment_type||'lesson')==='lesson'?'selected':''}>📄 Lesson — Rep marks complete on their own</option>
+          <option value="passoff" ${seg.segment_type==='passoff'?'selected':''}>🎯 Leader Pass-off — Rep must be approved by a leader</option>
+        </select>
+        <p style="color:var(--mute);font-size:.75rem;margin-top:.3rem">${seg.segment_type==='passoff' ? '⚡ This segment requires leader approval. The rep will see "Request Pass-off" instead of "Mark Complete".' : 'Standard lesson — rep completes it independently.'}</p>
       </div>
       <div class="ed-field"><label>Content</label>
         <div class="quill-wrap"><div id="quill-seg"></div></div>
@@ -911,6 +938,78 @@ function suggestStartLevel(role) {
   const suggestions = { rep: '1', trainer: '3', leader: '4', admin: '7' };
   levelSelect.value = suggestions[role] || '1';
 }
+
+// ─── PASS-OFFS ───
+async function loadPassoffs() {
+  try {
+    const res = await fetch('/become/api/index.php?route=passoffs');
+    const items = await res.json();
+    const el = document.getElementById('passoffsList');
+    const badge = document.getElementById('passoff-count');
+
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      if (el) el.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--mute)">🎉 No pending pass-offs</div>';
+      if (badge) badge.style.display = 'none';
+      return;
+    }
+
+    if (badge) { badge.style.display = 'inline'; badge.textContent = items.length; }
+
+    if (el) el.innerHTML = items.map(p => `
+      <div style="display:flex;align-items:center;gap:1rem;padding:1rem;border-bottom:1px solid rgba(255,255,255,0.04)">
+        <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--orange));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0;box-shadow:0 0 20px rgba(255,183,3,0.4);animation:glow 2s ease infinite">
+          ${esc((p.first_name||'')[0]||'')}${esc((p.last_name||'')[0]||'')}
+        </div>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:.95rem">${esc(p.first_name||'')} ${esc(p.last_name||'')} <span style="color:var(--dim);font-weight:400;font-size:.85rem">@${esc(p.username)}</span></div>
+          <div style="font-size:.88rem;color:var(--dim);margin-top:.15rem">${esc(p.mod_title)} → <strong style="color:var(--gold)">${esc(p.seg_title)}</strong></div>
+          <div style="font-size:.75rem;color:var(--mute);margin-top:.15rem">Requested ${timeAgo(p.requested_at)}</div>
+        </div>
+        <button class="btn btn-green" onclick="approvePassoff(${p.id},this)" style="font-size:1.05rem;padding:.7rem 1.8rem;box-shadow:0 0 20px rgba(6,214,160,0.3)">✓ Pass</button>
+      </div>
+    `).join('');
+  } catch(e) { console.error('Passoff load error:', e); }
+}
+
+async function approvePassoff(requestId, btn) {
+  btn.disabled = true;
+  btn.textContent = '⏳ Approving...';
+  try {
+    const res = await fetch('/become/api/index.php?route=passoff/' + requestId + '/approve', {
+      method:'POST', headers:{'Content-Type':'application/json'}
+    });
+    const data = await res.json();
+    if (data.success) {
+      btn.parentElement.style.opacity = '.3';
+      btn.textContent = '✓ Passed!';
+      btn.style.background = 'var(--teal)';
+      toast('Pass-off approved! Segment completed for rep.');
+      setTimeout(() => loadPassoffs(), 1500);
+    } else {
+      btn.textContent = '✕ Error';
+      btn.disabled = false;
+      toast(data.error || 'Approval failed', true);
+    }
+  } catch(e) {
+    btn.textContent = '✕ Error';
+    btn.disabled = false;
+  }
+}
+
+function timeAgo(dateStr) {
+  const now = new Date();
+  const then = new Date(dateStr);
+  const mins = Math.floor((now - then) / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return mins + ' min ago';
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return hrs + 'h ago';
+  const days = Math.floor(hrs / 24);
+  return days + 'd ago';
+}
+
+// Auto-refresh passoffs every 30 seconds
+setInterval(loadPassoffs, 30000);
 
 // ─── UI HELPERS ───
 function switchPanel(name, btn) {

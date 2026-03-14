@@ -3,13 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Southern California Solar Energy Solutions | Your Energy Best</title>
-  <meta name="description" content="Solar, batteries, and HVAC solutions with $0 down options for eligible Southern California homes." />
-  <meta property="og:title" content="Southern California Solar Energy Solutions | Your Energy Best" />
-  <meta property="og:description" content="Solar, batteries, and HVAC solutions with $0 down options for eligible Southern California homes." />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://yourenergybest.com/" />
-  <meta property="og:image" content="https://yourenergybest.com/img/logo.png" />
+  <title>Southern California & San Diego Solar Energy Solutions | Your Energy Best</title>
+  <meta name="description" content="Solar, batteries, and HVAC solutions with $0 down options for eligible San Diego homes." />
   <link rel="icon" type="image/png" href="img/logo.png" />
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="surf-theme.css" />
@@ -22,96 +17,6 @@
     .hero__content { display: flex; flex-direction: column; gap: 3rem; }
     .hero__text { order: 1; }
     .hero__visual { order: 2; }
-
-    /* ─── Mobile Nav Override (ensures hamburger works regardless of external CSS) ─── */
-    @media (max-width: 900px) {
-      .nav__links {
-        position: fixed !important;
-        top: 0 !important; right: 0 !important;
-        width: 280px !important;
-        height: 100vh !important;
-        height: 100dvh !important;
-        background: #023047 !important;
-        flex-direction: column !important;
-        padding: 5rem 2rem 2rem !important;
-        z-index: 1000 !important;
-        transform: translateX(100%) !important;
-        transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
-        display: flex !important;
-        list-style: none !important;
-        gap: 0.25rem !important;
-        box-shadow: -8px 0 30px rgba(0,0,0,0.3);
-        visibility: visible !important;
-        opacity: 1 !important;
-        pointer-events: auto !important;
-        margin: 0 !important;
-      }
-      .nav__links.open {
-        transform: translateX(0) !important;
-      }
-      .nav__links li {
-        width: 100% !important;
-        display: block !important;
-        visibility: visible !important;
-      }
-      .nav__links a {
-        display: block !important;
-        padding: 0.75rem 0 !important;
-        font-size: 1.05rem !important;
-        color: rgba(255,255,255,0.85) !important;
-        border-bottom: 1px solid rgba(255,255,255,0.06) !important;
-        pointer-events: auto !important;
-        text-decoration: none;
-        visibility: visible !important;
-        opacity: 1 !important;
-        position: relative !important;
-        z-index: 1 !important;
-      }
-      .nav__links a:hover,
-      .nav__links a.active { color: #FFB703 !important; }
-      .nav__links .nav__cta-btn {
-        margin-top: 1rem !important;
-        background: #219EBC !important;
-        color: #fff !important;
-        border-radius: 8px !important;
-        text-align: center !important;
-        padding: 0.85rem !important;
-        border: none !important;
-        font-weight: 600 !important;
-      }
-      .nav__toggle {
-        display: flex !important;
-        flex-direction: column;
-        gap: 5px;
-        width: 28px;
-        cursor: pointer;
-        z-index: 1001 !important;
-        background: none !important;
-        border: none !important;
-        padding: 4px;
-      }
-      .nav__toggle span {
-        display: block;
-        width: 100%;
-        height: 2px;
-        background: #fff;
-        border-radius: 2px;
-        transition: all 0.3s;
-        transform-origin: center;
-      }
-      .nav__toggle.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-      .nav__toggle.active span:nth-child(2) { opacity: 0; }
-      .nav__toggle.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
-      .nav__overlay {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.5);
-        z-index: 999;
-      }
-      .nav__overlay.open { display: block; }
-      body.nav-open { overflow: hidden; }
-    }
   </style>
 </head>
 <body>
@@ -132,7 +37,7 @@
     </button>
 <ul class="nav__links" id="navLinks" role="menubar">
   <li role="none"><a href="index.html" class="active" role="menuitem">Home</a></li>
-  <li role="none"><a href="options/" role="menuitem">Your Solar Options</a></li>
+  <li role="none"><a href="options/" role="menuitem">Options</a></li>
   <li role="none"><a href="services.html" role="menuitem">Services</a></li>
   <li role="none"><a href="quote.html" role="menuitem">Get a Quote</a></li>
   <li role="none"><a href="build" role="menuitem">Build With Us</a></li>
@@ -340,10 +245,6 @@
       <h2>What our customers are saying</h2>
     </div>
     <div id="cms-testimonials"></div>
-    <!-- Options CTA after testimonials -->
-    <div class="text-center" style="margin-top: var(--space-xl);">
-      <a href="options/" class="btn btn--outline" style="border-color: var(--teal); color: var(--teal);">Explore your energy options →</a>
-    </div>
   </div>
 </section>
 
@@ -753,21 +654,21 @@ function renderComparison(data) {
     { label: 'Home Value Increase', utility: '✗', solar: '+$15–25K' },
   ];
   
-  document.getElementById('comparison-title').textContent = title;
-  document.getElementById('comparison-subtitle').textContent = subtitle;
+  document.getElementById('comparison-title').textContent = strip(title);
+  document.getElementById('comparison-subtitle').textContent = strip(subtitle);
   
   let html = `<div class="comparison-table">
     <div class="comparison-table__header">
       <div></div>
-      <div class="comparison-table__col comparison-table__col--bad">${colBad}</div>
-      <div class="comparison-table__col comparison-table__col--good">${colGood}</div>
+      <div class="comparison-table__col comparison-table__col--bad">${strip(colBad)}</div>
+      <div class="comparison-table__col comparison-table__col--good">${strip(colGood)}</div>
     </div>`;
   
   rows.forEach(row => {
     html += `<div class="comparison-table__row">
-      <div class="comparison-table__label">${row.label}</div>
-      <div class="comparison-table__val comparison-table__val--bad">${row.utility}</div>
-      <div class="comparison-table__val comparison-table__val--good">${row.solar}</div>
+      <div class="comparison-table__label">${strip(row.label)}</div>
+      <div class="comparison-table__val comparison-table__val--bad">${strip(row.utility)}</div>
+      <div class="comparison-table__val comparison-table__val--good">${strip(row.solar)}</div>
     </div>`;
   });
   
@@ -846,10 +747,7 @@ function loadGoogleReviews() {
 // LOAD CMS + RENDER ALL
 // ═══════════════════════════════════════════════════════════
 CMS.load().then(() => {
-  // Helper: strip Quill's HTML wrapper tags to get plain text
-  const strip = (html) => html ? html.replace(/<[^>]*>/g, '').trim() : '';
-
-  // Hero text
+  // Hero text — strip() removes Quill <p> wrappers for plain-text fields
   if (CMS.data.home) {
     if (CMS.data.home.hero_eyebrow) document.querySelector('.hero__text .eyebrow').textContent = strip(CMS.data.home.hero_eyebrow);
     if (CMS.data.home.hero_title_part1) document.getElementById('home-title-part1').textContent = strip(CMS.data.home.hero_title_part1);
@@ -865,10 +763,10 @@ CMS.load().then(() => {
   const statsGrid = document.getElementById('cms-stats');
   const s = CMS.data.stats;
   statsGrid.innerHTML = `
-    <div><div class="stat__number" data-target="${s.savings}">${s.savings}</div><div class="stat__label">${s.savings_label}</div></div>
-    <div><div class="stat__number" data-target="${s.hours}">${s.hours}</div><div class="stat__label">${s.hours_label}</div></div>
-    <div><div class="stat__number" data-target="${s.installations}">${s.installations}</div><div class="stat__label">${s.installations_label}</div></div>
-    <div><div class="stat__number" data-target="${s.customers}">${s.customers}</div><div class="stat__label">${s.customers_label}</div></div>
+    <div><div class="stat__number" data-target="${strip(s.savings)}">${strip(s.savings)}</div><div class="stat__label">${strip(s.savings_label)}</div></div>
+    <div><div class="stat__number" data-target="${strip(s.hours)}">${strip(s.hours)}</div><div class="stat__label">${strip(s.hours_label)}</div></div>
+    <div><div class="stat__number" data-target="${strip(s.installations)}">${strip(s.installations)}</div><div class="stat__label">${strip(s.installations_label)}</div></div>
+    <div><div class="stat__number" data-target="${strip(s.customers)}">${strip(s.customers)}</div><div class="stat__label">${strip(s.customers_label)}</div></div>
   `;
   document.querySelectorAll('.stat__number').forEach(el => statsObserver.observe(el));
 

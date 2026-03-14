@@ -168,6 +168,22 @@ select.ed-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
 /* Glow animation for pending passoffs */
 @keyframes glow{0%,100%{box-shadow:0 0 15px rgba(255,183,3,0.3)}50%{box-shadow:0 0 30px rgba(255,183,3,0.6)}}
 @keyframes pulse{0%,100%{opacity:.8}50%{opacity:1}}
+
+/* Flow Board */
+.flow-section{margin-bottom:.5rem}
+.flow-hdr{display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:var(--r);cursor:pointer;transition:border-color .2s,background .2s}
+.flow-hdr:hover{background:var(--card-h);border-color:var(--bdr)}
+.flow-arrow{font-size:.8rem;color:var(--mute);transition:transform .2s}
+.flow-open > .flow-hdr .flow-arrow{transform:rotate(90deg)}
+.flow-body{display:none;padding:.5rem 0 .5rem 1.25rem;margin-left:.75rem;border-left:2px solid rgba(255,255,255,0.06)}
+.flow-open > .flow-body{display:block}
+.flow-drop{min-height:40px;padding:.25rem;border-radius:8px;transition:background .2s}
+.flow-drop.drag-over{background:rgba(34,168,179,0.08);outline:2px dashed var(--teal);outline-offset:-2px}
+.flow-empty{color:var(--mute);font-size:.82rem;text-align:center;padding:1.5rem;border:1px dashed rgba(255,255,255,0.1);border-radius:8px}
+.flow-card{display:flex;align-items:center;gap:.5rem;padding:.55rem .7rem;background:var(--card);border:1px solid var(--bdr);border-radius:8px;margin-bottom:.35rem;cursor:grab;transition:all .15s}
+.flow-card:hover{background:var(--card-h);border-color:var(--bdr-a)}
+.flow-card.dragging{opacity:.3}
+.flow-card.drag-over-card{border-top:2px solid var(--teal);margin-top:2px}
 </style>
 </head>
 <body>
@@ -214,7 +230,7 @@ select.ed-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
     <div class="sec-hdr">
       <h2>🗺️ Progression Planner</h2>
     </div>
-    <p style="color:var(--dim);margin-bottom:1.5rem">Drag module cards between columns to change their unlock level. Drop into "Sequential" for linear progression, or into a Level column to unlock at that level.</p>
+    <p style="color:var(--dim);margin-bottom:1.5rem">This is the rep's learning journey. Modules within each level are completed sequentially top-to-bottom. Drag modules between levels to reassign, or drag within a level to reorder. When a rep completes all modules in a level, they level up and the next level unlocks.</p>
     <div id="flowBoard" style="overflow-x:auto"></div>
   </div>
 
@@ -659,62 +675,74 @@ function renderFlow() {
   const board = document.getElementById('flowBoard');
   if (!board) return;
 
-  const levels = {};
-  const seqModules = [];
-
+  const groups = {};
   data.modules.forEach(m => {
     const rule = m.unlock_rule;
     const lvl = rule && rule.kind === 'level' ? rule.value : 0;
-    if (lvl === 0) seqModules.push(m);
-    else { if (!levels[lvl]) levels[lvl] = []; levels[lvl].push(m); }
+    if (!groups[lvl]) groups[lvl] = [];
+    groups[lvl].push(m);
   });
+  Object.values(groups).forEach(arr => arr.sort((a,b) => (a.module_order||0) - (b.module_order||0)));
 
-  const maxLvl = Math.max(7, ...Object.keys(levels).map(Number));
   const thresholds = data.thresholds || [];
+  const maxLvl = Math.max(3, ...Object.keys(groups).map(Number));
 
-  let html = '<div style="display:flex;gap:.75rem;min-width:max-content;padding-bottom:1rem">';
-
-  // Sequential column
-  html += `<div style="min-width:190px;flex-shrink:0">
-    <div style="text-align:center;padding:.5rem;background:rgba(6,214,160,0.1);border-radius:8px 8px 0 0;border:1px solid rgba(6,214,160,0.2);border-bottom:none">
-      <div style="font-weight:700;font-size:.85rem;color:var(--green)">Sequential</div>
-      <div style="font-size:.7rem;color:var(--dim)">Complete in order</div>
-    </div>
-    <div class="drop-col" data-drop-level="0" ondragover="dragFlowOver(event)" ondragleave="dragFlowLeave(event)" ondrop="dropFlow(event,0)"
-      style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:0 0 8px 8px;padding:.5rem;min-height:100px">
-      ${seqModules.length ? seqModules.map(m => flowModCard(m)).join('') : '<p style="color:var(--mute);font-size:.8rem;text-align:center;padding:1rem">Drop here</p>'}
-    </div>
-  </div>`;
+  let html = '';
+  html += flowSection(0, '🌍 Auto-Unlock for All Levels', 'Available from day one — reps work through these anytime', 'var(--green)', groups[0]||[]);
 
   for (let lvl = 1; lvl <= maxLvl; lvl++) {
     const th = thresholds.find(t => t.level == lvl);
-    const mods = levels[lvl] || [];
-    const hasContent = mods.length > 0;
-    html += `<div style="min-width:190px;flex-shrink:0;${hasContent?'':'opacity:.5'}">
-      <div style="text-align:center;padding:.5rem;background:rgba(255,183,3,0.08);border-radius:8px 8px 0 0;border:1px solid rgba(255,183,3,0.15);border-bottom:none">
-        <div style="font-weight:700;font-size:.85rem;color:var(--gold)">${th?th.badge_icon:''} Level ${lvl}</div>
-        <div style="font-size:.7rem;color:var(--dim)">${th?th.title:'—'} · ${th?th.xp_required:0} XP</div>
-      </div>
-      <div class="drop-col" data-drop-level="${lvl}" ondragover="dragFlowOver(event)" ondragleave="dragFlowLeave(event)" ondrop="dropFlow(event,${lvl})"
-        style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:0 0 8px 8px;padding:.5rem;min-height:100px">
-        ${mods.length ? mods.map(m => flowModCard(m)).join('') : '<p style="color:var(--mute);font-size:.8rem;text-align:center;padding:1rem">Drop here</p>'}
-      </div>
-    </div>`;
+    const mods = groups[lvl] || [];
+    if (!mods.length && lvl > Math.max(3, ...Object.keys(groups).map(Number))) continue;
+    const title = th ? `${th.badge_icon} Level ${lvl} — ${th.title}` : `Level ${lvl}`;
+    const sub = th ? `Unlocks at ${th.xp_required} XP · Complete all to level up` : 'Complete all to advance';
+    html += flowSection(lvl, title, sub, 'var(--gold)', mods);
   }
 
-  html += '</div>';
   board.innerHTML = html;
 }
 
-function flowModCard(m) {
+function flowSection(lvl, title, subtitle, color, mods) {
+  const empty = lvl === 0
+    ? 'Drag modules here to make them always available'
+    : 'Drag modules here to add them to this level';
+  const open = mods.length > 0 ? ' flow-open' : '';
+  return `
+  <div class="flow-section${open}" data-flow-lvl="${lvl}">
+    <div class="flow-hdr" onclick="this.parentElement.classList.toggle('flow-open')">
+      <span class="flow-arrow">▸</span>
+      <div style="flex:1">
+        <div style="font-weight:700;color:${color}">${title}</div>
+        <div style="font-size:.75rem;color:var(--dim)">${subtitle}</div>
+      </div>
+      <span style="font-size:.82rem;color:var(--dim);font-weight:600">${mods.length} module${mods.length!==1?'s':''}</span>
+    </div>
+    <div class="flow-body">
+      <div class="flow-drop" data-drop-level="${lvl}"
+        ondragover="dragFlowOver(event)" ondragleave="dragFlowLeave(event)" ondrop="dropFlowAt(event,${lvl})">
+        ${mods.length ? mods.map((m,i) => flowCard(m, i)).join('') : `<div class="flow-empty">${empty}</div>`}
+      </div>
+    </div>
+  </div>`;
+}
+
+function flowCard(m, idx) {
   const folder = data.folders.find(f => f.id == m.folder_id);
-  const folderName = folder ? folder.title : '?';
-  const segCount = data.segments.filter(s => s.module_id == m.id).length;
-  return `<div class="drag-item" draggable="true" data-flow-mod-id="${m.id}"
+  const fname = folder ? folder.title : '';
+  const ficon = folder ? (folder.icon||'📁') : '';
+  const segs = data.segments.filter(s => s.module_id == m.id).length;
+  const hasPassoff = data.segments.some(s => s.module_id == m.id && s.segment_type === 'passoff');
+  return `<div class="flow-card drag-item" draggable="true" data-flow-mod="${m.id}" data-flow-idx="${idx}"
     ondragstart="dragFlowStart(event,${m.id})" ondragend="dragEnd(event)"
-    style="padding:.5rem .6rem;background:var(--card);border:1px solid var(--bdr);border-radius:6px;margin-bottom:.35rem;cursor:grab">
-    <div style="font-weight:600;font-size:.82rem">${m.icon||'📄'} ${esc(m.title)}</div>
-    <div style="font-size:.7rem;color:var(--dim)">${esc(folderName)} · ${segCount} segs · ${m.xp_reward||50} XP</div>
+    ondragover="dragCardOver(event)" ondrop="dropOnCard(event,${m.id})">
+    <span class="drag-handle">⠿</span>
+    <span style="color:var(--mute);font-size:.75rem;font-weight:700;width:20px;text-align:center">${idx+1}</span>
+    <div style="flex:1;min-width:0">
+      <div style="font-weight:600;font-size:.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+        ${m.icon||'📄'} ${esc(m.title)}${hasPassoff?'<span style="color:var(--gold);font-size:.7rem;margin-left:.3rem">🎯</span>':''}
+      </div>
+      <div style="font-size:.72rem;color:var(--dim);margin-top:.15rem">${ficon} <strong>${esc(fname)}</strong> · ${segs} seg${segs!==1?'s':''} · ${m.xp_reward||50} XP</div>
+    </div>
   </div>`;
 }
 
@@ -989,13 +1017,13 @@ function dragEnd(e) {
   document.querySelectorAll('.drag-over,.dragging').forEach(el => el.classList.remove('drag-over','dragging'));
 }
 
-// ─── DRAG AND DROP: Flow board (change unlock level) ───
+// ─── DRAG AND DROP: Flow board (change level + reorder within level) ───
 let dragFlowModId = null;
 
 function dragFlowStart(e, modId) {
   dragFlowModId = modId;
   e.dataTransfer.effectAllowed = 'move';
-  e.dataTransfer.setData('text/plain', modId);
+  e.dataTransfer.setData('text/plain', String(modId));
   setTimeout(() => e.target.classList.add('dragging'), 0);
 }
 
@@ -1009,13 +1037,91 @@ function dragFlowLeave(e) {
   e.currentTarget.classList.remove('drag-over');
 }
 
-async function dropFlow(e, level) {
+// Drop on the level drop-zone (moves module to that level, appends at end)
+async function dropFlowAt(e, level) {
   e.preventDefault();
   e.currentTarget.classList.remove('drag-over');
   if (!dragFlowModId) return;
-  await setModuleUnlock(dragFlowModId, level);
+
+  // Get current modules in target level to find next order
+  const modsInLevel = data.modules
+    .filter(m => { const r = m.unlock_rule; return (r && r.kind==='level' ? r.value : 0) == level; })
+    .sort((a,b) => (a.module_order||0) - (b.module_order||0));
+  const nextOrder = modsInLevel.length > 0 ? Math.max(...modsInLevel.map(m => m.module_order||0)) + 1 : 1;
+
+  // Set level and order
+  const unlock = level > 0 ? {kind:'level', value:level} : null;
+  await api('POST', {action:'update_module', id: dragFlowModId, unlock_rule: unlock, module_order: nextOrder});
+  const m = data.modules.find(x => x.id == dragFlowModId);
+  if (m) { m.unlock_rule = unlock; m.module_order = nextOrder; }
   dragFlowModId = null;
+  renderTree();
   renderFlow();
+  toast('Moved to ' + (level === 0 ? 'Auto-Unlock' : 'Level ' + level));
+}
+
+// Drag over a card (for reorder indicator)
+function dragCardOver(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  e.dataTransfer.dropEffect = 'move';
+  const card = e.currentTarget;
+  document.querySelectorAll('.flow-card.drag-over-card').forEach(el => el.classList.remove('drag-over-card'));
+  card.classList.add('drag-over-card');
+}
+
+// Drop ON a specific card (reorder: place dragged module before this card)
+async function dropOnCard(e, targetModId) {
+  e.preventDefault();
+  e.stopPropagation();
+  document.querySelectorAll('.drag-over,.drag-over-card').forEach(el => el.classList.remove('drag-over','drag-over-card'));
+  if (!dragFlowModId || dragFlowModId === targetModId) { dragFlowModId = null; return; }
+
+  const targetMod = data.modules.find(m => m.id == targetModId);
+  if (!targetMod) { dragFlowModId = null; return; }
+
+  // Figure out target level
+  const tRule = targetMod.unlock_rule;
+  const targetLevel = tRule && tRule.kind === 'level' ? tRule.value : 0;
+
+  // Get all modules in target level, sorted
+  const modsInLevel = data.modules
+    .filter(m => { const r = m.unlock_rule; return (r && r.kind==='level' ? r.value : 0) == targetLevel; })
+    .sort((a,b) => (a.module_order||0) - (b.module_order||0));
+
+  // Remove dragged module from list if it's already in this level
+  const filtered = modsInLevel.filter(m => m.id != dragFlowModId);
+
+  // Find position of target
+  const targetIdx = filtered.findIndex(m => m.id == targetModId);
+
+  // Insert before target
+  filtered.splice(targetIdx, 0, data.modules.find(m => m.id == dragFlowModId));
+
+  // Update unlock rule for dragged module
+  const unlock = targetLevel > 0 ? {kind:'level', value:targetLevel} : null;
+
+  // Save all new orders
+  const updates = filtered.map((m, i) => {
+    const payload = {action:'update_module', id: m.id, module_order: i + 1};
+    if (m.id == dragFlowModId) payload.unlock_rule = unlock;
+    return api('POST', payload);
+  });
+  await Promise.all(updates);
+
+  // Update local data
+  filtered.forEach((m, i) => {
+    const mod = data.modules.find(x => x.id == m.id);
+    if (mod) {
+      mod.module_order = i + 1;
+      if (m.id == dragFlowModId) mod.unlock_rule = unlock;
+    }
+  });
+
+  dragFlowModId = null;
+  renderTree();
+  renderFlow();
+  toast('Reordered');
 }
 
 // ─── STARTING LEVEL: Auto-suggest based on role ───

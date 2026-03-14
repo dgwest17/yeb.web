@@ -13,24 +13,29 @@ window.CMS.load = async function() {
 
 // ─── Escape HTML to prevent XSS when rendering user content ───
 function esc(str) {
-  if (!str) return '';
-  // If the string contains HTML tags (from Quill), strip them first then escape
-  const stripped = String(str).replace(/<[^>]*>/g, '').trim();
   const d = document.createElement('div');
-  d.textContent = stripped;
+  d.textContent = str || '';
   return d.innerHTML;
 }
 
-// ─── Sanitize Quill HTML — allow safe tags, strip dangerous ones ───
+// ─── Strip Quill <p> wrapper tags and decode HTML entities for plain-text fields ───
+function strip(str) {
+  if (!str) return '';
+  // Remove outer <p>...</p> tags from Quill
+  let s = String(str).replace(/^<p>/i, '').replace(/<\/p>$/i, '');
+  // Remove any remaining HTML tags
+  const d = document.createElement('div');
+  d.innerHTML = s;
+  return d.textContent || '';
+}
+
+// ─── Render Quill HTML safely (for rich content fields like FAQ answers) ───
 function richHtml(str) {
   if (!str) return '';
-  // Allow Quill's standard tags, strip everything else
-  const allowed = ['p','br','strong','b','em','i','u','s','strike','ul','ol','li','h1','h2','h3','h4','a','span','sub','sup'];
-  const tmp = document.createElement('div');
-  tmp.innerHTML = str;
-  // Remove script/style/iframe tags entirely
-  tmp.querySelectorAll('script,style,iframe,object,embed').forEach(el => el.remove());
-  return tmp.innerHTML;
+  // Allow Quill HTML through but sanitize script tags
+  return String(str)
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/on\w+\s*=/gi, '');
 }
 
 // ─── Simple markdown → HTML (headings, bold, italic, lists, paragraphs) ───
@@ -90,10 +95,10 @@ function getTestimonialItems() {
 window.CMS.renderStats = function(containerId) {
   const s = window.CMS.data.stats;
   document.getElementById(containerId).innerHTML =
-    `<div><div class="stat__number">${esc(s.savings)}</div><div class="stat__label">${esc(s.savings_label)}</div></div>
-     <div><div class="stat__number">${esc(s.hours)}</div><div class="stat__label">${esc(s.hours_label)}</div></div>
-     <div><div class="stat__number">${esc(s.installations)}</div><div class="stat__label">${esc(s.installations_label)}</div></div>
-     <div><div class="stat__number">${esc(s.customers)}</div><div class="stat__label">${esc(s.customers_label)}</div></div>`;
+    `<div><div class="stat__number">${strip(s.savings)}</div><div class="stat__label">${strip(s.savings_label)}</div></div>
+     <div><div class="stat__number">${strip(s.hours)}</div><div class="stat__label">${strip(s.hours_label)}</div></div>
+     <div><div class="stat__number">${strip(s.installations)}</div><div class="stat__label">${strip(s.installations_label)}</div></div>
+     <div><div class="stat__number">${strip(s.customers)}</div><div class="stat__label">${strip(s.customers_label)}</div></div>`;
 };
 
 // ─── TESTIMONIALS (3-column cards, used on home page) ───
@@ -102,12 +107,12 @@ window.CMS.renderTestimonials = function(containerId) {
   document.getElementById(containerId).innerHTML = items.map(t => `
     <div class="testimonial">
       <div class="testimonial__quote">"</div>
-      <p>${esc(t.text)}</p>
+      <p>${strip(t.text)}</p>
       <div class="testimonial__author">
-        <div class="testimonial__avatar">${esc(t.initials)}</div>
+        <div class="testimonial__avatar">${strip(t.initials)}</div>
         <div class="testimonial__author-info">
-          <strong>${esc(t.name)}</strong>
-          <small>${esc(t.role)}</small>
+          <strong>${strip(t.name)}</strong>
+          <small>${strip(t.role)}</small>
         </div>
       </div>
     </div>
@@ -131,17 +136,17 @@ window.CMS.renderTestimonialsGlobal = function(containerId, initialCount) {
     ratingHTML = `
       <div class="testimonials__rating">
         <div class="stars">★★★★★</div>
-        <div class="rating-text"><strong>${esc(rating)}</strong> Average Rating${totalReviews ? ' · ' + esc(totalReviews) + ' Reviews' : ''}</div>
+        <div class="rating-text"><strong>${strip(rating)}</strong> Average Rating${totalReviews ? ' · ' + strip(totalReviews) + ' Reviews' : ''}</div>
       </div>`;
   }
 
   const gridHTML = items.map((item, i) => `
     <div class="testimonials__item${i >= initialCount ? ' hidden' : ''}">
-      <div class="testimonials__avatar">${esc(item.initials)}</div>
-      <p>${esc(item.text)}</p>
+      <div class="testimonials__avatar">${strip(item.initials)}</div>
+      <p class="testimonials__text">"${strip(item.text)}"</p>
       <div class="testimonials__author">
-        <strong>${esc(item.name)}</strong>
-        <span>${esc(item.role)}</span>
+        <strong>${strip(item.name)}</strong>
+        <span>${strip(item.role)}</span>
       </div>
     </div>
   `).join('');
@@ -180,12 +185,12 @@ window.CMS.renderTestimonialsN = function(containerId, n) {
   document.getElementById(containerId).innerHTML = items.map((t, i) => `
     <div class="testimonial" ${i > 0 ? 'style="margin-top:var(--space-md);"' : ''}>
       <div class="testimonial__quote">"</div>
-      <p>${esc(t.text)}</p>
+      <p>${strip(t.text)}</p>
       <div class="testimonial__author">
-        <div class="testimonial__avatar">${esc(t.initials)}</div>
+        <div class="testimonial__avatar">${strip(t.initials)}</div>
         <div class="testimonial__author-info">
-          <strong>${esc(t.name)}</strong>
-          <small>${esc(t.role)}</small>
+          <strong>${strip(t.name)}</strong>
+          <small>${strip(t.role)}</small>
         </div>
       </div>
     </div>
@@ -197,7 +202,7 @@ window.CMS.renderGallery = function(containerId) {
   document.getElementById(containerId).innerHTML = window.CMS.data.gallery.map(g => {
     if (g.url) {
       return `<div style="aspect-ratio:4/3; border-radius:var(--radius); overflow:hidden; background:var(--gray-100);">
-                <img src="${esc(g.url)}" alt="${esc(g.caption)}" style="width:100%;height:100%;object-fit:cover;" />
+                <img src="${esc(g.url)}" alt="${strip(g.caption)}" style="width:100%;height:100%;object-fit:cover;" />
               </div>`;
     }
     return `<div class="card__img" style="aspect-ratio:4/3; border-radius:var(--radius); min-height:200px;">
@@ -230,12 +235,10 @@ window.CMS.renderVideos = function(containerId, context) {
 
 // ─── FAQ ───
 window.CMS.renderFaq = function(containerId) {
-  const el = document.getElementById(containerId);
-  if (!el || !window.CMS.data.faq) return;
-  el.innerHTML = window.CMS.data.faq.map(f => `
+  document.getElementById(containerId).innerHTML = window.CMS.data.faq.map(f => `
     <div class="faq__item">
       <button class="faq__q" onclick="CMS.toggleFaq(this)">
-        ${esc(f.question)}
+        ${strip(f.question)}
         <span class="icon"><svg viewBox="0 0 12 12" fill="none" stroke="var(--navy)" stroke-width="2"><path d="M2 6h8M6 2v8"/></svg></span>
       </button>
       <div class="faq__a">${richHtml(f.answer)}</div>
@@ -257,12 +260,12 @@ window.CMS.renderRebate = function(containerId) {
   // Support both new .links array and legacy flat fields
   if (r.links && Array.isArray(r.links) && r.links.length > 0) {
     linksHtml = r.links.map(l =>
-      `<a href="${esc(l.url)}" ${l.external ? 'target="_blank" rel="noopener"' : ''} style="${!l.external ? 'color:var(--orange);font-weight:600;' : ''}">${esc(l.label)}</a>`
+      `<a href="${esc(l.url)}" ${l.external ? 'target="_blank" rel="noopener"' : ''} style="${!l.external ? 'color:var(--orange);font-weight:600;' : ''}">${strip(l.label)}</a>`
     ).join('');
   } else {
     // Fallback: build links from legacy fields
     if (r.home_link_text) {
-      linksHtml += `<a href="quote.html" style="color:var(--orange);font-weight:600;">${esc(r.home_link_text)}</a>`;
+      linksHtml += `<a href="quote.html" style="color:var(--orange);font-weight:600;">${strip(r.home_link_text)}</a>`;
     }
   }
 
@@ -270,8 +273,8 @@ window.CMS.renderRebate = function(containerId) {
     <div class="rebate-alert">
       <div class="rebate-alert__icon">⚡</div>
       <div>
-        <h4>${esc(r.heading)}</h4>
-        <div style="margin-bottom:0.6rem;">${richHtml(r.text)}</div>
+        <h4>${strip(r.heading)}</h4>
+        <p style="margin-bottom:0.6rem;">${richHtml(r.text)}</p>
         <div style="display:flex; flex-wrap:wrap; gap:0.6rem; margin-top:0.5rem;">${linksHtml}</div>
       </div>
     </div>`;
@@ -298,10 +301,10 @@ window.CMS.renderBlogIndex = function(containerId) {
       </div>
       <div style="padding:var(--space-lg);">
         <div style="display:flex; align-items:center; gap:var(--space-md); font-size:.8rem; color:var(--slate); margin-bottom:var(--space-sm);">
-          <span style="display:inline-block; color:var(--teal); font-size:.72rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase; background:rgba(34,168,179,.1); padding:.2rem .55rem; border-radius:50px;">${esc(p.tag||'General')}</span>
-          <span>·</span><span>${esc(p.date)}</span><span>·</span><span>${esc(p.readtime||'')}</span>
+          <span style="display:inline-block; color:var(--teal); font-size:.72rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase; background:rgba(34,168,179,.1); padding:.2rem .55rem; border-radius:50px;">${strip(p.tag||'General')}</span>
+          <span>·</span><span>${strip(p.date)}</span><span>·</span><span>${strip(p.readtime||'')}</span>
         </div>
-        <h2 style="font-family:var(--font-display); font-weight:400; font-size:clamp(1.3rem,2.5vw,1.6rem); margin-bottom:.4rem; line-height:1.2;">${esc(p.title)}</h2>
+        <h2 style="font-family:var(--font-display); font-weight:400; font-size:clamp(1.3rem,2.5vw,1.6rem); margin-bottom:.4rem; line-height:1.2;">${strip(p.title)}</h2>
         <p style="font-size:.92rem; color:var(--slate); margin:0; line-height:1.6;">${esc((p.body||'').split('\\n\\n')[0].replace(/\\*\\*/g,'').replace(/\\*/g,'').slice(0,200))}</p>
         <div style="display:inline-flex; align-items:center; gap:.3rem; color:var(--teal); font-size:.82rem; font-weight:600; margin-top:var(--space-sm);">
           Read article <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
@@ -331,10 +334,10 @@ window.CMS.renderBlogArticle = function(containerId, index) {
           </div>
         </div>
         <div style="display:flex; align-items:center; gap:var(--space-md); margin-bottom:var(--space-md); font-size:.82rem; color:var(--slate);">
-          <span style="display:inline-block; color:var(--teal); font-size:.72rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase; background:rgba(34,168,179,.1); padding:.2rem .55rem; border-radius:50px;">${esc(p.tag||'General')}</span>
-          <span>·</span><span>${esc(p.date)}</span><span>·</span><span>${esc(p.readtime||'')}</span>
+          <span style="display:inline-block; color:var(--teal); font-size:.72rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase; background:rgba(34,168,179,.1); padding:.2rem .55rem; border-radius:50px;">${strip(p.tag||'General')}</span>
+          <span>·</span><span>${strip(p.date)}</span><span>·</span><span>${strip(p.readtime||'')}</span>
         </div>
-        <h1 style="font-family:var(--font-display); font-weight:400; font-size:clamp(2.2rem,5vw,3.4rem); line-height:1.2; margin-bottom:var(--space-md);">${esc(p.title)}</h1>
+        <h1 style="font-family:var(--font-display); font-weight:400; font-size:clamp(2.2rem,5vw,3.4rem); line-height:1.2; margin-bottom:var(--space-md);">${strip(p.title)}</h1>
         <div style="max-width:720px; color:var(--navy-light); line-height:1.8;">${bodyHtml}</div>
         <div style="background:var(--cream); border-radius:var(--radius); padding:var(--space-lg) var(--space-xl); margin-top:var(--space-xl); text-align:center;">
           <h3 style="font-family:var(--font-display); font-weight:400; margin-bottom:.3rem;">Ready to see what solar could save you?</h3>

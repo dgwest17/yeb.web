@@ -130,7 +130,7 @@ try {
 
         case 'update_segment':
             $id = (int)($input['id'] ?? 0);
-            $allowed = ['title','segment_order','content_html','customer_quote','rep_response','tip','xp_reward','unlock_rule','is_active'];
+            $allowed = ['title','segment_order','segment_type','content_html','customer_quote','rep_response','tip','xp_reward','unlock_rule','is_active'];
             $sets = []; $vals = [];
             foreach ($allowed as $k) {
                 if (array_key_exists($k, $input)) {

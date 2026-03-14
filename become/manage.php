@@ -443,7 +443,9 @@ function openSegEditor(segId) {
         <div class="quill-wrap"><div id="quill-seg"></div></div>
         <div style="display:flex;gap:.5rem;align-items:center;margin-top:.5rem;flex-wrap:wrap">
           <button class="btn btn-teal" onclick="saveSegContent(${segId})">💾 Save Content</button>
-          <button class="btn btn-ghost btn-sm" onclick="insertPDF(${segId})">📎 Attach PDF</button>
+          <button class="btn btn-ghost btn-sm" onclick="triggerFileUpload('image')">🖼️ Upload Image</button>
+          <button class="btn btn-ghost btn-sm" onclick="insertPDF(${segId})">📎 Upload PDF</button>
+          <button class="btn btn-ghost btn-sm" onclick="triggerFileUpload('any')">📁 Upload File</button>
           <button class="btn btn-ghost btn-sm" onclick="insertDivider()">— Divider</button>
           <span id="save-status" style="color:var(--green);font-size:.8rem;margin-left:auto"></span>
         </div>
@@ -482,14 +484,7 @@ function openSegEditor(segId) {
           ['clean']
         ],
         handlers: {
-          'image': function() {
-            const url = prompt('Image URL (paste a link to an image):');
-            if (url) {
-              const range = this.quill.getSelection(true);
-              this.quill.insertEmbed(range.index, 'image', url);
-              this.quill.setSelection(range.index + 1);
-            }
-          }
+          'image': function() { triggerFileUpload('image'); }
         }
       },
       keyboard: {
@@ -530,6 +525,9 @@ function openSegEditor(segId) {
       }
     }, 2000);
   });
+
+  // Enable drag-drop and paste uploads
+  setupEditorDragDrop();
 }
 
 function closeSegEditor() {
@@ -548,16 +546,7 @@ async function saveSegContent(segId) {
 }
 
 function insertPDF(segId) {
-  const url = prompt('PDF URL (paste a link to the PDF file):');
-  if (!url) return;
-  const title = prompt('Display title for the PDF:', 'View PDF');
-  if (!quillEditor) return;
-  const range = quillEditor.getSelection(true);
-  // Insert as a styled link
-  quillEditor.insertText(range.index, '\n');
-  quillEditor.insertText(range.index + 1, '📄 ' + (title || 'View PDF'), {link: url});
-  quillEditor.insertText(range.index + 1 + title.length + 3, '\n');
-  quillEditor.setSelection(range.index + title.length + 5);
+  triggerFileUpload('pdf');
 }
 
 function insertDivider() {
@@ -565,6 +554,104 @@ function insertDivider() {
   const range = quillEditor.getSelection(true);
   quillEditor.insertText(range.index, '\n───────────────────\n');
   quillEditor.setSelection(range.index + 22);
+}
+
+// ─── FILE UPLOAD SYSTEM ───
+function triggerFileUpload(type) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  if (type === 'image') input.accept = 'image/*';
+  else if (type === 'pdf') input.accept = '.pdf,application/pdf';
+  else input.accept = 'image/*,.pdf,application/pdf,video/mp4,video/webm';
+  
+  input.onchange = async () => {
+    if (!input.files[0]) return;
+    await uploadAndInsert(input.files[0]);
+  };
+  input.click();
+}
+
+async function uploadAndInsert(file) {
+  if (!quillEditor) return;
+  const statusEl = document.getElementById('save-status');
+  if (statusEl) { statusEl.textContent = '⏳ Uploading ' + file.name + '...'; statusEl.style.color = 'var(--gold)'; }
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const res = await fetch('/become/api/upload.php', { method: 'POST', body: formData });
+    const data = await res.json();
+
+    if (!data.success) {
+      toast(data.error || 'Upload failed', true);
+      if (statusEl) { statusEl.textContent = '✕ Upload failed'; statusEl.style.color = 'var(--red)'; }
+      return;
+    }
+
+    const range = quillEditor.getSelection(true);
+
+    if (data.type === 'image') {
+      quillEditor.insertEmbed(range.index, 'image', data.url);
+      quillEditor.setSelection(range.index + 1);
+    } else if (data.type === 'pdf') {
+      quillEditor.insertText(range.index, '\n');
+      quillEditor.insertText(range.index + 1, '📄 ' + (data.filename || 'Download PDF'), { link: data.url });
+      quillEditor.insertText(range.index + 1 + data.filename.length + 3, '\n');
+    } else if (data.type === 'video') {
+      quillEditor.insertEmbed(range.index, 'video', data.url);
+      quillEditor.setSelection(range.index + 1);
+    }
+
+    if (statusEl) { statusEl.textContent = '✓ Uploaded'; statusEl.style.color = 'var(--green)'; }
+    toast('File uploaded');
+  } catch(e) {
+    toast('Upload error: ' + e.message, true);
+    if (statusEl) { statusEl.textContent = '✕ Upload failed'; statusEl.style.color = 'var(--red)'; }
+  }
+}
+
+// Drag-and-drop onto Quill editor
+function setupEditorDragDrop() {
+  if (!quillEditor) return;
+  const editorEl = quillEditor.root;
+
+  editorEl.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    editorEl.style.outline = '2px dashed var(--teal)';
+    editorEl.style.outlineOffset = '-4px';
+  });
+
+  editorEl.addEventListener('dragleave', () => {
+    editorEl.style.outline = '';
+    editorEl.style.outlineOffset = '';
+  });
+
+  editorEl.addEventListener('drop', async (e) => {
+    e.preventDefault();
+    editorEl.style.outline = '';
+    editorEl.style.outlineOffset = '';
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      for (let i = 0; i < files.length; i++) {
+        await uploadAndInsert(files[i]);
+      }
+    }
+  });
+
+  // Also handle paste (screenshots)
+  editorEl.addEventListener('paste', async (e) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.startsWith('image/')) {
+        e.preventDefault();
+        const file = items[i].getAsFile();
+        if (file) await uploadAndInsert(file);
+        return;
+      }
+    }
+  });
 }
 
 // ─── PROGRESSION FLOW BOARD ───

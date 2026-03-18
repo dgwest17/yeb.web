@@ -429,6 +429,113 @@ function segItemHTML(s, i) {
 }
 
 // ─── SEGMENT EDITOR (with Quill) ───
+// ─── QUIZ BUILDER ───
+function buildQuizEditor(segId, seg) {
+  // Quiz data stored in content_html as JSON block after a separator
+  let quiz = [];
+  try {
+    const qd = seg.customer_quote; // Reuse customer_quote field to store quiz JSON
+    if (qd) quiz = JSON.parse(qd);
+  } catch(e) {}
+  if (!Array.isArray(quiz)) quiz = [];
+
+  let html = `<div class="ed-field" style="background:rgba(255,183,3,0.05);border:1px solid rgba(255,183,3,0.15);border-radius:8px;padding:1rem;margin-bottom:1rem">
+    <label style="font-size:.85rem;font-weight:700;color:var(--gold);display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem">📝 Quiz Questions <button class="btn btn-sm btn-gold" onclick="addQuizQuestion(${segId})">+ Add Question</button></label>`;
+
+  quiz.forEach((q, qi) => {
+    html += `<div style="background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:.75rem;margin-bottom:.5rem">
+      <div style="display:flex;gap:.5rem;align-items:start;margin-bottom:.5rem">
+        <span style="color:var(--gold);font-weight:700;font-size:.85rem">${qi+1}.</span>
+        <input class="ed-input" value="${esc(q.question||'')}" placeholder="Question text" style="flex:1;font-size:.9rem"
+          onchange="updateQuizQuestion(${segId},${qi},'question',this.value)">
+        <button class="btn btn-sm btn-red" onclick="removeQuizQuestion(${segId},${qi})">✕</button>
+      </div>
+      <div style="padding-left:1.5rem">`;
+
+    (q.options || []).forEach((opt, oi) => {
+      const isCorrect = q.correct === oi;
+      html += `<div style="display:flex;gap:.5rem;align-items:center;margin-bottom:.3rem">
+        <input type="radio" name="q${segId}_${qi}" ${isCorrect?'checked':''} onchange="setCorrectAnswer(${segId},${qi},${oi})" style="accent-color:var(--green)">
+        <input class="ed-input" value="${esc(opt)}" placeholder="Option ${oi+1}" style="flex:1;font-size:.85rem;padding:.4rem .6rem"
+          onchange="updateQuizOption(${segId},${qi},${oi},this.value)">
+        <button class="btn btn-sm btn-red" onclick="removeQuizOption(${segId},${qi},${oi})" style="padding:.2rem .4rem;font-size:.7rem">✕</button>
+      </div>`;
+    });
+
+    html += `<button class="btn btn-sm btn-ghost" onclick="addQuizOption(${segId},${qi})" style="margin-top:.25rem;font-size:.75rem">+ Add Option</button>
+      </div></div>`;
+  });
+
+  if (!quiz.length) {
+    html += `<p style="color:var(--mute);font-size:.85rem;text-align:center;padding:1rem">No questions yet. Click "+ Add Question" to create a quiz.</p>`;
+  }
+
+  html += `<p style="color:var(--mute);font-size:.72rem;margin-top:.5rem">Select the radio button next to the correct answer. Reps must get all questions right to complete the segment.</p></div>`;
+  return html;
+}
+
+function getQuizData(segId) {
+  const seg = data.segments.find(s => s.id == segId);
+  if (!seg) return [];
+  try { return JSON.parse(seg.customer_quote || '[]'); } catch(e) { return []; }
+}
+
+function saveQuizData(segId, quiz) {
+  const json = JSON.stringify(quiz);
+  updateSegment(segId, {customer_quote: json});
+  const seg = data.segments.find(s => s.id == segId);
+  if (seg) seg.customer_quote = json;
+}
+
+function addQuizQuestion(segId) {
+  const quiz = getQuizData(segId);
+  quiz.push({question: '', options: ['', ''], correct: 0});
+  saveQuizData(segId, quiz);
+  setTimeout(() => openSegEditor(segId), 300);
+}
+
+function removeQuizQuestion(segId, qi) {
+  const quiz = getQuizData(segId);
+  quiz.splice(qi, 1);
+  saveQuizData(segId, quiz);
+  setTimeout(() => openSegEditor(segId), 300);
+}
+
+function updateQuizQuestion(segId, qi, field, value) {
+  const quiz = getQuizData(segId);
+  if (quiz[qi]) quiz[qi][field] = value;
+  saveQuizData(segId, quiz);
+}
+
+function addQuizOption(segId, qi) {
+  const quiz = getQuizData(segId);
+  if (quiz[qi]) quiz[qi].options.push('');
+  saveQuizData(segId, quiz);
+  setTimeout(() => openSegEditor(segId), 300);
+}
+
+function removeQuizOption(segId, qi, oi) {
+  const quiz = getQuizData(segId);
+  if (quiz[qi]) {
+    quiz[qi].options.splice(oi, 1);
+    if (quiz[qi].correct >= quiz[qi].options.length) quiz[qi].correct = 0;
+  }
+  saveQuizData(segId, quiz);
+  setTimeout(() => openSegEditor(segId), 300);
+}
+
+function updateQuizOption(segId, qi, oi, value) {
+  const quiz = getQuizData(segId);
+  if (quiz[qi] && quiz[qi].options) quiz[qi].options[oi] = value;
+  saveQuizData(segId, quiz);
+}
+
+function setCorrectAnswer(segId, qi, oi) {
+  const quiz = getQuizData(segId);
+  if (quiz[qi]) quiz[qi].correct = oi;
+  saveQuizData(segId, quiz);
+}
+
 function openSegEditor(segId) {
   document.querySelectorAll('.seg-item').forEach(el => el.classList.remove('editing'));
   const si = document.getElementById('si-' + segId);
@@ -453,18 +560,20 @@ function openSegEditor(segId) {
         </div>
       </div>
       <div class="ed-field"><label>🎯 Segment Type</label>
-        <select class="ed-input" onchange="updateSegment(${segId},{segment_type:this.value})">
+        <select class="ed-input" id="seg-type-select-${segId}" onchange="updateSegment(${segId},{segment_type:this.value});setTimeout(()=>openSegEditor(${segId}),500)">
           <option value="lesson" ${(seg.segment_type||'lesson')==='lesson'?'selected':''}>📄 Lesson — Rep marks complete on their own</option>
           <option value="passoff" ${seg.segment_type==='passoff'?'selected':''}>🎯 Leader Pass-off — Rep must be approved by a leader</option>
+          <option value="quiz" ${seg.segment_type==='quiz'?'selected':''}>📝 Quiz — Rep must answer questions correctly</option>
         </select>
-        <p style="color:var(--mute);font-size:.75rem;margin-top:.3rem">${seg.segment_type==='passoff' ? '⚡ This segment requires leader approval. The rep will see "Request Pass-off" instead of "Mark Complete".' : 'Standard lesson — rep completes it independently.'}</p>
       </div>
-      <div class="ed-field"><label>Content</label>
+      ${seg.segment_type === 'quiz' ? buildQuizEditor(segId, seg) : ''}
+      <div class="ed-field"><label>Content ${seg.segment_type === 'quiz' ? '(shown above the quiz)' : ''}</label>
         <div class="quill-wrap"><div id="quill-seg"></div></div>
         <div style="display:flex;gap:.5rem;align-items:center;margin-top:.5rem;flex-wrap:wrap">
           <button class="btn btn-teal" onclick="saveSegContent(${segId})">💾 Save Content</button>
           <button class="btn btn-ghost btn-sm" onclick="triggerFileUpload('image')">🖼️ Upload Image</button>
           <button class="btn btn-ghost btn-sm" onclick="insertPDF(${segId})">📎 Upload PDF</button>
+          <button class="btn btn-ghost btn-sm" onclick="insertYouTube()">▶️ YouTube</button>
           <button class="btn btn-ghost btn-sm" onclick="triggerFileUpload('any')">📁 Upload File</button>
           <button class="btn btn-ghost btn-sm" onclick="insertDivider()">— Divider</button>
           <span id="save-status" style="color:var(--green);font-size:.8rem;margin-left:auto"></span>
@@ -574,6 +683,34 @@ function insertDivider() {
   const range = quillEditor.getSelection(true);
   quillEditor.insertText(range.index, '\n───────────────────\n');
   quillEditor.setSelection(range.index + 22);
+}
+
+function insertYouTube() {
+  if (!quillEditor) return;
+  const url = prompt('Paste a YouTube URL or video ID:\n\nExamples:\nhttps://www.youtube.com/watch?v=dQw4w9WgXcQ\nhttps://youtu.be/dQw4w9WgXcQ\ndQw4w9WgXcQ');
+  if (!url) return;
+
+  // Extract video ID from various YouTube URL formats
+  let videoId = url.trim();
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+    /^([a-zA-Z0-9_-]{11})$/
+  ];
+  for (const p of patterns) {
+    const m = videoId.match(p);
+    if (m) { videoId = m[1]; break; }
+  }
+
+  if (!videoId || videoId.length !== 11) {
+    toast('Could not find a valid YouTube video ID', true);
+    return;
+  }
+
+  const embedUrl = 'https://www.youtube.com/embed/' + videoId;
+  const range = quillEditor.getSelection(true);
+  quillEditor.insertEmbed(range.index, 'video', embedUrl);
+  quillEditor.setSelection(range.index + 1);
+  toast('YouTube video embedded');
 }
 
 // ─── FILE UPLOAD SYSTEM ───

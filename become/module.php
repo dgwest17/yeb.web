@@ -229,6 +229,6 @@ const MOD_ID = <?= $modId ?>;
 <?php if ($isLeader): ?>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
 <?php endif; ?>
-<script src="/become/portal.js"></script>
+<script data-cfasync="false" src="/become/portal.js"></script>
 </body>
 </html>

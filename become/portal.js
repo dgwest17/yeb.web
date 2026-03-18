@@ -250,10 +250,11 @@ document.addEventListener('click', function(e) {
         return;
     }
 
-    // Folder toggle
-    var folderHdr = e.target.closest('.folder-hdr');
+    // Folder toggle (works with both onclick and data-toggle attribute)
+    var folderHdr = e.target.closest('.folder-hdr') || e.target.closest('[data-toggle="folder"]');
     if (folderHdr) {
-        toggleFolder(folderHdr);
+        var folder = folderHdr.closest('.folder');
+        if (folder) folder.classList.toggle('folder--open');
         return;
     }
 

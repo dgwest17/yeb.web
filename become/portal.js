@@ -29,7 +29,7 @@ async function completeSeg(segId, btn) {
                 var ico = card.querySelector('.seg-ico');
                 if (ico) ico.textContent = '✅';
             }
-            btn.parentElement.innerHTML = '<div class="seg-done-badge">✅ Completed</div>';
+
             xpToast(data.xp_awarded);
 
             (data.events || []).forEach(function(ev) {
@@ -38,15 +38,43 @@ async function completeSeg(segId, btn) {
                 if (ev.type === 'level_up') setTimeout(function(){ levelUpModal(ev); }, 1200);
             });
 
+            // Unlock next locked segment
             var nxt = document.querySelector('.seg--locked');
             if (nxt) {
                 nxt.classList.remove('seg--locked');
                 nxt.classList.add('seg--active', 'seg--unlock');
                 var ni = nxt.querySelector('.seg-ico');
-                if (ni) ni.textContent = '📄';
+                if (ni) ni.textContent = (nxt.querySelector('[data-action="check-quiz"]')) ? '📝' : '📄';
                 var lm = nxt.querySelector('.seg-locked-msg');
-                if (lm) lm.remove();
+                if (lm) {
+                    // Replace locked message with the segment body (need to reload for full content)
+                    lm.textContent = '';
+                }
+
+                // Add Mark Complete button to newly unlocked segment if it doesn't have one
+                var nxtActions = nxt.querySelector('.seg-actions');
+                var nxtId = nxt.getAttribute('data-seg') || nxt.id.replace('seg-', '');
+                if (!nxtActions) {
+                    var actDiv = document.createElement('div');
+                    actDiv.className = 'seg-actions';
+                    actDiv.innerHTML = '<button class="btn-complete" data-action="complete" data-seg-id="' + nxtId + '">✓ Mark Complete</button>';
+                    nxt.appendChild(actDiv);
+                }
+
+                // Show Continue button on completed segment pointing to next
+                btn.parentElement.innerHTML = '<div class="seg-done-badge">✅ Completed</div>' +
+                    '<button class="btn-continue-inline" data-scroll-to="seg-' + nxtId + '">Continue → Next Segment</button>';
+            } else {
+                // No more segments — check if module is complete
+                var isModuleComplete = !document.querySelector('.seg--active, .seg--locked');
+                if (isModuleComplete && typeof MOD_ID !== 'undefined') {
+                    btn.parentElement.innerHTML = '<div class="seg-done-badge">✅ Completed</div>' +
+                        '<a href="/become/" class="btn-continue-inline">🎉 Module Complete — Back to Dashboard</a>';
+                } else {
+                    btn.parentElement.innerHTML = '<div class="seg-done-badge">✅ Completed</div>';
+                }
             }
+
             updateProg();
             confetti();
         }
@@ -314,6 +342,22 @@ function toggleTitleEdit(btn) {
 
 // ── EVENT DELEGATION — Cloudflare-safe button handling ──
 document.addEventListener('click', function(e) {
+    // Continue inline button (scroll to next segment)
+    var continueBtn = e.target.closest('.btn-continue-inline');
+    if (continueBtn) {
+        var targetId = continueBtn.getAttribute('data-scroll-to');
+        if (targetId) {
+            var target = document.getElementById(targetId);
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                target.style.transition = 'box-shadow .3s';
+                target.style.boxShadow = '0 0 30px rgba(34,168,179,0.4)';
+                setTimeout(function() { target.style.boxShadow = ''; }, 2000);
+            }
+        }
+        return;
+    }
+
     // Quiz check answers
     var quizBtn = e.target.closest('[data-action="check-quiz"]');
     if (quizBtn) {

@@ -165,20 +165,23 @@ $stats = $engine->getUserStats($userId);
                 <div class="seg-actions">
                     <?php if (($seg['segment_type'] ?? 'lesson') === 'passoff'): ?>
                         <?php
-                        // Check passoff status
-                        $ps = $db->prepare("SELECT status FROM passoff_requests WHERE user_id=? AND segment_id=? ORDER BY id DESC LIMIT 1");
-                        $ps->execute([$userId, $sid]);
-                        $passoffStatus = $ps->fetch();
+                        // Check passoff status (graceful if table doesn't exist)
+                        $passoffStatus = null;
+                        try {
+                            $ps = $db->prepare("SELECT status FROM passoff_requests WHERE user_id=? AND segment_id=? ORDER BY id DESC LIMIT 1");
+                            $ps->execute([$userId, $sid]);
+                            $passoffStatus = $ps->fetch();
+                        } catch (Exception $e) { /* table may not exist yet */ }
                         ?>
                         <?php if ($passoffStatus && $passoffStatus['status'] === 'pending'): ?>
                             <button class="btn-complete" disabled style="background:linear-gradient(135deg,var(--gold),var(--orange));opacity:.8">⏳ Waiting for Leader Approval</button>
                         <?php elseif ($passoffStatus && $passoffStatus['status'] === 'passed'): ?>
-                            <button class="btn-complete" onclick="completeSeg(<?= $sid ?>,this)">✓ Pass-off Approved — Mark Complete (+<?= $seg['xp_reward'] ?> XP)</button>
+                            <button class="btn-complete" data-action="complete" data-seg-id="<?= $sid ?>">✓ Pass-off Approved — Mark Complete (+<?= $seg['xp_reward'] ?> XP)</button>
                         <?php else: ?>
-                            <button class="btn-complete" onclick="requestPassoff(<?= $sid ?>,this)" style="background:linear-gradient(135deg,var(--gold),var(--orange))">🎯 Ready? Request Leader Pass-off</button>
+                            <button class="btn-complete" data-action="passoff" data-seg-id="<?= $sid ?>" style="background:linear-gradient(135deg,var(--gold),var(--orange))">🎯 Ready? Request Leader Pass-off</button>
                         <?php endif; ?>
                     <?php else: ?>
-                        <button class="btn-complete" onclick="completeSeg(<?= $sid ?>,this)">✓ Mark Complete (+<?= $seg['xp_reward'] ?> XP)</button>
+                        <button class="btn-complete" data-action="complete" data-seg-id="<?= $sid ?>">✓ Mark Complete (+<?= $seg['xp_reward'] ?> XP)</button>
                     <?php endif; ?>
                 </div>
             <?php else: ?>

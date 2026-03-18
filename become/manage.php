@@ -170,20 +170,22 @@ select.ed-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
 @keyframes pulse{0%,100%{opacity:.8}50%{opacity:1}}
 
 /* Flow Board */
-.flow-section{margin-bottom:.5rem}
-.flow-hdr{display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:var(--r);cursor:pointer;transition:border-color .2s,background .2s}
+.flow-section{margin-bottom:.75rem}
+.flow-hdr{display:flex;align-items:center;gap:.75rem;padding:.85rem 1.25rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:var(--r);cursor:pointer;transition:border-color .2s,background .2s}
 .flow-hdr:hover{background:var(--card-h);border-color:var(--bdr)}
 .flow-arrow{font-size:.8rem;color:var(--mute);transition:transform .2s}
 .flow-open > .flow-hdr .flow-arrow{transform:rotate(90deg)}
-.flow-body{display:none;padding:.5rem 0 .5rem 1.25rem;margin-left:.75rem;border-left:2px solid rgba(255,255,255,0.06)}
+.flow-open > .flow-hdr{border-color:var(--bdr-a);background:rgba(255,255,255,0.04)}
+.flow-body{display:none;padding:.75rem 0 .75rem .5rem}
 .flow-open > .flow-body{display:block}
-.flow-drop{min-height:40px;padding:.25rem;border-radius:8px;transition:background .2s}
+.flow-drop{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.5rem;min-height:50px;padding:.5rem;border-radius:8px;transition:background .2s}
 .flow-drop.drag-over{background:rgba(34,168,179,0.08);outline:2px dashed var(--teal);outline-offset:-2px}
-.flow-empty{color:var(--mute);font-size:.82rem;text-align:center;padding:1.5rem;border:1px dashed rgba(255,255,255,0.1);border-radius:8px}
-.flow-card{display:flex;align-items:center;gap:.5rem;padding:.55rem .7rem;background:var(--card);border:1px solid var(--bdr);border-radius:8px;margin-bottom:.35rem;cursor:grab;transition:all .15s}
+.flow-empty{color:var(--mute);font-size:.82rem;text-align:center;padding:2rem;border:1px dashed rgba(255,255,255,0.1);border-radius:8px;grid-column:1/-1}
+.flow-card{display:flex;align-items:center;gap:.5rem;padding:.6rem .75rem;background:var(--card);border:1px solid var(--bdr);border-radius:8px;cursor:grab;transition:all .15s;min-width:0}
 .flow-card:hover{background:var(--card-h);border-color:var(--bdr-a)}
 .flow-card.dragging{opacity:.3}
 .flow-card.drag-over-card{border-top:2px solid var(--teal);margin-top:2px}
+.flow-lvl-badge{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;font-size:1.1rem;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -685,18 +687,27 @@ function renderFlow() {
   Object.values(groups).forEach(arr => arr.sort((a,b) => (a.module_order||0) - (b.module_order||0)));
 
   const thresholds = data.thresholds || [];
-  const maxLvl = Math.max(3, ...Object.keys(groups).map(Number));
+  const usedLevels = Object.keys(groups).map(Number);
+  const maxLvl = Math.max(3, ...usedLevels);
+  const colors = ['var(--teal)', 'var(--green)', 'var(--gold)', 'var(--orange)', 'var(--teal)', 'var(--green)', 'var(--gold)', 'var(--orange)'];
 
   let html = '';
-  html += flowSection(0, '🌍 Auto-Unlock for All Levels', 'Available from day one — reps work through these anytime', 'var(--green)', groups[0]||[]);
+
+  // Level 0 — Newbie / Welcome
+  const th0 = thresholds.find(t => t.level == 0);
+  html += flowSection(0,
+    (th0 ? th0.badge_icon : '👶') + ' Level 0 — ' + (th0 ? th0.title : 'Newbie'),
+    'Welcome phase — available from day one',
+    'var(--teal)', groups[0] || []);
 
   for (let lvl = 1; lvl <= maxLvl; lvl++) {
     const th = thresholds.find(t => t.level == lvl);
     const mods = groups[lvl] || [];
-    if (!mods.length && lvl > Math.max(3, ...Object.keys(groups).map(Number))) continue;
+    if (!mods.length && lvl > Math.max(3, ...usedLevels)) continue;
+    const color = colors[lvl % colors.length];
     const title = th ? `${th.badge_icon} Level ${lvl} — ${th.title}` : `Level ${lvl}`;
     const sub = th ? `Unlocks at ${th.xp_required} XP · Complete all to level up` : 'Complete all to advance';
-    html += flowSection(lvl, title, sub, 'var(--gold)', mods);
+    html += flowSection(lvl, title, sub, color, mods);
   }
 
   board.innerHTML = html;
@@ -704,18 +715,22 @@ function renderFlow() {
 
 function flowSection(lvl, title, subtitle, color, mods) {
   const empty = lvl === 0
-    ? 'Drag modules here to make them always available'
+    ? 'Drag modules here for the welcome / onboarding phase'
     : 'Drag modules here to add them to this level';
-  const open = mods.length > 0 ? ' flow-open' : '';
+  const open = mods.length > 0 || lvl <= 1 ? ' flow-open' : '';
+  const totalSegs = data.segments.filter(s => mods.some(m => m.id == s.module_id)).length;
   return `
   <div class="flow-section${open}" data-flow-lvl="${lvl}">
     <div class="flow-hdr" onclick="this.parentElement.classList.toggle('flow-open')">
       <span class="flow-arrow">▸</span>
       <div style="flex:1">
-        <div style="font-weight:700;color:${color}">${title}</div>
+        <div style="font-weight:700;font-size:1rem;color:${color}">${title}</div>
         <div style="font-size:.75rem;color:var(--dim)">${subtitle}</div>
       </div>
-      <span style="font-size:.82rem;color:var(--dim);font-weight:600">${mods.length} module${mods.length!==1?'s':''}</span>
+      <div style="display:flex;align-items:center;gap:.5rem">
+        <span style="font-size:.8rem;color:var(--dim);font-weight:600">${mods.length} module${mods.length!==1?'s':''}</span>
+        ${totalSegs ? `<span style="font-size:.68rem;padding:2px 7px;border-radius:10px;background:rgba(255,255,255,0.06);color:var(--dim)">${totalSegs} segs</span>` : ''}
+      </div>
     </div>
     <div class="flow-body">
       <div class="flow-drop" data-drop-level="${lvl}"

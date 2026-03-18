@@ -228,22 +228,24 @@ function toggleTitleEdit(btn) {
 }
 
 // ── EVENT DELEGATION — Cloudflare-safe button handling ──
-// Binds click handlers via delegation so they work even if
-// Cloudflare Rocket Loader defers script execution
 document.addEventListener('click', function(e) {
-    // Mark Complete button
-    var completeBtn = e.target.closest('.btn-complete');
-    if (completeBtn && !completeBtn.disabled) {
-        var segCard = completeBtn.closest('.seg');
-        if (!segCard) return;
-        var segId = segCard.dataset.seg;
-        if (!segId) return;
-
-        // Check if this is a passoff request button
-        if (completeBtn.textContent.indexOf('Pass-off') > -1 && completeBtn.textContent.indexOf('Approved') === -1) {
-            requestPassoff(parseInt(segId), completeBtn);
-        } else {
-            completeSeg(parseInt(segId), completeBtn);
+    // Mark Complete / Pass-off buttons
+    var btn = e.target.closest('.btn-complete');
+    if (btn && !btn.disabled) {
+        var segId = btn.getAttribute('data-seg-id');
+        var action = btn.getAttribute('data-action');
+        if (segId) {
+            if (action === 'passoff') {
+                requestPassoff(parseInt(segId), btn);
+            } else {
+                completeSeg(parseInt(segId), btn);
+            }
+            return;
+        }
+        // Fallback: try getting segId from parent card
+        var segCard = btn.closest('.seg');
+        if (segCard && segCard.dataset.seg) {
+            completeSeg(parseInt(segCard.dataset.seg), btn);
         }
         return;
     }
@@ -258,12 +260,9 @@ document.addEventListener('click', function(e) {
     // Edit button (leader)
     var editBtn = e.target.closest('.edit-btn--seg');
     if (editBtn) {
-        var segBody = editBtn.closest('.seg-body');
-        if (segBody) {
-            var segEl = segBody.closest('.seg');
-            if (segEl && segEl.dataset.seg) {
-                startEdit(parseInt(segEl.dataset.seg));
-            }
+        var segEl = editBtn.closest('.seg');
+        if (segEl && segEl.dataset.seg) {
+            startEdit(parseInt(segEl.dataset.seg));
         }
         return;
     }

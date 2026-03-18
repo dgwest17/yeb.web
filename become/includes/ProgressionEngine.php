@@ -52,9 +52,9 @@ class ProgressionEngine {
         $s->execute([$userId]);
         $p = $s->fetch();
         if (!$p) {
-            $s = $this->db->prepare("INSERT INTO user_progress (user_id, xp, level, join_date) VALUES (?, 0, 1, CURDATE())");
+            $s = $this->db->prepare("INSERT INTO user_progress (user_id, xp, level, join_date) VALUES (?, 0, 0, CURDATE())");
             $s->execute([$userId]);
-            return ['user_id' => $userId, 'xp' => 0, 'level' => 1, 'join_date' => date('Y-m-d')];
+            return ['user_id' => $userId, 'xp' => 0, 'level' => 0, 'join_date' => date('Y-m-d')];
         }
         return $p;
     }
@@ -266,6 +266,64 @@ class ProgressionEngine {
     // COMPLETE SEGMENT
     // ================================================================
 
+    /**
+     * Calculate XP per segment dynamically based on level thresholds.
+     * If a module is at Level 2, and Level 2 needs 400 XP and Level 3 needs 800 XP,
+     * then the level range is 400 XP. If there are 8 segments across all Level 2 modules,
+     * each segment is worth 50 XP. Module/folder bonuses are removed — all XP comes from segments.
+     */
+    public function calculateSegmentXp($moduleId) {
+        // Get the module's unlock rule to determine its level
+        $s = $this->db->prepare("SELECT unlock_rule FROM modules WHERE id=?");
+        $s->execute([$moduleId]);
+        $mod = $s->fetch();
+        if (!$mod) return 10;
+
+        $rule = json_decode($mod['unlock_rule'] ?? 'null', true);
+        
+        // "Open to all" modules don't contribute to leveling — fixed 10 XP
+        if ($rule && ($rule['kind'] ?? '') === 'open') return 10;
+        
+        $modLevel = ($rule && ($rule['kind'] ?? '') === 'level') ? (int)$rule['value'] : 0;
+
+        // Get thresholds for this level and next level
+        $thresholds = $this->thresholds();
+        $currentXp = 0;
+        $nextXp = null;
+        foreach ($thresholds as $t) {
+            if ((int)$t['level'] === $modLevel) $currentXp = (int)$t['xp_required'];
+            if ((int)$t['level'] === $modLevel + 1) $nextXp = (int)$t['xp_required'];
+        }
+
+        // If no next level, use a default range
+        if ($nextXp === null) $nextXp = $currentXp + 500;
+        $levelRange = $nextXp - $currentXp;
+        if ($levelRange <= 0) $levelRange = 150;
+
+        // Count total segments in all modules at this level
+        $s = $this->db->prepare("SELECT m.id FROM modules m WHERE m.is_active=1");
+        $s->execute();
+        $allMods = $s->fetchAll();
+
+        $totalSegs = 0;
+        foreach ($allMods as $m) {
+            $s = $this->db->prepare("SELECT unlock_rule FROM modules WHERE id=?");
+            $s->execute([$m['id']]);
+            $mr = $s->fetch();
+            $r = json_decode($mr['unlock_rule'] ?? 'null', true);
+            $ml = ($r && ($r['kind'] ?? '') === 'level') ? (int)$r['value'] : 0;
+            if ($r && ($r['kind'] ?? '') === 'open') continue; // skip open modules
+            if ($ml === $modLevel) {
+                $s = $this->db->prepare("SELECT COUNT(*) c FROM segments WHERE module_id=? AND is_active=1");
+                $s->execute([$m['id']]);
+                $totalSegs += (int)$s->fetch()['c'];
+            }
+        }
+
+        if ($totalSegs <= 0) return 10;
+        return max(1, (int)round($levelRange / $totalSegs));
+    }
+
     public function completeSegment($userId, $segmentId) {
         $this->db->beginTransaction();
         try {
@@ -283,8 +341,8 @@ class ProgressionEngine {
             $xp = 0;
             $events = [];
 
-            // 1) Complete segment
-            $segXp = (int)($seg['xp_reward'] ?? 10);
+            // 1) Complete segment — XP calculated dynamically based on level
+            $segXp = $this->calculateSegmentXp((int)$seg['mid']);
             $s = $this->db->prepare("INSERT INTO completed_segments (user_id,segment_id,xp_awarded) VALUES (?,?,?)");
             $s->execute([$userId, $segmentId, $segXp]);
             $xp += $segXp;
@@ -300,10 +358,10 @@ class ProgressionEngine {
             $done = (int)$s->fetch()['c'];
 
             if ($done >= $total && $total > 0) {
-                $modXp = (int)($seg['mod_xp'] ?? 50);
+                // Module complete — no bonus XP (all XP from segments)
                 $s = $this->db->prepare("INSERT IGNORE INTO completed_modules (user_id,module_id,xp_awarded) VALUES (?,?,?)");
-                $s->execute([$userId, $mid, $modXp]);
-                if ($s->rowCount()) { $xp += $modXp; $events[] = ['type'=>'module_complete','id'=>$mid,'xp'=>$modXp]; }
+                $s->execute([$userId, $mid, 0]);
+                if ($s->rowCount()) { $events[] = ['type'=>'module_complete','id'=>$mid,'xp'=>0]; }
 
                 // 3) Check folder completion
                 $fid = (int)$seg['folder_id'];
@@ -315,10 +373,10 @@ class ProgressionEngine {
                 $mDone = (int)$s->fetch()['c'];
 
                 if ($mDone >= $mTotal && $mTotal > 0) {
-                    $fXp = (int)($seg['folder_xp'] ?? 200);
+                    // Folder complete — no bonus XP
                     $s = $this->db->prepare("INSERT IGNORE INTO completed_folders (user_id,folder_id,xp_awarded) VALUES (?,?,?)");
-                    $s->execute([$userId, $fid, $fXp]);
-                    if ($s->rowCount()) { $xp += $fXp; $events[] = ['type'=>'folder_complete','id'=>$fid,'xp'=>$fXp]; }
+                    $s->execute([$userId, $fid, 0]);
+                    if ($s->rowCount()) { $events[] = ['type'=>'folder_complete','id'=>$fid,'xp'=>0]; }
                 }
             }
 

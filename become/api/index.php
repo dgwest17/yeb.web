@@ -33,29 +33,38 @@ try {
         $segId = (int)$m[1];
         $db = Database::getInstance();
 
-        // Check if this is a passoff segment
-        $s = $db->prepare("SELECT segment_type FROM segments WHERE id=?");
-        $s->execute([$segId]);
-        $seg = $s->fetch();
+        // Check if this is a passoff segment (graceful - works even without passoff table)
+        try {
+            $s = $db->prepare("SELECT segment_type FROM segments WHERE id=?");
+            $s->execute([$segId]);
+            $seg = $s->fetch();
 
-        if ($seg && $seg['segment_type'] === 'passoff') {
-            // Check if already passed
-            $s = $db->prepare("SELECT status FROM passoff_requests WHERE user_id=? AND segment_id=? ORDER BY id DESC LIMIT 1");
-            $s->execute([$userId, $segId]);
-            $req = $s->fetch();
+            if ($seg && ($seg['segment_type'] ?? 'lesson') === 'passoff') {
+                try {
+                    $s = $db->prepare("SELECT status FROM passoff_requests WHERE user_id=? AND segment_id=? ORDER BY id DESC LIMIT 1");
+                    $s->execute([$userId, $segId]);
+                    $req = $s->fetch();
 
-            if ($req && $req['status'] === 'passed') {
-                // Leader already approved — complete the segment
-                $result = $engine->completeSegment($userId, $segId);
-                echo json_encode($result);
-            } elseif ($req && $req['status'] === 'pending') {
-                echo json_encode(['passoff_pending' => true, 'message' => 'Waiting for leader approval']);
-            } else {
-                echo json_encode(['needs_passoff' => true, 'message' => 'This segment requires a leader pass-off']);
+                    if ($req && $req['status'] === 'passed') {
+                        $result = $engine->completeSegment($userId, $segId);
+                        echo json_encode($result);
+                        exit;
+                    } elseif ($req && $req['status'] === 'pending') {
+                        echo json_encode(['passoff_pending' => true, 'message' => 'Waiting for leader approval']);
+                        exit;
+                    } else {
+                        echo json_encode(['needs_passoff' => true, 'message' => 'This segment requires a leader pass-off']);
+                        exit;
+                    }
+                } catch (Exception $e) {
+                    // passoff_requests table may not exist — treat as regular segment
+                }
             }
-            exit;
+        } catch (Exception $e) {
+            // segment_type column may not exist — treat as regular lesson
         }
 
+        // Regular lesson completion
         $result = $engine->completeSegment($userId, $segId);
         echo json_encode($result);
         exit;
@@ -105,16 +114,21 @@ try {
             echo json_encode(['error' => 'Leader access required']);
             exit;
         }
-        $db = Database::getInstance();
-        $s = $db->prepare("SELECT pr.*, tu.username, tu.first_name, tu.last_name, s.title AS seg_title, m.title AS mod_title
-            FROM passoff_requests pr
-            JOIN training_users tu ON pr.user_id = tu.id
-            JOIN segments s ON pr.segment_id = s.id
-            JOIN modules m ON s.module_id = m.id
-            WHERE pr.status = 'pending'
-            ORDER BY pr.requested_at DESC");
-        $s->execute();
-        echo json_encode($s->fetchAll());
+        try {
+            $db = Database::getInstance();
+            $s = $db->prepare("SELECT pr.*, tu.username, tu.first_name, tu.last_name, s.title AS seg_title, m.title AS mod_title
+                FROM passoff_requests pr
+                JOIN training_users tu ON pr.user_id = tu.id
+                JOIN segments s ON pr.segment_id = s.id
+                JOIN modules m ON s.module_id = m.id
+                WHERE pr.status = 'pending'
+                ORDER BY pr.requested_at DESC");
+            $s->execute();
+            echo json_encode($s->fetchAll());
+        } catch (Exception $e) {
+            // Table may not exist yet — return empty array
+            echo json_encode([]);
+        }
         exit;
     }
 

@@ -83,6 +83,91 @@ async function requestPassoff(segId, btn) {
     }
 }
 
+// ── QUIZ CHECK ──
+function checkQuiz(segId, btn) {
+    var quizEl = document.getElementById('quiz-' + segId);
+    if (!quizEl) return;
+
+    var questions = quizEl.querySelectorAll('.quiz-q');
+    var allCorrect = true;
+    var unanswered = false;
+
+    questions.forEach(function(q) {
+        var selected = q.querySelector('input[type="radio"]:checked');
+        var feedback = q.querySelector('.quiz-feedback');
+        var opts = q.querySelectorAll('.quiz-opt');
+
+        // Reset styles
+        opts.forEach(function(o) { o.classList.remove('correct', 'wrong'); });
+        if (feedback) { feedback.style.display = 'none'; feedback.className = 'quiz-feedback'; }
+
+        if (!selected) {
+            unanswered = true;
+            allCorrect = false;
+            if (feedback) {
+                feedback.textContent = 'Please select an answer';
+                feedback.className = 'quiz-feedback fail';
+                feedback.style.display = 'block';
+            }
+            return;
+        }
+
+        var isCorrect = selected.getAttribute('data-correct') === '1';
+        var label = selected.closest('.quiz-opt');
+
+        if (isCorrect) {
+            if (label) label.classList.add('correct');
+            if (feedback) {
+                feedback.textContent = '✅ Correct!';
+                feedback.className = 'quiz-feedback pass';
+                feedback.style.display = 'block';
+            }
+        } else {
+            allCorrect = false;
+            if (label) label.classList.add('wrong');
+            // Show which was correct
+            opts.forEach(function(o) {
+                var inp = o.querySelector('input');
+                if (inp && inp.getAttribute('data-correct') === '1') o.classList.add('correct');
+            });
+            if (feedback) {
+                feedback.textContent = '❌ Not quite — the correct answer is highlighted';
+                feedback.className = 'quiz-feedback fail';
+                feedback.style.display = 'block';
+            }
+        }
+    });
+
+    if (unanswered) {
+        btn.textContent = '⚠️ Answer all questions first';
+        setTimeout(function() { btn.textContent = '📝 Check Answers'; }, 2000);
+        return;
+    }
+
+    if (allCorrect) {
+        // Replace quiz button with Mark Complete
+        btn.setAttribute('data-action', 'complete');
+        btn.textContent = '✅ All Correct! Mark Complete';
+        btn.style.background = 'linear-gradient(135deg, var(--green), #05b88a)';
+        confetti();
+        xpToast(0);
+        var t = document.createElement('div');
+        t.className = 'xp-toast';
+        t.innerHTML = '🎉 Quiz passed!';
+        t.style.background = 'var(--green)';
+        document.body.appendChild(t);
+        requestAnimationFrame(function(){ t.classList.add('xp-toast--in'); });
+        setTimeout(function(){ t.classList.add('xp-toast--out'); setTimeout(function(){ t.remove(); }, 500); }, 2500);
+    } else {
+        btn.textContent = '❌ Some answers wrong — try again';
+        btn.style.background = 'linear-gradient(135deg, var(--red, #EF476F), #d62828)';
+        setTimeout(function() {
+            btn.textContent = '📝 Check Answers';
+            btn.style.background = 'linear-gradient(135deg, var(--gold), var(--orange))';
+        }, 3000);
+    }
+}
+
 function updateProg() {
     var fill = document.querySelector('.prog-wrap .bar-fill');
     var info = document.querySelector('.prog-info');
@@ -229,6 +314,14 @@ function toggleTitleEdit(btn) {
 
 // ── EVENT DELEGATION — Cloudflare-safe button handling ──
 document.addEventListener('click', function(e) {
+    // Quiz check answers
+    var quizBtn = e.target.closest('[data-action="check-quiz"]');
+    if (quizBtn) {
+        var segId = quizBtn.getAttribute('data-seg-id');
+        checkQuiz(parseInt(segId), quizBtn);
+        return;
+    }
+
     // Mark Complete / Pass-off buttons
     var btn = e.target.closest('.btn-complete');
     if (btn && !btn.disabled) {

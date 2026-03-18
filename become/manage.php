@@ -383,8 +383,10 @@ function openModuleEditor(modId) {
 
   const area = document.getElementById('editorArea');
   const curUnlock = mod.unlock_rule;
-  const curLvl = curUnlock && curUnlock.kind === 'level' ? curUnlock.value : 0;
-  const levelOpts = [0,1,2,3,4,5,6,7].map(l => `<option value="${l}" ${curLvl==l?'selected':''}>${l===0?'Sequential (complete previous first)':'Level '+l+' — '+(data.thresholds.find(t=>t.level==l)||{title:'?'}).title}</option>`).join('');
+  const isOpen = curUnlock && curUnlock.kind === 'open';
+  const curLvl = curUnlock && curUnlock.kind === 'level' ? curUnlock.value : (isOpen ? 'open' : 0);
+  const levelOpts = `<option value="open" ${isOpen?'selected':''}>📚 Open to All (always accessible)</option>` +
+    [0,1,2,3,4,5,6,7].map(l => `<option value="${l}" ${!isOpen && curLvl==l?'selected':''}>${l===0?'👶 Level 0 — Newbie (sequential)':'Level '+l+' — '+(data.thresholds.find(t=>t.level==l)||{title:'?'}).title}</option>`).join('');
 
   area.innerHTML = `
     <div class="editor">
@@ -396,7 +398,7 @@ function openModuleEditor(modId) {
         <div class="ed-field"><label>XP Reward</label><input class="ed-input" type="number" value="${mod.xp_reward||50}" onchange="updateModule(${modId},{xp_reward:parseInt(this.value)})"></div>
       </div>
       <div class="ed-field"><label>🔓 Unlock Requirement</label>
-        <select class="ed-input" onchange="setModuleUnlock(${modId}, parseInt(this.value))">${levelOpts}</select>
+        <select class="ed-input" onchange="setModuleUnlock(${modId}, this.value)">${levelOpts}</select>
         <p style="color:var(--mute);font-size:.75rem;margin-top:.3rem">Sequential = rep must complete the previous module first. Level-based = unlocks when rep reaches that level (can skip ahead).</p>
       </div>
       <div class="ed-field"><label>Description</label>
@@ -677,13 +679,20 @@ function renderFlow() {
   const board = document.getElementById('flowBoard');
   if (!board) return;
 
-  const groups = {};
+  const openMods = [];   // unlock_rule.kind === 'open'
+  const groups = {};     // grouped by level number
+
   data.modules.forEach(m => {
     const rule = m.unlock_rule;
-    const lvl = rule && rule.kind === 'level' ? rule.value : 0;
-    if (!groups[lvl]) groups[lvl] = [];
-    groups[lvl].push(m);
+    if (rule && rule.kind === 'open') {
+      openMods.push(m);
+    } else {
+      const lvl = rule && rule.kind === 'level' ? rule.value : 0;
+      if (!groups[lvl]) groups[lvl] = [];
+      groups[lvl].push(m);
+    }
   });
+  openMods.sort((a,b) => (a.module_order||0) - (b.module_order||0));
   Object.values(groups).forEach(arr => arr.sort((a,b) => (a.module_order||0) - (b.module_order||0)));
 
   const thresholds = data.thresholds || [];
@@ -693,13 +702,20 @@ function renderFlow() {
 
   let html = '';
 
+  // Open to All — reference material, always accessible
+  html += flowSection('open',
+    '📚 Open to All Levels',
+    'Reference material — always accessible, no completion required',
+    'var(--dim)', openMods);
+
   // Level 0 — Newbie / Welcome
   const th0 = thresholds.find(t => t.level == 0);
   html += flowSection(0,
     (th0 ? th0.badge_icon : '👶') + ' Level 0 — ' + (th0 ? th0.title : 'Newbie'),
-    'Welcome phase — available from day one',
+    'Welcome phase — the starting point for every new rep',
     'var(--teal)', groups[0] || []);
 
+  // Levels 1+
   for (let lvl = 1; lvl <= maxLvl; lvl++) {
     const th = thresholds.find(t => t.level == lvl);
     const mods = groups[lvl] || [];
@@ -714,13 +730,15 @@ function renderFlow() {
 }
 
 function flowSection(lvl, title, subtitle, color, mods) {
-  const empty = lvl === 0
-    ? 'Drag modules here for the welcome / onboarding phase'
-    : 'Drag modules here to add them to this level';
-  const open = mods.length > 0 || lvl <= 1 ? ' flow-open' : '';
+  const isOpen = lvl === 'open';
+  const empty = isOpen
+    ? 'Drag modules here for always-available reference material'
+    : (lvl === 0 ? 'Drag modules here for the welcome / onboarding phase' : 'Drag modules here to add them to this level');
+  const expanded = mods.length > 0 || lvl === 0 || lvl === 1 || isOpen ? ' flow-open' : '';
+  const dropLevel = isOpen ? 'open' : lvl;
   const totalSegs = data.segments.filter(s => mods.some(m => m.id == s.module_id)).length;
   return `
-  <div class="flow-section${open}" data-flow-lvl="${lvl}">
+  <div class="flow-section${expanded}" data-flow-lvl="${dropLevel}">
     <div class="flow-hdr" onclick="this.parentElement.classList.toggle('flow-open')">
       <span class="flow-arrow">▸</span>
       <div style="flex:1">
@@ -733,8 +751,8 @@ function flowSection(lvl, title, subtitle, color, mods) {
       </div>
     </div>
     <div class="flow-body">
-      <div class="flow-drop" data-drop-level="${lvl}"
-        ondragover="dragFlowOver(event)" ondragleave="dragFlowLeave(event)" ondrop="dropFlowAt(event,${lvl})">
+      <div class="flow-drop" data-drop-level="${dropLevel}"
+        ondragover="dragFlowOver(event)" ondragleave="dragFlowLeave(event)" ondrop="dropFlowAt(event,'${dropLevel}')">
         ${mods.length ? mods.map((m,i) => flowCard(m, i)).join('') : `<div class="flow-empty">${empty}</div>`}
       </div>
     </div>
@@ -827,18 +845,21 @@ function renderFolderFlow(folderId) {
       <span style="color:var(--mute);font-size:.8rem;width:24px;text-align:center;font-weight:700">${i+1}</span>
       <span style="font-size:1rem">${m.icon||'📄'}</span>
       <span style="flex:1;font-weight:600;font-size:.88rem">${esc(m.title)}</span>
-      <select class="ed-input" style="width:auto;font-size:.8rem;padding:.3rem .5rem" onchange="setModuleUnlock(${m.id},parseInt(this.value))">${levelOpts}</select>
+      <select class="ed-input" style="width:auto;font-size:.8rem;padding:.3rem .5rem" onchange="setModuleUnlock(${m.id}, this.value)">${levelOpts}</select>
     </div>`;
   }).join('');
 }
 
 async function setModuleUnlock(modId, level) {
-  const unlock = level > 0 ? {kind:'level', value:level} : null;
+  let unlock;
+  if (level === 'open') unlock = {kind:'open'};
+  else if (parseInt(level) > 0) unlock = {kind:'level', value:parseInt(level)};
+  else unlock = null;
   await api('POST', {action:'update_module', id:modId, unlock_rule: unlock});
-  // Update local data
   const m = data.modules.find(x => x.id == modId);
   if (m) m.unlock_rule = unlock;
   renderTree();
+  renderFlow();
   toast('Unlock rule updated');
 }
 
@@ -1058,21 +1079,32 @@ async function dropFlowAt(e, level) {
   e.currentTarget.classList.remove('drag-over');
   if (!dragFlowModId) return;
 
-  // Get current modules in target level to find next order
-  const modsInLevel = data.modules
-    .filter(m => { const r = m.unlock_rule; return (r && r.kind==='level' ? r.value : 0) == level; })
-    .sort((a,b) => (a.module_order||0) - (b.module_order||0));
+  // Determine unlock rule based on target
+  let unlock;
+  let filterFn;
+  let label;
+
+  if (level === 'open') {
+    unlock = {kind:'open'};
+    filterFn = m => { const r = m.unlock_rule; return r && r.kind === 'open'; };
+    label = 'Open to All';
+  } else {
+    const lvl = parseInt(level);
+    unlock = lvl > 0 ? {kind:'level', value:lvl} : null;
+    filterFn = m => { const r = m.unlock_rule; const v = r && r.kind==='level' ? r.value : (r && r.kind==='open' ? -1 : 0); return v == lvl; };
+    label = lvl === 0 ? 'Level 0 — Newbie' : 'Level ' + lvl;
+  }
+
+  const modsInLevel = data.modules.filter(filterFn).sort((a,b) => (a.module_order||0) - (b.module_order||0));
   const nextOrder = modsInLevel.length > 0 ? Math.max(...modsInLevel.map(m => m.module_order||0)) + 1 : 1;
 
-  // Set level and order
-  const unlock = level > 0 ? {kind:'level', value:level} : null;
   await api('POST', {action:'update_module', id: dragFlowModId, unlock_rule: unlock, module_order: nextOrder});
   const m = data.modules.find(x => x.id == dragFlowModId);
   if (m) { m.unlock_rule = unlock; m.module_order = nextOrder; }
   dragFlowModId = null;
   renderTree();
   renderFlow();
-  toast('Moved to ' + (level === 0 ? 'Auto-Unlock' : 'Level ' + level));
+  toast('Moved to ' + label);
 }
 
 // Drag over a card (for reorder indicator)

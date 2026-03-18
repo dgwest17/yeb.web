@@ -252,6 +252,16 @@ body::before{
 }
 .btn-continue:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(34,168,179,0.3)}
 
+/* Inline continue button (appears after completing a segment) */
+.btn-continue-inline{
+    display:block;width:100%;text-align:center;padding:.85rem;margin-top:.5rem;
+    background:linear-gradient(135deg,var(--teal),#1a8a93);color:#fff;
+    border:none;border-radius:var(--rs);font-size:.95rem;font-weight:700;
+    cursor:pointer;font-family:var(--bf);transition:transform .2s,box-shadow .2s;
+    text-decoration:none;
+}
+.btn-continue-inline:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(34,168,179,0.3)}
+
 /* ─── PASSOFF BADGE ─── */
 .seg--passoff{border-left:3px solid var(--gold)}
 .seg--passoff .seg-ico{color:var(--gold)}

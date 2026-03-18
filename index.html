@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Southern California & San Diego Solar Energy Solutions | Your Energy Best</title>
+  <meta name="description" content="Solar, batteries, and HVAC solutions with $0 down options for eligible San Diego homes." />
+  <link rel="icon" type="image/png" href="img/logo.png" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="surf-theme.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <style>
+    .nav { padding: 0.5rem 2rem; }
+    .nav__logo img { height: 70px; width: auto; }
+    .nav.scrolled { background: rgba(2, 48, 71, 0.95); backdrop-filter: blur(10px); }
+    .stat__number.counting { color: var(--teal); }
+    .hero__content { display: flex; flex-direction: column; gap: 3rem; }
+    .hero__text { order: 1; }
+    .hero__visual { order: 2; }
+  </style>
+</head>
+<body>
+
+<!-- ─── NAVIGATION (with phone number) ─── -->
+<nav class="nav" id="mainNav" role="navigation" aria-label="Main navigation">
+  <div class="container nav__inner">
+    <a href="index.html" class="nav__logo" aria-label="Your Energy Best – Home">
+      <img src="img/logo.png" alt="Your Energy Best" />
+    </a>
+    <a href="tel:7608607862" class="nav__phone" aria-label="Call us">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.12.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.58 2.81.7A2 2 0 0122 16.92z"/></svg>
+      <span>(760) 860-7862</span>
+    </a>
+    <a href="quote.html" class="nav__cta-mobile">Get Your Custom Quote</a>
+    <button class="nav__toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
+      <span></span><span></span><span></span>
+    </button>
+<ul class="nav__links" id="navLinks" role="menubar">
+  <li role="none"><a href="index.html" class="active" role="menuitem">Home</a></li>
+  <li role="none"><a href="options/" role="menuitem">Options</a></li>
+  <li role="none"><a href="services.html" role="menuitem">Services</a></li>
+  <li role="none"><a href="quote.html" role="menuitem">Get a Quote</a></li>
+  <li role="none"><a href="build" role="menuitem">Build With Us</a></li>
+  <li role="none"><a href="blog.html" role="menuitem">Blog</a></li>
+  <li role="none"><a href="#testimonials" role="menuitem">Testimonials</a></li>
+    </ul>
+  </div>
+</nav>
+<!-- Mobile nav overlay -->
+<div class="nav__overlay" id="navOverlay" aria-hidden="true"></div>
+
+<!-- ─── HERO ─── -->
+<section class="hero">
+  <div class="hero__bg"></div>
+  <!-- Animated rolling waves -->
+  <div class="hero-waves">
+    <div class="hero-waves__layer hero-waves__layer--1"></div>
+    <div class="hero-waves__layer hero-waves__layer--2"></div>
+    <div class="hero-waves__layer hero-waves__layer--3"></div>
+  </div>
+  <div class="hero__content">
+    <div class="hero__text anim-fadeUp">
+      <span class="eyebrow">San Diego's Solar & Energy Experts</span>
+      <h1><span class="title-white" id="home-title-part1">Surf Into</span> <em class="title-orange" id="home-title-part2">Energy Freedom</em></h1>
+      <p id="home-subtitle">Ride the wave to lower bills — solar, batteries, and HVAC with $0 down options for eligible San Diego homes.</p>
+      <!-- Accordion trigger -->
+      <button class="customer-accordion-trigger" id="accordionTrigger">Start Your Process</button>
+    </div>
+    <div class="hero__visual anim-fadeUp anim-delay-2">
+      <div class="hero__card-grid" id="customer-options">
+        <a href="quote.html?option=new" class="hero__card" data-option="New to Solar">
+          <div class="hero__card__icon hero__card__icon--teal">☀️</div>
+          <h4>New to Solar?</h4>
+          <p>We'll walk you through everything — from design to savings.</p>
+        </a>
+        <a href="quote.html?option=existing" class="hero__card" data-option="Already Have Solar">
+          <div class="hero__card__icon hero__card__icon--orange">🔋</div>
+          <h4>Already Have Solar?</h4>
+          <p>Add battery storage and maximize what you already own.</p>
+        </a>
+        <a href="quote.html?option=proposal" class="hero__card" data-option="Ready for Proposal">
+          <div class="hero__card__icon hero__card__icon--green">📋</div>
+          <h4>Ready for a Proposal?</h4>
+          <p>Get a detailed, no-obligation solar proposal in 48 hours.</p>
+        </a>
+        <a href="quote.html?option=financing" class="hero__card" data-option="$0 Down Financing">
+          <div class="hero__card__icon hero__card__icon--teal">💰</div>
+          <h4>$0 Down Financing</h4>
+          <p>Start saving day one with flexible payment options.</p>
+        </a>
+      </div>
+      <!-- Hero savings CTA (Rec #1) -->
+      <div class="hero__savings-cta">
+        <a href="quote.html">⚡ See how much you could save on your San Diego energy bill →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── STATS BAR ─── -->
+<section class="stats">
+  <!-- Wave divider on top -->
+  <div class="wave-divider wave-divider--top wave-divider--navy">
+    <svg viewBox="0 0 1440 70" preserveAspectRatio="none"><path d="M0,35 C240,60 480,10 720,35 C960,60 1200,15 1440,35 L1440,70 L0,70Z"/></svg>
+  </div>
+  <div class="container">
+    <div class="stats__grid" id="cms-stats"></div>
+  </div>
+</section>
+
+<!-- ─── TRUST BAR (Rec #3) ─── -->
+<section class="trust-bar">
+  <div class="container">
+    <div class="trust-bar__inner">
+      <span class="trust-bar__item">✓ Licensed & Insured</span>
+      <span class="trust-bar__item">✓ CSLB Licensed</span>
+      <span class="trust-bar__item trust-bar__item--rating">★ 5.0 Google Rating (194 Reviews)</span>
+      <span class="trust-bar__item">✓ San Diego Local</span>
+      <span class="trust-bar__item">✓ $0 Down Available</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── HOW IT WORKS ─── -->
+<section class="section" id="how-it-works">
+  <div class="container">
+    <div class="section-head text-center">
+      <span class="tag">The Process</span>
+      <h2>Simple. Transparent. Rewarding.</h2>
+      <p>From your first question to your first savings check — we handle the heavy lifting.</p>
+    </div>
+    <div style="display:grid; grid-template-columns: repeat(3,1fr); gap: var(--space-xl); max-width: 960px; margin-inline: auto;" class="anim-fadeUp">
+      <div class="text-center">
+        <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--teal-dark));display:flex;align-items:center;justify-content:center;margin-inline:auto auto var(--space-md); color:#fff; font-size:1.4rem;">1</div>
+        <h4>Design</h4>
+        <p style="font-size:.88rem; margin:0;">We assess your roof, usage, and goals to build a custom solar plan.</p>
+      </div>
+      <div class="text-center">
+        <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--orange),var(--orange-dark));display:flex;align-items:center;justify-content:center;margin-inline:auto auto var(--space-md); color:#fff; font-size:1.4rem;">2</div>
+        <h4>Install</h4>
+        <p style="font-size:.88rem; margin:0;">Our certified team handles permits, wiring, and installation.</p>
+      </div>
+      <div class="text-center">
+        <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--teal-light),var(--teal));display:flex;align-items:center;justify-content:center;margin-inline:auto auto var(--space-md); color:#fff; font-size:1.4rem;">3</div>
+        <h4>Save</h4>
+        <p style="font-size:.88rem; margin:0;">Watch your energy bill drop — we monitor your system for years to come.</p>
+      </div>
+    </div>
+    <!-- What happens next microcopy (Rec #8) -->
+    <div class="next-step-microcopy text-center" style="margin-top: var(--space-xl);">
+      <a href="quote.html" class="btn btn--primary">Get Your Free Quote</a>
+      <p class="microcopy">Takes 30 seconds · No credit check · No commitment</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─── REBATE ALERT ─── -->
+<section class="section--tight" style="background:var(--cream);">
+  <div class="container" style="max-width:860px;">
+    <div id="cms-rebate"></div>
+  </div>
+</section>
+
+<!-- ─── WHY YOUR ENERGY BEST (Rec #5 — Differentiators) ─── -->
+<section class="section" id="why-yeb">
+  <div class="container">
+    <div class="section-head text-center">
+      <span class="tag">Why Us</span>
+      <h2>What Makes Us Different</h2>
+      <p>We're not a national call center. We're your San Diego neighbors.</p>
+    </div>
+    <div class="diff-grid">
+      <div class="diff-card">
+        <div class="diff-card__icon">🏠</div>
+        <h4>Personalized Design</h4>
+        <p>Custom-engineered for your roof, your usage, your goals — not a cookie-cutter template.</p>
+      </div>
+      <div class="diff-card">
+        <div class="diff-card__icon">💰</div>
+        <h4>$0 Down Options</h4>
+        <p>Multiple financing paths so you start saving from day one — no upfront cost required.</p>
+      </div>
+      <div class="diff-card">
+        <div class="diff-card__icon">📱</div>
+        <h4>Transparent Process</h4>
+        <p>Know exactly where your project stands at every step. No surprises, no runaround.</p>
+      </div>
+      <div class="diff-card">
+        <div class="diff-card__icon">🤝</div>
+        <h4>Local San Diego Team</h4>
+        <p>Real people who live here, work here, and show up. Not a 1-800 number.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CALIFORNIA UTILITIES vs SOLAR COMPARISON (CMS-driven) ─── -->
+<section class="section" style="background: var(--navy);">
+  <div class="container" style="max-width: 860px;">
+    <div class="section-head text-center">
+      <span class="tag" style="background: rgba(255,255,255,0.1); color: var(--teal-light);">The Math</span>
+      <h2 style="color: var(--white);" id="comparison-title">California Utilities vs. Going Solar</h2>
+      <p style="color: rgba(255,255,255,0.6);" id="comparison-subtitle">Utility rates have increased 40%+ in three years. Here's what that looks like over time.</p>
+    </div>
+    <div id="cms-comparison">
+      <!-- Rendered by CMS.renderComparison() -->
+    </div>
+    <div class="text-center" style="margin-top: var(--space-xl);">
+      <a href="quote.html" class="btn btn--primary btn--lg">Lock In Your Rate →</a>
+      <p class="microcopy" style="color: rgba(255,255,255,0.5);">Takes 30 seconds · No credit check · No commitment</p>
+    </div>
+  </div>
+</section>
+
+<!-- Animated wave break -->
+<div class="wave-break"></div>
+
+<!-- ─── PROJECT GALLERY ─── -->
+<section class="section">
+  <div class="container">
+    <div class="section-head text-center">
+      <span class="tag">Our Work</span>
+      <h2>Real installations. Real savings.</h2>
+      <p>A look at some of the solar systems we've designed and built across San Diego.</p>
+    </div>
+    <div class="gallery-carousel-container" style="overflow:hidden; position:relative;">
+      <div style="display:flex; gap:var(--space-md); animation:scroll-gallery 30s linear infinite;" id="cms-gallery"></div>
+    </div>
+  </div>
+</section>
+
+<style>
+@keyframes scroll-gallery {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.gallery-carousel-container:hover #cms-gallery { animation-play-state: paused; }
+</style>
+
+<!-- ─── TESTIMONIALS ─── -->
+<section class="section" id="testimonials" style="background:var(--gray-100);">
+  <div class="container">
+    <div class="section-head text-center">
+      <span class="tag">Testimonials</span>
+      <h2>What our customers are saying</h2>
+    </div>
+    <div id="cms-testimonials"></div>
+  </div>
+</section>
+
+<!-- ─── PARTNERS (Single-line scrolling carousel) ─── -->
+<section class="partners">
+  <div class="container">
+    <p class="partners__label">Trusted equipment &amp; certifications</p>
+    <div class="partners__logos">
+      <div class="partners__track" id="partnersTrack">
+        <span><span class="logo-icon logo-icon--tesla">T</span> Tesla Powerwall</span>
+        <span><span class="logo-icon logo-icon--enphase">E</span> Enphase</span>
+        <span><span class="logo-icon logo-icon--rec">R</span> REC Solar</span>
+        <span><span class="logo-icon logo-icon--qcell">Q</span> Qcell</span>
+        <span><span class="logo-icon logo-icon--silfab">S</span> Silfab Solar</span>
+        <span><span class="logo-icon logo-icon--franklin">F</span> Franklin WH</span>
+        <span><span class="logo-icon logo-icon--nabcep">✓</span> NABCEP Certified</span>
+        <!-- Duplicated for seamless loop -->
+        <span><span class="logo-icon logo-icon--tesla">T</span> Tesla Powerwall</span>
+        <span><span class="logo-icon logo-icon--enphase">E</span> Enphase</span>
+        <span><span class="logo-icon logo-icon--rec">R</span> REC Solar</span>
+        <span><span class="logo-icon logo-icon--qcell">Q</span> Qcell</span>
+        <span><span class="logo-icon logo-icon--silfab">S</span> Silfab Solar</span>
+        <span><span class="logo-icon logo-icon--franklin">F</span> Franklin WH</span>
+        <span><span class="logo-icon logo-icon--nabcep">✓</span> NABCEP Certified</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── INSTALL MAP (Rec #9) ─── -->
+<section class="section" id="install-map" style="background: var(--gray-100);">
+  <div class="container">
+    <div class="section-head text-center">
+      <span class="tag">Local Impact</span>
+      <h2>Solar Across San Diego</h2>
+      <p>We've installed in neighborhoods across the county — maybe even on your street.</p>
+    </div>
+    <div id="installMapLeaflet" style="height:500px;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.1);"></div>
+    <p class="text-center" style="margin-top:0.75rem;font-size:0.85rem;color:var(--slate);">270+ installations · Click and zoom to explore</p>
+    <div class="text-center" style="margin-top: var(--space-lg);">
+      <a href="quote.html" class="btn btn--primary">Join Your Neighbors — Get a Quote</a>
+      <p class="microcopy">Takes 30 seconds · No credit check · No commitment</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─── INSTAGRAM (Live Feed) ─── -->
+<section class="section instagram-section">
+  <div class="container">
+    <div class="section-head text-center">
+      <span class="tag">Follow Along</span>
+      <h2>@energy.best.ca</h2>
+      <p>See our latest installations, tips, and behind-the-scenes on Instagram.</p>
+    </div>
+    <div class="ig-grid" id="igGrid">
+      <!-- Skeleton loaders while fetching -->
+      <div class="ig-skeleton"></div><div class="ig-skeleton"></div><div class="ig-skeleton"></div><div class="ig-skeleton"></div>
+      <div class="ig-skeleton"></div><div class="ig-skeleton"></div><div class="ig-skeleton"></div><div class="ig-skeleton"></div>
+    </div>
+    <div class="text-center mt-lg">
+      <a href="https://instagram.com/energy.best.ca" target="_blank" rel="noopener" class="btn btn--outline btn--sm">View Full Profile</a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── ABOUT DAVID / REFERRAL (Orange Background) ─── -->
+<section class="about-section">
+  <div class="container" style="max-width:860px;">
+    <div style="text-align:center;">
+      <div class="section-head text-center">
+        <span class="tag">Meet the Team</span>
+        <h2>David West</h2>
+      </div>
+      <p id="about-text">David founded Your Energy Best with a simple mission: make solar accessible, honest, and hassle-free for every San Diego homeowner. With years in the industry and a NABCEP certification, he personally oversees every project to make sure you get the best possible outcome.</p>
+      <div class="referral-box" style="margin-top:var(--space-xl); padding:var(--space-md) var(--space-lg); background:rgba(255,255,255,.2); backdrop-filter:blur(6px); border-radius:var(--radius); border-left:3px solid var(--white); max-width:740px; margin-inline:auto; text-align:left;">
+        <h4 style="color:var(--white); margin-bottom:.3rem;">🎁 Referral Program</h4>
+        <p id="referral-text" style="font-size:.88rem; margin:0; color:rgba(255,255,255,.85);">Know someone who'd benefit from solar? Refer a friend and earn a reward when they install. Ask us how.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FAQ ─── -->
+<section class="section" style="background:var(--gray-100);">
+  <div class="container">
+    <div class="section-head text-center">
+      <span class="tag">FAQ</span>
+      <h2>Got questions?</h2>
+    </div>
+    <div class="faq" id="cms-faq"></div>
+    <!-- FAQ Exit CTA (Rec #7) -->
+    <div class="faq-exit-cta text-center">
+      <p><strong>Still have questions?</strong> That's what we're here for.</p>
+      <p>Get personalized answers from a San Diego solar expert — no sales pitch, just straight talk.</p>
+      <a href="https://calendly.com/yourenergybest" target="_blank" rel="noopener" class="btn btn--primary" style="margin-top: var(--space-md);">Talk to an Expert →</a>
+      <p class="microcopy">Or call us directly: <a href="tel:7608607862" style="color:var(--teal); font-weight:600;">(760) 860-7862</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA ─── -->
+<section class="section">
+  <div class="container">
+    <div class="cta-banner">
+      <h2>Ride the Wave to Lower Bills</h2>
+      <p>Get a free, no-obligation solar quote in under 48 hours. Zero pressure, zero hidden fees.</p>
+      <a href="quote.html" class="btn btn--primary btn--lg">Get Your Free Quote</a>
+      <p class="microcopy" style="color: rgba(255,255,255,0.6);">Takes 30 seconds · No credit check · No commitment</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─── -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div>
+        <img src="img/logo.png" alt="Your Energy Best" class="footer__logo" />
+        <p>San Diego's trusted solar installer. We design, install, and support residential solar and battery systems — with honesty and expertise at every step.</p>
+        <div class="footer__contact">
+          <a href="tel:7608607862">📞 (760) 860-7862</a>
+        </div>
+        <div class="footer__social">
+          <a href="https://instagram.com/energy.best.ca" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="footer__col">
+  <h5>Quick Links</h5>
+  <a href="index.html">Home</a>
+  <a href="options/">Energy Options</a>
+  <a href="services.html">Services</a>
+  <a href="quote.html">Get a Quote</a>
+  <a href="build">Build With Us</a>
+  <a href="blog.html">Blog</a>
+      </div>
+      <div class="footer__col">
+        <h5>Resources</h5>
+        <a href="https://sdcommunitypower.org/solar-battery-savings/" target="_blank" rel="noopener">Battery Rebates (SDCP)</a>
+        <a href="#">Solar Tax Credits</a>
+        <a href="#">How Solar Works</a>
+      </div>
+      <div class="footer__col">
+        <h5>Get Started</h5>
+        <a href="quote.html">Free Solar Quote</a>
+        <a href="build">Join Our Sales Team</a>
+        <a href="tel:7608607862">Call (760) 860-7862</a>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>&copy; 2026 Your Energy Best. All rights reserved.</span>
+      <span><a href="#">Privacy Policy</a> &nbsp;·&nbsp; <a href="#">Terms of Service</a></span>
+    </div>
+  </div>
+</footer>
+
+<!-- ─── NEWSLETTER POPUP ─── -->
+<div class="newsletter-popup" id="newsletterPopup">
+  <div class="newsletter-popup__content">
+    <button class="newsletter-popup__close" id="newsletterClose">✕</button>
+    <div class="newsletter-popup__icon">⚡</div>
+    <h3>Stay in the loop</h3>
+    <p>Get solar tips, rebate alerts, and exclusive savings — delivered to your inbox.</p>
+    <form id="newsletterForm" class="newsletter-popup__form">
+      <input type="text" id="nlFirstName" placeholder="First name" required />
+      <input type="email" id="nlEmail" placeholder="Email address" required />
+      <button type="submit">Subscribe</button>
+    </form>
+    <p class="newsletter-popup__fine">No spam, ever. Unsubscribe anytime.</p>
+    <div class="newsletter-popup__success" id="nlSuccess" style="display:none;">
+      <p>✓ You're in! Watch your inbox.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ─── INCENTIVE SIDEBAR (slide-in) ─── -->
+<div class="incentive-tab" id="incentiveTab" onclick="document.getElementById('incentiveSidebar').classList.add('open')">
+  <span>⚡ 30% OFF</span>
+</div>
+<div class="incentive-sidebar" id="incentiveSidebar">
+  <button class="incentive-sidebar__close" onclick="this.parentElement.classList.remove('open')">✕</button>
+  <div class="incentive-sidebar__badge">⚡ TIME-SENSITIVE</div>
+  <h3>Federal Incentives END 2027</h3>
+  <p>Start your project now to get <strong>30%+ off</strong> any solar or battery system through the Federal Investment Tax Credit.</p>
+  <div class="incentive-sidebar__countdown">
+    <div class="incentive-sidebar__stat"><span id="incentiveDays">--</span><small>days left</small></div>
+  </div>
+  <a href="quote.html" class="incentive-sidebar__cta">Check My Savings →</a>
+  <p class="incentive-sidebar__fine">Limited time. Subject to federal policy changes.</p>
+</div>
+
+<!-- ─── STICKY BOTTOM CTA BAR (Rec #6) ─── -->
+<div class="sticky-cta" id="stickyCta">
+  <div class="sticky-cta__inner">
+    <span class="sticky-cta__text">⚡ Ready to save?</span>
+    <a href="quote.html" class="sticky-cta__btn">Get Your Free Quote</a>
+    <a href="tel:7608607862" class="sticky-cta__phone">📞 (760) 860-7862</a>
+  </div>
+</div>
+
+<!-- ─── SCRIPTS ─── -->
+<script src="cms.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════════
+// 1. ENHANCED NAVIGATION — shrink on scroll, body lock, 
+//    animated hamburger, focus trap, accessibility
+// ═══════════════════════════════════════════════════════════
+const nav = document.getElementById('mainNav');
+const navToggle = document.getElementById('navToggle');
+const navLinks = document.getElementById('navLinks');
+const navOverlay = document.getElementById('navOverlay');
+
+// Shrink + scrolled state
+let lastScroll = 0;
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  nav.classList.toggle('scrolled', y > 40);
+  nav.classList.toggle('shrink', y > 120);
+  lastScroll = y;
+}, { passive: true });
+
+// Mobile nav open/close with body scroll lock
+function openNav() {
+  navLinks.classList.add('open');
+  navOverlay.classList.add('open');
+  navToggle.classList.add('active');
+  navToggle.setAttribute('aria-expanded', 'true');
+  navToggle.setAttribute('aria-label', 'Close menu');
+  document.body.classList.add('nav-open');
+  navOverlay.setAttribute('aria-hidden', 'false');
+  // Focus first link
+  const firstLink = navLinks.querySelector('a');
+  if (firstLink) firstLink.focus();
+}
+function closeNav() {
+  navLinks.classList.remove('open');
+  navOverlay.classList.remove('open');
+  navToggle.classList.remove('active');
+  navToggle.setAttribute('aria-expanded', 'false');
+  navToggle.setAttribute('aria-label', 'Open menu');
+  document.body.classList.remove('nav-open');
+  navOverlay.setAttribute('aria-hidden', 'true');
+  navToggle.focus();
+}
+
+navToggle.addEventListener('click', () => {
+  navLinks.classList.contains('open') ? closeNav() : openNav();
+});
+navOverlay.addEventListener('click', closeNav);
+navLinks.querySelectorAll('a').forEach(link => link.addEventListener('click', closeNav));
+
+// Focus trap in mobile nav
+navLinks.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') { closeNav(); return; }
+  if (e.key !== 'Tab') return;
+  const focusable = navLinks.querySelectorAll('a:not([style*="display:none"])');
+  const first = focusable[0], last = focusable[focusable.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+});
+
+// ═══════════════════════════════════════════════════════════
+// UTM CAPTURE — store in sessionStorage for form submission
+// ═══════════════════════════════════════════════════════════
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'].forEach(k => {
+    const v = params.get(k);
+    if (v) sessionStorage.setItem(k, v);
+  });
+  // Also store referring page
+  if (document.referrer && !document.referrer.includes(window.location.hostname)) {
+    sessionStorage.setItem('referrer', document.referrer);
+  }
+})();
+
+// Customer options accordion (all screen sizes)
+const accordionBtn = document.getElementById('accordionTrigger');
+const cardGrid = document.getElementById('customer-options');
+let closedText = 'Start Your Process';
+let openText = 'What option best describes how we can help you?';
+if (accordionBtn) {
+  accordionBtn.addEventListener('click', function() {
+    const isOpen = cardGrid.classList.toggle('open');
+    this.classList.toggle('expanded', isOpen);
+    this.textContent = isOpen ? openText : closedText;
+  });
+}
+
+// Sticky CTA bar — show after scrolling past hero
+const stickyCta = document.getElementById('stickyCta');
+const heroSection = document.querySelector('.hero');
+const stickyObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    stickyCta.classList.toggle('visible', !entry.isIntersecting);
+  });
+}, { threshold: 0 });
+stickyObserver.observe(heroSection);
+
+// Animated counting numbers
+function animateNumber(element, target) {
+  const duration = 2000;
+  const startTime = performance.now();
+  const numericTarget = parseFloat(target.replace(/[$,%,]/g, ''));
+  const hasPercent = target.includes('%');
+  const hasDollar = target.includes('$');
+
+  function update(currentTime) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+    const current = numericTarget * easeOutQuart;
+    let display = Math.round(current).toLocaleString();
+    if (hasDollar) display = '$' + display;
+    if (hasPercent) display = Math.round(current) + '%';
+    element.textContent = display;
+    element.classList.add('counting');
+    if (progress < 1) { requestAnimationFrame(update); }
+    else { element.classList.remove('counting'); }
+  }
+  requestAnimationFrame(update);
+}
+
+const statsObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting && !entry.target.dataset.animated) {
+      animateNumber(entry.target, entry.target.dataset.target);
+      entry.target.dataset.animated = 'true';
+    }
+  });
+}, { threshold: 0.5 });
+
+// Install Map — Interactive Leaflet with Zoho-powered pins
+function renderInstallMap() {
+  const mapEl = document.getElementById('installMapLeaflet');
+  if (!mapEl) return;
+  
+  const script = document.createElement('script');
+  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';
+  script.onload = () => {
+    // Try Zoho-powered endpoint first, fallback to hardcoded
+    fetch('map-pins.php')
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && data.pins) {
+          initLeafletMap(data.pins);
+          // Update count
+          const countEl = document.querySelector('#install-map .text-center p');
+          if (countEl) countEl.textContent = data.count + '+ installations · Click and zoom to explore';
+        } else {
+          initLeafletMap(FALLBACK_PINS);
+        }
+      })
+      .catch(() => initLeafletMap(FALLBACK_PINS));
+  };
+  document.head.appendChild(script);
+}
+
+// Hardcoded fallback pins (from your client list CSV)
+const FALLBACK_PINS=[[33.0375,-117.2864],[33.1244,-117.0914],[33.2051,-117.2474],[33.1535,-117.3497],[32.9583,-117.0382],[33.9314,-116.9758],[33.1142,-117.0917],[33.1385,-117.163],[33.1985,-117.2412],[32.5804,-117.109],[33.0351,-117.2917],[33.1388,-117.1655],[33.1589,-117.3542],[33.2024,-117.2401],[33.1587,-117.3511],[33.1418,-117.1603],[33.7462,-117.8691],[32.7185,-117.1626],[33.1604,-117.3556],[33.1553,-117.3453],[33.0406,-117.2918],[33.4983,-117.1532],[33.1615,-117.3551],[33.1576,-117.3512],[33.2056,-117.2408],[33.1618,-117.3508],[33.1443,-117.163],[33.1582,-117.3505],[33.1905,-117.3745],[33.1439,-117.169],[33.1417,-117.1626],[33.0416,-117.2885],[33.1542,-117.3489],[33.1445,-117.1617],[33.1632,-117.3528],[33.1603,-117.3508],[33.1599,-117.3528],[33.1526,-117.3489],[32.8398,-117.2804],[33.0367,-117.2919],[32.7211,-117.1629],[33.1595,-117.3568],[33.1997,-117.2437],[32.7211,-117.1619],[33.1619,-117.3458],[33.0369,-117.2899],[33.1603,-117.3518],[33.1635,-117.35],[32.7128,-117.1655],[33.1943,-117.38],[32.7216,-117.1598],[33.1548,-117.3508],[33.1421,-117.1637],[32.7187,-117.1603],[33.1615,-117.3508],[33.1587,-117.3474],[33.1581,-117.3514],[33.1622,-117.3528],[33.1522,-117.3562],[33.1614,-117.3472],[33.1586,-117.3515],[33.1987,-117.2413],[32.7206,-117.1602],[33.161,-117.3536],[33.0215,-117.2816],[33.1561,-117.3477],[32.7209,-117.1657],[33.2004,-117.374],[32.7115,-117.1569],[33.0374,-117.2946],[33.1563,-117.3543],[33.1603,-117.3503],[33.1636,-117.3534],[33.16,-117.35],[33.1574,-117.3524],[32.7907,-116.9579],[33.1527,-117.3494],[33.197,-117.3841],[33.1538,-117.3529],[32.7912,-116.969],[33.1579,-117.3541],[32.718,-117.1657],[33.0356,-117.2976],[33.1638,-117.3545],[33.1523,-117.3463],[33.1556,-117.3467],[33.1602,-117.3564],[33.1579,-117.3523],[33.156,-117.3494],[33.1525,-117.3519],[33.1606,-117.3562],[33.153,-117.3456],[32.7194,-117.1576],[32.7214,-117.1574],[32.719,-117.165],[33.1959,-117.3743],[33.1199,-117.0906],[33.1472,-117.1709],[32.8362,-116.98],[33.0318,-117.2977],[33.038,-117.2872],[33.1473,-117.163],[33.0216,-117.2696],[32.6497,-117.0724],[32.837,-116.9731],[32.8539,-117.2844],[33.1936,-117.3914],[32.6471,-117.0398],[32.7213,-117.1512],[33.1232,-117.0867],[32.7938,-116.9529],[32.9576,-117.0411],[32.7485,-116.9909],[32.6774,-117.096],[33.2072,-117.3916],[33.1607,-117.3517],[32.84,-117.2647],[33.126,-117.0912],[33.1981,-117.3916],[32.9627,-117.0361],[33.0382,-117.2818],[32.9656,-117.0381],[33.1545,-117.1579],[32.8426,-116.9693],[32.8323,-117.2665],[32.6585,-117.0328],[32.8351,-116.9651],[33.1261,-117.089],[33.2108,-117.2342],[32.8447,-116.9844],[32.7073,-117.1698],[32.7486,-117.006],[32.6514,-117.0388],[33.1433,-117.1727],[32.6608,-117.028],[33.044,-117.2928],[32.7777,-117.0128],[32.8356,-117.284],[32.8483,-116.9686],[32.7878,-116.9678],[33.0343,-117.2822],[32.8328,-117.2784],[33.1939,-117.2445],[32.8421,-117.2743],[33.2044,-117.3811],[32.8311,-116.9635],[32.8411,-117.278],[33.1572,-117.3473],[32.6331,-117.088],[32.854,-117.2846],[32.9556,-117.0264],[32.8286,-116.9775],[32.834,-117.2803],[33.1896,-117.3867],[32.6509,-117.0903],[33.1496,-117.1734],[33.1961,-117.2547],[32.6408,-117.092],[32.9511,-117.032],[32.9576,-117.0295],[32.9521,-117.0276],[32.672,-117.1095],[32.6845,-117.0931],[32.8301,-116.9626],[32.6643,-117.0291],[33.1953,-117.2371],[33.201,-117.38],[32.6783,-117.0918],[32.9579,-117.0373],[32.7584,-117.0243],[33.1484,-117.1562],[32.7782,-117.0349],[32.789,-116.9592],[33.2032,-117.378],[33.1432,-117.1686],[33.0178,-117.2817],[33.2041,-117.3745],[32.6432,-117.0956],[32.8058,-116.9626],[32.675,-117.1081],[32.841,-116.9632],[32.6723,-117.0916],[33.1946,-117.233],[32.8458,-117.2813],[32.7142,-117.1555],[32.8474,-116.9759],[33.1463,-117.3469],[33.0428,-117.2967],[32.6707,-117.0878],[32.6435,-117.0927],[32.641,-117.0916],[32.7882,-116.9647],[33.193,-117.2546],[32.7695,-117.0264],[32.6297,-117.0752],[32.973,-117.0348],[33.1667,-117.3621],[32.6778,-117.094],[32.7692,-117.0271],[32.6382,-117.0906],[33.1212,-117.0972],[33.1931,-117.3881]];
+
+function initLeafletMap(pins) {
+  const map = L.map('installMapLeaflet', { scrollWheelZoom: false }).setView([32.95, -117.15], 10);
+  
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '',
+    maxZoom: 19
+  }).addTo(map);
+  
+  const waveIcon = L.divIcon({
+    className: 'wave-pin',
+    html: '<svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="#22A8B3" stroke="#38BEC9" stroke-width="1.5" opacity="0.85"/></svg>',
+    iconSize: [14, 14],
+    iconAnchor: [7, 7]
+  });
+  const waveIconOrange = L.divIcon({
+    className: 'wave-pin',
+    html: '<svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="#FB9B47" stroke="#FCD34D" stroke-width="1.5" opacity="0.85"/></svg>',
+    iconSize: [14, 14],
+    iconAnchor: [7, 7]
+  });
+  
+  pins.forEach((p, i) => {
+    const icon = i % 3 === 0 ? waveIconOrange : waveIcon;
+    L.marker([p[0], p[1]], { icon }).addTo(map);
+  });
+
+  map.on('click', () => map.scrollWheelZoom.enable());
+  map.on('mouseout', () => map.scrollWheelZoom.disable());
+}
+
+// ═══════════════════════════════════════════════════════════
+// 4. CMS-DRIVEN COMPARISON TABLE
+// ═══════════════════════════════════════════════════════════
+function renderComparison(data) {
+  const c = data.comparison || {};
+  const title = c.title || 'California Utilities vs. Going Solar';
+  const subtitle = c.subtitle || 'Utility rates have increased 40%+ in three years.';
+  const colBad = c.col_utility || 'Stay with Utility';
+  const colGood = c.col_solar || 'Go Solar';
+  const rows = c.rows || [
+    { label: 'Monthly Cost', utility: '~$250+ (rising)', solar: '~$150 (locked)' },
+    { label: 'Annual Rate Increase', utility: '~8–10%/yr', solar: '0%' },
+    { label: '10-Year Cost', utility: '~$38,000+', solar: '~$18,000' },
+    { label: 'Own Your Power', utility: '✗', solar: '✓' },
+    { label: 'Home Value Increase', utility: '✗', solar: '+$15–25K' },
+  ];
+  
+  document.getElementById('comparison-title').textContent = strip(title);
+  document.getElementById('comparison-subtitle').textContent = strip(subtitle);
+  
+  let html = `<div class="comparison-table">
+    <div class="comparison-table__header">
+      <div></div>
+      <div class="comparison-table__col comparison-table__col--bad">${strip(colBad)}</div>
+      <div class="comparison-table__col comparison-table__col--good">${strip(colGood)}</div>
+    </div>`;
+  
+  rows.forEach(row => {
+    html += `<div class="comparison-table__row">
+      <div class="comparison-table__label">${strip(row.label)}</div>
+      <div class="comparison-table__val comparison-table__val--bad">${strip(row.utility)}</div>
+      <div class="comparison-table__val comparison-table__val--good">${strip(row.solar)}</div>
+    </div>`;
+  });
+  
+  html += '</div>';
+  document.getElementById('cms-comparison').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════
+// 2. INSTAGRAM FEED — lazy loaded, cached server-side
+// ═══════════════════════════════════════════════════════════
+function loadInstagramFeed() {
+  const grid = document.getElementById('igGrid');
+  const igObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        igObserver.disconnect();
+        fetch('instagram.php')
+          .then(r => r.json())
+          .then(data => {
+            if (!data.success || !data.posts || data.posts.length === 0) {
+              grid.innerHTML = '<p style="text-align:center;color:var(--slate);grid-column:1/-1;">Follow us on Instagram @energy.best.ca</p>';
+              return;
+            }
+            grid.innerHTML = data.posts.map(post => {
+              if (post.placeholder || !post.media_url) {
+                return `<a href="${post.permalink}" target="_blank" rel="noopener" class="ig-item ig-item--placeholder">
+                  <div class="ig-item__icon">📸</div>
+                </a>`;
+              }
+              // Handle VIDEO posts
+              if (post.media_type === 'VIDEO') {
+                return `<a href="${post.permalink}" target="_blank" rel="noopener" class="ig-item ig-item--video">
+                  <video src="${post.media_url}" muted playsinline loop preload="metadata" onmouseenter="this.play()" onmouseleave="this.pause()"></video>
+                  <div class="ig-item__play">▶</div>
+                  <div class="ig-item__overlay"><p>${post.caption || ''}</p></div>
+                </a>`;
+              }
+              return `<a href="${post.permalink}" target="_blank" rel="noopener" class="ig-item">
+                <img src="${post.media_url}" alt="${post.caption || 'Instagram post'}" loading="lazy" />
+                <div class="ig-item__overlay"><p>${post.caption || ''}</p></div>
+              </a>`;
+            }).join('');
+          })
+          .catch(() => {
+            grid.innerHTML = '<p style="text-align:center;color:var(--slate);grid-column:1/-1;">Follow us <a href="https://instagram.com/energy.best.ca" target="_blank" style="color:var(--teal);">@energy.best.ca</a></p>';
+          });
+      }
+    });
+  }, { rootMargin: '200px' });
+  igObserver.observe(grid);
+}
+
+// ═══════════════════════════════════════════════════════════
+// 5. GOOGLE REVIEWS — live from Places API, cached server-side
+// ═══════════════════════════════════════════════════════════
+function loadGoogleReviews() {
+  fetch('reviews.php')
+    .then(r => r.json())
+    .then(data => {
+      if (!data.success) return;
+      // Update trust bar with live rating
+      const trustRating = document.querySelector('.trust-bar__item--rating');
+      if (trustRating) {
+        trustRating.textContent = '★ ' + data.rating.toFixed(1) + ' Google Rating (' + data.total_reviews + ' Reviews)';
+      }
+      // Update testimonials header rating if present
+      const ratingEls = document.querySelectorAll('.testimonials__rating .rating-text');
+      ratingEls.forEach(el => {
+        el.innerHTML = '<strong>' + data.rating.toFixed(1) + '</strong> Average Rating · ' + data.total_reviews + ' Reviews';
+      });
+    })
+    .catch(() => {}); // Fail silently — trust bar has static fallback
+}
+
+// ═══════════════════════════════════════════════════════════
+// LOAD CMS + RENDER ALL
+// ═══════════════════════════════════════════════════════════
+CMS.load().then(() => {
+  // Hero text — strip() removes Quill <p> wrappers for plain-text fields
+  if (CMS.data.home) {
+    if (CMS.data.home.hero_eyebrow) document.querySelector('.hero__text .eyebrow').textContent = strip(CMS.data.home.hero_eyebrow);
+    if (CMS.data.home.hero_title_part1) document.getElementById('home-title-part1').textContent = strip(CMS.data.home.hero_title_part1);
+    if (CMS.data.home.hero_title_part2) document.getElementById('home-title-part2').textContent = strip(CMS.data.home.hero_title_part2);
+    if (CMS.data.home.hero_subtitle) document.getElementById('home-subtitle').textContent = strip(CMS.data.home.hero_subtitle);
+    if (CMS.data.home.about_text) document.getElementById('about-text').textContent = strip(CMS.data.home.about_text);
+    if (CMS.data.home.referral_text) document.getElementById('referral-text').textContent = strip(CMS.data.home.referral_text);
+    if (CMS.data.home.accordion_btn_closed) { closedText = strip(CMS.data.home.accordion_btn_closed); accordionBtn.textContent = closedText; }
+    if (CMS.data.home.accordion_btn_open) { openText = strip(CMS.data.home.accordion_btn_open); }
+  }
+
+  // Stats with animation
+  const statsGrid = document.getElementById('cms-stats');
+  const s = CMS.data.stats;
+  statsGrid.innerHTML = `
+    <div><div class="stat__number" data-target="${strip(s.savings)}">${strip(s.savings)}</div><div class="stat__label">${strip(s.savings_label)}</div></div>
+    <div><div class="stat__number" data-target="${strip(s.hours)}">${strip(s.hours)}</div><div class="stat__label">${strip(s.hours_label)}</div></div>
+    <div><div class="stat__number" data-target="${strip(s.installations)}">${strip(s.installations)}</div><div class="stat__label">${strip(s.installations_label)}</div></div>
+    <div><div class="stat__number" data-target="${strip(s.customers)}">${strip(s.customers)}</div><div class="stat__label">${strip(s.customers_label)}</div></div>
+  `;
+  document.querySelectorAll('.stat__number').forEach(el => statsObserver.observe(el));
+
+  // Gallery carousel
+  const galleryEl = document.getElementById('cms-gallery');
+  const galleryHTML = CMS.data.gallery.map(g => {
+    if (g.url) {
+      return `<div style="flex:0 0 400px; height:300px; border-radius:var(--radius); overflow:hidden;">
+                <img src="${g.url}" alt="${g.caption}" style="width:100%;height:100%;object-fit:cover;" loading="lazy" />
+              </div>`;
+    }
+    return `<div style="flex:0 0 400px; height:300px; border-radius:var(--radius); background:var(--gray-100); display:flex; align-items:center; justify-content:center; color:var(--slate);">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+            </div>`;
+  }).join('');
+  galleryEl.innerHTML = galleryHTML + galleryHTML;
+
+  // Rebate, Testimonials, FAQ
+  CMS.renderRebate('cms-rebate');
+  CMS.renderTestimonialsGlobal('cms-testimonials', 6);
+  CMS.renderFaq('cms-faq');
+  
+  // Comparison table (CMS-driven)
+  renderComparison(CMS.data);
+  
+  // Install map
+  renderInstallMap();
+  
+  // Instagram feed (lazy loaded)
+  loadInstagramFeed();
+  
+  // Google Reviews (async update)
+  loadGoogleReviews();
+  
+  // Incentive sidebar countdown
+  const endDate = new Date('2027-12-31T23:59:59');
+  const daysLeft = Math.max(0, Math.ceil((endDate - new Date()) / (1000*60*60*24)));
+  const daysEl = document.getElementById('incentiveDays');
+  if (daysEl) daysEl.textContent = daysLeft;
+});
+
+// ─── Newsletter Popup ───
+(function() {
+  const popup = document.getElementById('newsletterPopup');
+  const closeBtn = document.getElementById('newsletterClose');
+  const form = document.getElementById('newsletterForm');
+  if (!popup) return;
+  
+  const dismissed = sessionStorage.getItem('nl_dismissed');
+  if (dismissed) return;
+  
+  setTimeout(() => { popup.classList.add('visible'); }, 8000);
+  
+  closeBtn.addEventListener('click', () => {
+    popup.classList.remove('visible');
+    sessionStorage.setItem('nl_dismissed', '1');
+  });
+  popup.addEventListener('click', (e) => {
+    if (e.target === popup) { popup.classList.remove('visible'); sessionStorage.setItem('nl_dismissed', '1'); }
+  });
+  
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = form.querySelector('button');
+    btn.textContent = 'Subscribing...';
+    btn.disabled = true;
+    
+    // Collect UTM data
+    const utmData = {};
+    ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','referrer'].forEach(k => {
+      const v = sessionStorage.getItem(k);
+      if (v) utmData[k] = v;
+    });
+    
+    try {
+      await fetch('zoho.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'newsletter',
+          source_form: 'NewsletterPopup',
+          first_name: document.getElementById('nlFirstName').value,
+          email: document.getElementById('nlEmail').value,
+          ...utmData
+        })
+      });
+    } catch(err) {}
+    
+    form.style.display = 'none';
+    document.getElementById('nlSuccess').style.display = 'block';
+    sessionStorage.setItem('nl_dismissed', '1');
+    setTimeout(() => { popup.classList.remove('visible'); }, 3000);
+  });
+})();
+</script>
+</body>
+</html>

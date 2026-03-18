@@ -38,6 +38,7 @@ $side = array_filter($content, fn($f) => ($f['folder_type'] ?? 'core') === 'side
         </div>
         <div class="hdr-right">
             <?php if ($isLeader): ?><span class="badge-leader">✏️ Leader</span><?php endif; ?>
+            <?php if ($isLeader): ?><a href="/become/manage.php" style="color:var(--gold);font-weight:600;font-size:.85rem">⚙️ Manage</a><?php endif; ?>
             <a href="/become/logout.php" class="hdr-logout">Log Out</a>
         </div>
     </header>
@@ -93,7 +94,7 @@ $side = array_filter($content, fn($f) => ($f['folder_type'] ?? 'core') === 'side
     <?php endif; ?>
 
 </div>
-<script src="/become/portal.js"></script>
+<script data-cfasync="false" src="/become/portal.js"></script>
 </body>
 </html>
 <?php
@@ -113,27 +114,27 @@ function folder_card($f, $depth = 0) {
     if ($isSQ)   $cls .= ' folder--sq';
     if ($depth)  $cls .= ' folder--child';
 
+    // Auto-open folders that have content
+    if (!$locked && $mt > 0) $cls .= ' folder--open';
+
     $o = "<div class='{$cls}' data-id='{$id}'>";
 
     if ($locked) $o .= "<div class='folder-lock'>🔒</div>";
 
-    $o .= "<div class='folder-hdr' onclick='toggleFolder(this)'>";
+    // Use data-toggle attribute instead of onclick for Cloudflare compatibility
+    $o .= "<div class='folder-hdr' data-toggle='folder'>";
     $o .= "<span class='folder-icon'>{$icon}</span>";
     $o .= "<div class='folder-info'><h3>{$title}</h3><span class='folder-meta'>{$md}/{$mt} modules</span></div>";
     if (!$locked && $mt) $o .= "<span class='folder-pct'>{$pct}%</span>";
     $o .= "<span class='folder-arrow'>▸</span>";
     $o .= "</div>";
 
-    if (!$locked) {
-        $o .= "<div class='bar bar--sm'><div class='bar-fill' style='width:{$pct}%'></div></div>";
-        $o .= "<div class='folder-body'>";
-        foreach ($f['modules'] ?? [] as $m) $o .= module_item($m);
-
-        // Children (subfolders)
-        foreach ($f['children'] ?? [] as $child) $o .= folder_card($child, $depth + 1);
-
-        $o .= "</div>";
-    }
+    // Show folder body with ALL modules (locked ones greyed out)
+    $o .= "<div class='bar bar--sm'><div class='bar-fill' style='width:{$pct}%'></div></div>";
+    $o .= "<div class='folder-body'>";
+    foreach ($f['modules'] ?? [] as $m) $o .= module_item($m);
+    foreach ($f['children'] ?? [] as $child) $o .= folder_card($child, $depth + 1);
+    $o .= "</div>";
 
     $o .= "</div>";
     return $o;
@@ -148,18 +149,27 @@ function module_item($m) {
     $st = (int)($m['segments_total'] ?? 0);
     $sd = (int)($m['segments_completed'] ?? 0);
 
+    // Determine unlock level requirement
+    $unlockRule = isset($m['unlock_rule']) ? (is_string($m['unlock_rule']) ? json_decode($m['unlock_rule'], true) : $m['unlock_rule']) : null;
+    $reqLevel = ($unlockRule && ($unlockRule['kind'] ?? '') === 'level') ? (int)$unlockRule['value'] : 0;
+
     $ico = $locked ? '🔒' : ($done ? '✅' : '📖');
     $cls = 'mod';
     if ($locked) $cls .= ' mod--locked';
     if ($done)   $cls .= ' mod--done';
 
+    // All modules are visible — locked ones are greyed out but shown
     $tag = $locked ? 'div' : 'a';
     $href = $locked ? '' : " href='/become/module.php?id={$id}'";
 
     $o = "<{$tag} class='{$cls}'{$href}>";
     $o .= "<span class='mod-ico'>{$ico}</span>";
     $o .= "<div class='mod-info'><span class='mod-title'>{$title}</span>";
-    if (!$locked) $o .= "<span class='mod-meta'>{$sd}/{$st} segments</span>";
+    if ($locked && $reqLevel > 0) {
+        $o .= "<span class='mod-meta'>🔒 Unlocks at Level {$reqLevel}</span>";
+    } elseif (!$locked) {
+        $o .= "<span class='mod-meta'>{$sd}/{$st} segments</span>";
+    }
     $o .= "</div>";
     if (!$locked && !$done && $st) $o .= "<div class='mod-bar'><div class='mod-bar-fill' style='width:{$pct}%'></div></div>";
     if (!$locked && !$done) $o .= "<span class='mod-xp'>+{$m['xp_reward']} XP</span>";

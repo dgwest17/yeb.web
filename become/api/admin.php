@@ -154,7 +154,7 @@ try {
             $s = $db->prepare("INSERT INTO training_users (username, first_name, last_name, password_hash, role) VALUES (?, ?, ?, ?, ?)");
             $s->execute([$input['username'], $input['first_name']??'', $input['last_name']??'', $hash, $input['role']??'rep']);
             $newId = (int)$db->lastInsertId();
-            $db->prepare("INSERT INTO user_progress (user_id, xp, level, join_date) VALUES (?, 0, 1, CURDATE())")->execute([$newId]);
+            $db->prepare("INSERT INTO user_progress (user_id, xp, level, join_date) VALUES (?, 0, 0, CURDATE())")->execute([$newId]);
             echo json_encode(['success'=>true, 'id'=>$newId]);
             break;
 

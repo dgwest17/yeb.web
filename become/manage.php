@@ -270,7 +270,8 @@ select.ed-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
       </div>
       <div class="ed-field"><label>Starting Level — Controls what content they can access immediately</label>
         <select class="ed-input" id="nu-level">
-          <option value="1">Level 1 — Rookie 🌱 (default for new reps)</option>
+          <option value="0">Level 0 — Newbie 👶 (default for new reps)</option>
+          <option value="1">Level 1 — Rookie 🌱</option>
           <option value="2">Level 2 — Apprentice ⚡</option>
           <option value="3">Level 3 — Builder 🔨</option>
           <option value="4">Level 4 — Closer 🎯</option>
@@ -1085,7 +1086,7 @@ function renderUsers() {
         <option value="admin" ${u.role==='admin'?'selected':''}>Admin</option>
       </select>
       <select class="ed-input" style="width:auto;font-size:.8rem;padding:.3rem .5rem" onchange="setUserLevel(${u.id},parseInt(this.value))" title="Set access level">
-        ${[1,2,3,4,5,6,7].map(l => `<option value="${l}">Lvl ${l}</option>`).join('')}
+        ${[0,1,2,3,4,5,6,7].map(l => `<option value="${l}">Lvl ${l}</option>`).join('')}
       </select>
       <div style="display:flex;gap:.25rem">
         <button class="btn btn-sm btn-ghost" onclick="resetPw(${u.id},'${esc(u.username)}')">🔑</button>
@@ -1098,7 +1099,7 @@ function renderUsers() {
 function showAddUser() { document.getElementById('addUserForm').style.display = 'block'; }
 
 async function createUser() {
-  const startLevel = parseInt(document.getElementById('nu-level').value) || 1;
+  const startLevel = parseInt(document.getElementById('nu-level').value) || 0;
   const d = {
     action:'add_user',
     username: document.getElementById('nu-user').value.trim(),
@@ -1125,7 +1126,7 @@ async function createUser() {
 
   document.getElementById('addUserForm').style.display = 'none';
   ['nu-user','nu-pass','nu-first','nu-last'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('nu-level').value = '1';
+  document.getElementById('nu-level').value = '0';
   await loadAll();
   toast('User created' + (startLevel > 1 ? ' at Level ' + startLevel : ''));
 }
@@ -1312,7 +1313,7 @@ async function dropOnCard(e, targetModId) {
 function suggestStartLevel(role) {
   const levelSelect = document.getElementById('nu-level');
   if (!levelSelect) return;
-  const suggestions = { rep: '1', trainer: '3', leader: '4', admin: '7' };
+  const suggestions = { rep: '0', trainer: '3', leader: '4', admin: '7' };
   levelSelect.value = suggestions[role] || '1';
 }
 

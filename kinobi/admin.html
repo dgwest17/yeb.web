@@ -322,7 +322,7 @@ html,body{min-height:100vh;background:var(--deep);font-family:'DM Sans',sans-ser
   <div class="page" id="page-content">
     <div class="page-header">
       <div class="page-title">Content Editor</div>
-      <div class="page-sub">Edit text that appears in the presentation. All changes are saved to browser storage.</div>
+      <div class="page-sub">Edit all text that appears in the presentation. Changes save to browser storage and load automatically in the slideshow.</div>
     </div>
 
     <div class="card">
@@ -333,6 +333,89 @@ html,body{min-height:100vh;background:var(--deep);font-family:'DM Sans',sans-ser
           <input class="f-input" id="c-name" placeholder="e.g. The Johnson Family" oninput="markUnsaved()">
         </div>
         <div class="f-label" style="align-self:end;font-size:0.72rem;color:var(--dim);padding-bottom:0.55rem">Shown on title slide and throughout</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 1 TEXT -->
+    <div class="card">
+      <div class="card-title">Slide 1 — Utility Problem: Delivery & Profit</div>
+      <div class="field">
+        <div class="f-label">Eyebrow (top label)</div>
+        <input class="f-input slide-text-field" data-edit-id="s0-eyebrow" placeholder="The Problem with Your Power Company" oninput="markUnsaved()">
+      </div>
+      <div class="field">
+        <div class="f-label">Headline (red portion)</div>
+        <input class="f-input slide-text-field" data-edit-id="s0-headline" placeholder="ISN'T YOURS." oninput="markUnsaved()">
+      </div>
+      <div class="field">
+        <div class="f-label">Body paragraph</div>
+        <textarea class="f-input f-textarea slide-text-field" data-edit-id="s0-body" oninput="markUnsaved()"></textarea>
+      </div>
+      <div class="card-grid col2" style="margin-top:0.5rem">
+        <div class="field">
+          <div class="f-label">Bullet 1</div>
+          <textarea class="f-input f-textarea slide-text-field" style="min-height:60px" data-edit-id="s0-b1" oninput="markUnsaved()"></textarea>
+        </div>
+        <div class="field">
+          <div class="f-label">Bullet 2</div>
+          <textarea class="f-input f-textarea slide-text-field" style="min-height:60px" data-edit-id="s0-b2" oninput="markUnsaved()"></textarea>
+        </div>
+        <div class="field">
+          <div class="f-label">Bullet 3</div>
+          <textarea class="f-input f-textarea slide-text-field" style="min-height:60px" data-edit-id="s0-b3" oninput="markUnsaved()"></textarea>
+        </div>
+        <div class="field">
+          <div class="f-label">Footnote (below stat blocks)</div>
+          <input class="f-input slide-text-field" data-edit-id="s0-footnote" oninput="markUnsaved()">
+        </div>
+      </div>
+      <div class="card-grid col2" style="margin-top:0.75rem">
+        <div class="field"><div class="f-label">Stat Label — Year 1</div><input class="f-input slide-text-field" data-edit-id="s0-lbl1" oninput="markUnsaved()"></div>
+        <div class="field"><div class="f-label">Stat Label — 5 Years</div><input class="f-input slide-text-field" data-edit-id="s0-lbl2" oninput="markUnsaved()"></div>
+        <div class="field"><div class="f-label">Stat Label — 10 Years</div><input class="f-input slide-text-field" data-edit-id="s0-lbl3" oninput="markUnsaved()"></div>
+        <div class="field"><div class="f-label">Stat Label — 25 Years</div><input class="f-input slide-text-field" data-edit-id="s0-lbl4" oninput="markUnsaved()"></div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2 TEXT -->
+    <div class="card">
+      <div class="card-title">Slide 2 — Utility Problem: Demand Crisis</div>
+      <div class="field">
+        <div class="f-label">Eyebrow</div>
+        <input class="f-input slide-text-field" data-edit-id="s1-eyebrow" oninput="markUnsaved()">
+      </div>
+      <div class="field">
+        <div class="f-label">Headline</div>
+        <input class="f-input slide-text-field" data-edit-id="s1-headline" oninput="markUnsaved()">
+      </div>
+      <div class="field">
+        <div class="f-label">Intro paragraph</div>
+        <textarea class="f-input f-textarea slide-text-field" data-edit-id="s1-intro" oninput="markUnsaved()"></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-top:0.5rem">
+        <div class="field"><div class="f-label">Card 1 — Icon</div><input class="f-input slide-text-field" data-edit-id="s1-c1-icon" style="font-size:1.2rem" oninput="markUnsaved()"></div>
+        <div class="field"><div class="f-label">Card 1 — Title</div><input class="f-input slide-text-field" data-edit-id="s1-c1-title" oninput="markUnsaved()"></div>
+        <div class="field" style="grid-column:1/-1"><div class="f-label">Card 1 — Body</div><textarea class="f-input f-textarea slide-text-field" style="min-height:55px" data-edit-id="s1-c1-body" oninput="markUnsaved()"></textarea></div>
+
+        <div class="field"><div class="f-label">Card 2 — Icon</div><input class="f-input slide-text-field" data-edit-id="s1-c2-icon" style="font-size:1.2rem" oninput="markUnsaved()"></div>
+        <div class="field"><div class="f-label">Card 2 — Title</div><input class="f-input slide-text-field" data-edit-id="s1-c2-title" oninput="markUnsaved()"></div>
+        <div class="field" style="grid-column:1/-1"><div class="f-label">Card 2 — Body</div><textarea class="f-input f-textarea slide-text-field" style="min-height:55px" data-edit-id="s1-c2-body" oninput="markUnsaved()"></textarea></div>
+
+        <div class="field"><div class="f-label">Card 3 — Icon</div><input class="f-input slide-text-field" data-edit-id="s1-c3-icon" style="font-size:1.2rem" oninput="markUnsaved()"></div>
+        <div class="field"><div class="f-label">Card 3 — Title</div><input class="f-input slide-text-field" data-edit-id="s1-c3-title" oninput="markUnsaved()"></div>
+        <div class="field" style="grid-column:1/-1"><div class="f-label">Card 3 — Body</div><textarea class="f-input f-textarea slide-text-field" style="min-height:55px" data-edit-id="s1-c3-body" oninput="markUnsaved()"></textarea></div>
+
+        <div class="field"><div class="f-label">Card 4 — Icon</div><input class="f-input slide-text-field" data-edit-id="s1-c4-icon" style="font-size:1.2rem" oninput="markUnsaved()"></div>
+        <div class="field"><div class="f-label">Card 4 — Title</div><input class="f-input slide-text-field" data-edit-id="s1-c4-title" oninput="markUnsaved()"></div>
+        <div class="field" style="grid-column:1/-1"><div class="f-label">Card 4 — Body</div><textarea class="f-input f-textarea slide-text-field" style="min-height:55px" data-edit-id="s1-c4-body" oninput="markUnsaved()"></textarea></div>
+
+        <div class="field"><div class="f-label">Card 5 — Icon</div><input class="f-input slide-text-field" data-edit-id="s1-c5-icon" style="font-size:1.2rem" oninput="markUnsaved()"></div>
+        <div class="field"><div class="f-label">Card 5 — Title</div><input class="f-input slide-text-field" data-edit-id="s1-c5-title" oninput="markUnsaved()"></div>
+        <div class="field" style="grid-column:1/-1"><div class="f-label">Card 5 — Body</div><textarea class="f-input f-textarea slide-text-field" style="min-height:55px" data-edit-id="s1-c5-body" oninput="markUnsaved()"></textarea></div>
+
+        <div class="field"><div class="f-label">Card 6 — Icon</div><input class="f-input slide-text-field" data-edit-id="s1-c6-icon" style="font-size:1.2rem" oninput="markUnsaved()"></div>
+        <div class="field"><div class="f-label">Card 6 — Title</div><input class="f-input slide-text-field" data-edit-id="s1-c6-title" oninput="markUnsaved()"></div>
+        <div class="field" style="grid-column:1/-1"><div class="f-label">Card 6 — Body</div><textarea class="f-input f-textarea slide-text-field" style="min-height:55px" data-edit-id="s1-c6-body" oninput="markUnsaved()"></textarea></div>
       </div>
     </div>
 
@@ -966,6 +1049,13 @@ function saveAll() {
   const content = {};
   fields.forEach(id=>{const el=document.getElementById(id);if(el)content[id]=el.value});
   localStorage.setItem('kinobi-content', JSON.stringify(content));
+  // Slide text edits (shared key with presentation)
+  const textEdits = {};
+  document.querySelectorAll('.slide-text-field[data-edit-id]').forEach(el => {
+    const id = el.dataset.editId;
+    if (el.value.trim()) textEdits[id] = el.value;
+  });
+  localStorage.setItem('kinobi-text-edits', JSON.stringify(textEdits));
   // IG token
   const igEl = document.getElementById('ig-token');
   if(igEl && igEl.value) localStorage.setItem('ig_token', igEl.value);
@@ -988,6 +1078,41 @@ function loadAll() {
   // Content
   const cd = JSON.parse(localStorage.getItem('kinobi-content')||'{}');
   Object.entries(cd).forEach(([id,val])=>{const el=document.getElementById(id);if(el)el.value=val});
+  // Slide text edits — populate from saved edits or defaults
+  const DEFAULTS = {
+    's0-eyebrow': 'The Problem with Your Power Company',
+    's0-headline': 'ISN\'T YOURS.',
+    's0-body': 'Every month you pay for miles of aging wire, corporate executives, and shareholder dividends — before a single electron reaches your home. SDG&E is a for-profit business with one goal: extract as much as possible from a captive customer.',
+    's0-b1': 'Delivery & transmission fees — 50–80% of your bill never pays for actual electricity. It pays for wires, poles, and profit.',
+    's0-b2': 'You have no choice — monopoly utility, zero competition, prices set by regulators they lobby',
+    's0-b3': 'They legally profit more when they build more infrastructure — your bills fund their expansion',
+    's0-lbl1': 'Year 1 Cost to SDG&E',
+    's0-lbl2': '5 Years Donated',
+    's0-lbl3': '10 Years Donated',
+    's0-lbl4': '25 Years — Gone Forever',
+    's0-footnote': 'Based on 9% annual rate increases — SDG&E\'s historical average',
+    's1-eyebrow': 'The Demand Crisis Coming For Your Wallet',
+    's1-headline': 'CALIFORNIA\'S GRID IS BREAKING UNDER PRESSURE',
+    's1-intro': 'Electricity demand is exploding — and utilities will pass every penny of the cost to you.',
+    's1-c1-icon': '🏭', 's1-c1-title': 'AI Data Centers',
+    's1-c1-body': 'Tech giants are plugging in massive AI farms — each one consuming as much power as a small city. Demand up 300% by 2030.',
+    's1-c2-icon': '🚗', 's1-c2-title': 'Electric Vehicles',
+    's1-c2-body': 'California mandates all-EV sales by 2035. Millions of cars plugging in nightly will overwhelm the aging grid.',
+    's1-c3-icon': '🌡️', 's1-c3-title': 'Extreme Heat & A/C',
+    's1-c3-body': 'Record-breaking summers are extending cooling seasons — demand spikes are becoming the norm, not the exception.',
+    's1-c4-icon': '🏘️', 's1-c4-title': 'Population Growth',
+    's1-c4-body': 'Southern California adds hundreds of thousands of residents yearly — all competing for the same strained grid capacity.',
+    's1-c5-icon': '🔥', 's1-c5-title': 'Wildfire Liability',
+    's1-c5-body': 'SDG&E spent billions on fire lawsuits. AB 1054 lets them pass those costs directly to ratepayers — that means you.',
+    's1-c6-icon': '📈', 's1-c6-title': 'No Rate Relief in Sight',
+    's1-c6-body': 'CPUC approved double-digit rate hikes in 2023 and 2024. There is no mechanism to protect you from what\'s coming.',
+  };
+  const savedEdits = JSON.parse(localStorage.getItem('kinobi-text-edits')||'{}');
+  document.querySelectorAll('.slide-text-field[data-edit-id]').forEach(el => {
+    const id = el.dataset.editId;
+    // Saved edits take priority; fall back to defaults
+    el.value = savedEdits[id] || DEFAULTS[id] || '';
+  });
   // IG token
   const igt = localStorage.getItem('ig_token');
   if(igt){const el=document.getElementById('ig-token');if(el)el.value=igt}

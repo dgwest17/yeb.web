@@ -390,6 +390,28 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
   .slide[data-print="false"]{display:none!important}
 }
 
+/* ── INLINE EDITING ── */
+.editable{border-radius:3px;transition:background 0.15s,outline 0.15s;outline:1px dashed transparent;outline-offset:3px}
+.edit-mode .editable{cursor:text}
+.edit-mode .editable:hover{outline-color:rgba(200,168,75,0.5);background:rgba(200,168,75,0.06)}
+.editable[contenteditable="true"]{outline:2px solid var(--gold)!important;background:rgba(200,168,75,0.08)!important;border-radius:3px;cursor:text;min-width:20px;display:inline-block}
+#edit-mode-btn{
+  position:fixed;bottom:1.5rem;left:5rem;z-index:200;
+  background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.12);
+  color:var(--dim);padding:0.4rem 0.85rem;border-radius:100px;
+  font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;
+  cursor:pointer;backdrop-filter:blur(8px);transition:all 0.2s;font-family:'DM Sans',sans-serif;
+}
+#edit-mode-btn:hover{border-color:var(--gold);color:var(--gold)}
+#edit-mode-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(200,168,75,0.12)}
+#edit-saved-toast{
+  position:fixed;bottom:4rem;left:50%;transform:translateX(-50%);z-index:210;
+  background:rgba(39,174,96,0.15);border:1px solid rgba(39,174,96,0.4);color:var(--green-l);
+  padding:0.35rem 1.1rem;border-radius:100px;font-size:0.72rem;letter-spacing:0.08em;
+  opacity:0;transition:opacity 0.3s;pointer-events:none;font-family:'DM Sans',sans-serif;
+}
+#edit-saved-toast.show{opacity:1}
+
 /* animations */
 .slide.active .display{animation:fadeUp 0.7s ease both}
 .slide.active .body-text{animation:fadeUp 0.7s 0.1s ease both}
@@ -401,6 +423,10 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
 <body>
 
 <div id="progress"></div>
+
+<!-- EDIT MODE BUTTON -->
+<button id="edit-mode-btn" onclick="toggleEditMode()">✏ Edit</button>
+<div id="edit-saved-toast">Changes saved</div>
 
 <!-- ADMIN LINK -->
 <a href="admin.html" id="admin-btn" target="_blank">⚙ Admin</a>
@@ -433,24 +459,24 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
   <div class="slide-inner">
     <div class="two-col">
       <div>
-        <span class="eyebrow red">The Problem with Your Power Company</span>
+        <span class="eyebrow red editable" id="s0-eyebrow">The Problem with Your Power Company</span>
         <div class="accent-line red"></div>
-        <h1 class="display xl" style="color:#fff">YOUR BILL <span style="color:var(--rage-l)">ISN'T YOURS.</span></h1>
-        <p class="body-text" style="margin:1.25rem 0">Every month you pay for miles of aging wire, corporate executives, and shareholder dividends — before a single electron reaches your home. SDG&E is a <strong style="color:#fff">for-profit business</strong> with one goal: extract as much as possible from a captive customer.</p>
+        <h1 class="display xl" style="color:#fff">YOUR BILL <span class="editable" id="s0-headline" style="color:var(--rage-l)">ISN'T YOURS.</span></h1>
+        <p class="body-text editable" id="s0-body" style="margin:1.25rem 0">Every month you pay for miles of aging wire, corporate executives, and shareholder dividends — before a single electron reaches your home. SDG&E is a <strong style="color:#fff">for-profit business</strong> with one goal: extract as much as possible from a captive customer.</p>
         <ul class="blist">
-          <li><span class="icon red">✕</span><span><strong>Delivery & transmission fees</strong> — 30–40% of your bill is just moving electricity to your house</span></li>
-          <li><span class="icon red">✕</span><span><strong>You have no choice</strong> — monopoly utility, zero competition, prices set by regulators they lobby</span></li>
-          <li><span class="icon red">✕</span><span><strong>They legally profit more</strong> when they build more infrastructure — your bills fund their expansion</span></li>
+          <li><span class="icon red">✕</span><span class="editable" id="s0-b1"><strong>Delivery &amp; transmission fees</strong> — 50–80% of your bill never pays for actual electricity. It pays for wires, poles, and profit.</span></li>
+          <li><span class="icon red">✕</span><span class="editable" id="s0-b2"><strong>You have no choice</strong> — monopoly utility, zero competition, prices set by regulators they lobby</span></li>
+          <li><span class="icon red">✕</span><span class="editable" id="s0-b3"><strong>They legally profit more</strong> when they build more infrastructure — your bills fund their expansion</span></li>
         </ul>
       </div>
       <div>
         <div class="stat-row" style="flex-direction:column;gap:2px">
-          <div class="stat-b red-glow"><span class="val" id="s1-yr1">$1,608</span><span class="lbl">Year 1 Cost to SDG&E</span></div>
-          <div class="stat-b red-glow"><span class="val" id="s1-yr5">$9,064</span><span class="lbl">5 Years Donated</span></div>
-          <div class="stat-b red-glow"><span class="val" id="s1-yr10">$21,195</span><span class="lbl">10 Years Donated</span></div>
-          <div class="stat-b red-glow"><span class="val" id="s1-yr25" style="color:#ff4444">$88,222</span><span class="lbl">25 Years — Gone Forever</span></div>
+          <div class="stat-b red-glow"><span class="val" id="s1-yr1">$1,608</span><span class="lbl editable" id="s0-lbl1">Year 1 Cost to SDG&E</span></div>
+          <div class="stat-b red-glow"><span class="val" id="s1-yr5">$9,064</span><span class="lbl editable" id="s0-lbl2">5 Years Donated</span></div>
+          <div class="stat-b red-glow"><span class="val" id="s1-yr10">$21,195</span><span class="lbl editable" id="s0-lbl3">10 Years Donated</span></div>
+          <div class="stat-b red-glow"><span class="val" id="s1-yr25" style="color:#ff4444">$88,222</span><span class="lbl editable" id="s0-lbl4">25 Years — Gone Forever</span></div>
         </div>
-        <p style="font-size:0.7rem;color:var(--dim);margin-top:0.75rem;text-align:center">Based on 6% annual rate increases — SDG&E's historical average</p>
+        <p class="editable" id="s0-footnote" style="font-size:0.7rem;color:var(--dim);margin-top:0.75rem;text-align:center">Based on 9% annual rate increases — SDG&E's historical average</p>
       </div>
     </div>
   </div>
@@ -460,40 +486,40 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
 <div class="slide slide-pain" id="slide-1">
   <div class="particle-bg" id="particles-1"></div>
   <div class="slide-inner">
-    <span class="eyebrow red">The Demand Crisis Coming For Your Wallet</span>
+    <span class="eyebrow red editable" id="s1-eyebrow">The Demand Crisis Coming For Your Wallet</span>
     <div class="accent-line red"></div>
-    <h1 class="display lg" style="max-width:700px">CALIFORNIA'S GRID IS <span style="color:var(--rage-l)">BREAKING UNDER PRESSURE</span></h1>
-    <p class="body-text" style="margin:1rem 0 1.5rem">Electricity demand is exploding — and utilities will pass every penny of the cost to you.</p>
+    <h1 class="display lg editable" id="s1-headline" style="max-width:700px">CALIFORNIA'S GRID IS <span style="color:var(--rage-l)">BREAKING UNDER PRESSURE</span></h1>
+    <p class="body-text editable" id="s1-intro" style="margin:1rem 0 1.5rem">Electricity demand is exploding — and utilities will pass every penny of the cost to you.</p>
     <div class="demand-grid">
       <div class="demand-card">
-        <span class="icon-big">🏭</span>
-        <h4>AI Data Centers</h4>
-        <p>Tech giants are plugging in massive AI farms — each one consuming as much power as a small city. Demand up 300% by 2030.</p>
+        <span class="icon-big editable" id="s1-c1-icon">🏭</span>
+        <h4 class="editable" id="s1-c1-title">AI Data Centers</h4>
+        <p class="editable" id="s1-c1-body">Tech giants are plugging in massive AI farms — each one consuming as much power as a small city. Demand up 300% by 2030.</p>
       </div>
       <div class="demand-card">
-        <span class="icon-big">🚗</span>
-        <h4>Electric Vehicles</h4>
-        <p>California mandates all-EV sales by 2035. Millions of cars plugging in nightly will overwhelm the aging grid.</p>
+        <span class="icon-big editable" id="s1-c2-icon">🚗</span>
+        <h4 class="editable" id="s1-c2-title">Electric Vehicles</h4>
+        <p class="editable" id="s1-c2-body">California mandates all-EV sales by 2035. Millions of cars plugging in nightly will overwhelm the aging grid.</p>
       </div>
       <div class="demand-card">
-        <span class="icon-big">🌡️</span>
-        <h4>Extreme Heat & A/C</h4>
-        <p>Record-breaking summers are extending cooling seasons — demand spikes are becoming the norm, not the exception.</p>
+        <span class="icon-big editable" id="s1-c3-icon">🌡️</span>
+        <h4 class="editable" id="s1-c3-title">Extreme Heat &amp; A/C</h4>
+        <p class="editable" id="s1-c3-body">Record-breaking summers are extending cooling seasons — demand spikes are becoming the norm, not the exception.</p>
       </div>
       <div class="demand-card">
-        <span class="icon-big">🏘️</span>
-        <h4>Population Growth</h4>
-        <p>Southern California adds hundreds of thousands of residents yearly — all competing for the same strained grid capacity.</p>
+        <span class="icon-big editable" id="s1-c4-icon">🏘️</span>
+        <h4 class="editable" id="s1-c4-title">Population Growth</h4>
+        <p class="editable" id="s1-c4-body">Southern California adds hundreds of thousands of residents yearly — all competing for the same strained grid capacity.</p>
       </div>
       <div class="demand-card">
-        <span class="icon-big">🔥</span>
-        <h4>Wildfire Liability</h4>
-        <p>SDG&E spent billions on fire lawsuits. AB 1054 lets them pass those costs directly to ratepayers — that means you.</p>
+        <span class="icon-big editable" id="s1-c5-icon">🔥</span>
+        <h4 class="editable" id="s1-c5-title">Wildfire Liability</h4>
+        <p class="editable" id="s1-c5-body">SDG&E spent billions on fire lawsuits. AB 1054 lets them pass those costs directly to ratepayers — that means you.</p>
       </div>
       <div class="demand-card">
-        <span class="icon-big">📈</span>
-        <h4>No Rate Relief in Sight</h4>
-        <p>CPUC approved double-digit rate hikes in 2023 and 2024. There is no mechanism to protect you from what's coming.</p>
+        <span class="icon-big editable" id="s1-c6-icon">📈</span>
+        <h4 class="editable" id="s1-c6-title">No Rate Relief in Sight</h4>
+        <p class="editable" id="s1-c6-body">CPUC approved double-digit rate hikes in 2023 and 2024. There is no mechanism to protect you from what's coming.</p>
       </div>
     </div>
   </div>
@@ -1179,10 +1205,13 @@ let benefitsList = JSON.parse(localStorage.getItem('kinobi-benefits') || 'null')
 function buildData() {
   const bill       = parseFloat(document.getElementById('inp-bill').value) || 134;
   const annualKwh  = parseFloat(document.getElementById('inp-kwh-usage').value) || 3540;
-  const rate       = parseFloat(document.getElementById('inp-rate').value) || 0.09;
+  // Use Number() + isNaN check so 0% works correctly (|| treats 0 as falsy)
+  const rateRaw    = Number(document.getElementById('inp-rate').value);
+  const rate       = isNaN(rateRaw) ? 0.09 : rateRaw;
   const solar      = parseFloat(document.getElementById('inp-solar').value) || 0;
   const solarKwh   = parseFloat(document.getElementById('inp-solar-kwh').value) || 6402;
-  const vppRate    = parseFloat(document.getElementById('inp-vpp-rate').value) || 0.009;
+  const vppRateRaw = Number(document.getElementById('inp-vpp-rate').value);
+  const vppRate    = isNaN(vppRateRaw) ? 0.009 : vppRateRaw;
   const sp         = parseFloat(document.getElementById('inp-sp').value) || 0.08;
   const utilEl     = document.getElementById('inp-utility');
   const utilName   = utilEl ? utilEl.value || 'SDG&E' : 'SDG&E';
@@ -1192,24 +1221,22 @@ function buildData() {
   const offset  = annualKwh > 0 ? Math.min(solarKwh / annualKwh, 2.0) : 0;
 
   // Solar $/kWh (current, locked — payment covers solarKwh production)
-  // solar payment is monthly, covers solarKwh/yr production
   const solarKwhRateCurrent = (solar > 0 && solarKwh > 0) ? (solar * 12) / solarKwh : null;
 
-  // Utility trajectory
+  // Utility trajectory — when rate === 0, Math.pow(1+0, y-1) === 1, stays perfectly flat
   const utilMonthly = YEARS.map(y => bill * Math.pow(1 + rate, y - 1));
   const utilCumul   = [];
   let cum = 0;
   utilMonthly.forEach(m => { cum += m * 12; utilCumul.push(cum); });
 
-  // Solar / VPP trajectory — escalates at vppRate
+  // Solar / VPP trajectory — when vppRate === 0, stays perfectly flat
   const solarMonthly = solar > 0 ? YEARS.map(y => solar * Math.pow(1 + vppRate, y - 1)) : null;
   const solarCumul   = solarMonthly ? solarMonthly.reduce((acc, m, i) => {
     acc.push((acc[i - 1] || 0) + m * 12); return acc;
   }, []) : null;
 
-  // kWh rate trajectories
+  // kWh rate trajectories — 0% stays flat too
   const kwhUtil  = YEARS.map(y => kwhRate * Math.pow(1 + rate, y - 1));
-  // Solar kWh rate: escalates at vppRate (slightly), locked vs utility
   const kwhSolar = solar > 0 && solarKwh > 0
     ? YEARS.map(y => solarKwhRateCurrent * Math.pow(1 + vppRate, y - 1))
     : null;
@@ -1670,7 +1697,81 @@ function loadTestimonialsFromSite() {
 // ═══════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════
+// ═══════════════════════════════════════════
+//  INLINE EDITING ENGINE
+// ═══════════════════════════════════════════
+let editMode = false;
+let editSaveTimer = null;
+
+function toggleEditMode() {
+  editMode = !editMode;
+  const btn = document.getElementById('edit-mode-btn');
+  const deck = document.getElementById('deck');
+
+  if (editMode) {
+    btn.textContent = '✓ Done Editing';
+    btn.classList.add('active');
+    deck.classList.add('edit-mode');
+    // Make all editable elements contenteditable
+    document.querySelectorAll('.editable').forEach(el => {
+      el.contentEditable = 'true';
+      el.spellcheck = false;
+      // Prevent arrow keys from changing slides while typing
+      el.addEventListener('keydown', stopSlidePropagation);
+    });
+  } else {
+    btn.textContent = '✏ Edit';
+    btn.classList.remove('active');
+    deck.classList.remove('edit-mode');
+    // Lock all editable elements and save
+    document.querySelectorAll('.editable').forEach(el => {
+      el.contentEditable = 'false';
+      el.removeEventListener('keydown', stopSlidePropagation);
+    });
+    saveEdits();
+  }
+}
+
+function stopSlidePropagation(e) {
+  // Block arrow keys (slide nav) but allow normal typing
+  if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)) {
+    e.stopPropagation();
+  }
+}
+
+function saveEdits() {
+  const edits = {};
+  document.querySelectorAll('.editable[id]').forEach(el => {
+    edits[el.id] = el.innerHTML;
+  });
+  localStorage.setItem('kinobi-text-edits', JSON.stringify(edits));
+  // Flash saved toast
+  const toast = document.getElementById('edit-saved-toast');
+  if (toast) {
+    toast.classList.add('show');
+    clearTimeout(editSaveTimer);
+    editSaveTimer = setTimeout(() => toast.classList.remove('show'), 2000);
+  }
+}
+
+function loadEdits() {
+  const saved = JSON.parse(localStorage.getItem('kinobi-text-edits') || '{}');
+  Object.entries(saved).forEach(([id, html]) => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = html;
+  });
+}
+
+// Auto-save while in edit mode on any input
+document.addEventListener('input', e => {
+  if (editMode && e.target.classList.contains('editable')) {
+    clearTimeout(editSaveTimer);
+    editSaveTimer = setTimeout(saveEdits, 800);
+  }
+});
+
 document.addEventListener('DOMContentLoaded', () => {
+  loadEdits(); // restore any saved edits
   loadSavedImages();
   updateNav();
   recalc();

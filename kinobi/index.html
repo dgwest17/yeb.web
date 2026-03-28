@@ -412,6 +412,28 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
 }
 #edit-saved-toast.show{opacity:1}
 
+/* ── TIMELINE NODES ── */
+.tl-node{display:flex;flex-direction:column;align-items:center;gap:0.3rem;cursor:pointer;z-index:1;position:relative;width:100px}
+.tl-circle{width:76px;height:76px;border-radius:50%;background:rgba(255,255,255,0.07);border:2px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;transition:all 0.25s;flex-shrink:0}
+.tl-node:hover .tl-circle,.tl-node.tl-active .tl-circle{border-color:var(--gold);background:rgba(200,168,75,0.15);transform:scale(1.08)}
+.tl-badge{position:absolute;top:-8px;right:2px;background:#2A6DB5;color:#fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:0.5rem;font-weight:700;text-align:center;line-height:1.2;letter-spacing:0.03em;flex-shrink:0}
+.tl-label{font-size:0.62rem;font-weight:600;letter-spacing:0.1em;color:var(--muted);text-align:center;text-transform:uppercase;margin-top:0.25rem}
+
+/* ── GALLERY OVERLAY ── */
+#gallery-overlay{position:fixed;inset:0;z-index:600;background:rgba(5,14,24,0.97);backdrop-filter:blur(20px);display:none;flex-direction:column;align-items:center;padding:2.5rem 2rem 5rem;overflow-y:auto}
+#gallery-overlay.open{display:flex}
+.gallery-overlay-title{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--gold);letter-spacing:0.06em;margin-bottom:0.3rem}
+.gallery-overlay-sub{font-size:0.82rem;color:var(--muted);margin-bottom:2rem}
+.slide-gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;width:100%;max-width:1200px}
+.slide-thumb{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;overflow:hidden;cursor:pointer;transition:all 0.2s;aspect-ratio:16/9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.4rem;position:relative;padding:1.25rem 1rem}
+.slide-thumb:hover{border-color:var(--gold);background:rgba(200,168,75,0.08);transform:translateY(-2px)}
+.slide-thumb.current-thumb{border-color:var(--gold);border-width:2px}
+.slide-thumb .th-num{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--dim);position:absolute;top:0.5rem;left:0.6rem}
+.slide-thumb .th-icon{font-size:1.6rem}
+.slide-thumb .th-label{font-size:0.75rem;font-weight:500;color:var(--text);text-align:center;line-height:1.4}
+.gallery-close-btn{position:fixed;top:1.5rem;right:1.5rem;z-index:601;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:var(--muted);width:42px;height:42px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:all 0.2s}
+.gallery-close-btn:hover{border-color:var(--gold);color:var(--gold)}
+
 /* animations */
 .slide.active .display{animation:fadeUp 0.7s ease both}
 .slide.active .body-text{animation:fadeUp 0.7s 0.1s ease both}
@@ -434,8 +456,19 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
 <!-- INVESTMENT BUTTON -->
 <button class="gallery-btn" id="investment-btn" onclick="toggleInvestment()" style="right:9rem">💰 Investment</button>
 
+<!-- OVERVIEW / GALLERY VIEW BUTTON -->
+<button class="gallery-btn" id="overview-btn" onclick="openOverview()" style="right:14.5rem">⊞ Overview</button>
+
 <!-- GALLERY BUTTON -->
 <button class="gallery-btn" onclick="openGallery()">🖼 Gallery</button>
+
+<!-- ══ SLIDE GALLERY OVERLAY ══ -->
+<div id="gallery-overlay">
+  <button class="gallery-close-btn" onclick="closeOverview()">✕</button>
+  <div class="gallery-overlay-title">All Slides</div>
+  <div class="gallery-overlay-sub">Click any slide to jump to it</div>
+  <div class="slide-gallery-grid" id="slide-gallery-grid"></div>
+</div>
 
 <!-- NAV -->
 <button id="nav-prev" onclick="changeSlide(-1)">
@@ -573,7 +606,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
     <span class="eyebrow">What You're Getting</span>
     <div class="accent-line gold"></div>
     <h1 class="display lg" style="margin-bottom:0.3rem">EVERYTHING <span style="color:var(--gold)">INCLUDED.</span></h1>
-    <p class="body-text">This isn't just solar — it's a complete home energy system, fully protected for the life of your loan.</p>
+    <p class="body-text">This isn't just solar — it's a complete home energy system, fully protected for the life of your system.</p>
     <div class="warranty-grid">
       <div class="warranty-card">
         <span class="w-icon">☀️</span>
@@ -584,11 +617,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
         <span class="w-icon">🔋</span>
         <h4>Battery Backup Included</h4>
         <p>Whole-home battery storage. When the grid goes dark, your lights stay on. For the spa, the fridge, everything.</p>
-      </div>
-      <div class="warranty-card">
-        <span class="w-icon">🏠</span>
-        <h4 id="h4-roof">New Roof Included</h4>
-        <p id="p-roof">No more leaks. No more worry. Your roof is replaced as part of the system — fully warranted alongside your panels.</p>
       </div>
       <div class="warranty-card">
         <span class="w-icon">🔌</span>
@@ -605,6 +633,11 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
         <h4>Home Value Increases</h4>
         <p>Studies show solar adds 3–4% to home value — often more than the cost of the system, especially in San Diego.</p>
       </div>
+      <div class="warranty-card">
+        <span class="w-icon">💰</span>
+        <h4>$0 Out of Pocket</h4>
+        <p>No down payment. No cash required. Your energy savings start from day one while your payment stays fixed.</p>
+      </div>
     </div>
   </div>
 </div>
@@ -614,8 +647,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
   <div class="slide-inner">
     <span class="eyebrow">You Qualify</span>
     <div class="accent-line gold"></div>
-    <h1 class="display lg">YOUR HOME IS <span style="color:var(--gold)">READY.</span></h1>
-    <p class="body-text" style="margin:0.75rem 0 1.5rem">Here's what we confirmed before sitting down with you today.</p>
+    <h1 class="display lg">YOUR HOME IS READY FOR <span style="color:var(--gold)">$0 UPFRONT COSTS FOR ENERGY</span></h1>
+    <p class="body-text" style="margin:0.75rem 0 1.5rem">Here are some of the qualifications.</p>
     <div class="qual-list">
       <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:var(--text)">Roof condition</strong> — adequate remaining life, no issues flagged</div></div>
       <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:var(--text)">Sufficient sun exposure</strong> — your roof orientation maximizes production</div></div>
@@ -630,19 +663,120 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
 </div>
 
 <!-- ── SLIDE 6: TIMELINE ── -->
-<div class="slide slide-gold" id="slide-5">
-  <div class="slide-inner" style="text-align:center">
-    <span class="eyebrow" style="text-align:center">From Signing to Sunshine</span>
-    <div class="accent-line gold" style="margin:0 auto 1.5rem"></div>
-    <h1 class="display lg" style="margin-bottom:1.5rem">YOUR SOLAR <span style="color:var(--gold)">TIMELINE</span></h1>
-    <div class="img-slot timeline-container" id="timeline-img-slot" style="min-height:320px;max-width:900px;margin:0 auto" onclick="triggerImageUpload('timeline-img-slot','timeline-img')">
-      <img id="timeline-img" src="" alt="" style="display:none;width:100%;border-radius:8px">
-      <div id="timeline-placeholder" style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;padding:3rem">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 20M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-        <span>Click to upload your timeline image</span>
-      </div>
+<div class="slide slide-gold" id="slide-5" style="padding:3.5rem 3rem 5rem">
+  <div class="slide-inner" style="max-width:1100px">
+    <span class="eyebrow" style="text-align:center;display:block">From Signing to Sunshine</span>
+    <div class="accent-line gold" style="margin:0 auto 0.5rem"></div>
+    <h1 class="display lg" style="text-align:center;margin-bottom:0.4rem">YOUR SOLAR <span style="color:var(--gold)">TIMELINE</span></h1>
+    <p style="text-align:center;font-size:0.82rem;color:var(--muted);margin-bottom:1.5rem">Solar is a process. We break down each step to get you up and running as soon as possible.</p>
+
+    <!-- Tab selector -->
+    <div style="display:flex;justify-content:center;gap:0.5rem;margin-bottom:1.75rem">
+      <button class="tl-tab active-tl" id="tl-solar" onclick="setTlTab('solar')" style="padding:0.45rem 1.25rem;border-radius:100px;font-size:0.75rem;font-weight:600;letter-spacing:0.06em;background:var(--deep);border:2px solid var(--gold);color:var(--gold);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s">SOLAR STEPS</button>
+      <button class="tl-tab" id="tl-customer" onclick="setTlTab('customer')" style="padding:0.45rem 1.25rem;border-radius:100px;font-size:0.75rem;font-weight:500;letter-spacing:0.06em;background:transparent;border:1px solid rgba(255,255,255,0.15);color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s">CUSTOMER STEPS</button>
     </div>
-    <p class="body-text centered" style="margin-top:1.25rem;font-size:0.85rem">Average installation: <strong style="color:var(--gold)">6–8 weeks</strong> from contract to first kilowatt produced</p>
+
+    <!-- TIMELINE: circular nodes arranged like screenshot -->
+    <!-- Top row: Final Design → Permitting → Installation → City Inspection -->
+    <!-- Bottom row: Consultation ← Site Survey ← (center card) → Interconnection → Power On -->
+
+    <div style="position:relative;width:100%">
+
+      <!-- CENTER INFO CARD -->
+      <div id="tl-center-card" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-48%);z-index:10;width:200px;background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:12px;padding:1.25rem 1rem;text-align:center;backdrop-filter:blur(8px)">
+        <div style="font-size:1.5rem;margin-bottom:0.4rem">🔄</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--gold);letter-spacing:0.06em;margin-bottom:0.35rem" id="tl-card-title">Solar Steps</div>
+        <div style="font-size:0.72rem;color:var(--muted);line-height:1.5" id="tl-card-body">Click any step to learn more about what happens and how long it takes.</div>
+      </div>
+
+      <!-- TOP ROW -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;padding:0 2rem;margin-bottom:0.5rem;position:relative">
+        <!-- connecting line -->
+        <div style="position:absolute;top:40px;left:14%;right:14%;height:2px;background:rgba(200,168,75,0.3);z-index:0"></div>
+
+        <!-- Final Design -->
+        <div class="tl-node" onclick="tlClick('Final Design','2–3 Days','Your system is engineered for maximum production on your specific roof. Shading analysis, panel placement, and load calculations all finalized.')">
+          <div class="tl-circle">
+            <span style="font-size:1.6rem">📐</span>
+          </div>
+          <div class="tl-badge">2–3<br>DAYS</div>
+          <div class="tl-label">FINAL DESIGN</div>
+        </div>
+
+        <!-- Permitting -->
+        <div class="tl-node" onclick="tlClick('Permitting','1–5 Weeks','We handle all permit applications with your city and utility. This is the longest step — we manage it entirely so you don\'t have to.')">
+          <div class="tl-circle">
+            <span style="font-size:1.6rem">🏛️</span>
+          </div>
+          <div class="tl-badge">1–5<br>WEEKS</div>
+          <div class="tl-label">PERMITTING</div>
+        </div>
+
+        <!-- Installation -->
+        <div class="tl-node" onclick="tlClick('Installation','1 Week','Your certified crew arrives and installs the full system — panels, inverter, battery, and all wiring. Most homes done in 1–3 days.')">
+          <div class="tl-circle">
+            <span style="font-size:1.6rem">🔧</span>
+          </div>
+          <div class="tl-badge">1<br>WEEK</div>
+          <div class="tl-label">INSTALLATION</div>
+        </div>
+
+        <!-- City Inspection -->
+        <div class="tl-node" onclick="tlClick('City Inspection','1–2 Weeks','A city inspector approves the installation. We coordinate this for you — you just need to be home for a 30-minute window.')">
+          <div class="tl-circle">
+            <span style="font-size:1.6rem">🔍</span>
+          </div>
+          <div class="tl-badge">1–2<br>WEEKS</div>
+          <div class="tl-label">CITY INSPECTION</div>
+        </div>
+      </div>
+
+      <!-- Spacer for center card -->
+      <div style="height:130px"></div>
+
+      <!-- BOTTOM ROW (reversed direction — right to left flow) -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:0 2rem;margin-top:0.5rem;position:relative">
+        <!-- connecting line -->
+        <div style="position:absolute;top:40px;left:14%;right:14%;height:2px;background:rgba(200,168,75,0.2);z-index:0"></div>
+
+        <!-- Consultation -->
+        <div class="tl-node" onclick="tlClick('Consultation','1–2 Days','We sit down together to review your usage, goals, and options. You get a personalized system design and proposal before anything is signed.')">
+          <div class="tl-circle">
+            <span style="font-size:1.6rem">🤝</span>
+          </div>
+          <div class="tl-badge">1–2<br>DAYS</div>
+          <div class="tl-label">CONSULTATION</div>
+        </div>
+
+        <!-- Site Survey -->
+        <div class="tl-node" onclick="tlClick('Site Survey','2–3 Days','A technician visits your home to measure your roof, assess shading, and confirm the final system layout before design is locked in.')">
+          <div class="tl-circle">
+            <span style="font-size:1.6rem">📏</span>
+          </div>
+          <div class="tl-badge">2–3<br>DAYS</div>
+          <div class="tl-label">SITE SURVEY</div>
+        </div>
+
+        <!-- Interconnection -->
+        <div class="tl-node" onclick="tlClick('Interconnection','2–4 Weeks','Your utility processes the interconnection application and approves your system to connect to the grid. We file this — you wait for the green light.')">
+          <div class="tl-circle">
+            <span style="font-size:1.6rem">⚡</span>
+          </div>
+          <div class="tl-badge">2–4<br>WEEKS</div>
+          <div class="tl-label">INTERCONNECTION</div>
+        </div>
+
+        <!-- Power On -->
+        <div class="tl-node" onclick="tlClick('Power On','Day 1','Your system is energized. The app goes live. Your meter starts spinning backward. Welcome to energy independence.')">
+          <div class="tl-circle" style="border-color:var(--gold);background:rgba(200,168,75,0.15)">
+            <span style="font-size:1.6rem">🏠</span>
+          </div>
+          <div class="tl-badge" style="background:var(--gold);color:var(--deep)">DAY<br>1</div>
+          <div class="tl-label" style="color:var(--gold)">POWER ON</div>
+        </div>
+      </div>
+
+    </div><!-- /position:relative -->
   </div>
 </div>
 
@@ -657,7 +791,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
         <ul class="blist">
           <li><span class="icon gold">★</span><span><strong>Local San Diego expert</strong> — I live here, I know the rates, I know the permits, I know the utility games. This is my community too.</span></li>
           <li><span class="icon gold">★</span><span><strong>Post-install support for life</strong> — I'm not a door-knocker who disappears. My number doesn't change. Call me in year 10.</span></li>
-          <li><span class="icon gold">★</span><span><strong>I designed your system personally</strong> — not a call center, not an algorithm. Your roof, your usage, your family's needs.</span></li>
+          <li><span class="icon gold">★</span><span><strong>My mission is to make this industry truly sustainable</strong> — the better experience I give, the more people you tell about it, and the quicker we can get there together.</span></li>
         </ul>
         <div class="testimonial-row" style="margin-top:1.5rem;grid-template-columns:1fr 1fr">
           <div class="t-card">
@@ -717,13 +851,68 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
 </div>
 
 <!-- ── SLIDE 9: HOW SOLAR WORKS ── -->
-<div class="slide slide-solar" id="slide-8">
-  <div class="slide-inner">
+<div class="slide slide-solar" id="slide-8" style="padding:4rem 3rem 5rem">
+  <div class="slide-inner" style="max-width:1100px">
     <span class="eyebrow">The Technology</span>
     <div class="accent-line gold"></div>
-    <h1 class="display md" style="margin-bottom:0.5rem">HOW SOLAR <span style="color:var(--gold)">ACTUALLY WORKS</span></h1>
-    <p class="body-text" style="margin-bottom:1.5rem">Simple technology. Proven for 40+ years. Working silently on your roof every day.</p>
-    <div class="how-grid">
+    <h1 class="display md" style="margin-bottom:0.4rem">HOW SOLAR <span style="color:var(--gold)">ACTUALLY WORKS</span></h1>
+    <p class="body-text" style="margin-bottom:1.25rem">Simple technology. Proven for 40+ years. Working silently on your roof every single day.</p>
+
+    <!-- Top nav questions -->
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:1.25rem">
+      <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:100px;padding:0.4rem 1.1rem;font-size:0.75rem;color:var(--muted)">About Net Metering</div>
+      <div style="background:rgba(200,168,75,0.15);border:1px solid var(--border);border-radius:100px;padding:0.4rem 1.1rem;font-size:0.75rem;color:var(--gold);font-weight:500">Will I Still Get a Utility Bill?</div>
+      <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:100px;padding:0.4rem 1.1rem;font-size:0.75rem;color:var(--muted)">What If I Use More Power?</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 2.2fr;gap:1.5rem;align-items:start">
+
+      <!-- Left: Daily/Monthly/Yearly selector + legend -->
+      <div style="display:flex;flex-direction:column;gap:1rem">
+        <div style="display:flex;flex-direction:column;gap:0.5rem">
+          <div id="solar-tab-daily" class="solar-tab" onclick="setSolarTab('daily')" style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;padding:0.5rem 0.75rem;border-radius:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)">
+            <div style="width:28px;height:28px;border-radius:50%;border:1.5px solid var(--muted);display:flex;align-items:center;justify-content:center;font-size:0.72rem;color:var(--muted)">1</div>
+            <span style="font-size:0.85rem;color:var(--muted);font-weight:500;letter-spacing:0.05em">DAILY</span>
+          </div>
+          <div id="solar-tab-monthly" class="solar-tab active-tab" onclick="setSolarTab('monthly')" style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;padding:0.5rem 0.75rem;border-radius:6px;background:rgba(200,168,75,0.1);border:1px solid var(--border)">
+            <div style="width:28px;height:28px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:0.72rem;color:var(--deep);font-weight:700">2</div>
+            <span style="font-size:0.85rem;color:var(--gold);font-weight:600;letter-spacing:0.05em">MONTHLY</span>
+          </div>
+          <div id="solar-tab-yearly" class="solar-tab" onclick="setSolarTab('yearly')" style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;padding:0.5rem 0.75rem;border-radius:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)">
+            <div style="width:28px;height:28px;border-radius:50%;border:1.5px solid var(--muted);display:flex;align-items:center;justify-content:center;font-size:0.72rem;color:var(--muted)">3</div>
+            <span style="font-size:0.85rem;color:var(--muted);font-weight:500;letter-spacing:0.05em">YEARLY</span>
+          </div>
+        </div>
+        <!-- Legend -->
+        <div style="display:flex;flex-direction:column;gap:0.5rem;padding:0.75rem;background:rgba(255,255,255,0.04);border-radius:6px;border:1px solid rgba(255,255,255,0.08)">
+          <div style="display:flex;align-items:center;gap:0.6rem;font-size:0.75rem;color:var(--muted)">
+            <span style="width:14px;height:14px;background:#C8A84B;border-radius:2px;display:inline-block;flex-shrink:0"></span>
+            <span>☀️ PRODUCTION</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.6rem;font-size:0.75rem;color:var(--muted)">
+            <span style="width:14px;height:14px;background:#E05A2B;border-radius:2px;display:inline-block;flex-shrink:0"></span>
+            <span>⚡ CONSUMPTION</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Seasonal production chart -->
+      <div>
+        <div style="position:relative;height:200px;margin-bottom:0.75rem">
+          <canvas id="solarSeasonChart"></canvas>
+        </div>
+        <!-- Seasons row -->
+        <div style="display:flex;justify-content:space-around;align-items:center;margin-top:0.5rem;padding:0.5rem 0;border-top:1px solid rgba(255,255,255,0.08)">
+          <div style="text-align:center;font-size:0.72rem;color:var(--muted)"><span style="font-size:1.4rem;display:block">❄️</span>Winter</div>
+          <div style="text-align:center;font-size:0.72rem;color:var(--muted)"><span style="font-size:1.4rem;display:block">🌸</span>Spring</div>
+          <div style="text-align:center;font-size:0.72rem;color:var(--muted)"><span style="font-size:1.4rem;display:block">🌻</span>Summer</div>
+          <div style="text-align:center;font-size:0.72rem;color:var(--muted)"><span style="font-size:1.4rem;display:block">🍂</span>Autumn</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom 4 steps row -->
+    <div class="how-grid" style="margin-top:1.25rem">
       <div class="how-step">
         <div class="step-img" onclick="triggerImageUpload('step-img-0','step-img-0-img')">
           <img id="step-img-0-img" src="" alt="" style="display:none">
@@ -737,8 +926,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
           <img id="step-img-1-img" src="" alt="" style="display:none">
           <span style="font-size:2rem">⚡</span>
         </div>
-        <h4>2. Microinverter Converts</h4>
-        <p>Enphase microinverters convert DC to AC power — the kind your home uses — at each individual panel</p>
+        <h4>2. Inverter Converts</h4>
+        <p>Your inverter converts DC to AC power — the kind your home uses — maximizing output from every panel</p>
       </div>
       <div class="how-step">
         <div class="step-img" onclick="triggerImageUpload('step-img-2','step-img-2-img')">
@@ -1652,54 +1841,223 @@ function exportPDF() {
 }
 
 // ═══════════════════════════════════════════
-//  TESTIMONIALS FROM content.json
+//  LOAD ALL ADMIN CONTENT INTO PRESENTATION
 // ═══════════════════════════════════════════
-function loadTestimonialsFromSite() {
-  // Try to load from main site content.json (same-origin)
-  fetch('../content.json')
-    .then(r => r.json())
-    .then(data => {
-      const ts = data.testimonials;
-      if (!ts || !ts.length) return;
-      // Slide 7 testimonial cards — update up to first 2
-      const t1q = document.getElementById('t1-quote');
-      const t1n = document.getElementById('t1-name');
-      const t2q = document.getElementById('t2-quote');
-      const t2n = document.getElementById('t2-name');
-      if (ts[0]) {
-        if (t1q) t1q.textContent = '"' + (ts[0].text || ts[0].quote || '') + '"';
-        if (t1n) t1n.textContent = '— ' + (ts[0].author || ts[0].name || '');
-      }
-      if (ts[1]) {
-        if (t2q) t2q.textContent = '"' + (ts[1].text || ts[1].quote || '') + '"';
-        if (t2n) t2n.textContent = '— ' + (ts[1].author || ts[1].name || '');
-      }
-    })
-    .catch(() => {
-      // Fallback: try kinobi-testimonials from localStorage (set via admin)
-      const saved = JSON.parse(localStorage.getItem('kinobi-testimonials') || 'null');
-      if (!saved || !saved.length) return;
-      const t1q = document.getElementById('t1-quote');
-      const t1n = document.getElementById('t1-name');
-      const t2q = document.getElementById('t2-quote');
-      const t2n = document.getElementById('t2-name');
-      if (saved[0]) {
-        if (t1q) t1q.textContent = saved[0].quote || saved[0].text || '';
-        if (t1n) t1n.textContent = saved[0].name || '';
-      }
-      if (saved[1]) {
-        if (t2q) t2q.textContent = saved[1].quote || saved[1].text || '';
-        if (t2n) t2n.textContent = saved[1].name || '';
-      }
-    });
+function applyAdminContent() {
+  // ── Testimonials (kinobi-testimonials takes priority) ──
+  const saved = JSON.parse(localStorage.getItem('kinobi-testimonials') || 'null');
+  if (saved && saved.length) {
+    const t1q = document.getElementById('t1-quote');
+    const t1n = document.getElementById('t1-name');
+    const t2q = document.getElementById('t2-quote');
+    const t2n = document.getElementById('t2-name');
+    if (saved[0]) {
+      if (t1q) t1q.textContent = saved[0].quote || '';
+      if (t1n) t1n.textContent = saved[0].name || '';
+    }
+    if (saved[1]) {
+      if (t2q) t2q.textContent = saved[1].quote || '';
+      if (t2n) t2n.textContent = saved[1].name || '';
+    }
+  }
+
+  // ── Company pillars (Slide 8) ──
+  const content = JSON.parse(localStorage.getItem('kinobi-content') || '{}');
+  const pillars = [
+    ['cp1-title','cp1-body'],
+    ['cp2-title','cp2-body'],
+    ['cp3-title','cp3-body'],
+  ];
+  pillars.forEach(([tid, bid]) => {
+    if (content[tid]) { const el = document.getElementById(tid); if (el) el.textContent = content[tid]; }
+    if (content[bid]) { const el = document.getElementById(bid); if (el) el.textContent = content[bid]; }
+  });
+
+  // ── "Why Work With Me" bullets (Slide 7) ──
+  const bulletMap = { 'my-b1': 'sell-b1', 'my-b2': 'sell-b2', 'my-b3': 'sell-b3' };
+  Object.entries(bulletMap).forEach(([adminId, slideId]) => {
+    if (content[adminId]) {
+      const el = document.getElementById(slideId);
+      if (el) el.textContent = content[adminId];
+    }
+  });
 }
+
 
 // ═══════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════
 // ═══════════════════════════════════════════
-//  INLINE EDITING ENGINE
+//  ADMIN PASSWORD (guards admin link)
 // ═══════════════════════════════════════════
+const ADMIN_PASSWORD = localStorage.getItem('kinobi-admin-pass') || 'solar2025';
+document.getElementById('admin-btn').addEventListener('click', function(e) {
+  e.preventDefault();
+  const pw = prompt('Admin password:');
+  if (pw === ADMIN_PASSWORD) {
+    window.open('admin.html', '_blank');
+  } else if (pw !== null) {
+    alert('Incorrect password.');
+  }
+});
+
+// ═══════════════════════════════════════════
+//  TIMELINE
+// ═══════════════════════════════════════════
+const TL_STEPS = {
+  solar: [
+    {id:'consultation', label:'Consultation', icon:'🤝', time:'1–2 Days', body:'We sit down together to review your usage, goals, and options. You get a personalized system design and proposal before anything is signed.'},
+    {id:'site-survey',  label:'Site Survey',  icon:'📏', time:'2–3 Days', body:'A technician visits your home to measure your roof, assess shading, and confirm the final system layout before design is locked in.'},
+    {id:'final-design', label:'Final Design', icon:'📐', time:'2–3 Days', body:'Your system is engineered for maximum production on your specific roof. Shading analysis, panel placement, and load calculations all finalized.'},
+    {id:'permitting',   label:'Permitting',   icon:'🏛️', time:'1–5 Weeks', body:'We handle all permit applications with your city and utility. This is the longest step — we manage it entirely so you don\'t have to.'},
+    {id:'installation', label:'Installation', icon:'🔧', time:'1 Week',   body:'Your certified crew arrives and installs the full system — panels, inverter, battery, and all wiring. Most homes done in 1–3 days.'},
+    {id:'inspection',   label:'City Inspection', icon:'🔍', time:'1–2 Weeks', body:'A city inspector approves the installation. We coordinate this for you — you just need to be home for a 30-minute window.'},
+    {id:'interconnect', label:'Interconnection', icon:'⚡', time:'2–4 Weeks', body:'Your utility processes the interconnection application. We file this — you wait for the green light.'},
+    {id:'power-on',     label:'Power On',     icon:'🏠', time:'Day 1',    body:'Your system is energized. The app goes live. Your meter starts spinning backward. Welcome to energy independence.'},
+  ]
+};
+
+function tlClick(title, time, body) {
+  document.getElementById('tl-card-title').textContent = title + ' — ' + time;
+  document.getElementById('tl-card-body').textContent = body;
+  // Pulse the card
+  const card = document.getElementById('tl-center-card');
+  card.style.borderColor = 'var(--gold)';
+  setTimeout(() => card.style.borderColor = 'var(--border)', 1000);
+}
+
+function setTlTab(tab) {
+  ['solar','customer'].forEach(t => {
+    const btn = document.getElementById('tl-' + t);
+    if (!btn) return;
+    if (t === tab) {
+      btn.style.background = 'var(--deep)';
+      btn.style.borderColor = 'var(--gold)';
+      btn.style.borderWidth = '2px';
+      btn.style.color = 'var(--gold)';
+    } else {
+      btn.style.background = 'transparent';
+      btn.style.borderColor = 'rgba(255,255,255,0.15)';
+      btn.style.borderWidth = '1px';
+      btn.style.color = 'var(--muted)';
+    }
+  });
+}
+
+// ═══════════════════════════════════════════
+//  SLIDE OVERVIEW / GALLERY VIEW
+// ═══════════════════════════════════════════
+const SLIDE_ICONS = ['🔴','📊','🔀','⭐','✅','⏱️','🌟','🏢','☀️','💰'];
+const SLIDE_COLORS = [
+  'rgba(192,57,43,0.15)','rgba(192,57,43,0.1)','rgba(26,58,92,0.2)',
+  'rgba(244,166,35,0.12)','rgba(200,168,75,0.12)','rgba(200,168,75,0.1)',
+  'rgba(244,166,35,0.12)','rgba(200,168,75,0.1)','rgba(244,166,35,0.1)',
+  'rgba(39,174,96,0.12)'
+];
+
+function openOverview() {
+  const overlay = document.getElementById('gallery-overlay');
+  const grid = document.getElementById('slide-gallery-grid');
+  grid.innerHTML = '';
+  const visible = getVisible();
+  visible.forEach((s, i) => {
+    const thumb = document.createElement('div');
+    thumb.className = 'slide-thumb' + (i === current ? ' current-thumb' : '');
+    const globalIdx = slideData.indexOf(s);
+    thumb.style.background = SLIDE_COLORS[globalIdx] || 'rgba(255,255,255,0.04)';
+    thumb.innerHTML = `
+      <div class="th-num">${i + 1}</div>
+      <div class="th-icon">${SLIDE_ICONS[globalIdx] || '▤'}</div>
+      <div class="th-label">${s.label}</div>
+    `;
+    thumb.onclick = () => { closeOverview(); goToSlide(i); };
+    grid.appendChild(thumb);
+  });
+  overlay.classList.add('open');
+  // Keyboard close
+  overlay._keyHandler = (e) => { if (e.key === 'Escape') closeOverview(); };
+  document.addEventListener('keydown', overlay._keyHandler);
+}
+
+function closeOverview() {
+  const overlay = document.getElementById('gallery-overlay');
+  overlay.classList.remove('open');
+  if (overlay._keyHandler) document.removeEventListener('keydown', overlay._keyHandler);
+}
+
+
+const MONTHS = ['DEC','JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV'];
+// Solar production curve — peaks in summer, dips in winter (San Diego)
+const PRODUCTION = [55, 60, 75, 90, 105, 115, 120, 118, 108, 95, 72, 58];
+// Consumption — relatively flat, slightly higher in summer/winter
+const CONSUMPTION = [72, 68, 65, 62, 65, 70, 82, 85, 80, 70, 65, 70];
+
+let solarSeasonChart;
+
+function initSeasonChart() {
+  const ctx = document.getElementById('solarSeasonChart');
+  if (!ctx) return;
+  solarSeasonChart = new Chart(ctx.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: MONTHS,
+      datasets: [
+        {
+          label: 'Production',
+          data: PRODUCTION,
+          borderColor: '#C8A84B',
+          backgroundColor: 'rgba(200,168,75,0.35)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 0,
+          borderWidth: 2.5,
+        },
+        {
+          label: 'Consumption',
+          data: CONSUMPTION,
+          borderColor: '#E05A2B',
+          backgroundColor: 'rgba(224,90,43,0.15)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 0,
+          borderWidth: 2,
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      scales: {
+        x: { ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+        y: { display: false, min: 0, max: 140 }
+      }
+    }
+  });
+}
+
+function setSolarTab(tab) {
+  ['daily','monthly','yearly'].forEach(t => {
+    const el = document.getElementById('solar-tab-' + t);
+    if (!el) return;
+    if (t === tab) {
+      el.style.background = 'rgba(200,168,75,0.1)';
+      el.style.borderColor = 'rgba(200,168,75,0.2)';
+      el.querySelector('div').style.background = 'var(--gold)';
+      el.querySelector('div').style.color = 'var(--deep)';
+      el.querySelector('div').style.border = 'none';
+      el.querySelector('span').style.color = 'var(--gold)';
+    } else {
+      el.style.background = 'rgba(255,255,255,0.04)';
+      el.style.borderColor = 'rgba(255,255,255,0.08)';
+      el.querySelector('div').style.background = 'transparent';
+      el.querySelector('div').style.color = 'var(--muted)';
+      el.querySelector('div').style.border = '1.5px solid var(--muted)';
+      el.querySelector('span').style.color = 'var(--muted)';
+    }
+  });
+}
+
+
 let editMode = false;
 let editSaveTimer = null;
 
@@ -1771,8 +2129,14 @@ document.addEventListener('input', e => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-  loadEdits(); // restore any saved edits
+  loadEdits();
+  applyAdminContent();
   loadSavedImages();
+  updateNav();
+  recalc();
+  renderBenefits();
+  initSeasonChart();
+  loadIGFeed();
   updateNav();
   recalc();
   renderBenefits();

@@ -906,18 +906,24 @@ async function syncTestimonials() {
   btn.innerHTML = '<span class="sync-icon">↻</span> Syncing...';
   status.style.display = 'none';
 
+  // Strip HTML tags and decode entities from a string
+  function stripHTML(str) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = str || '';
+    return tmp.textContent.trim();
+  }
+
   try {
     const res = await fetch(SITE_URL + '/content.json', { cache: 'no-store' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
 
-    // content.json structure: data.testimonials.items[]
     const items = data?.testimonials?.items || data?.testimonials || [];
     if (!items.length) throw new Error('No testimonials found in content.json');
 
     testimonials = items.map(t => ({
-      quote: '"' + (t.text || t.quote || '') + '"',
-      name: '— ' + (t.name || 'Customer') + (t.role ? ', ' + t.role : '')
+      quote: '"' + stripHTML(t.text || t.quote || '') + '"',
+      name: '— ' + stripHTML(t.name || 'Customer') + (t.role ? ', ' + stripHTML(t.role) : '')
     }));
 
     localStorage.setItem('kinobi-testimonials', JSON.stringify(testimonials));

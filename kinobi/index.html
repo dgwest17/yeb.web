@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kinhome Solar Presentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#C8A84B;--gold-l:#E8C96A;--gold-d:#8A6E2A;
+  --sun:#F4A623;--sun-hot:#FF6B35;
+  --deep:#050E18;--navy:#0A1628;--sky:#1A3A5C;
+  --rage:#C0392B;--rage-l:#E74C3C;--rage-d:#7B241C;
+  --green:#27AE60;--green-l:#2ECC71;--green-glow:rgba(39,174,96,0.3);
+  --text:#FFFFFF;--muted:rgba(255,255,255,0.55);--dim:rgba(255,255,255,0.3);
+  --border:rgba(200,168,75,0.2);--border-red:rgba(192,57,43,0.3);
+  --slide-w:100vw;--slide-h:100vh;
+}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-family:'DM Sans',sans-serif;color:var(--text)}
+
+/* ── DECK ── */
+#deck{position:relative;width:100vw;height:100vh;overflow:hidden}
+.slide{
+  position:absolute;inset:0;width:100%;height:100%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:5rem 4rem 6rem;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.6s ease, transform 0.6s ease;
+  transform:translateX(60px);
+  overflow:hidden;
+}
+.slide.active{opacity:1;pointer-events:all;transform:translateX(0)}
+.slide.exit-left{opacity:0;transform:translateX(-60px)}
+.slide[data-hidden="true"]{display:none}
+
+/* ── SLIDE BACKGROUNDS ── */
+.slide-rage{background:radial-gradient(ellipse 80% 70% at 50% -10%,rgba(192,57,43,0.35) 0%,transparent 60%),var(--deep)}
+.slide-pain{background:radial-gradient(ellipse 70% 60% at 80% 110%,rgba(90,20,10,0.5) 0%,transparent 60%),radial-gradient(ellipse 50% 40% at 20% 0%,rgba(40,10,5,0.4) 0%,transparent 50%),var(--deep)}
+.slide-choice{background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(26,58,92,0.6) 0%,transparent 60%),var(--deep)}
+.slide-solar{background:radial-gradient(ellipse 80% 60% at 50% -5%,rgba(244,166,35,0.18) 0%,transparent 65%),var(--deep)}
+.slide-gold{background:radial-gradient(ellipse 70% 60% at 50% 0%,rgba(200,168,75,0.2) 0%,transparent 60%),var(--deep)}
+.slide-numbers{background:radial-gradient(ellipse 60% 50% at 30% 50%,rgba(26,58,92,0.4) 0%,transparent 60%),radial-gradient(ellipse 40% 50% at 80% 50%,rgba(39,174,96,0.1) 0%,transparent 60%),var(--deep)}
+
+/* particle bg */
+.particle-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.particle{position:absolute;border-radius:50%;animation:float linear infinite}
+@keyframes float{0%{transform:translateY(100vh) scale(0);opacity:0}10%{opacity:1}90%{opacity:0.3}100%{transform:translateY(-20vh) scale(1);opacity:0}}
+
+/* ── NAV ARROWS ── */
+#nav-prev,#nav-next{
+  position:fixed;top:50%;z-index:200;
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);
+  color:var(--text);width:52px;height:52px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all 0.2s;backdrop-filter:blur(8px);
+  transform:translateY(-50%);
+}
+#nav-prev{left:1.5rem}
+#nav-next{right:1.5rem}
+#nav-prev:hover,#nav-next:hover{background:rgba(200,168,75,0.2);border-color:var(--gold);color:var(--gold)}
+#nav-prev svg,#nav-next svg{width:20px;height:20px}
+
+/* slide counter */
+#slide-counter{
+  position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);
+  z-index:200;display:flex;gap:6px;align-items:center;
+}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--dim);transition:all 0.3s;cursor:pointer}
+.dot.active{width:20px;border-radius:3px;background:var(--gold)}
+
+/* ── ADMIN LINK ── */
+#admin-btn{
+  position:fixed;top:1.2rem;left:50%;transform:translateX(-50%);
+  z-index:300;background:rgba(0,0,0,0.5);border:1px solid var(--border);
+  color:var(--gold);padding:0.4rem 1.2rem;border-radius:100px;
+  font-size:0.72rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;
+  cursor:pointer;backdrop-filter:blur(8px);transition:all 0.2s;text-decoration:none;
+  opacity:0.3;
+}
+#admin-btn:hover{background:rgba(200,168,75,0.15);opacity:1}
+#presenter-btn:hover{background:rgba(200,168,75,0.15)}
+
+/* presenter panel styles moved to admin.html */
+
+/* ── GALLERY MODAL ── */
+#gallery-modal{
+  position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.92);
+  display:none;align-items:center;justify-content:center;flex-direction:column;gap:1.5rem;
+}
+#gallery-modal.open{display:flex}
+.gallery-inner{max-width:900px;width:90%;text-align:center}
+.gallery-title{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--gold);letter-spacing:0.08em;margin-bottom:1rem}
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;max-height:70vh;overflow-y:auto}
+.gallery-item{
+  aspect-ratio:4/3;background:rgba(255,255,255,0.06);border:1px solid var(--border);
+  border-radius:6px;overflow:hidden;cursor:pointer;transition:all 0.2s;position:relative;
+  display:flex;align-items:center;justify-content:center;
+}
+.gallery-item:hover{border-color:var(--gold);transform:scale(1.02)}
+.gallery-item img{width:100%;height:100%;object-fit:cover}
+.gallery-item .placeholder-text{color:var(--dim);font-size:0.8rem}
+.gallery-upload{
+  background:transparent;border:2px dashed var(--border);color:var(--gold);
+  padding:0.75rem 1.5rem;border-radius:4px;cursor:pointer;font-size:0.85rem;
+  transition:all 0.2s;margin-top:1rem;
+}
+.gallery-upload:hover{border-color:var(--gold-l);background:rgba(200,168,75,0.05)}
+.gallery-close{
+  position:absolute;top:1.5rem;right:1.5rem;background:transparent;border:1px solid var(--border);
+  color:var(--muted);width:40px;height:40px;border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:1.2rem;transition:all 0.2s;
+}
+.gallery-close:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ── GALLERY TRIGGER BTN (on slide) ── */
+.gallery-btn{
+  position:fixed;bottom:1.5rem;right:5rem;z-index:200;
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);
+  color:var(--muted);padding:0.5rem 1rem;border-radius:100px;
+  font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;
+  cursor:pointer;backdrop-filter:blur(8px);transition:all 0.2s;
+}
+.gallery-btn:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ── COMMON SLIDE ELEMENTS ── */
+.slide-inner{position:relative;z-index:1;width:100%;max-width:1100px;margin:0 auto}
+.eyebrow{font-size:0.7rem;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);margin-bottom:0.75rem;display:block}
+.eyebrow.red{color:var(--rage-l)}
+.display{font-family:'Bebas Neue',sans-serif;letter-spacing:0.03em;line-height:0.95}
+.display.xl{font-size:clamp(3.5rem,8vw,7rem)}
+.display.lg{font-size:clamp(2.5rem,5.5vw,5rem)}
+.display.md{font-size:clamp(1.8rem,4vw,3.2rem)}
+.serif{font-family:'DM Serif Display',serif}
+.serif em{font-style:italic;color:var(--gold)}
+.body-text{font-size:1rem;font-weight:300;line-height:1.75;color:var(--muted);max-width:640px}
+.body-text.centered{text-align:center;margin:0 auto}
+.accent-line{width:60px;height:3px;border-radius:2px;margin-bottom:1.5rem}
+.accent-line.red{background:var(--rage-l)}
+.accent-line.gold{background:var(--gold)}
+.accent-line.green{background:var(--green)}
+
+/* stat blocks */
+.stat-row{display:flex;gap:2px;margin:2rem 0;flex-wrap:wrap}
+.stat-b{
+  flex:1;min-width:130px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+  padding:1.5rem 1.25rem;text-align:center;
+}
+.stat-b:first-child{border-radius:6px 0 0 6px}
+.stat-b:last-child{border-radius:0 6px 6px 0}
+.stat-b.red-glow{border-color:var(--border-red);background:rgba(192,57,43,0.08)}
+.stat-b.gold-glow{border-color:var(--border);background:rgba(200,168,75,0.06)}
+.stat-b .val{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;color:var(--rage-l);letter-spacing:0.03em;display:block;line-height:1}
+.stat-b.gold-glow .val{color:var(--gold)}
+.stat-b.green-glow .val{color:var(--green-l)}
+.stat-b .lbl{font-size:0.7rem;font-weight:400;letter-spacing:0.1em;text-transform:uppercase;color:var(--dim);display:block;margin-top:0.3rem}
+
+/* two-col */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center}
+.two-col.flip{direction:rtl}
+.two-col.flip > *{direction:ltr}
+
+/* bullet list */
+.blist{list-style:none;display:flex;flex-direction:column;gap:1rem;margin:1.5rem 0}
+.blist li{display:flex;align-items:flex-start;gap:0.75rem;font-size:0.95rem;color:var(--muted);line-height:1.6}
+.blist li .icon{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;margin-top:1px}
+.blist li .icon.red{background:rgba(192,57,43,0.25);color:var(--rage-l)}
+.blist li .icon.gold{background:rgba(200,168,75,0.2);color:var(--gold)}
+.blist li .icon.green{background:rgba(39,174,96,0.2);color:var(--green-l)}
+.blist li strong{color:var(--text);font-weight:500}
+
+/* image placeholder */
+.img-slot{
+  background:rgba(255,255,255,0.04);border:1px dashed rgba(200,168,75,0.3);
+  border-radius:8px;display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:0.5rem;cursor:pointer;transition:all 0.2s;overflow:hidden;
+  min-height:200px;
+}
+.img-slot:hover{border-color:var(--gold);background:rgba(200,168,75,0.05)}
+.img-slot img{width:100%;height:100%;object-fit:cover}
+.img-slot span{font-size:0.78rem;color:var(--dim);letter-spacing:0.08em}
+.img-slot svg{width:28px;height:28px;color:var(--dim)}
+
+/* ── SLIDE 1 — UTILITY PROBLEM 1 ── */
+.bill-meter{
+  position:relative;width:220px;height:110px;margin:2rem auto 0;
+}
+.meter-arc{width:100%;height:100%}
+.meter-needle{
+  position:absolute;bottom:0;left:50%;transform-origin:bottom center;
+  width:3px;height:80px;background:var(--rage-l);border-radius:2px;margin-left:-1.5px;
+  transition:transform 1s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow:0 0 12px var(--rage-l);
+}
+
+/* ── SLIDE 2 — DEMAND ── */
+.demand-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:2rem 0}
+.demand-card{
+  background:rgba(192,57,43,0.07);border:1px solid rgba(192,57,43,0.2);
+  border-radius:8px;padding:1.25rem;text-align:center;
+}
+.demand-card .icon-big{font-size:2rem;margin-bottom:0.5rem;display:block}
+.demand-card h4{font-size:0.9rem;font-weight:500;color:var(--text);margin-bottom:0.25rem}
+.demand-card p{font-size:0.75rem;color:var(--muted);line-height:1.5}
+
+/* ── SLIDE 3 — OPTIONS ── */
+.options-stack{display:flex;flex-direction:column;gap:1rem;margin:1.5rem 0;width:100%}
+.option-card{
+  border-radius:8px;padding:1.25rem 1.5rem;display:grid;
+  grid-template-columns:1fr 1fr;gap:1rem;align-items:center;
+  border:1px solid transparent;transition:all 0.3s;cursor:default;
+}
+.option-card.op1{background:rgba(192,57,43,0.1);border-color:rgba(192,57,43,0.25)}
+.option-card.op2{background:rgba(90,90,90,0.1);border-color:rgba(120,120,120,0.2)}
+.option-card.op3{background:rgba(39,174,96,0.08);border-color:rgba(39,174,96,0.25)}
+.op-badge{font-size:0.68rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;padding:3px 8px;border-radius:3px;display:inline-block;margin-bottom:0.4rem}
+.op1 .op-badge{background:rgba(192,57,43,0.3);color:var(--rage-l)}
+.op2 .op-badge{background:rgba(120,120,120,0.2);color:#aaa}
+.op3 .op-badge{background:rgba(39,174,96,0.2);color:var(--green-l)}
+.op-title{font-size:1rem;font-weight:500;color:var(--text);margin-bottom:0.2rem}
+.op-desc{font-size:0.8rem;color:var(--muted);line-height:1.5}
+.op-chart-mini{height:90px;position:relative}
+
+/* ── SLIDE 4 — HIGHLIGHTS ── */
+.warranty-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin:1.5rem 0}
+.warranty-card{
+  background:rgba(39,174,96,0.07);border:1px solid rgba(39,174,96,0.2);
+  border-radius:8px;padding:1.25rem;
+}
+.warranty-card .w-icon{font-size:1.75rem;margin-bottom:0.5rem;display:block}
+.warranty-card h4{font-size:0.9rem;font-weight:500;color:var(--green-l);margin-bottom:0.3rem}
+.warranty-card p{font-size:0.78rem;color:var(--muted);line-height:1.5}
+
+/* ── SLIDE 5 — QUALIFICATIONS ── */
+.qual-list{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
+.qual-item{
+  background:rgba(200,168,75,0.05);border:1px solid var(--border);
+  border-radius:6px;padding:1rem 1.25rem;display:flex;align-items:center;gap:0.75rem;
+}
+.qual-check{width:24px;height:24px;border-radius:50%;background:rgba(200,168,75,0.2);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.qual-text{font-size:0.85rem;color:var(--muted)}
+
+/* ── SLIDE 6 — TIMELINE ── */
+.timeline-container{width:100%;overflow:hidden;position:relative}
+.timeline-img{width:100%;border-radius:8px;border:1px solid var(--border);max-height:450px;object-fit:contain}
+
+/* ── SLIDE 7 — SELL YOURSELF ── */
+.testimonial-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1.5rem 0}
+.t-card{background:rgba(255,255,255,0.04);border:1px solid rgba(200,168,75,0.15);border-radius:8px;padding:1.25rem}
+.t-stars{color:var(--gold);font-size:0.8rem;margin-bottom:0.5rem}
+.t-quote{font-size:0.82rem;color:var(--muted);line-height:1.6;font-style:italic;margin-bottom:0.75rem}
+.t-name{font-size:0.75rem;color:var(--dim);font-weight:500}
+.ig-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:1.5rem}
+.ig-post{aspect-ratio:1;background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden;cursor:pointer}
+.ig-post img{width:100%;height:100%;object-fit:cover}
+.ig-loading{display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:0.75rem;height:100%}
+
+/* ── SLIDE 8 — COMPANY ── */
+.company-pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin:2rem 0}
+.pillar{text-align:center;padding:2rem 1rem}
+.pillar .p-icon{font-size:2.5rem;margin-bottom:1rem;display:block}
+.pillar h3{font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--gold);margin-bottom:0.5rem}
+.pillar p{font-size:0.82rem;color:var(--muted);line-height:1.65}
+
+/* ── SLIDE 9 — HOW SOLAR WORKS ── */
+.how-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin:1.5rem 0}
+.how-step{text-align:center;position:relative}
+.how-step::after{content:'→';position:absolute;right:-0.6rem;top:1rem;color:var(--dim);font-size:1.2rem}
+.how-step:last-child::after{display:none}
+.how-step .step-img{height:100px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;margin-bottom:0.75rem;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.how-step .step-img img{width:100%;height:100%;object-fit:cover}
+.how-step h4{font-size:0.82rem;font-weight:500;color:var(--text);margin-bottom:0.25rem}
+.how-step p{font-size:0.72rem;color:var(--muted);line-height:1.5}
+
+/* ── SLIDE 10 — NUMBERS ── */
+.numbers-layout{display:grid;grid-template-columns:320px 1fr;gap:2rem;align-items:start;width:100%;max-width:1200px;margin:0 auto}
+
+.numbers-inputs{display:flex;flex-direction:column;gap:1rem}
+.n-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:1.25rem}
+.n-card-title{font-size:0.68rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:0.75rem}
+.n-input-group{display:flex;flex-direction:column;gap:0.4rem;margin-bottom:0.75rem}
+.n-input-group:last-child{margin-bottom:0}
+.n-label{font-size:0.72rem;color:var(--dim);letter-spacing:0.05em}
+.n-input{
+  background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);
+  color:var(--text);padding:0.5rem 0.75rem;border-radius:4px;
+  font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:500;outline:none;width:100%;
+  transition:border-color 0.2s;
+}
+.n-input:focus{border-color:var(--gold)}
+.n-input.big{font-size:1.4rem;font-family:'Bebas Neue',sans-serif;letter-spacing:0.05em;padding:0.6rem 0.75rem}
+.n-input.red-focus:focus{border-color:var(--rage-l)}
+.n-select{
+  background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);
+  color:var(--text);padding:0.5rem 0.75rem;border-radius:4px;
+  font-family:'DM Sans',sans-serif;font-size:0.85rem;outline:none;width:100%;cursor:pointer;
+}
+.n-select option{background:var(--navy)}
+
+.metric-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem}
+.m-tile{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:0.85rem;text-align:center}
+.m-tile.green{border-color:rgba(39,174,96,0.3);background:rgba(39,174,96,0.06)}
+.m-tile.red{border-color:rgba(192,57,43,0.3);background:rgba(192,57,43,0.05)}
+.m-tile .m-val{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:0.03em;display:block;line-height:1;margin-bottom:0.2rem}
+.m-tile.green .m-val{color:var(--green-l)}
+.m-tile.red .m-val{color:var(--rage-l)}
+.m-tile.gold .m-val{color:var(--gold)}
+.m-tile .m-lbl{font-size:0.65rem;font-weight:400;letter-spacing:0.08em;text-transform:uppercase;color:var(--dim)}
+
+.chart-area{display:flex;flex-direction:column;gap:1rem}
+.chart-box{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:1.25rem}
+.chart-box-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.chart-box-title{font-size:0.72rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted)}
+.toggle-row{display:flex;gap:4px}
+.toggle-btn{background:transparent;border:1px solid rgba(255,255,255,0.1);color:var(--dim);padding:0.25rem 0.65rem;border-radius:3px;font-size:0.7rem;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif}
+.toggle-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(200,168,75,0.1)}
+
+.hidden-tab-btn{
+  background:transparent;border:none;color:rgba(255,255,255,0.08);font-size:0.65rem;
+  cursor:pointer;letter-spacing:0.08em;margin-top:0.5rem;transition:color 0.3s;font-family:'DM Sans',sans-serif;
+}
+.hidden-tab-btn:hover{color:var(--dim)}
+.cash-panel{display:none;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:1rem;margin-top:0.5rem}
+.cash-panel.open{display:block}
+
+/* rage numbers (cost of nothing) */
+.rage-box{
+  background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.25);
+  border-radius:6px;padding:0.85rem 1rem;margin-top:0.75rem;
+}
+.rage-box p{font-size:0.78rem;color:var(--muted);line-height:1.6}
+.rage-box strong{color:var(--rage-l)}
+
+/* ── PROGRESS BAR ── */
+#progress{position:fixed;top:0;left:0;height:2px;background:var(--gold);z-index:201;transition:width 0.4s ease}
+
+/* ── FLIP CARD ── */
+.flip-card{
+  height:130px;perspective:1000px;cursor:pointer;
+  background:transparent;border:none;padding:0;
+}
+.flip-inner{
+  position:relative;width:100%;height:100%;
+  transition:transform 0.55s cubic-bezier(0.4,0,0.2,1);
+  transform-style:preserve-3d;
+}
+.flip-card.flipped .flip-inner{transform:rotateY(180deg)}
+.flip-front,.flip-back{
+  position:absolute;inset:0;backface-visibility:hidden;
+  background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;
+  padding:1rem 1.25rem;display:flex;flex-direction:column;align-items:flex-start;
+}
+.flip-back{
+  transform:rotateY(180deg);background:rgba(39,174,96,0.06);border-color:rgba(39,174,96,0.2);
+}
+.benefit-item{
+  display:flex;align-items:center;gap:0.5rem;font-size:0.78rem;color:var(--muted);
+  padding:0.15rem 0;width:100%;
+}
+.benefit-item .b-check{color:var(--green-l);font-size:10px;flex-shrink:0}
+.benefit-item input{
+  background:transparent;border:none;color:var(--muted);font-family:'DM Sans',sans-serif;
+  font-size:0.78rem;outline:none;flex:1;
+}
+.benefit-item input:focus{color:var(--text)}
+.benefit-del{background:transparent;border:none;color:var(--dim);cursor:pointer;font-size:11px;padding:0 4px;line-height:1;transition:color 0.15s}
+.benefit-del:hover{color:var(--rage-l)}
+
+/* donations table rows */
+.d-row-year{font-size:0.72rem;color:var(--dim);padding:0.35rem 0.5rem 0.35rem 0;font-weight:500}
+.d-row-util{font-size:0.9rem;font-weight:600;color:var(--rage-l);padding:0.35rem 0.5rem;text-align:right;font-family:'Bebas Neue',sans-serif;letter-spacing:0.03em}
+.d-row-solar{font-size:0.9rem;font-weight:600;color:var(--green-l);padding:0.35rem 0;text-align:right;font-family:'Bebas Neue',sans-serif;letter-spacing:0.03em}
+.d-row-year,.d-row-util,.d-row-solar{border-bottom:1px solid rgba(255,255,255,0.04)}
+
+/* big tooltip on hover */
+.chartjs-tooltip-big{
+  position:absolute;pointer-events:none;z-index:999;
+  background:rgba(5,14,24,0.95);border-radius:6px;padding:0.6rem 1rem;
+  border:1px solid rgba(231,76,60,0.4);min-width:120px;
+}
+.chartjs-tooltip-big .t-label{font-size:0.68rem;color:var(--dim);margin-bottom:2px}
+.chartjs-tooltip-big .t-util{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--rage-l);line-height:1}
+.chartjs-tooltip-big .t-solar{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--green-l);line-height:1;margin-top:2px}
+@media print{
+  #nav-prev,#nav-next,#slide-counter,#presenter-btn,#progress,.gallery-btn{display:none!important}
+  body,html{overflow:auto!important;height:auto!important}
+  #deck{height:auto!important;position:relative!important}
+  .slide{position:relative!important;opacity:1!important;transform:none!important;pointer-events:all!important;page-break-after:always;min-height:100vh}
+  .slide[data-print="false"]{display:none!important}
+}
+
+/* animations */
+.slide.active .display{animation:fadeUp 0.7s ease both}
+.slide.active .body-text{animation:fadeUp 0.7s 0.1s ease both}
+.slide.active .stat-row{animation:fadeUp 0.7s 0.2s ease both}
+.slide.active .blist{animation:fadeUp 0.7s 0.15s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<!-- ADMIN LINK -->
+<a href="admin.html" id="admin-btn" target="_blank">⚙ Admin</a>
+
+<!-- INVESTMENT BUTTON -->
+<button class="gallery-btn" id="investment-btn" onclick="toggleInvestment()" style="right:9rem">💰 Investment</button>
+
+<!-- GALLERY BUTTON -->
+<button class="gallery-btn" onclick="openGallery()">🖼 Gallery</button>
+
+<!-- NAV -->
+<button id="nav-prev" onclick="changeSlide(-1)">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+</button>
+<button id="nav-next" onclick="changeSlide(1)">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+</button>
+
+<!-- SLIDE COUNTER DOTS -->
+<div id="slide-counter"></div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDES
+══════════════════════════════════════════════ -->
+<div id="deck">
+
+<!-- ── SLIDE 1: UTILITY PROBLEM 1 ── -->
+<div class="slide slide-rage active" id="slide-0">
+  <div class="particle-bg" id="particles-0"></div>
+  <div class="slide-inner">
+    <div class="two-col">
+      <div>
+        <span class="eyebrow red">The Problem with Your Power Company</span>
+        <div class="accent-line red"></div>
+        <h1 class="display xl" style="color:#fff">YOUR BILL <span style="color:var(--rage-l)">ISN'T YOURS.</span></h1>
+        <p class="body-text" style="margin:1.25rem 0">Every month you pay for miles of aging wire, corporate executives, and shareholder dividends — before a single electron reaches your home. SDG&E is a <strong style="color:#fff">for-profit business</strong> with one goal: extract as much as possible from a captive customer.</p>
+        <ul class="blist">
+          <li><span class="icon red">✕</span><span><strong>Delivery & transmission fees</strong> — 30–40% of your bill is just moving electricity to your house</span></li>
+          <li><span class="icon red">✕</span><span><strong>You have no choice</strong> — monopoly utility, zero competition, prices set by regulators they lobby</span></li>
+          <li><span class="icon red">✕</span><span><strong>They legally profit more</strong> when they build more infrastructure — your bills fund their expansion</span></li>
+        </ul>
+      </div>
+      <div>
+        <div class="stat-row" style="flex-direction:column;gap:2px">
+          <div class="stat-b red-glow"><span class="val" id="s1-yr1">$1,608</span><span class="lbl">Year 1 Cost to SDG&E</span></div>
+          <div class="stat-b red-glow"><span class="val" id="s1-yr5">$9,064</span><span class="lbl">5 Years Donated</span></div>
+          <div class="stat-b red-glow"><span class="val" id="s1-yr10">$21,195</span><span class="lbl">10 Years Donated</span></div>
+          <div class="stat-b red-glow"><span class="val" id="s1-yr25" style="color:#ff4444">$88,222</span><span class="lbl">25 Years — Gone Forever</span></div>
+        </div>
+        <p style="font-size:0.7rem;color:var(--dim);margin-top:0.75rem;text-align:center">Based on 6% annual rate increases — SDG&E's historical average</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SLIDE 2: UTILITY PROBLEM 2 ── -->
+<div class="slide slide-pain" id="slide-1">
+  <div class="particle-bg" id="particles-1"></div>
+  <div class="slide-inner">
+    <span class="eyebrow red">The Demand Crisis Coming For Your Wallet</span>
+    <div class="accent-line red"></div>
+    <h1 class="display lg" style="max-width:700px">CALIFORNIA'S GRID IS <span style="color:var(--rage-l)">BREAKING UNDER PRESSURE</span></h1>
+    <p class="body-text" style="margin:1rem 0 1.5rem">Electricity demand is exploding — and utilities will pass every penny of the cost to you.</p>
+    <div class="demand-grid">
+      <div class="demand-card">
+        <span class="icon-big">🏭</span>
+        <h4>AI Data Centers</h4>
+        <p>Tech giants are plugging in massive AI farms — each one consuming as much power as a small city. Demand up 300% by 2030.</p>
+      </div>
+      <div class="demand-card">
+        <span class="icon-big">🚗</span>
+        <h4>Electric Vehicles</h4>
+        <p>California mandates all-EV sales by 2035. Millions of cars plugging in nightly will overwhelm the aging grid.</p>
+      </div>
+      <div class="demand-card">
+        <span class="icon-big">🌡️</span>
+        <h4>Extreme Heat & A/C</h4>
+        <p>Record-breaking summers are extending cooling seasons — demand spikes are becoming the norm, not the exception.</p>
+      </div>
+      <div class="demand-card">
+        <span class="icon-big">🏘️</span>
+        <h4>Population Growth</h4>
+        <p>Southern California adds hundreds of thousands of residents yearly — all competing for the same strained grid capacity.</p>
+      </div>
+      <div class="demand-card">
+        <span class="icon-big">🔥</span>
+        <h4>Wildfire Liability</h4>
+        <p>SDG&E spent billions on fire lawsuits. AB 1054 lets them pass those costs directly to ratepayers — that means you.</p>
+      </div>
+      <div class="demand-card">
+        <span class="icon-big">📈</span>
+        <h4>No Rate Relief in Sight</h4>
+        <p>CPUC approved double-digit rate hikes in 2023 and 2024. There is no mechanism to protect you from what's coming.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SLIDE 3: OPTIONS ── -->
+<div class="slide slide-choice" id="slide-2">
+  <div class="slide-inner">
+    <span class="eyebrow">Your Three Paths Forward</span>
+    <div class="accent-line gold"></div>
+    <h1 class="display md" style="margin-bottom:0.5rem">WHICH STORY DO YOU <em style="font-family:'DM Serif Display',serif;font-style:italic;color:var(--gold)">want to live?</em></h1>
+    <div class="options-stack">
+
+      <!-- Option 1 -->
+      <div class="option-card op1">
+        <div>
+          <span class="op-badge">Option 1 — Do Nothing</span>
+          <div class="op-title">Keep paying SDG&E forever</div>
+          <div class="op-desc">Rates keep climbing. You keep paying. Over 25 years you'll hand them <strong style="color:var(--rage-l)" id="op-total">$88,222</strong> and own absolutely nothing.</div>
+        </div>
+        <div class="op-chart-mini"><canvas id="chartOp1"></canvas></div>
+      </div>
+
+      <!-- Option 2 -->
+      <div class="option-card op2">
+        <div>
+          <span class="op-badge">Option 2 — Cut Back</span>
+          <div class="op-title" style="color:#aaa">Lower your lifestyle to lower your bill</div>
+          <div class="op-desc" style="color:rgba(255,255,255,0.4)">No A/C. No hot tub. No EV charging. Your bill stays flat — but so does your quality of life. Is that the trade-off you want to make?</div>
+        </div>
+        <div class="op-chart-mini"><canvas id="chartOp2"></canvas></div>
+      </div>
+
+      <!-- Option 3 -->
+      <div class="option-card op3">
+        <div>
+          <span class="op-badge">Option 3 — Take Control</span>
+          <div class="op-title" style="color:var(--green-l)">Lock in your rate. Own your power.</div>
+          <div class="op-desc" style="color:rgba(255,255,255,0.7)">Fixed payment. No surprises. 25-year warranty. Your rate <em>never</em> goes up — while theirs climbs every single year.</div>
+        </div>
+        <div class="op-chart-mini"><canvas id="chartOp3"></canvas></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── SLIDE 4: HIGHLIGHTS ── -->
+<div class="slide slide-solar" id="slide-3">
+  <div class="slide-inner">
+    <span class="eyebrow">What You're Getting</span>
+    <div class="accent-line gold"></div>
+    <h1 class="display lg" style="margin-bottom:0.3rem">EVERYTHING <span style="color:var(--gold)">INCLUDED.</span></h1>
+    <p class="body-text">This isn't just solar — it's a complete home energy system, fully protected for the life of your loan.</p>
+    <div class="warranty-grid">
+      <div class="warranty-card">
+        <span class="w-icon">☀️</span>
+        <h4>25-Year Panel Warranty</h4>
+        <p>Industry-leading performance guarantee. If output drops below spec, it's covered — no arguments.</p>
+      </div>
+      <div class="warranty-card">
+        <span class="w-icon">🔋</span>
+        <h4>Battery Backup Included</h4>
+        <p>Whole-home battery storage. When the grid goes dark, your lights stay on. For the spa, the fridge, everything.</p>
+      </div>
+      <div class="warranty-card">
+        <span class="w-icon">🏠</span>
+        <h4 id="h4-roof">New Roof Included</h4>
+        <p id="p-roof">No more leaks. No more worry. Your roof is replaced as part of the system — fully warranted alongside your panels.</p>
+      </div>
+      <div class="warranty-card">
+        <span class="w-icon">🔌</span>
+        <h4>Enphase Monitoring</h4>
+        <p>Real-time system monitoring via app. Every panel, every kilowatt. You'll know your system is performing every day.</p>
+      </div>
+      <div class="warranty-card">
+        <span class="w-icon">⚡</span>
+        <h4>81% More Power</h4>
+        <p>Your system is sized to <em>over-produce</em>. Run the spa. Charge the car. Crank the A/C. Stop rationing your life.</p>
+      </div>
+      <div class="warranty-card">
+        <span class="w-icon">🏡</span>
+        <h4>Home Value Increases</h4>
+        <p>Studies show solar adds 3–4% to home value — often more than the cost of the system, especially in San Diego.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SLIDE 5: QUALIFICATIONS ── -->
+<div class="slide slide-gold" id="slide-4">
+  <div class="slide-inner">
+    <span class="eyebrow">You Qualify</span>
+    <div class="accent-line gold"></div>
+    <h1 class="display lg">YOUR HOME IS <span style="color:var(--gold)">READY.</span></h1>
+    <p class="body-text" style="margin:0.75rem 0 1.5rem">Here's what we confirmed before sitting down with you today.</p>
+    <div class="qual-list">
+      <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:var(--text)">Roof condition</strong> — adequate remaining life, no issues flagged</div></div>
+      <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:var(--text)">Sufficient sun exposure</strong> — your roof orientation maximizes production</div></div>
+      <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:var(--text)">Credit pre-approval</strong> — you qualify for 0% down financing</div></div>
+      <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:var(--text)">Federal Tax Credit (ITC)</strong> — 30% of system cost back on your taxes</div></div>
+      <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:var(--text)">Net Energy Metering</strong> — bank your excess energy, pull it back for free</div></div>
+      <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:var(--text)">Utility territory</strong> — SDG&E NEM 3.0 rates confirmed for your address</div></div>
+      <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:var(--text)">HOA / permits</strong> — no restrictions, permit-ready in your jurisdiction</div></div>
+      <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:var(--text)">No out-of-pocket costs</strong> — $0 down, installation fully financed</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SLIDE 6: TIMELINE ── -->
+<div class="slide slide-gold" id="slide-5">
+  <div class="slide-inner" style="text-align:center">
+    <span class="eyebrow" style="text-align:center">From Signing to Sunshine</span>
+    <div class="accent-line gold" style="margin:0 auto 1.5rem"></div>
+    <h1 class="display lg" style="margin-bottom:1.5rem">YOUR SOLAR <span style="color:var(--gold)">TIMELINE</span></h1>
+    <div class="img-slot timeline-container" id="timeline-img-slot" style="min-height:320px;max-width:900px;margin:0 auto" onclick="triggerImageUpload('timeline-img-slot','timeline-img')">
+      <img id="timeline-img" src="" alt="" style="display:none;width:100%;border-radius:8px">
+      <div id="timeline-placeholder" style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;padding:3rem">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 20M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        <span>Click to upload your timeline image</span>
+      </div>
+    </div>
+    <p class="body-text centered" style="margin-top:1.25rem;font-size:0.85rem">Average installation: <strong style="color:var(--gold)">6–8 weeks</strong> from contract to first kilowatt produced</p>
+  </div>
+</div>
+
+<!-- ── SLIDE 7: SELL YOURSELF ── -->
+<div class="slide slide-solar" id="slide-6">
+  <div class="slide-inner">
+    <span class="eyebrow">Why Work With Me</span>
+    <div class="accent-line gold"></div>
+    <h1 class="display md" style="margin-bottom:1rem">I DON'T SELL SOLAR. <span style="color:var(--gold)">I PROTECT FAMILIES.</span></h1>
+    <div class="two-col" style="gap:2rem">
+      <div>
+        <ul class="blist">
+          <li><span class="icon gold">★</span><span><strong>Local San Diego expert</strong> — I live here, I know the rates, I know the permits, I know the utility games. This is my community too.</span></li>
+          <li><span class="icon gold">★</span><span><strong>Post-install support for life</strong> — I'm not a door-knocker who disappears. My number doesn't change. Call me in year 10.</span></li>
+          <li><span class="icon gold">★</span><span><strong>I designed your system personally</strong> — not a call center, not an algorithm. Your roof, your usage, your family's needs.</span></li>
+        </ul>
+        <div class="testimonial-row" style="margin-top:1.5rem;grid-template-columns:1fr 1fr">
+          <div class="t-card">
+            <div class="t-stars">★★★★★</div>
+            <div class="t-quote" id="t1-quote">"David is conscientious, knowledgeable, and honest. He knows Solar inside and out and goes above and beyond to make sure you're taken care of every step of the way."</div>
+            <div class="t-name" id="t1-name">— Stephen Bell, Homeowner</div>
+          </div>
+          <div class="t-card">
+            <div class="t-stars">★★★★★</div>
+            <div class="t-quote" id="t2-quote">"The team at Your Energy Best made going solar so easy. From the initial consultation to the final installation, everything was handled professionally. Our electric bill has dropped by over 80%!"</div>
+            <div class="t-name" id="t2-name">— Jennifer Martinez, Encinitas Homeowner</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p style="font-size:0.72rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);margin-bottom:0.75rem">From My Feed</p>
+        <div class="ig-grid" id="ig-feed">
+          <div class="ig-post"><div class="ig-loading">Loading...</div></div>
+          <div class="ig-post"><div class="ig-loading">Loading...</div></div>
+          <div class="ig-post"><div class="ig-loading">Loading...</div></div>
+          <div class="ig-post"><div class="ig-loading">Loading...</div></div>
+        </div>
+        <p style="font-size:0.68rem;color:var(--dim);margin-top:0.5rem;text-align:right">@energy.best.ca</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SLIDE 8: COMPANY ── -->
+<div class="slide slide-gold" id="slide-7">
+  <div class="slide-inner" style="text-align:center">
+    <span class="eyebrow" style="text-align:center">Who's Behind Your System</span>
+    <div class="accent-line gold" style="margin:0 auto 1.5rem"></div>
+    <h1 class="display lg">BUILT ON <span style="color:var(--gold)">STRENGTH.</span></h1>
+    <div class="company-pillars">
+      <div class="pillar">
+        <span class="p-icon">🏆</span>
+        <h3 id="cp1-title">Industry-Leading Warranty</h3>
+        <p id="cp1-body">25 years on panels, inverters, and labor. No other company in San Diego backs their work like this. If anything fails, it's on us — not you.</p>
+      </div>
+      <div class="pillar">
+        <span class="p-icon">💳</span>
+        <h3 id="cp2-title">A-Rated Financing Partner</h3>
+        <p id="cp2-body">We work with the top solar lenders in the country. Best rates, clean contracts, no hidden balloon payments, no predatory terms.</p>
+      </div>
+      <div class="pillar">
+        <span class="p-icon">🔬</span>
+        <h3 id="cp3-title">Premium Equipment Only</h3>
+        <p id="cp3-body">We exclusively install Enphase microinverters and Tier 1 panels. No cutting corners on the hardware that will power your home for 25 years.</p>
+      </div>
+    </div>
+    <div class="img-slot" id="company-logo-slot" style="max-width:500px;margin:0 auto;min-height:100px;flex-direction:row;gap:2rem" onclick="triggerImageUpload('company-logo-slot','company-logo-img')">
+      <img id="company-logo-img" src="" alt="" style="display:none;max-height:80px">
+      <span id="company-logo-placeholder">Click to add company logos / certifications</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── SLIDE 9: HOW SOLAR WORKS ── -->
+<div class="slide slide-solar" id="slide-8">
+  <div class="slide-inner">
+    <span class="eyebrow">The Technology</span>
+    <div class="accent-line gold"></div>
+    <h1 class="display md" style="margin-bottom:0.5rem">HOW SOLAR <span style="color:var(--gold)">ACTUALLY WORKS</span></h1>
+    <p class="body-text" style="margin-bottom:1.5rem">Simple technology. Proven for 40+ years. Working silently on your roof every day.</p>
+    <div class="how-grid">
+      <div class="how-step">
+        <div class="step-img" onclick="triggerImageUpload('step-img-0','step-img-0-img')">
+          <img id="step-img-0-img" src="" alt="" style="display:none">
+          <span style="font-size:2rem">☀️</span>
+        </div>
+        <h4>1. Sunlight Hits Panels</h4>
+        <p>Photovoltaic cells convert sunlight directly into DC electricity — silently, with no moving parts</p>
+      </div>
+      <div class="how-step">
+        <div class="step-img" onclick="triggerImageUpload('step-img-1','step-img-1-img')">
+          <img id="step-img-1-img" src="" alt="" style="display:none">
+          <span style="font-size:2rem">⚡</span>
+        </div>
+        <h4>2. Microinverter Converts</h4>
+        <p>Enphase microinverters convert DC to AC power — the kind your home uses — at each individual panel</p>
+      </div>
+      <div class="how-step">
+        <div class="step-img" onclick="triggerImageUpload('step-img-2','step-img-2-img')">
+          <img id="step-img-2-img" src="" alt="" style="display:none">
+          <span style="font-size:2rem">🏠</span>
+        </div>
+        <h4>3. Powers Your Home</h4>
+        <p>Clean solar electricity flows directly to your appliances — lights, A/C, spa, EV charger, everything</p>
+      </div>
+      <div class="how-step">
+        <div class="step-img" onclick="triggerImageUpload('step-img-3','step-img-3-img')">
+          <img id="step-img-3-img" src="" alt="" style="display:none">
+          <span style="font-size:2rem">🔋</span>
+        </div>
+        <h4>4. Excess Stored / Exported</h4>
+        <p>Surplus energy charges your battery or gets credited back to you through Net Energy Metering</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SLIDE 10: THE NUMBERS ── -->
+<div class="slide slide-numbers" id="slide-9" style="overflow-y:auto;justify-content:flex-start;padding-top:4rem">
+  <div class="slide-inner" style="max-width:1320px;width:100%">
+    <span class="eyebrow">The Numbers</span>
+    <div class="accent-line green"></div>
+    <h1 class="display md" style="margin-bottom:0.75rem">YOUR ENERGY <span style="color:var(--green-l)">FUTURE</span></h1>
+
+    <div class="numbers-layout">
+
+      <!-- LEFT: Inputs -->
+      <div class="numbers-inputs">
+
+        <!-- UTILITY CARD -->
+        <div class="n-card" style="border-color:rgba(231,76,60,0.3);background:rgba(231,76,60,0.04)">
+          <div class="n-card-title" style="color:var(--rage-l)">Current Situation</div>
+
+          <!-- UTILITY DROPDOWN — TOP, RED, BOLD -->
+          <div class="n-input-group">
+            <div class="n-label">Utility / Provider</div>
+            <select class="n-select" id="inp-utility" onchange="recalc()" style="color:var(--rage-l);font-weight:700;font-size:1rem;border-color:rgba(231,76,60,0.4)">
+              <option value="SDG&E" selected>SDG&E</option>
+              <option value="SCE">SCE (SoCal Edison)</option>
+              <option value="PG&E">PG&E</option>
+              <option value="LADWP">LADWP</option>
+              <option value="APS">APS (Arizona)</option>
+              <option value="NV Energy">NV Energy (Nevada)</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <!-- MONTHLY BILL -->
+          <div class="n-input-group">
+            <div class="n-label">Monthly Bill ($)</div>
+            <input type="number" class="n-input big" id="inp-bill" value="134" placeholder="134" oninput="recalc()" style="color:var(--rage-l);border-color:rgba(231,76,60,0.3)">
+          </div>
+
+          <!-- ANNUAL KWH -->
+          <div class="n-input-group">
+            <div class="n-label">Annual kWh Usage</div>
+            <input type="number" class="n-input" id="inp-kwh-usage" value="3540" placeholder="3540" oninput="recalc()" style="color:var(--rage-l);border-color:rgba(231,76,60,0.25)">
+          </div>
+
+          <!-- CALCULATED $/kWh BUBBLE -->
+          <div style="background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);border-radius:6px;padding:0.55rem 0.85rem;display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem">
+            <span style="font-size:0.66rem;color:rgba(231,76,60,0.7);letter-spacing:0.1em;text-transform:uppercase">Utility $/kWh Rate</span>
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--rage-l);letter-spacing:0.03em;line-height:1" id="calc-kwh-rate">$0.454</span>
+          </div>
+
+          <!-- RATE INCREASE -->
+          <div class="n-input-group">
+            <div class="n-label">Annual Rate Increase</div>
+            <select class="n-select" id="inp-rate" onchange="recalc()" style="border-color:rgba(231,76,60,0.35);color:var(--rage-l);font-weight:500">
+              <option value="0.00">0% — Frozen (Never Happens)</option>
+              <option value="0.04">4% — Matches Inflation</option>
+              <option value="0.06">6% — Conservative</option>
+              <option value="0.09" selected>9% — SDG&E Historical Avg</option>
+              <option value="0.12">12% — Worst Case</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- VPP CARD -->
+        <div class="n-card" style="border-color:rgba(39,174,96,0.3);background:rgba(39,174,96,0.03)">
+          <div class="n-card-title" style="color:var(--green-l)">Virtual Power Plant Investment</div>
+
+          <div class="n-input-group">
+            <div class="n-label">Monthly Energy Investment ($)</div>
+            <input type="number" class="n-input big" id="inp-solar" value="" placeholder="Enter payment" oninput="recalc()" style="color:var(--green-l);border-color:rgba(39,174,96,0.3)">
+          </div>
+
+          <div class="n-input-group">
+            <div class="n-label">Annual kWh Production</div>
+            <input type="number" class="n-input" id="inp-solar-kwh" value="6402" placeholder="6402" oninput="recalc()" style="border-color:rgba(39,174,96,0.25)">
+          </div>
+
+          <!-- OFFSET BUBBLE -->
+          <div style="background:rgba(39,174,96,0.1);border:1px solid rgba(39,174,96,0.3);border-radius:6px;padding:0.55rem 0.85rem;display:flex;justify-content:space-between;align-items:center;margin-bottom:0.15rem">
+            <span style="font-size:0.66rem;color:rgba(39,174,96,0.7);letter-spacing:0.1em;text-transform:uppercase">Production Offset</span>
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--green-l);letter-spacing:0.03em;line-height:1" id="calc-offset">—</span>
+          </div>
+          <!-- SOLAR $/kWh BUBBLE -->
+          <div style="background:rgba(39,174,96,0.07);border:1px solid rgba(39,174,96,0.2);border-radius:6px;padding:0.55rem 0.85rem;display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem">
+            <span style="font-size:0.66rem;color:rgba(39,174,96,0.6);letter-spacing:0.1em;text-transform:uppercase">Solar $/kWh Rate</span>
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--green-l);letter-spacing:0.03em;line-height:1" id="calc-solar-kwh-rate">—</span>
+          </div>
+
+          <div class="n-input-group">
+            <div class="n-label">VPP Fixed Annual Rate Increase</div>
+            <select class="n-select" id="inp-vpp-rate" onchange="recalc()" style="border-color:rgba(39,174,96,0.25);color:var(--green-l)">
+              <option value="0.000">0.0% — Fully Fixed Forever</option>
+              <option value="0.009" selected>0.9% — Standard Locked Rate</option>
+              <option value="0.019">1.9%</option>
+              <option value="0.029">2.9%</option>
+              <option value="0.035">3.5%</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- HIDDEN CASH TAB -->
+        <button class="hidden-tab-btn" onclick="toggleCashPanel()">· · ·</button>
+        <div class="cash-panel" id="cash-panel">
+          <div class="n-card-title" style="font-size:0.65rem;margin-bottom:0.5rem">Cash Purchase vs. Invest Analysis</div>
+          <div class="n-input-group">
+            <div class="n-label">System Cost ($)</div>
+            <input type="number" class="n-input" id="inp-system" value="56294" oninput="recalc()" style="font-size:0.85rem">
+          </div>
+          <div class="n-input-group">
+            <div class="n-label">Tax Credit</div>
+            <select class="n-select" id="inp-itc" onchange="recalc()" style="font-size:0.8rem">
+              <option value="0.30" selected>30% Federal ITC</option>
+              <option value="0.26">26%</option>
+              <option value="0.22">22%</option>
+              <option value="0">None</option>
+            </select>
+          </div>
+          <div class="n-input-group">
+            <div class="n-label">S&P 500 Return</div>
+            <select class="n-select" id="inp-sp" onchange="recalc()" style="font-size:0.8rem">
+              <option value="0.07">7%</option>
+              <option value="0.08" selected>8% (Historical Avg)</option>
+              <option value="0.10">10%</option>
+            </select>
+          </div>
+          <div style="margin-top:0.6rem;font-size:0.78rem;color:var(--muted);line-height:1.8">
+            Net Cost After ITC: <strong style="color:var(--gold)" id="cash-netcost">$39,406</strong><br>
+            S&P Growth 25yr: <strong style="color:#5B9BD5" id="cash-spgrowth">—</strong><br>
+            Solar Savings 25yr: <strong style="color:var(--green-l)" id="cash-solarsavings">—</strong><br>
+            <em style="color:var(--dim);font-size:0.7rem">Investing cash grows more numerically — but solar eliminates rate risk forever.</em>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Charts + Stats -->
+      <div class="chart-area">
+
+        <!-- TRAJECTORY CHART — BIGGER -->
+        <div class="chart-box">
+          <div class="chart-box-header">
+            <div class="chart-box-title" id="main-chart-title">kWh Rate Trajectory ($/kWh)</div>
+            <div class="toggle-row">
+              <button class="toggle-btn active" id="btn-kwh" onclick="setChartMode('kwh')">$/kWh</button>
+              <button class="toggle-btn" id="btn-payment" onclick="setChartMode('payment')">Monthly $</button>
+            </div>
+          </div>
+          <div style="position:relative;height:240px"><canvas id="chartMain"></canvas></div>
+          <div style="display:flex;gap:1.5rem;flex-wrap:wrap;font-size:0.72rem;color:var(--muted);margin-top:0.6rem">
+            <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:3px;background:#E74C3C;border-radius:2px;display:inline-block"></span><span id="leg-util">SDG&E</span> (rising)</span>
+            <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:3px;background:#2ECC71;border-radius:2px;display:inline-block;border-top:2px dashed #2ECC71"></span>Solar VPP (fixed)</span>
+          </div>
+        </div>
+
+        <!-- DONATIONS vs SAVINGS MILESTONES — BIGGER -->
+        <div class="chart-box" style="padding:1rem 1.25rem">
+          <div class="chart-box-header" style="margin-bottom:0.75rem">
+            <div class="chart-box-title">Cost Donated to <span id="donations-util-name" style="color:var(--rage-l);font-weight:600">SDG&E</span> vs Your Solar Savings</div>
+          </div>
+          <div style="display:grid;grid-template-columns:56px 1fr 1fr;gap:0;margin-bottom:6px">
+            <div style="font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--dim)">Year</div>
+            <div style="font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rage-l);text-align:right">Donated to Utility</div>
+            <div style="font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--green-l);text-align:right">Solar Saves You</div>
+          </div>
+          <div id="milestone-rows"></div>
+        </div>
+
+        <!-- FLIP CARD: KEY BENEFITS — BIGGER FONT -->
+        <div class="flip-card" id="benefits-flip" onclick="flipCard(event)" style="height:150px">
+          <div class="flip-inner">
+            <div class="flip-front">
+              <div style="display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:0.6rem">
+                <span style="font-size:0.72rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold)">Key Benefits</span>
+                <span style="font-size:0.68rem;color:var(--dim)">click to reveal →</span>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;width:100%">
+                <div style="background:rgba(39,174,96,0.08);border:1px solid rgba(39,174,96,0.2);border-radius:5px;padding:0.6rem;text-align:center">
+                  <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--green-l);line-height:1" id="fb-offset">—</div>
+                  <div style="font-size:0.65rem;color:var(--dim);text-transform:uppercase;letter-spacing:0.08em;margin-top:3px">Production Offset</div>
+                </div>
+                <div style="background:rgba(200,168,75,0.07);border:1px solid rgba(200,168,75,0.2);border-radius:5px;padding:0.6rem;text-align:center">
+                  <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--gold);line-height:1" id="fb-breakeven">—</div>
+                  <div style="font-size:0.65rem;color:var(--dim);text-transform:uppercase;letter-spacing:0.08em;margin-top:3px">Break-Even</div>
+                </div>
+                <div style="background:rgba(39,174,96,0.08);border:1px solid rgba(39,174,96,0.2);border-radius:5px;padding:0.6rem;text-align:center">
+                  <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--green-l);line-height:1" id="fb-savings">—</div>
+                  <div style="font-size:0.65rem;color:var(--dim);text-transform:uppercase;letter-spacing:0.08em;margin-top:3px">25yr Savings</div>
+                </div>
+              </div>
+            </div>
+            <div class="flip-back">
+              <div style="display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:0.6rem">
+                <span style="font-size:0.72rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold)">Benefits of This Plan</span>
+                <button onclick="addBenefit(event)" style="background:transparent;border:1px solid var(--border);color:var(--gold);padding:3px 10px;border-radius:3px;font-size:0.72rem;cursor:pointer;font-family:'DM Sans',sans-serif">+ Add</button>
+              </div>
+              <ul id="benefits-list" style="list-style:none;display:flex;flex-direction:column;gap:5px;width:100%;overflow-y:auto;max-height:100px"></ul>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══ INVESTMENT PANEL (scrolls into view) ══ -->
+    <div id="investment-panel" style="display:none;margin-top:2rem;padding-top:2rem;border-top:1px solid rgba(200,168,75,0.2)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+        <div>
+          <div style="font-size:0.68rem;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:0.3rem">Hidden Analysis</div>
+          <h2 class="display md" style="font-size:clamp(1.4rem,3vw,2.2rem)">CASH PURCHASE <span style="color:var(--gold)">VS INVESTING</span></h2>
+        </div>
+        <button onclick="toggleInvestment()" style="background:transparent;border:1px solid var(--border);color:var(--dim);padding:0.4rem 1rem;border-radius:4px;font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif">Close ✕</button>
+      </div>
+
+      <!-- Inputs row -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem">
+        <div class="n-card" style="border-color:rgba(200,168,75,0.25)">
+          <div class="n-card-title" style="color:var(--gold)">Cash Investment</div>
+          <div class="n-input-group">
+            <div class="n-label">System Cash Cost ($)</div>
+            <input type="number" class="n-input big" id="inv-system" value="56294" oninput="recalcInv()" style="color:var(--gold)">
+          </div>
+          <div class="n-input-group">
+            <div class="n-label">Federal Tax Credit (%)</div>
+            <select class="n-select" id="inv-itc" onchange="recalcInv()">
+              <option value="0.30" selected>30% ITC</option>
+              <option value="0.26">26%</option>
+              <option value="0.22">22%</option>
+              <option value="0">None</option>
+            </select>
+          </div>
+          <div style="margin-top:0.5rem;padding:0.5rem 0.75rem;background:rgba(200,168,75,0.08);border-radius:4px;border:1px solid rgba(200,168,75,0.2)">
+            <div style="font-size:0.65rem;color:var(--dim);margin-bottom:2px">Net Cash Cost</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--gold)" id="inv-netcost">$39,406</div>
+          </div>
+        </div>
+        <div class="n-card">
+          <div class="n-card-title">S&P 500 Return (if invested)</div>
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.4rem">
+            <input type="range" id="inv-sp-slider" min="4" max="14" step="0.5" value="8" oninput="document.getElementById('inv-sp-val').textContent=this.value+'%';recalcInv()" style="flex:1">
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--gold);min-width:48px;text-align:right" id="inv-sp-val">8%</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--dim);margin-top:0.25rem">S&P 500 Historical Average: ~10%<br>Conservative estimate: 7–8%</div>
+          <div style="margin-top:0.75rem;padding:0.5rem 0.75rem;background:rgba(91,155,213,0.08);border-radius:4px;border:1px solid rgba(91,155,213,0.2)">
+            <div style="font-size:0.65rem;color:var(--dim);margin-bottom:2px">25yr S&P Growth of Net Cost</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:#5B9BD5" id="inv-sp-25">—</div>
+          </div>
+        </div>
+        <div class="n-card" style="border-color:rgba(39,174,96,0.25)">
+          <div class="n-card-title" style="color:var(--green-l)">$0 Down Solar Savings</div>
+          <div style="font-size:0.78rem;color:var(--muted);line-height:1.6;margin-bottom:0.5rem">Based on current inputs from the model above (monthly payment vs. utility trajectory).</div>
+          <div style="padding:0.5rem 0.75rem;background:rgba(39,174,96,0.08);border-radius:4px;border:1px solid rgba(39,174,96,0.2);margin-bottom:0.5rem">
+            <div style="font-size:0.65rem;color:var(--dim);margin-bottom:2px">25yr Solar Savings ($0 Down)</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--green-l)" id="inv-solar-savings">—</div>
+          </div>
+          <div style="padding:0.5rem 0.75rem;background:rgba(200,168,75,0.07);border-radius:4px;border:1px solid rgba(200,168,75,0.2)">
+            <div style="font-size:0.65rem;color:var(--dim);margin-bottom:2px">Savings + S&P Gain (Cash → Invest)</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--gold)" id="inv-total-combo">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparison bars -->
+      <div class="chart-box">
+        <div class="chart-box-header">
+          <div class="chart-box-title">25-Year Scenario Comparison</div>
+        </div>
+        <div id="inv-bars" style="display:flex;flex-direction:column;gap:0.75rem;padding:0.5rem 0"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+<!-- ══════════════════════════════════════════════
+     GALLERY MODAL
+══════════════════════════════════════════════ -->
+<div id="gallery-modal">
+  <button class="gallery-close" onclick="closeGallery()">✕</button>
+  <div class="gallery-inner">
+    <div class="gallery-title">Image Gallery</div>
+    <input type="file" id="gallery-file-input" accept="image/*" style="display:none" multiple onchange="handleGalleryUpload(event)">
+    <div class="gallery-grid" id="gallery-grid">
+      <div style="color:var(--dim);font-size:0.82rem;padding:2rem;text-align:center;grid-column:1/-1">No images yet — upload below</div>
+    </div>
+    <button class="gallery-upload" onclick="document.getElementById('gallery-file-input').click()">+ Upload Images</button>
+  </div>
+</div>
+
+<!-- Hidden file inputs for image slots -->
+<input type="file" id="img-upload-input" accept="image/*" style="display:none">
+
+<script>
+// ═══════════════════════════════════════════
+//  SLIDE SYSTEM
+// ═══════════════════════════════════════════
+const SLIDE_DEFS = [
+  {id:'slide-0', label:'Utility Problem 1 — Delivery/Profit', visible:true},
+  {id:'slide-1', label:'Utility Problem 2 — Demand Crisis', visible:true},
+  {id:'slide-2', label:'Your 3 Options', visible:true},
+  {id:'slide-3', label:'What You\'re Getting — Highlights', visible:true},
+  {id:'slide-4', label:'Qualifications', visible:true},
+  {id:'slide-5', label:'Solar Timeline', visible:true},
+  {id:'slide-6', label:'Why Work With Me', visible:true},
+  {id:'slide-7', label:'Company & Financer', visible:true},
+  {id:'slide-8', label:'How Solar Works', visible:true},
+  {id:'slide-9', label:'The Numbers', visible:true},
+];
+
+let current = 0;
+let slideData = JSON.parse(localStorage.getItem('kinobi-slides') || 'null') || SLIDE_DEFS.map(s => ({...s}));
+
+function getVisible() {
+  return slideData.filter(s => s.visible);
+}
+
+function goToSlide(idx) {
+  const visible = getVisible();
+  if(idx < 0 || idx >= visible.length) return;
+  const prev = document.querySelector('.slide.active');
+  if(prev) {prev.classList.remove('active');prev.classList.add('exit-left')}
+  setTimeout(()=>{if(prev)prev.classList.remove('exit-left')},600);
+  current = idx;
+  const target = document.getElementById(visible[idx].id);
+  target.classList.add('active');
+  updateNav();
+}
+
+function changeSlide(dir) {
+  goToSlide(current + dir);
+}
+
+function updateNav() {
+  const visible = getVisible();
+  const counter = document.getElementById('slide-counter');
+  counter.innerHTML = '';
+  visible.forEach((s,i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i===current?' active':'');
+    d.onclick = () => goToSlide(i);
+    counter.appendChild(d);
+  });
+  const pct = visible.length > 1 ? (current/(visible.length-1))*100 : 100;
+  document.getElementById('progress').style.width = pct + '%';
+}
+
+document.addEventListener('keydown', e => {
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT') return;
+  if(e.key==='ArrowRight'||e.key==='ArrowDown') changeSlide(1);
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp') changeSlide(-1);
+});
+
+function saveSlideData() {
+  localStorage.setItem('kinobi-slides', JSON.stringify(slideData));
+}
+
+// ═══════════════════════════════════════════
+//  GALLERY
+// ═══════════════════════════════════════════
+let galleryImages = JSON.parse(localStorage.getItem('kinobi-gallery') || '[]');
+
+function openGallery() {document.getElementById('gallery-modal').classList.add('open');renderGallery()}
+function closeGallery() {document.getElementById('gallery-modal').classList.remove('open')}
+
+function renderGallery() {
+  const g = document.getElementById('gallery-grid');
+  if(galleryImages.length===0){g.innerHTML='<div style="color:var(--dim);font-size:0.82rem;padding:2rem;text-align:center;grid-column:1/-1">No images yet — upload below</div>';return}
+  g.innerHTML='';
+  galleryImages.forEach((src,i)=>{
+    const d=document.createElement('div');d.className='gallery-item';
+    d.innerHTML=`<img src="${src}" alt="Gallery ${i+1}">`;
+    g.appendChild(d);
+  });
+}
+
+function handleGalleryUpload(e) {
+  const files = Array.from(e.target.files);
+  files.forEach(f => {
+    const r = new FileReader();
+    r.onload = ev => {
+      galleryImages.push(ev.target.result);
+      localStorage.setItem('kinobi-gallery', JSON.stringify(galleryImages));
+      renderGallery();
+    };
+    r.readAsDataURL(f);
+  });
+}
+
+// ═══════════════════════════════════════════
+//  IMAGE UPLOAD FOR SLOTS
+// ═══════════════════════════════════════════
+let _uploadTarget = null;
+function triggerImageUpload(slotId, imgId) {
+  _uploadTarget = {slotId, imgId};
+  const inp = document.getElementById('img-upload-input');
+  inp.onchange = (e) => {
+    if(!e.target.files[0]) return;
+    const r = new FileReader();
+    r.onload = ev => {
+      const img = document.getElementById(_uploadTarget.imgId);
+      if(img){img.src=ev.target.result;img.style.display='block'}
+      const slot = document.getElementById(_uploadTarget.slotId);
+      if(slot){
+        const ph = slot.querySelector('[id$="-placeholder"]') || slot.querySelector('span:not([style])') || slot.querySelector('.placeholder-text');
+        if(ph) ph.style.display='none';
+        const svg = slot.querySelector('svg');
+        if(svg) svg.style.display='none';
+      }
+      localStorage.setItem('kinobi-img-'+_uploadTarget.imgId, ev.target.result);
+    };
+    r.readAsDataURL(e.target.files[0]);
+    inp.value='';
+  };
+  inp.click();
+}
+
+function loadSavedImages() {
+  ['timeline-img','company-logo-img','step-img-0-img','step-img-1-img','step-img-2-img','step-img-3-img'].forEach(id=>{
+    const saved = localStorage.getItem('kinobi-img-'+id);
+    if(saved){
+      const img = document.getElementById(id);
+      if(img){img.src=saved;img.style.display='block'}
+    }
+  });
+}
+
+// ═══════════════════════════════════════════
+//  FINANCIAL MODEL
+// ═══════════════════════════════════════════
+const YEARS = Array.from({length:25},(_,i)=>i+1);
+const INITIAL_KWH_RATE = 0.454237;
+let chartMode = 'kwh';
+let chartMain, chartOp1c, chartOp2c, chartOp3c;
+
+// Default benefits (persisted)
+let benefitsList = JSON.parse(localStorage.getItem('kinobi-benefits') || 'null') || [
+  '$0 out-of-pocket — fully financed',
+  '25-year full system warranty',
+  'Rate locked in forever — no surprises',
+  'Backup battery included',
+  'Home value increases',
+];
+
+function buildData() {
+  const bill       = parseFloat(document.getElementById('inp-bill').value) || 134;
+  const annualKwh  = parseFloat(document.getElementById('inp-kwh-usage').value) || 3540;
+  const rate       = parseFloat(document.getElementById('inp-rate').value) || 0.09;
+  const solar      = parseFloat(document.getElementById('inp-solar').value) || 0;
+  const solarKwh   = parseFloat(document.getElementById('inp-solar-kwh').value) || 6402;
+  const vppRate    = parseFloat(document.getElementById('inp-vpp-rate').value) || 0.009;
+  const sp         = parseFloat(document.getElementById('inp-sp').value) || 0.08;
+  const utilEl     = document.getElementById('inp-utility');
+  const utilName   = utilEl ? utilEl.value || 'SDG&E' : 'SDG&E';
+
+  // Utility $/kWh (current)
+  const kwhRate = annualKwh > 0 ? (bill * 12) / annualKwh : 0;
+  const offset  = annualKwh > 0 ? Math.min(solarKwh / annualKwh, 2.0) : 0;
+
+  // Solar $/kWh (current, locked — payment covers solarKwh production)
+  // solar payment is monthly, covers solarKwh/yr production
+  const solarKwhRateCurrent = (solar > 0 && solarKwh > 0) ? (solar * 12) / solarKwh : null;
+
+  // Utility trajectory
+  const utilMonthly = YEARS.map(y => bill * Math.pow(1 + rate, y - 1));
+  const utilCumul   = [];
+  let cum = 0;
+  utilMonthly.forEach(m => { cum += m * 12; utilCumul.push(cum); });
+
+  // Solar / VPP trajectory — escalates at vppRate
+  const solarMonthly = solar > 0 ? YEARS.map(y => solar * Math.pow(1 + vppRate, y - 1)) : null;
+  const solarCumul   = solarMonthly ? solarMonthly.reduce((acc, m, i) => {
+    acc.push((acc[i - 1] || 0) + m * 12); return acc;
+  }, []) : null;
+
+  // kWh rate trajectories
+  const kwhUtil  = YEARS.map(y => kwhRate * Math.pow(1 + rate, y - 1));
+  // Solar kWh rate: escalates at vppRate (slightly), locked vs utility
+  const kwhSolar = solar > 0 && solarKwh > 0
+    ? YEARS.map(y => solarKwhRateCurrent * Math.pow(1 + vppRate, y - 1))
+    : null;
+
+  // Savings & breakeven
+  const savings = solarCumul ? utilCumul[24] - solarCumul[24] : 0;
+  let breakeven = null;
+  if (solarCumul) {
+    for (let i = 0; i < 25; i++) {
+      if (utilCumul[i] > solarCumul[i]) { breakeven = i + 1; break; }
+    }
+  }
+
+  const yr25util = utilMonthly[24];
+  const invSystem = parseFloat(document.getElementById('inv-system')?.value) || 56294;
+  const invItc    = parseFloat(document.getElementById('inv-itc')?.value) || 0.30;
+  const invSp     = parseFloat(document.getElementById('inv-sp-slider')?.value) / 100 || 0.08;
+  const netCost   = invSystem * (1 - invItc);
+  const spGrowth  = netCost * Math.pow(1 + invSp, 25);
+
+  return {
+    utilMonthly, utilCumul, solarMonthly, solarCumul,
+    kwhUtil, kwhSolar, kwhRate, solarKwhRateCurrent, offset,
+    savings, breakeven, yr25util, utilName,
+    bill, rate, solar, solarKwh, vppRate, sp,
+    netCost, spGrowth, invSystem, invItc, invSp
+  };
+}
+
+function recalc() {
+  const d = buildData();
+  updateInputBubbles(d);
+  updateDonationsTable(d);
+  updateFlipFront(d);
+  updateCharts(d);
+  updateSlide1(d);
+  // Utility name sync (from dropdown)
+  const legEl = document.getElementById('leg-util');
+  if(legEl) legEl.textContent = d.utilName;
+  const dunEl = document.getElementById('donations-util-name');
+  if(dunEl) dunEl.textContent = d.utilName;
+  // Rage box
+  const rr = document.getElementById('rage-rate');
+  const ru = document.getElementById('rage-utility');
+  const ry = document.getElementById('rage-yr25');
+  const rt = document.getElementById('rage-total');
+  if(rr) rr.textContent = (d.rate * 100).toFixed(0) + '%';
+  if(ru) ru.textContent = d.utilName;
+  if(ry) ry.textContent = '$' + Math.round(d.yr25util) + '/mo';
+  if(rt) rt.textContent = '$' + Math.round(d.utilCumul[24]).toLocaleString();
+  // Cash panel (hidden)
+  const csg = document.getElementById('cash-spgrowth');
+  const css = document.getElementById('cash-solarsavings');
+  const cnc = document.getElementById('cash-netcost');
+  if(csg) csg.textContent = '$' + Math.round(d.spGrowth).toLocaleString();
+  if(css) css.textContent = d.solarCumul ? '$' + Math.round(d.savings).toLocaleString() : '—';
+  if(cnc) cnc.textContent = '$' + Math.round(d.netCost).toLocaleString();
+  // Investment panel if open
+  if(document.getElementById('investment-panel')?.style.display !== 'none') recalcInv();
+}
+
+function updateInputBubbles(d) {
+  const utilKwhEl = document.getElementById('calc-kwh-rate');
+  if(utilKwhEl) utilKwhEl.textContent = d.kwhRate > 0 ? '$' + d.kwhRate.toFixed(3) : '—';
+  const pct = Math.round(d.offset * 100);
+  const offEl = document.getElementById('calc-offset');
+  if(offEl) offEl.textContent = pct > 0 ? pct + '%' : '—';
+  const fbOff = document.getElementById('fb-offset');
+  if(fbOff) fbOff.textContent = pct > 0 ? pct + '%' : '—';
+  // Solar kWh rate bubble
+  const solarKwhEl = document.getElementById('calc-solar-kwh-rate');
+  if(solarKwhEl) solarKwhEl.textContent = d.solarKwhRateCurrent != null ? '$' + d.solarKwhRateCurrent.toFixed(3) : '—';
+}
+
+function updateDonationsTable(d) {
+  const rows = document.getElementById('milestone-rows') || document.getElementById('donations-rows');
+  if(!rows) return;
+  rows.innerHTML = '';
+  const points = [[0,'Yr 1'],[1,'Yr 2'],[4,'Yr 5'],[9,'Yr 10'],[24,'Yr 25']];
+  points.forEach(([idx, label]) => {
+    const utilAmt = d.utilCumul[idx];
+    const saveAmt = d.solarCumul ? d.utilCumul[idx] - d.solarCumul[idx] : null;
+    const savePosColor = saveAmt !== null && saveAmt >= 0 ? 'var(--green-l)' : 'var(--rage-l)';
+    const saveStr = saveAmt === null ? '—' : (saveAmt >= 0 ? '+' : '') + '$' + Math.round(Math.abs(saveAmt)).toLocaleString();
+    const div = document.createElement('div');
+    div.style.cssText = 'display:grid;grid-template-columns:56px 1fr 1fr;align-items:center;border-top:1px solid rgba(255,255,255,0.05);padding:6px 0';
+    div.innerHTML = `
+      <div style="font-size:0.82rem;font-weight:600;color:var(--muted)">${label}</div>
+      <div style="text-align:right;font-family:'Bebas Neue',sans-serif;font-size:1.55rem;color:var(--rage-l);letter-spacing:0.02em;line-height:1">
+        $${Math.round(utilAmt).toLocaleString()}
+      </div>
+      <div style="text-align:right;font-family:'Bebas Neue',sans-serif;font-size:1.55rem;color:${savePosColor};letter-spacing:0.02em;line-height:1">
+        ${saveStr}
+      </div>
+    `;
+    rows.appendChild(div);
+  });
+}
+
+function updateFlipFront(d) {
+  const be = d.breakeven ? 'Yr ' + d.breakeven : (d.solarCumul ? '25+' : '—');
+  const sav = d.solarCumul ? '$' + (Math.round(d.savings / 1000)) + 'K' : '—';
+  const el1 = document.getElementById('fb-breakeven');
+  const el2 = document.getElementById('fb-savings');
+  if(el1) el1.textContent = be;
+  if(el2) el2.textContent = sav;
+}
+
+function updateSlide1(d) {
+  const fmt = v => '$' + Math.round(v).toLocaleString();
+  const s1yr1  = document.getElementById('s1-yr1');
+  const s1yr5  = document.getElementById('s1-yr5');
+  const s1yr10 = document.getElementById('s1-yr10');
+  const s1yr25 = document.getElementById('s1-yr25');
+  const opTot  = document.getElementById('op-total');
+  if(s1yr1)  s1yr1.textContent  = fmt(d.bill * 12);
+  if(s1yr5)  s1yr5.textContent  = fmt(d.utilCumul[4]);
+  if(s1yr10) s1yr10.textContent = fmt(d.utilCumul[9]);
+  if(s1yr25) s1yr25.textContent = fmt(d.utilCumul[24]);
+  if(opTot)  opTot.textContent  = fmt(d.utilCumul[24]);
+}
+
+function updateOptions(d) { /* mini charts static */ }
+
+function updateCharts(d) {
+  const labels = YEARS.map(y => 'Yr ' + y);
+  let utilData, solarData;
+
+  if (chartMode === 'kwh') {
+    utilData  = d.kwhUtil.map(v => +v.toFixed(4));
+    // kwhSolar is now an array; if vppRate≈0 it's flat, otherwise slightly rising but still vastly below utility
+    solarData = d.kwhSolar ? d.kwhSolar.map(v => +v.toFixed(4)) : null;
+    document.getElementById('main-chart-title').textContent = 'kWh Rate Trajectory ($/kWh)';
+  } else {
+    utilData  = d.utilMonthly.map(v => Math.round(v));
+    solarData = d.solarMonthly ? d.solarMonthly.map(v => +v.toFixed(2)) : null;
+    document.getElementById('main-chart-title').textContent = 'Monthly Payment ($)';
+  }
+
+  chartMain.data.labels = labels;
+  chartMain.data.datasets[0].data = utilData;
+  chartMain.data.datasets[1].data = solarData || [];
+  chartMain.update('none');
+}
+
+function setChartMode(mode) {
+  chartMode = mode;
+  document.getElementById('btn-kwh').className    = 'toggle-btn' + (mode === 'kwh' ? ' active' : '');
+  document.getElementById('btn-payment').className = 'toggle-btn' + (mode === 'payment' ? ' active' : '');
+  recalc();
+}
+
+function toggleCashPanel() {
+  document.getElementById('cash-panel').classList.toggle('open');
+}
+
+// ─── FLIP CARD ─────────────────────────────
+function flipCard(e) {
+  // Don't flip when clicking inputs or buttons inside the card
+  if (e && (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON')) return;
+  document.getElementById('benefits-flip').classList.toggle('flipped');
+}
+
+function renderBenefits() {
+  const ul = document.getElementById('benefits-list');
+  if (!ul) return;
+  ul.innerHTML = '';
+  benefitsList.forEach((text, i) => {
+    const li = document.createElement('li');
+    li.className = 'benefit-item';
+    li.innerHTML = `
+      <span class="b-check">✓</span>
+      <input value="${text}" oninput="benefitsList[${i}]=this.value;saveBenefits()" onclick="event.stopPropagation()">
+      <button class="benefit-del" onclick="deleteBenefit(${i},event)">✕</button>
+    `;
+    ul.appendChild(li);
+  });
+}
+
+function addBenefit(e) {
+  e.stopPropagation();
+  benefitsList.push('New benefit — click to edit');
+  saveBenefits();
+  renderBenefits();
+  // Focus last input
+  setTimeout(() => {
+    const inputs = document.querySelectorAll('#benefits-list input');
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  }, 50);
+}
+
+function deleteBenefit(i, e) {
+  e.stopPropagation();
+  benefitsList.splice(i, 1);
+  saveBenefits();
+  renderBenefits();
+}
+
+function saveBenefits() {
+  localStorage.setItem('kinobi-benefits', JSON.stringify(benefitsList));
+}
+
+// ─── INVESTMENT PANEL ──────────────────────
+function toggleInvestment() {
+  const panel = document.getElementById('investment-panel');
+  const slide = document.getElementById('slide-9');
+  if (!panel) return;
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) {
+    recalcInv();
+    setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+  }
+}
+
+function recalcInv() {
+  const system = parseFloat(document.getElementById('inv-system')?.value) || 56294;
+  const itc    = parseFloat(document.getElementById('inv-itc')?.value) || 0.30;
+  const spPct  = parseFloat(document.getElementById('inv-sp-slider')?.value) || 8;
+  const sp     = spPct / 100;
+  const netCost = system * (1 - itc);
+
+  // S&P: invest the net cost lump sum for 25 years
+  const spGrowth25 = netCost * Math.pow(1 + sp, 25);
+  const spGain = spGrowth25 - netCost;
+
+  // Solar savings from main model
+  const d = buildData();
+  const solarSav = d.solarCumul ? d.savings : 0;
+
+  // Total combo: solar savings ($0 down) + S&P gain from NOT paying cash
+  const combo = solarSav + spGain;
+
+  // Update displays
+  const nc = document.getElementById('inv-netcost');
+  const sp25 = document.getElementById('inv-sp-25');
+  const ss = document.getElementById('inv-solar-savings');
+  const tc = document.getElementById('inv-total-combo');
+  if(nc) nc.textContent = '$' + Math.round(netCost).toLocaleString();
+  if(sp25) sp25.textContent = '$' + Math.round(spGrowth25).toLocaleString();
+  if(ss) ss.textContent = d.solarCumul ? '$' + Math.round(solarSav).toLocaleString() : '—';
+  if(tc) tc.textContent = d.solarCumul ? '$' + Math.round(combo).toLocaleString() : '—';
+
+  // Comparison bars
+  const barsEl = document.getElementById('inv-bars');
+  if (!barsEl) return;
+  const maxVal = Math.max(d.utilCumul[24], solarSav, spGrowth25, combo, 1);
+
+  const scenarios = [
+    { label: 'Cost of staying with ' + d.utilName + ' (25yr)', val: d.utilCumul[24], color: '#E74C3C', sign: '-' },
+    { label: 'Savings with $0 Down Solar (25yr)', val: solarSav, color: '#2ECC71', sign: '+' },
+    { label: 'S&P 500 Return if you invest the net cash cost', val: spGrowth25, color: '#5B9BD5', sign: '' },
+    { label: 'Total: Solar Savings + S&P Gain (best of both)', val: combo, color: '#C8A84B', sign: '+' },
+  ];
+
+  barsEl.innerHTML = '';
+  scenarios.forEach(s => {
+    const pct = Math.min((s.val / maxVal) * 100, 100);
+    const div = document.createElement('div');
+    div.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
+        <span style="font-size:0.75rem;color:var(--muted)">${s.label}</span>
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:${s.color};letter-spacing:0.03em">${s.sign}$${Math.round(s.val).toLocaleString()}</span>
+      </div>
+      <div style="height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;margin-bottom:10px">
+        <div style="height:100%;width:${pct}%;background:${s.color};border-radius:4px;transition:width 0.6s ease;opacity:0.85"></div>
+      </div>
+    `;
+    barsEl.appendChild(div);
+  });
+}
+
+// ─── CHART INIT ───────────────────────────
+// Big hover tooltip element
+const bigTooltip = document.createElement('div');
+bigTooltip.className = 'chartjs-tooltip-big';
+bigTooltip.style.display = 'none';
+document.body.appendChild(bigTooltip);
+
+const chartCfgMain = {
+  responsive: true, maintainAspectRatio: false,
+  interaction: { mode: 'index', intersect: false },
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      enabled: false, // we use custom
+      external: (ctx) => {
+        const tooltip = ctx.tooltip;
+        if (tooltip.opacity === 0) { bigTooltip.style.display = 'none'; return; }
+        const canvas = ctx.chart.canvas;
+        const rect = canvas.getBoundingClientRect();
+        const x = rect.left + window.scrollX + tooltip.caretX;
+        const y = rect.top  + window.scrollY + tooltip.caretY;
+
+        const utilVal = tooltip.dataPoints?.[0]?.raw;
+        const solarVal = tooltip.dataPoints?.[1]?.raw;
+        const label = tooltip.dataPoints?.[0]?.label || '';
+        const isKwh = chartMode === 'kwh';
+        const fmt = v => isKwh ? '$' + (+v).toFixed(3) : '$' + Math.round(v).toLocaleString();
+
+        bigTooltip.innerHTML = `
+          <div class="t-label">${label}</div>
+          <div class="t-util">${utilVal != null ? fmt(utilVal) : ''}</div>
+          ${solarVal != null ? `<div class="t-solar">${fmt(solarVal)}</div>` : ''}
+        `;
+        bigTooltip.style.display = 'block';
+        bigTooltip.style.left = (x + 12) + 'px';
+        bigTooltip.style.top  = (y - 20) + 'px';
+      }
+    }
+  },
+  scales: {
+    x: {
+      ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 10 },
+        callback: (v, i) => [0,4,9,14,19,24].includes(i) ? 'Yr '+(i+1) : '' },
+      grid: { color: 'rgba(255,255,255,0.04)' }
+    },
+    y: {
+      ticks: { color: 'rgba(255,255,255,0.35)', font: { size: 10 },
+        callback: v => chartMode === 'kwh' ? '$'+v.toFixed(2) : '$'+Math.round(v/1000*10)/10+'k' },
+      grid: { color: 'rgba(255,255,255,0.06)' }
+    }
+  }
+};
+
+chartMain = new Chart(document.getElementById('chartMain').getContext('2d'), {
+  type: 'line',
+  data: {
+    labels: [],
+    datasets: [
+      { label: 'Utility', data: [], borderColor: '#E74C3C', borderWidth: 2.5, pointRadius: 0, tension: 0.3, fill: false },
+      { label: 'Solar',   data: [], borderColor: '#2ECC71', borderWidth: 2,   pointRadius: 0, tension: 0.1, fill: false, borderDash: [5,3] },
+    ]
+  },
+  options: chartCfgMain
+});
+
+// Dummy canvas for cumul (kept to avoid JS errors from old refs)
+if(!document.getElementById('chartCumul')) {
+  const c = document.createElement('canvas');c.id='chartCumul';c.style.display='none';document.body.appendChild(c);
+}
+
+// Option mini charts
+function buildMiniChart(id, data, color) {
+  const el = document.getElementById(id);
+  if(!el) return null;
+  return new Chart(el.getContext('2d'), {
+    type: 'line',
+    data: { labels: YEARS.map(y=>'Y'+y), datasets: [{ data, borderColor: color, borderWidth: 2, pointRadius: 0, tension: 0.3, fill: true, backgroundColor: color.replace('rgb','rgba').replace(')',',0.1)') }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false},tooltip:{enabled:false}}, scales:{x:{display:false},y:{display:false}} }
+  });
+}
+
+const d0 = buildData();
+buildMiniChart('chartOp1', d0.utilMonthly.map(v=>Math.round(v)), '#E74C3C');
+buildMiniChart('chartOp2', YEARS.map(()=>Math.round(d0.bill)), '#888888');
+buildMiniChart('chartOp3', YEARS.map(()=>d0.solarMonthly ? Math.round(d0.solarMonthly[0]) : 202), '#2ECC71');
+
+// ═══════════════════════════════════════════
+//  INSTAGRAM FEED
+// ═══════════════════════════════════════════
+function loadIGFeed() {
+  const token = localStorage.getItem('ig_token') || '';
+  if(!token){renderIGPlaceholders();return}
+  fetch(`https://graph.instagram.com/me/media?fields=id,media_url,permalink,media_type&limit=4&access_token=${token}`)
+    .then(r=>r.json()).then(data=>{
+      if(!data.data){renderIGPlaceholders();return}
+      const grid = document.getElementById('ig-feed');
+      grid.innerHTML='';
+      data.data.filter(p=>p.media_type!=='VIDEO').slice(0,4).forEach(p=>{
+        const d=document.createElement('div');d.className='ig-post';
+        d.innerHTML=`<a href="${p.permalink}" target="_blank"><img src="${p.media_url}" loading="lazy" style="width:100%;height:100%;object-fit:cover"></a>`;
+        grid.appendChild(d);
+      });
+    }).catch(()=>renderIGPlaceholders());
+}
+
+function renderIGPlaceholders() {
+  const grid = document.getElementById('ig-feed');
+  grid.innerHTML='';
+  for(let i=0;i<4;i++){
+    const d=document.createElement('div');d.className='ig-post';
+    d.innerHTML='<div class="ig-loading" style="color:rgba(255,255,255,0.2);font-size:0.7rem">@energy.best.ca</div>';
+    grid.appendChild(d);
+  }
+}
+
+// ═══════════════════════════════════════════
+//  PARTICLES
+// ═══════════════════════════════════════════
+function spawnParticles(containerId, color, count) {
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  for(let i=0;i<count;i++){
+    const p = document.createElement('div');
+    p.className='particle';
+    const size = Math.random()*3+1;
+    p.style.cssText=`width:${size}px;height:${size}px;background:${color};left:${Math.random()*100}%;animation-duration:${8+Math.random()*12}s;animation-delay:${Math.random()*10}s;opacity:${0.2+Math.random()*0.4}`;
+    el.appendChild(p);
+  }
+}
+
+// ═══════════════════════════════════════════
+//  PDF EXPORT
+// ═══════════════════════════════════════════
+function exportPDF() {
+  const selected = Array.from(document.querySelectorAll('.export-item.selected')).map(e=>parseInt(e.dataset.idx));
+  slideData.forEach((s,i)=>{
+    const el=document.getElementById(s.id);
+    if(el) el.dataset.print = selected.includes(i)?'true':'false';
+  });
+  window.print();
+}
+
+// ═══════════════════════════════════════════
+//  TESTIMONIALS FROM content.json
+// ═══════════════════════════════════════════
+function loadTestimonialsFromSite() {
+  // Try to load from main site content.json (same-origin)
+  fetch('../content.json')
+    .then(r => r.json())
+    .then(data => {
+      const ts = data.testimonials;
+      if (!ts || !ts.length) return;
+      // Slide 7 testimonial cards — update up to first 2
+      const t1q = document.getElementById('t1-quote');
+      const t1n = document.getElementById('t1-name');
+      const t2q = document.getElementById('t2-quote');
+      const t2n = document.getElementById('t2-name');
+      if (ts[0]) {
+        if (t1q) t1q.textContent = '"' + (ts[0].text || ts[0].quote || '') + '"';
+        if (t1n) t1n.textContent = '— ' + (ts[0].author || ts[0].name || '');
+      }
+      if (ts[1]) {
+        if (t2q) t2q.textContent = '"' + (ts[1].text || ts[1].quote || '') + '"';
+        if (t2n) t2n.textContent = '— ' + (ts[1].author || ts[1].name || '');
+      }
+    })
+    .catch(() => {
+      // Fallback: try kinobi-testimonials from localStorage (set via admin)
+      const saved = JSON.parse(localStorage.getItem('kinobi-testimonials') || 'null');
+      if (!saved || !saved.length) return;
+      const t1q = document.getElementById('t1-quote');
+      const t1n = document.getElementById('t1-name');
+      const t2q = document.getElementById('t2-quote');
+      const t2n = document.getElementById('t2-name');
+      if (saved[0]) {
+        if (t1q) t1q.textContent = saved[0].quote || saved[0].text || '';
+        if (t1n) t1n.textContent = saved[0].name || '';
+      }
+      if (saved[1]) {
+        if (t2q) t2q.textContent = saved[1].quote || saved[1].text || '';
+        if (t2n) t2n.textContent = saved[1].name || '';
+      }
+    });
+}
+
+// ═══════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  loadSavedImages();
+  updateNav();
+  recalc();
+  renderBenefits();
+  loadIGFeed();
+  loadTestimonialsFromSite();
+  spawnParticles('particles-0','rgba(192,57,43,0.6)',12);
+  spawnParticles('particles-1','rgba(180,40,20,0.5)',10);
+});
+</script>
+</body>
+</html>

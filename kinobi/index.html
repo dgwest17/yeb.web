@@ -451,7 +451,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
 <div id="edit-saved-toast">Changes saved</div>
 
 <!-- ADMIN LINK -->
-<a href="admin.html" id="admin-btn" target="_blank">⚙ Admin</a>
+<a href="admin.html" id="admin-btn" target="_blank" onclick="return promptAdminPw(event)">⚙ Admin</a>
 
 <!-- INVESTMENT BUTTON -->
 <button class="gallery-btn" id="investment-btn" onclick="toggleInvestment()" style="right:9rem">💰 Investment</button>
@@ -1888,18 +1888,12 @@ function applyAdminContent() {
 //  INIT
 // ═══════════════════════════════════════════
 // ═══════════════════════════════════════════
-//  ADMIN PASSWORD (guards admin link)
+//  ADMIN LINK
 // ═══════════════════════════════════════════
-const ADMIN_PASSWORD = localStorage.getItem('kinobi-admin-pass') || 'solar2025';
-document.getElementById('admin-btn').addEventListener('click', function(e) {
-  e.preventDefault();
-  const pw = prompt('Admin password:');
-  if (pw === ADMIN_PASSWORD) {
-    window.open('admin.html', '_blank');
-  } else if (pw !== null) {
-    alert('Incorrect password.');
-  }
-});
+function promptAdminPw(e) {
+  // Admin page handles its own password — just open it
+  return true;
+}
 
 // ═══════════════════════════════════════════
 //  TIMELINE

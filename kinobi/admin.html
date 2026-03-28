@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kinobi Admin — Kinhome Solar</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#C8A84B;--gold-l:#E8C96A;--gold-d:#8A6E2A;
+  --deep:#050E18;--navy:#0D1F30;--panel:#111D2C;
+  --rage-l:#E74C3C;--green-l:#2ECC71;
+  --text:#FFFFFF;--muted:rgba(255,255,255,0.55);--dim:rgba(255,255,255,0.3);
+  --border:rgba(200,168,75,0.2);--border-s:rgba(255,255,255,0.08);
+  --sidebar:240px;
+}
+html,body{min-height:100vh;background:var(--deep);font-family:'DM Sans',sans-serif;color:var(--text)}
+
+/* ── LAYOUT ── */
+.shell{display:grid;grid-template-columns:var(--sidebar) 1fr;min-height:100vh}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  background:var(--navy);border-right:1px solid var(--border-s);
+  padding:1.5rem 0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;
+}
+.sidebar-logo{
+  padding:0 1.5rem 1.5rem;border-bottom:1px solid var(--border-s);margin-bottom:1rem;
+}
+.logo-text{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--gold);letter-spacing:0.05em;line-height:1}
+.logo-sub{font-size:0.7rem;color:var(--dim);letter-spacing:0.1em;text-transform:uppercase;margin-top:2px}
+
+.nav-section{padding:0.5rem 1rem 0;margin-bottom:0.5rem}
+.nav-section-label{font-size:0.62rem;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--dim);padding:0 0.5rem;margin-bottom:0.4rem}
+.nav-item{
+  display:flex;align-items:center;gap:0.6rem;padding:0.6rem 0.75rem;border-radius:6px;
+  cursor:pointer;transition:all 0.15s;font-size:0.85rem;color:var(--muted);
+  margin-bottom:2px;border:1px solid transparent;
+}
+.nav-item:hover{background:rgba(255,255,255,0.04);color:var(--text)}
+.nav-item.active{background:rgba(200,168,75,0.1);border-color:var(--border);color:var(--gold)}
+.nav-item .ni-icon{width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.nav-item .ni-badge{margin-left:auto;background:rgba(200,168,75,0.2);color:var(--gold);font-size:0.65rem;padding:1px 6px;border-radius:10px}
+
+.sidebar-footer{margin-top:auto;padding:1rem 1.5rem;border-top:1px solid var(--border-s)}
+.launch-btn{
+  display:block;width:100%;padding:0.65rem;background:var(--gold);color:var(--deep);
+  border:none;border-radius:4px;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:600;
+  cursor:pointer;text-align:center;text-decoration:none;letter-spacing:0.03em;transition:background 0.2s;
+}
+.launch-btn:hover{background:var(--gold-l)}
+
+/* ── MAIN ── */
+.main{padding:2.5rem;overflow-y:auto}
+.page{display:none}
+.page.active{display:block}
+
+.page-header{margin-bottom:2rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border-s)}
+.page-title{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:var(--gold);letter-spacing:0.04em;line-height:1}
+.page-sub{font-size:0.85rem;color:var(--muted);margin-top:0.4rem}
+
+/* ── CARDS ── */
+.card{background:var(--panel);border:1px solid var(--border-s);border-radius:8px;padding:1.5rem;margin-bottom:1.25rem}
+.card-title{font-size:0.7rem;font-weight:500;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:1.25rem}
+.card-grid{display:grid;gap:1rem}
+.card-grid.col2{grid-template-columns:1fr 1fr}
+.card-grid.col3{grid-template-columns:1fr 1fr 1fr}
+
+/* ── FORM ELEMENTS ── */
+.field{display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.75rem}
+.field:last-child{margin-bottom:0}
+.f-label{font-size:0.72rem;color:var(--dim);letter-spacing:0.06em}
+.f-input{
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+  color:var(--text);padding:0.55rem 0.75rem;border-radius:4px;
+  font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;
+  transition:border-color 0.2s;width:100%;
+}
+.f-input:focus{border-color:var(--gold)}
+.f-textarea{resize:vertical;min-height:80px;line-height:1.5}
+.f-select{cursor:pointer}
+.f-select option{background:var(--navy)}
+.f-hint{font-size:0.7rem;color:var(--dim);line-height:1.5}
+
+/* ── SLIDE MANAGER TABLE ── */
+.slide-table{width:100%;border-collapse:collapse}
+.slide-table th{
+  padding:0.6rem 0.75rem;text-align:left;font-size:0.65rem;font-weight:500;
+  letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);
+  border-bottom:1px solid var(--border-s);
+}
+.slide-table td{padding:0.7rem 0.75rem;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle}
+.slide-table tr:last-child td{border-bottom:none}
+.slide-table tr:hover td{background:rgba(255,255,255,0.02)}
+.slide-num{color:var(--dim);font-size:0.8rem;width:32px}
+.slide-label-input{
+  background:transparent;border:none;color:var(--text);font-family:'DM Sans',sans-serif;
+  font-size:0.88rem;outline:none;width:100%;
+}
+.slide-label-input:focus{border-bottom:1px solid var(--gold);padding-bottom:1px}
+
+.vis-toggle{
+  display:inline-flex;align-items:center;gap:6px;
+  background:transparent;border:1px solid rgba(255,255,255,0.12);
+  color:var(--muted);padding:0.3rem 0.75rem;border-radius:3px;
+  font-size:0.72rem;cursor:pointer;transition:all 0.18s;font-family:'DM Sans',sans-serif;
+  white-space:nowrap;
+}
+.vis-toggle.on{border-color:var(--green-l);color:var(--green-l)}
+.vis-toggle.off{border-color:rgba(231,76,60,0.4);color:var(--rage-l)}
+.vis-toggle:hover{border-color:var(--gold);color:var(--gold)}
+
+.move-btn{
+  background:transparent;border:1px solid var(--border-s);color:var(--dim);
+  width:28px;height:28px;border-radius:3px;cursor:pointer;font-size:13px;
+  display:inline-flex;align-items:center;justify-content:center;transition:all 0.15s;
+}
+.move-btn:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ── TESTIMONIAL CARDS ── */
+.t-list{display:flex;flex-direction:column;gap:0.75rem}
+.t-item{
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);
+  border-radius:6px;padding:1rem 1.25rem;
+}
+.t-item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem}
+.t-item-num{font-size:0.72rem;color:var(--dim)}
+.t-del{background:transparent;border:none;color:rgba(231,76,60,0.5);cursor:pointer;font-size:16px;line-height:1;transition:color 0.15s;padding:2px 6px}
+.t-del:hover{color:var(--rage-l)}
+
+/* ── IMAGE UPLOAD AREAS ── */
+.img-zone{
+  border:1px dashed rgba(200,168,75,0.3);border-radius:6px;
+  padding:1.5rem;text-align:center;cursor:pointer;transition:all 0.2s;
+  position:relative;overflow:hidden;min-height:100px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.5rem;
+}
+.img-zone:hover{border-color:var(--gold);background:rgba(200,168,75,0.04)}
+.img-zone img{max-width:100%;max-height:120px;object-fit:contain;border-radius:4px}
+.img-zone span{font-size:0.75rem;color:var(--dim)}
+.img-zone .upload-icon{font-size:1.5rem}
+
+/* ── SAVE BAR ── */
+.save-bar{
+  position:fixed;bottom:0;left:var(--sidebar);right:0;z-index:50;
+  background:rgba(5,14,24,0.95);border-top:1px solid var(--border);
+  padding:0.75rem 2.5rem;display:flex;justify-content:space-between;align-items:center;
+  backdrop-filter:blur(8px);
+}
+.save-status{font-size:0.8rem;color:var(--dim)}
+.save-status.saved{color:var(--green-l)}
+.save-status.unsaved{color:var(--gold)}
+.btn-save{
+  background:var(--gold);color:var(--deep);border:none;padding:0.6rem 2rem;
+  border-radius:4px;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:600;
+  cursor:pointer;transition:background 0.2s;
+}
+.btn-save:hover{background:var(--gold-l)}
+.btn-secondary{
+  background:transparent;border:1px solid var(--border);color:var(--muted);
+  padding:0.6rem 1.25rem;border-radius:4px;font-family:'DM Sans',sans-serif;
+  font-size:0.85rem;cursor:pointer;transition:all 0.2s;
+}
+.btn-secondary:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ── EXPORT PAGE ── */
+.export-checklist{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.75rem;margin-bottom:1.5rem}
+.export-check-item{
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+  border-radius:6px;padding:0.75rem 1rem;cursor:pointer;transition:all 0.2s;
+  display:flex;align-items:center;gap:0.6rem;
+}
+.export-check-item.on{border-color:var(--gold);background:rgba(200,168,75,0.07)}
+.export-check-item .eci-check{width:18px;height:18px;border:1px solid rgba(255,255,255,0.2);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;transition:all 0.15s}
+.export-check-item.on .eci-check{background:var(--gold);border-color:var(--gold);color:var(--deep)}
+.export-check-item .eci-label{font-size:0.82rem;color:var(--muted)}
+.export-check-item.on .eci-label{color:var(--text)}
+.export-big-btn{
+  display:flex;align-items:center;gap:0.75rem;background:var(--gold);color:var(--deep);
+  border:none;padding:1rem 2.5rem;border-radius:4px;font-family:'DM Sans',sans-serif;
+  font-size:1rem;font-weight:600;cursor:pointer;transition:background 0.2s;
+}
+.export-big-btn:hover{background:var(--gold-l)}
+.export-note{font-size:0.78rem;color:var(--dim);margin-top:0.75rem;line-height:1.6}
+
+/* ── GALLERY PAGE ── */
+.gallery-upload-zone{
+  border:2px dashed rgba(200,168,75,0.3);border-radius:8px;padding:3rem 2rem;
+  text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:1.5rem;
+}
+.gallery-upload-zone:hover{border-color:var(--gold);background:rgba(200,168,75,0.04)}
+.gallery-upload-zone h3{color:var(--gold);margin-bottom:0.4rem;font-weight:500}
+.gallery-upload-zone p{color:var(--muted);font-size:0.82rem}
+.gallery-grid-admin{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem}
+.gallery-item-admin{
+  aspect-ratio:4/3;border-radius:6px;overflow:hidden;position:relative;
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+  cursor:pointer;
+}
+.gallery-item-admin img{width:100%;height:100%;object-fit:cover}
+.gallery-item-del{
+  position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;
+  background:rgba(0,0,0,0.7);border:none;color:#fff;font-size:14px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s;
+}
+.gallery-item-admin:hover .gallery-item-del{opacity:1}
+
+/* ── METRIC PILLS (dashboard) ── */
+.metric-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border-s);border:1px solid var(--border-s);border-radius:6px;overflow:hidden;margin-bottom:1.25rem}
+.metric-pill{background:var(--panel);padding:1rem 1.25rem;text-align:center}
+.metric-pill .mp-val{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--gold);display:block;line-height:1}
+.metric-pill .mp-lbl{font-size:0.68rem;color:var(--dim);text-transform:uppercase;letter-spacing:0.1em;margin-top:2px}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:5rem;right:2rem;z-index:999;
+  background:var(--green-l);color:#0a3a1a;
+  padding:0.65rem 1.25rem;border-radius:4px;font-size:0.85rem;font-weight:500;
+  opacity:0;transition:opacity 0.3s;pointer-events:none;
+}
+.toast.show{opacity:1}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .shell{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .save-bar{left:0}
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+<!-- ══════ SIDEBAR ══════ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-text">Kinobi</div>
+    <div class="logo-sub">Presentation Admin</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Presentation</div>
+    <div class="nav-item active" onclick="showPage('slides')">
+      <span class="ni-icon">▤</span> Slides
+    </div>
+    <div class="nav-item" onclick="showPage('content')">
+      <span class="ni-icon">✏</span> Content
+    </div>
+    <div class="nav-item" onclick="showPage('images')">
+      <span class="ni-icon">🖼</span> Images
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Tools</div>
+    <div class="nav-item" onclick="showPage('export')">
+      <span class="ni-icon">↓</span> PDF Export
+    </div>
+    <div class="nav-item" onclick="showPage('settings')">
+      <span class="ni-icon">⚙</span> Settings
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <a href="index.html" class="launch-btn" target="_blank">▶ Launch Presentation</a>
+  </div>
+</aside>
+
+<!-- ══════ MAIN ══════ -->
+<main class="main" style="padding-bottom:5rem">
+
+  <!-- ── PAGE: SLIDES ── -->
+  <div class="page active" id="page-slides">
+    <div class="page-header">
+      <div class="page-title">Slide Manager</div>
+      <div class="page-sub">Toggle visibility, reorder, and rename slides. Changes apply instantly on next presentation load.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Slide Order & Visibility</div>
+      <table class="slide-table">
+        <thead>
+          <tr>
+            <th style="width:36px">#</th>
+            <th>Slide Name</th>
+            <th style="width:100px">Visibility</th>
+            <th style="width:80px">Reorder</th>
+          </tr>
+        </thead>
+        <tbody id="slide-tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Quick Actions</div>
+      <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+        <button class="btn-secondary" onclick="setAllVisible(true)">Show All Slides</button>
+        <button class="btn-secondary" onclick="setAllVisible(false)">Hide All</button>
+        <button class="btn-secondary" onclick="resetSlideOrder()">Reset to Default</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PAGE: CONTENT ── -->
+  <div class="page" id="page-content">
+    <div class="page-header">
+      <div class="page-title">Content Editor</div>
+      <div class="page-sub">Edit text that appears in the presentation. All changes are saved to browser storage.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Customer Info (Personalizes All Slides)</div>
+      <div class="card-grid col2">
+        <div class="field">
+          <div class="f-label">Customer Name</div>
+          <input class="f-input" id="c-name" placeholder="e.g. The Johnson Family" oninput="markUnsaved()">
+        </div>
+        <div class="f-label" style="align-self:end;font-size:0.72rem;color:var(--dim);padding-bottom:0.55rem">Shown on title slide and throughout</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Testimonials (Slide 7)</div>
+      <div class="t-list" id="t-list"></div>
+      <button class="btn-secondary" style="margin-top:1rem" onclick="addTestimonial()">+ Add Testimonial</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Highlights (Slide 4 — What You're Getting)</div>
+      <div class="card-grid col2">
+        <div class="field"><div class="f-label">Benefit 1 Title</div><input class="f-input" id="h-b1-title" value="25-Year Panel Warranty" oninput="markUnsaved()"></div>
+        <div class="field"><div class="f-label">Benefit 1 Body</div><input class="f-input" id="h-b1-body" value="Industry-leading performance guarantee. If output drops below spec, it's covered." oninput="markUnsaved()"></div>
+        <div class="field"><div class="f-label">Benefit 2 Title</div><input class="f-input" id="h-b2-title" value="Battery Backup Included" oninput="markUnsaved()"></div>
+        <div class="field"><div class="f-label">Benefit 2 Body</div><input class="f-input" id="h-b2-body" value="Whole-home battery storage. When the grid goes dark, your lights stay on." oninput="markUnsaved()"></div>
+        <div class="field"><div class="f-label">Benefit 3 Title</div><input class="f-input" id="h-b3-title" value="New Roof Included" oninput="markUnsaved()"></div>
+        <div class="field"><div class="f-label">Benefit 3 Body</div><input class="f-input" id="h-b3-body" value="No more leaks. Your roof is replaced as part of the system." oninput="markUnsaved()"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Your 3 Bullet Points (Slide 7 — Why Work With Me)</div>
+      <div class="field"><div class="f-label">Bullet 1</div><textarea class="f-input f-textarea" id="my-b1" oninput="markUnsaved()">Local San Diego expert — I live here, I know the rates, I know the permits, I know the utility games. This is my community too.</textarea></div>
+      <div class="field"><div class="f-label">Bullet 2</div><textarea class="f-input f-textarea" id="my-b2" oninput="markUnsaved()">Post-install support for life — I'm not a door-knocker who disappears. My number doesn't change. Call me in year 10.</textarea></div>
+      <div class="field"><div class="f-label">Bullet 3</div><textarea class="f-input f-textarea" id="my-b3" oninput="markUnsaved()">I designed your system personally — not a call center, not an algorithm. Your roof, your usage, your family's needs.</textarea></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Company Pillars (Slide 8)</div>
+      <div class="card-grid col3">
+        <div>
+          <div class="field"><div class="f-label">Pillar 1 Title</div><input class="f-input" id="cp1-title" value="Industry-Leading Warranty" oninput="markUnsaved()"></div>
+          <div class="field"><div class="f-label">Pillar 1 Body</div><textarea class="f-input f-textarea" id="cp1-body" oninput="markUnsaved()">25 years on panels, inverters, and labor. No other company in San Diego backs their work like this.</textarea></div>
+        </div>
+        <div>
+          <div class="field"><div class="f-label">Pillar 2 Title</div><input class="f-input" id="cp2-title" value="A-Rated Financing Partner" oninput="markUnsaved()"></div>
+          <div class="field"><div class="f-label">Pillar 2 Body</div><textarea class="f-input f-textarea" id="cp2-body" oninput="markUnsaved()">Best rates, clean contracts, no hidden balloon payments, no predatory terms.</textarea></div>
+        </div>
+        <div>
+          <div class="field"><div class="f-label">Pillar 3 Title</div><input class="f-input" id="cp3-title" value="Premium Equipment Only" oninput="markUnsaved()"></div>
+          <div class="field"><div class="f-label">Pillar 3 Body</div><textarea class="f-input f-textarea" id="cp3-body" oninput="markUnsaved()">We exclusively install Enphase microinverters and Tier 1 panels. No cutting corners.</textarea></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Instagram Token (for Live Feed on Slide 7)</div>
+      <div class="field">
+        <div class="f-label">Long-Lived Access Token</div>
+        <input class="f-input" id="ig-token" type="password" placeholder="Paste your Instagram long-lived token here" oninput="markUnsaved()">
+        <div class="f-hint">Stored in localStorage, never sent anywhere. Refreshes every 50 days via your existing zoho.php flow.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PAGE: IMAGES ── -->
+  <div class="page" id="page-images">
+    <div class="page-header">
+      <div class="page-title">Image Manager</div>
+      <div class="page-sub">Upload images for specific slide slots and manage your general gallery.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Slide-Specific Images</div>
+      <div class="card-grid col2" style="gap:1.25rem">
+
+        <div>
+          <div class="f-label" style="margin-bottom:0.5rem">Slide 6 — Solar Timeline</div>
+          <div class="img-zone" id="zone-timeline" onclick="zoneUpload('timeline-img','zone-timeline')">
+            <img id="zone-timeline-preview" src="" style="display:none">
+            <span class="upload-icon">📅</span>
+            <span>Click to upload timeline image</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="f-label" style="margin-bottom:0.5rem">Slide 8 — Company Logos / Certs</div>
+          <div class="img-zone" id="zone-logos" onclick="zoneUpload('company-logo-img','zone-logos')">
+            <img id="zone-logos-preview" src="" style="display:none">
+            <span class="upload-icon">🏢</span>
+            <span>Click to upload logos / certifications</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="f-label" style="margin-bottom:0.5rem">Slide 9 — How Solar Works (Step 1)</div>
+          <div class="img-zone" id="zone-step0" onclick="zoneUpload('step-img-0-img','zone-step0')">
+            <img id="zone-step0-preview" src="" style="display:none">
+            <span class="upload-icon">☀️</span><span>Sunlight / Panels image</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="f-label" style="margin-bottom:0.5rem">Slide 9 — How Solar Works (Step 2)</div>
+          <div class="img-zone" id="zone-step1" onclick="zoneUpload('step-img-1-img','zone-step1')">
+            <img id="zone-step1-preview" src="" style="display:none">
+            <span class="upload-icon">⚡</span><span>Microinverter / Conversion image</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="f-label" style="margin-bottom:0.5rem">Slide 9 — How Solar Works (Step 3)</div>
+          <div class="img-zone" id="zone-step2" onclick="zoneUpload('step-img-2-img','zone-step2')">
+            <img id="zone-step2-preview" src="" style="display:none">
+            <span class="upload-icon">🏠</span><span>Powers Your Home image</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="f-label" style="margin-bottom:0.5rem">Slide 9 — How Solar Works (Step 4)</div>
+          <div class="img-zone" id="zone-step3" onclick="zoneUpload('step-img-3-img','zone-step3')">
+            <img id="zone-step3-preview" src="" style="display:none">
+            <span class="upload-icon">🔋</span><span>Battery / Export image</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">General Gallery (shown on Gallery button in presentation)</div>
+      <div class="gallery-upload-zone" onclick="document.getElementById('gallery-upload').click()">
+        <h3>Drop images here or click to upload</h3>
+        <p>Any images — system photos, installs, roof shots, team photos</p>
+      </div>
+      <input type="file" id="gallery-upload" accept="image/*" multiple style="display:none" onchange="handleGalleryUpload(event)">
+      <div class="gallery-grid-admin" id="gallery-grid-admin">
+        <div style="color:var(--dim);font-size:0.82rem;padding:1rem;grid-column:1/-1">No gallery images yet.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PAGE: EXPORT ── -->
+  <div class="page" id="page-export">
+    <div class="page-header">
+      <div class="page-title">PDF Export</div>
+      <div class="page-sub">Select which slides to include, then print to PDF. Each selected slide becomes one page.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Select Slides to Include</div>
+      <div class="export-checklist" id="export-checklist"></div>
+      <div style="display:flex;gap:0.75rem;margin-bottom:1rem;flex-wrap:wrap">
+        <button class="btn-secondary" onclick="exportSelectAll(true)">Select All</button>
+        <button class="btn-secondary" onclick="exportSelectAll(false)">Deselect All</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Export</div>
+      <p class="f-hint" style="margin-bottom:1.25rem">This opens the presentation in a new tab with only your selected slides visible, then triggers the browser print dialog. Choose "Save as PDF" and set paper size to Landscape / Letter for best results.</p>
+      <button class="export-big-btn" onclick="runExport()">
+        <span style="font-size:1.2rem">↓</span> Download PDF
+      </button>
+      <p class="export-note">Tip: In the print dialog → More settings → Layout: Landscape → Paper size: Letter → Margins: None → Enable "Background graphics"</p>
+    </div>
+  </div>
+
+  <!-- ── PAGE: SETTINGS ── -->
+  <div class="page" id="page-settings">
+    <div class="page-header">
+      <div class="page-title">Settings</div>
+      <div class="page-sub">Global defaults and utility configuration.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Default Financial Assumptions</div>
+      <div class="card-grid col2">
+        <div class="field">
+          <div class="f-label">Default Utility Provider</div>
+          <input class="f-input" id="s-utility" value="SDG&E" oninput="markUnsaved()">
+        </div>
+        <div class="field">
+          <div class="f-label">Default Monthly Bill ($)</div>
+          <input class="f-input" type="number" id="s-bill" value="134" oninput="markUnsaved()">
+        </div>
+        <div class="field">
+          <div class="f-label">Default Annual Rate Increase</div>
+          <select class="f-input f-select" id="s-rate" onchange="markUnsaved()">
+            <option value="0.04">4%</option>
+            <option value="0.05">5%</option>
+            <option value="0.06" selected>6% (SDG&E Historical)</option>
+            <option value="0.07">7%</option>
+            <option value="0.08">8%</option>
+          </select>
+        </div>
+        <div class="field">
+          <div class="f-label">Federal Tax Credit</div>
+          <select class="f-input f-select" id="s-itc" onchange="markUnsaved()">
+            <option value="0.30" selected>30%</option>
+            <option value="0.26">26%</option>
+            <option value="0.22">22%</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Danger Zone</div>
+      <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+        <button class="btn-secondary" style="color:var(--rage-l);border-color:rgba(231,76,60,0.3)" onclick="clearAllData()">Clear All Saved Data</button>
+        <button class="btn-secondary" onclick="exportJSON()">Export Settings as JSON</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+</div><!-- /shell -->
+
+<!-- SAVE BAR -->
+<div class="save-bar">
+  <div class="save-status" id="save-status">All changes saved</div>
+  <div style="display:flex;gap:0.75rem">
+    <button class="btn-secondary" onclick="loadAll()">Revert</button>
+    <button class="btn-save" onclick="saveAll()">Save Changes</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">Saved!</div>
+
+<!-- Hidden file input -->
+<input type="file" id="zone-upload-input" accept="image/*" style="display:none">
+
+<script>
+// ═══════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════
+const SLIDE_DEFS = [
+  {id:'slide-0', label:'Utility Problem 1 — Delivery/Profit', visible:true},
+  {id:'slide-1', label:'Utility Problem 2 — Demand Crisis', visible:true},
+  {id:'slide-2', label:'Your 3 Options', visible:true},
+  {id:'slide-3', label:'What You\'re Getting — Highlights', visible:true},
+  {id:'slide-4', label:'Qualifications', visible:true},
+  {id:'slide-5', label:'Solar Timeline', visible:true},
+  {id:'slide-6', label:'Why Work With Me', visible:true},
+  {id:'slide-7', label:'Company & Financer', visible:true},
+  {id:'slide-8', label:'How Solar Works', visible:true},
+  {id:'slide-9', label:'The Numbers', visible:true},
+];
+
+let slideData = JSON.parse(localStorage.getItem('kinobi-slides') || 'null') || SLIDE_DEFS.map(s=>({...s}));
+let testimonials = JSON.parse(localStorage.getItem('kinobi-testimonials') || 'null') || [
+  {quote:'"He stayed in contact the whole way. Installation was seamless and my bill dropped to zero."', name:'— Maria G., Chula Vista'},
+  {quote:'"I called 4 companies. He was the only one who actually explained what I was getting. Best decision I\'ve made for my home."', name:'— James R., Escondido'},
+];
+let galleryImages = JSON.parse(localStorage.getItem('kinobi-gallery') || '[]');
+let exportSelected = new Set(slideData.map((_,i)=>i));
+
+let _zoneTarget = null;
+
+// ═══════════════════════════════════════════
+//  NAV
+// ═══════════════════════════════════════════
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if(id==='export') buildExportChecklist();
+}
+
+// ═══════════════════════════════════════════
+//  SLIDE TABLE
+// ═══════════════════════════════════════════
+function buildSlideTable() {
+  const tbody = document.getElementById('slide-tbody');
+  tbody.innerHTML = '';
+  slideData.forEach((s,i) => {
+    const tr = document.createElement('tr');
+    tr.dataset.idx = i;
+    tr.innerHTML = `
+      <td class="slide-num">${i+1}</td>
+      <td><input class="slide-label-input" value="${s.label}" oninput="slideData[${i}].label=this.value;markUnsaved()"></td>
+      <td>
+        <button class="vis-toggle ${s.visible?'on':'off'}" onclick="toggleVis(${i},this)">
+          ${s.visible?'✓ Visible':'✕ Hidden'}
+        </button>
+      </td>
+      <td style="display:flex;gap:4px">
+        <button class="move-btn" onclick="moveSlide(${i},-1)" ${i===0?'disabled':''}>↑</button>
+        <button class="move-btn" onclick="moveSlide(${i},1)" ${i===slideData.length-1?'disabled':''}>↓</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function toggleVis(i, btn) {
+  slideData[i].visible = !slideData[i].visible;
+  btn.textContent = slideData[i].visible ? '✓ Visible' : '✕ Hidden';
+  btn.className = 'vis-toggle ' + (slideData[i].visible?'on':'off');
+  markUnsaved();
+}
+
+function moveSlide(i, dir) {
+  const j = i + dir;
+  if(j < 0 || j >= slideData.length) return;
+  [slideData[i], slideData[j]] = [slideData[j], slideData[i]];
+  buildSlideTable();
+  markUnsaved();
+}
+
+function setAllVisible(v) {
+  slideData.forEach(s=>s.visible=v);
+  buildSlideTable();
+  markUnsaved();
+}
+
+function resetSlideOrder() {
+  if(!confirm('Reset slide order and labels to defaults?')) return;
+  slideData = SLIDE_DEFS.map(s=>({...s}));
+  buildSlideTable();
+  markUnsaved();
+}
+
+// ═══════════════════════════════════════════
+//  TESTIMONIALS
+// ═══════════════════════════════════════════
+function buildTestimonialList() {
+  const list = document.getElementById('t-list');
+  list.innerHTML = '';
+  testimonials.forEach((t,i) => {
+    const div = document.createElement('div');
+    div.className = 't-item';
+    div.innerHTML = `
+      <div class="t-item-header">
+        <span class="t-item-num">Testimonial ${i+1}</span>
+        <button class="t-del" onclick="deleteTestimonial(${i})">✕</button>
+      </div>
+      <div class="field">
+        <div class="f-label">Quote</div>
+        <textarea class="f-input f-textarea" style="min-height:60px" oninput="testimonials[${i}].quote=this.value;markUnsaved()">${t.quote}</textarea>
+      </div>
+      <div class="field">
+        <div class="f-label">Name / Attribution</div>
+        <input class="f-input" value="${t.name}" oninput="testimonials[${i}].name=this.value;markUnsaved()">
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function addTestimonial() {
+  testimonials.push({quote:'"Add your testimonial here."', name:'— Customer Name, City'});
+  buildTestimonialList();
+  markUnsaved();
+}
+
+function deleteTestimonial(i) {
+  testimonials.splice(i,1);
+  buildTestimonialList();
+  markUnsaved();
+}
+
+// ═══════════════════════════════════════════
+//  IMAGE ZONES
+// ═══════════════════════════════════════════
+const ZONE_MAP = {
+  'timeline-img': 'zone-timeline-preview',
+  'company-logo-img': 'zone-logos-preview',
+  'step-img-0-img': 'zone-step0-preview',
+  'step-img-1-img': 'zone-step1-preview',
+  'step-img-2-img': 'zone-step2-preview',
+  'step-img-3-img': 'zone-step3-preview',
+};
+
+function zoneUpload(imgKey, zoneId) {
+  _zoneTarget = {imgKey, zoneId};
+  const inp = document.getElementById('zone-upload-input');
+  inp.onchange = e => {
+    if(!e.target.files[0]) return;
+    const r = new FileReader();
+    r.onload = ev => {
+      const src = ev.target.result;
+      localStorage.setItem('kinobi-img-'+_zoneTarget.imgKey, src);
+      const preview = document.getElementById(ZONE_MAP[_zoneTarget.imgKey]);
+      if(preview){preview.src=src;preview.style.display='block'}
+      const zone = document.getElementById(_zoneTarget.zoneId);
+      if(zone){zone.querySelector('span.upload-icon').style.display='none';zone.querySelector('span:not(.upload-icon)').style.display='none'}
+      toast('Image saved!');
+    };
+    r.readAsDataURL(e.target.files[0]);
+    inp.value='';
+  };
+  inp.click();
+}
+
+function loadZonePreviews() {
+  Object.entries(ZONE_MAP).forEach(([imgKey, previewId]) => {
+    const saved = localStorage.getItem('kinobi-img-'+imgKey);
+    if(saved) {
+      const el = document.getElementById(previewId);
+      if(el){el.src=saved;el.style.display='block'}
+    }
+  });
+}
+
+// ═══════════════════════════════════════════
+//  GALLERY
+// ═══════════════════════════════════════════
+function renderGalleryAdmin() {
+  const g = document.getElementById('gallery-grid-admin');
+  if(!galleryImages.length){g.innerHTML='<div style="color:var(--dim);font-size:0.82rem;padding:1rem;grid-column:1/-1">No gallery images yet.</div>';return}
+  g.innerHTML='';
+  galleryImages.forEach((src,i)=>{
+    const d=document.createElement('div');d.className='gallery-item-admin';
+    d.innerHTML=`<img src="${src}" alt=""><button class="gallery-item-del" onclick="deleteGalleryImg(${i})">✕</button>`;
+    g.appendChild(d);
+  });
+}
+
+function handleGalleryUpload(e) {
+  Array.from(e.target.files).forEach(f=>{
+    const r=new FileReader();
+    r.onload=ev=>{galleryImages.push(ev.target.result);localStorage.setItem('kinobi-gallery',JSON.stringify(galleryImages));renderGalleryAdmin()};
+    r.readAsDataURL(f);
+  });
+}
+
+function deleteGalleryImg(i) {
+  galleryImages.splice(i,1);
+  localStorage.setItem('kinobi-gallery',JSON.stringify(galleryImages));
+  renderGalleryAdmin();
+}
+
+// ═══════════════════════════════════════════
+//  EXPORT
+// ═══════════════════════════════════════════
+function buildExportChecklist() {
+  const c = document.getElementById('export-checklist');
+  c.innerHTML = '';
+  slideData.forEach((s,i)=>{
+    const on = exportSelected.has(i);
+    const d = document.createElement('div');
+    d.className = 'export-check-item' + (on?' on':'');
+    d.innerHTML = `<div class="eci-check">${on?'✓':''}</div><div class="eci-label">${s.label}</div>`;
+    d.onclick = () => {
+      if(exportSelected.has(i)) exportSelected.delete(i); else exportSelected.add(i);
+      d.classList.toggle('on');
+      d.querySelector('.eci-check').textContent = exportSelected.has(i)?'✓':'';
+    };
+    c.appendChild(d);
+  });
+}
+
+function exportSelectAll(v) {
+  if(v) slideData.forEach((_,i)=>exportSelected.add(i));
+  else exportSelected.clear();
+  buildExportChecklist();
+}
+
+function runExport() {
+  // Store which slides to print, then open presentation
+  const toPrint = slideData.map((s,i)=>({...s, printInclude: exportSelected.has(i)}));
+  localStorage.setItem('kinobi-print-config', JSON.stringify(toPrint));
+  const w = window.open('index.html?print=1','_blank');
+  // The presentation will read kinobi-print-config and trigger print
+}
+
+// ═══════════════════════════════════════════
+//  SAVE / LOAD
+// ═══════════════════════════════════════════
+let _unsaved = false;
+
+function markUnsaved() {
+  _unsaved = true;
+  const el = document.getElementById('save-status');
+  el.textContent = 'Unsaved changes';
+  el.className = 'save-status unsaved';
+}
+
+function saveAll() {
+  // Slides
+  localStorage.setItem('kinobi-slides', JSON.stringify(slideData));
+  // Testimonials
+  localStorage.setItem('kinobi-testimonials', JSON.stringify(testimonials));
+  // Content fields
+  const fields = ['c-name','my-b1','my-b2','my-b3','h-b1-title','h-b1-body','h-b2-title','h-b2-body','h-b3-title','h-b3-body','cp1-title','cp1-body','cp2-title','cp2-body','cp3-title','cp3-body','s-utility','s-bill','s-rate','s-itc'];
+  const content = {};
+  fields.forEach(id=>{const el=document.getElementById(id);if(el)content[id]=el.value});
+  localStorage.setItem('kinobi-content', JSON.stringify(content));
+  // IG token
+  const igEl = document.getElementById('ig-token');
+  if(igEl && igEl.value) localStorage.setItem('ig_token', igEl.value);
+  _unsaved = false;
+  const statusEl = document.getElementById('save-status');
+  statusEl.textContent = 'All changes saved';
+  statusEl.className = 'save-status saved';
+  toast('Saved!');
+}
+
+function loadAll() {
+  // Slides
+  const sd = JSON.parse(localStorage.getItem('kinobi-slides')||'null');
+  if(sd) slideData = sd; else slideData = SLIDE_DEFS.map(s=>({...s}));
+  buildSlideTable();
+  // Testimonials
+  const td = JSON.parse(localStorage.getItem('kinobi-testimonials')||'null');
+  if(td) testimonials = td;
+  buildTestimonialList();
+  // Content
+  const cd = JSON.parse(localStorage.getItem('kinobi-content')||'{}');
+  Object.entries(cd).forEach(([id,val])=>{const el=document.getElementById(id);if(el)el.value=val});
+  // IG token
+  const igt = localStorage.getItem('ig_token');
+  if(igt){const el=document.getElementById('ig-token');if(el)el.value=igt}
+  // Gallery
+  renderGalleryAdmin();
+  // Zone previews
+  loadZonePreviews();
+  _unsaved = false;
+  document.getElementById('save-status').textContent='All changes saved';
+  document.getElementById('save-status').className='save-status saved';
+}
+
+function clearAllData() {
+  if(!confirm('Delete ALL saved data? This cannot be undone.')) return;
+  ['kinobi-slides','kinobi-testimonials','kinobi-content','kinobi-gallery','ig_token',
+   'kinobi-img-timeline-img','kinobi-img-company-logo-img',
+   'kinobi-img-step-img-0-img','kinobi-img-step-img-1-img','kinobi-img-step-img-2-img','kinobi-img-step-img-3-img'
+  ].forEach(k=>localStorage.removeItem(k));
+  location.reload();
+}
+
+function exportJSON() {
+  const data = {slides:slideData,testimonials,content:JSON.parse(localStorage.getItem('kinobi-content')||'{}')};
+  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a = document.createElement('a');a.href=URL.createObjectURL(blob);a.download='kinobi-settings.json';a.click();
+}
+
+// ═══════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+// ═══════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════
+loadAll();
+</script>
+</body>
+</html>

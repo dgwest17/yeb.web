@@ -1371,9 +1371,9 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
             <input type="number" class="n-input" id="inp-system" value="56294" oninput="recalc()" style="font-size:0.85rem">
           </div>
           <div class="n-input-group">
-            <div class="n-label">Tax Credit</div>
+            <div class="n-label">30% Federal Energy Discount</div>
             <select class="n-select" id="inp-itc" onchange="recalc()" style="font-size:0.8rem">
-              <option value="0.30" selected>30% Federal ITC</option>
+              <option value="0.30" selected>30% (Current Rate)</option>
               <option value="0.26">26%</option>
               <option value="0.22">22%</option>
               <option value="0">None</option>
@@ -1484,9 +1484,9 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
             <input type="number" class="n-input big" id="inv-system" value="56294" oninput="recalcInv()" style="color:var(--gold)">
           </div>
           <div class="n-input-group">
-            <div class="n-label">Federal Tax Credit (%)</div>
+            <div class="n-label">30% Federal Energy Discount</div>
             <select class="n-select" id="inv-itc" onchange="recalcInv()">
-              <option value="0.30" selected>30% ITC</option>
+              <option value="0.30" selected>30% (Current Rate)</option>
               <option value="0.26">26%</option>
               <option value="0.22">22%</option>
               <option value="0">None</option>
@@ -1495,6 +1495,11 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
           <div style="margin-top:0.5rem;padding:0.5rem 0.75rem;background:rgba(200,168,75,0.08);border-radius:4px;border:1px solid rgba(200,168,75,0.2)">
             <div style="font-size:0.65rem;color:var(--dim);margin-bottom:2px">Net Cash Cost</div>
             <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--gold)" id="inv-netcost">$39,406</div>
+          </div>
+          <!-- Cash purchase total savings: utility cumul - net cost -->
+          <div style="margin-top:0.5rem;padding:0.5rem 0.75rem;background:rgba(39,174,96,0.07);border-radius:4px;border:1px solid rgba(39,174,96,0.18)">
+            <div style="font-size:0.65rem;color:var(--dim);margin-bottom:2px">Net Savings if Paid Cash (<span id="cash-term-yr">25</span>yr bills eliminated − net cost)</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--green-l)" id="inv-cash-netsavings">—</div>
           </div>
         </div>
         <div class="n-card">
@@ -1974,47 +1979,70 @@ function recalcInv() {
   const sp     = spPct / 100;
   const netCost = system * (1 - itc);
 
-  // S&P: invest the net cost lump sum for 25 years
-  const spGrowth25 = netCost * Math.pow(1 + sp, 25);
+  const d = buildData();
+  const TERM = d.TERM;
+
+  // S&P: invest the net cost lump sum for TERM years
+  const spGrowth25 = netCost * Math.pow(1 + sp, TERM);
   const spGain = spGrowth25 - netCost;
 
-  // Solar savings from main model
-  const d = buildData();
+  // Solar savings from main model ($0 down)
   const solarSav = d.solarCumul ? d.savings : 0;
+
+  // Cash purchase net savings: total utility bills eliminated over TERM minus net cost paid upfront
+  const utilTotalEliminated = d.utilCumul[TERM - 1]; // what you would have paid utility
+  const cashNetSavings = utilTotalEliminated - netCost;
 
   // Total combo: solar savings ($0 down) + S&P gain from NOT paying cash
   const combo = solarSav + spGain;
 
   // Update displays
-  const nc = document.getElementById('inv-netcost');
+  const nc   = document.getElementById('inv-netcost');
   const sp25 = document.getElementById('inv-sp-25');
-  const ss = document.getElementById('inv-solar-savings');
-  const tc = document.getElementById('inv-total-combo');
-  if(nc) nc.textContent = '$' + Math.round(netCost).toLocaleString();
+  const ss   = document.getElementById('inv-solar-savings');
+  const tc   = document.getElementById('inv-total-combo');
+  const cns  = document.getElementById('inv-cash-netsavings');
+  const cty  = document.getElementById('cash-term-yr');
+
+  if(nc)  nc.textContent  = '$' + Math.round(netCost).toLocaleString();
   if(sp25) sp25.textContent = '$' + Math.round(spGrowth25).toLocaleString();
-  if(ss) ss.textContent = d.solarCumul ? '$' + Math.round(solarSav).toLocaleString() : '—';
-  if(tc) tc.textContent = d.solarCumul ? '$' + Math.round(combo).toLocaleString() : '—';
+  if(ss)  ss.textContent  = d.solarCumul ? '$' + Math.round(solarSav).toLocaleString() : '—';
+  if(tc)  tc.textContent  = d.solarCumul ? '$' + Math.round(combo).toLocaleString() : '—';
+  if(cty) cty.textContent = TERM;
+  if(cns) {
+    const sign = cashNetSavings >= 0 ? '+' : '';
+    cns.textContent = sign + '$' + Math.round(Math.abs(cashNetSavings)).toLocaleString();
+    cns.style.color = cashNetSavings >= 0 ? 'var(--green-l)' : 'var(--rage-l)';
+  }
+
+  // Update S&P label for term
+  const sp25label = document.querySelector('[id="inv-sp-25"]')?.previousElementSibling;
+  const spBox = document.getElementById('inv-sp-25')?.closest('div[style]');
+  const spLabelEl = document.querySelector('#inv-sp-25 ~ *') || document.getElementById('inv-sp-25')?.parentElement?.querySelector('.font-size');
+  // Update the "25yr" label in S&P box
+  document.querySelectorAll('.inv-term-label').forEach(el => el.textContent = TERM);
 
   // Comparison bars
   const barsEl = document.getElementById('inv-bars');
   if (!barsEl) return;
-  const maxVal = Math.max(d.utilCumul[24], solarSav, spGrowth25, combo, 1);
+  const maxVal = Math.max(d.utilCumul[TERM - 1], solarSav, cashNetSavings, spGrowth25, combo, 1);
 
   const scenarios = [
-    { label: 'Cost of staying with ' + d.utilName + ' (25yr)', val: d.utilCumul[24], color: '#E74C3C', sign: '-' },
-    { label: 'Savings with $0 Down Solar (25yr)', val: solarSav, color: '#2ECC71', sign: '+' },
-    { label: 'S&P 500 Return if you invest the net cash cost', val: spGrowth25, color: '#5B9BD5', sign: '' },
-    { label: 'Total: Solar Savings + S&P Gain (best of both)', val: combo, color: '#C8A84B', sign: '+' },
+    { label: 'Total cost if staying with ' + d.utilName + ' (' + TERM + 'yr)', val: d.utilCumul[TERM - 1], color: '#E74C3C', sign: '-' },
+    { label: 'Net savings if paid cash (bills eliminated − net cost)', val: cashNetSavings, color: '#C8A84B', sign: cashNetSavings >= 0 ? '+' : '' },
+    { label: 'Savings with $0 Down Solar (' + TERM + 'yr)', val: solarSav, color: '#2ECC71', sign: '+' },
+    { label: 'S&P 500 growth if net cash cost invested (' + TERM + 'yr)', val: spGrowth25, color: '#5B9BD5', sign: '' },
+    { label: 'Best of both: $0 Down savings + S&P gain', val: combo, color: '#C8A84B', sign: '+' },
   ];
 
   barsEl.innerHTML = '';
   scenarios.forEach(s => {
-    const pct = Math.min((s.val / maxVal) * 100, 100);
+    const pct = Math.min((Math.abs(s.val) / maxVal) * 100, 100);
     const div = document.createElement('div');
     div.innerHTML = `
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
         <span style="font-size:0.75rem;color:var(--muted)">${s.label}</span>
-        <span style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:${s.color};letter-spacing:0.03em">${s.sign}$${Math.round(s.val).toLocaleString()}</span>
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:${s.color};letter-spacing:0.03em">${s.sign}$${Math.round(Math.abs(s.val)).toLocaleString()}</span>
       </div>
       <div style="height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;margin-bottom:10px">
         <div style="height:100%;width:${pct}%;background:${s.color};border-radius:4px;transition:width 0.6s ease;opacity:0.85"></div>

@@ -530,6 +530,61 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
   #theme-btn{top:auto;bottom:3.5rem;right:50%;transform:translateX(50%)}
   .overview-export-bar{flex-direction:column;align-items:flex-start}
 }
+/* ── SUMMARY SLIDE ── */
+.summary-cols{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;width:100%;align-items:start}
+.summary-col{
+  border-radius:10px;padding:1.5rem;min-height:420px;
+  display:flex;flex-direction:column;
+}
+.summary-col-util{
+  background:rgba(231,76,60,0.06);border:1px solid rgba(231,76,60,0.2);
+}
+.summary-col-solar{
+  background:rgba(39,174,96,0.05);border:1px solid rgba(39,174,96,0.2);
+  transition:border-color 0.3s,background 0.3s;
+}
+.summary-col-solar:hover{border-color:rgba(39,174,96,0.4);background:rgba(39,174,96,0.08)}
+.summary-col-header{text-align:center;margin-bottom:1.25rem;padding-bottom:1rem;border-bottom:1px solid rgba(255,255,255,0.08)}
+.summary-col-icon{font-size:2rem;margin-bottom:0.4rem}
+.summary-col-title{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:0.06em;line-height:1;margin-bottom:0.2rem}
+.summary-col-sub{font-size:0.7rem;color:var(--dim);letter-spacing:0.08em;text-transform:uppercase}
+.summary-list{list-style:none;display:flex;flex-direction:column;gap:0.6rem}
+.summary-item{display:flex;align-items:flex-start;gap:0.6rem;font-size:0.88rem;color:var(--muted);line-height:1.4}
+.summary-item strong{color:var(--text);font-weight:500}
+.summary-check-x{color:rgba(231,76,60,0.6);font-weight:700;flex-shrink:0;width:16px;text-align:center}
+.summary-x{color:rgba(231,76,60,0.45);flex-shrink:0;width:16px;text-align:center;font-size:0.8rem}
+.summary-item-missing{color:rgba(255,255,255,0.2)}
+.summary-item-missing .summary-x{color:rgba(231,76,60,0.3)}
+.summary-check{color:var(--green-l);font-weight:700;flex-shrink:0;width:16px;text-align:center}
+.summary-item-solar{color:var(--muted)}
+.summary-bonus{animation:fadeUp 0.4s ease both}
+.summary-bonus:nth-child(3){animation-delay:0.05s}
+.summary-bonus:nth-child(4){animation-delay:0.1s}
+.summary-bonus:nth-child(5){animation-delay:0.15s}
+.summary-bonus:nth-child(6){animation-delay:0.2s}
+.summary-bonus:nth-child(7){animation-delay:0.25s}
+.summary-bonus:nth-child(8){animation-delay:0.3s}
+.summary-bonus:nth-child(9){animation-delay:0.35s}
+@keyframes pulse-gold{0%,100%{box-shadow:0 0 0 0 rgba(200,168,75,0.4)}50%{box-shadow:0 0 0 8px rgba(200,168,75,0)}}
+
+@media(max-width:768px){
+  .summary-cols{grid-template-columns:1fr}
+  .summary-col{min-height:auto}
+}
+
+/* ── SUMMARY SLIDE ── */
+.summ-list{list-style:none;display:flex;flex-direction:column;gap:0.6rem}
+.summ-item{display:flex;align-items:flex-start;gap:0.65rem;font-size:0.9rem;font-weight:400;line-height:1.4}
+.summ-check{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:1px}
+.util-item{color:rgba(255,255,255,0.5)}
+.util-check{background:rgba(192,57,43,0.2);color:var(--rage-l)}
+.vpp-item{color:rgba(255,255,255,0.85)}
+.vpp-check{background:rgba(39,174,96,0.2);color:var(--green-l)}
+.vpp-extra{animation:slideInItem 0.35s ease both}
+@keyframes slideInItem{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:translateX(0)}}
+#vpp-reveal-card:hover #vpp-locked{opacity:0.85}
+#vpp-reveal-card.revealed{cursor:default}
+
 /* customer step highlight */
 .tl-customer-step .tl-circle{transition:all 0.3s}
 .tl-customer-highlight .tl-circle{border-color:#2A6DB5!important;background:rgba(42,109,181,0.2)!important;box-shadow:0 0 0 3px rgba(42,109,181,0.25)}
@@ -1246,7 +1301,157 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
   </div>
 </div>
 
-<!-- ── SLIDE 10: THE NUMBERS ── -->
+<!-- ── SLIDE 10: SUMMARY — UTILITY VS SOLAR ── -->
+<div class="slide slide-choice" id="slide-summary">
+  <div class="slide-inner" style="max-width:1100px">
+    <span class="eyebrow">The Comparison</span>
+    <div class="accent-line gold"></div>
+    <h1 class="display md" style="margin-bottom:1.25rem">WHAT ARE YOU <span style="color:var(--gold)">ACTUALLY GETTING?</span></h1>
+
+    <div class="summary-cols">
+
+      <!-- UTILITY COLUMN -->
+      <div class="summary-col summary-col-util">
+        <div class="summary-col-header">
+          <div class="summary-col-icon">⚡</div>
+          <div class="summary-col-title" style="color:var(--rage-l)" id="sum-util-name">SDG&E</div>
+          <div class="summary-col-sub">What you have now</div>
+        </div>
+        <ul class="summary-list">
+          <li class="summary-item summary-item-util">
+            <span class="summary-check-x">✓</span>
+            <span>Get your power</span>
+          </li>
+          <li class="summary-item summary-item-util">
+            <span class="summary-check-x">✓</span>
+            <span>Monthly billing</span>
+          </li>
+          <li class="summary-item summary-item-missing">
+            <span class="summary-x">✕</span>
+            <span>No end date — forever</span>
+          </li>
+          <li class="summary-item summary-item-missing">
+            <span class="summary-x">✕</span>
+            <span>Ration your usage to manage cost</span>
+          </li>
+          <li class="summary-item summary-item-missing">
+            <span class="summary-x">✕</span>
+            <span>No backup — grid goes down, you go dark</span>
+          </li>
+          <li class="summary-item summary-item-missing">
+            <span class="summary-x">✕</span>
+            <span>Unpredictable rates, rising every year</span>
+          </li>
+          <li class="summary-item summary-item-missing">
+            <span class="summary-x">✕</span>
+            <span>No control — captive customer</span>
+          </li>
+          <li class="summary-item summary-item-missing">
+            <span class="summary-x">✕</span>
+            <span>Costs more every single month</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- SOLAR COLUMN — revealed on click -->
+      <div class="summary-col summary-col-solar" id="summary-solar-col" onclick="revealSolar()" style="cursor:pointer">
+        <!-- LOCKED STATE -->
+        <div id="summary-locked" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:1rem;padding:2rem">
+          <div style="font-size:3rem">☀️</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--gold);letter-spacing:0.06em;text-align:center">Virtual Power Plant</div>
+          <div style="font-size:0.82rem;color:var(--muted);text-align:center;line-height:1.6">Tap to reveal what solar<br>gives you instead</div>
+          <div style="width:48px;height:48px;border-radius:50%;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:1.4rem;animation:pulse-gold 2s infinite">→</div>
+        </div>
+        <!-- REVEALED STATE -->
+        <div id="summary-revealed" style="display:none;width:100%">
+          <div class="summary-col-header">
+            <div class="summary-col-icon">☀️</div>
+            <div class="summary-col-title" style="color:var(--green-l)">Virtual Power Plant</div>
+            <div class="summary-col-sub">What you're switching to</div>
+          </div>
+          <ul class="summary-list">
+            <li class="summary-item summary-item-solar"><span class="summary-check">✓</span><span>Get your power</span></li>
+            <li class="summary-item summary-item-solar"><span class="summary-check">✓</span><span>Monthly billing</span></li>
+            <li class="summary-item summary-item-solar summary-bonus"><span class="summary-check">✓</span><span><strong>End date</strong> — loan pays off, power is free</span></li>
+            <li class="summary-item summary-item-solar summary-bonus"><span class="summary-check">✓</span><span><strong>Use power comfortably</strong> — no rationing</span></li>
+            <li class="summary-item summary-item-solar summary-bonus"><span class="summary-check">✓</span><span><strong>Blackout protection</strong> — battery keeps you on</span></li>
+            <li class="summary-item summary-item-solar summary-bonus"><span class="summary-check">✓</span><span><strong>Predictable power</strong> — rate locked in</span></li>
+            <li class="summary-item summary-item-solar summary-bonus"><span class="summary-check">✓</span><span><strong>Protection from rate increases</strong> — shielded forever</span></li>
+            <li class="summary-item summary-item-solar summary-bonus"><span class="summary-check">✓</span><span><strong>Control</strong> — you own your energy</span></li>
+            <li class="summary-item summary-item-solar summary-bonus"><span class="summary-check">✓</span><span><strong>Day 1 Savings</strong> — costs less immediately</span></li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── SLIDE 10: SUMMARY — UTILITY vs VPP ── -->
+<div class="slide slide-choice" id="slide-summary">
+  <div class="slide-inner" style="max-width:1100px">
+    <span class="eyebrow">The Choice Is Clear</span>
+    <div class="accent-line gold"></div>
+    <h1 class="display lg" style="margin-bottom:1.25rem">WHAT YOU GET <span style="color:var(--gold)">WITH EACH</span></h1>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;align-items:start">
+
+      <!-- UTILITY COLUMN -->
+      <div style="background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.25);border-radius:10px;padding:1.5rem;height:100%">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;padding-bottom:1rem;border-bottom:1px solid rgba(192,57,43,0.2)">
+          <span style="font-size:1.5rem">🏭</span>
+          <div>
+            <div style="font-size:0.65rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:rgba(231,76,60,0.7);margin-bottom:2px">Your Utility Company</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--rage-l);letter-spacing:0.04em">SDG&E</div>
+          </div>
+        </div>
+        <ul class="summ-list" id="util-list">
+          <li class="summ-item util-item"><span class="summ-check util-check">✓</span><span>Get your power</span></li>
+          <li class="summ-item util-item"><span class="summ-check util-check">✓</span><span>Monthly billing</span></li>
+        </ul>
+      </div>
+
+      <!-- VPP COLUMN — reveals on click -->
+      <div id="vpp-reveal-card" onclick="revealVPP()" style="background:rgba(39,174,96,0.07);border:1px solid rgba(39,174,96,0.2);border-radius:10px;padding:1.5rem;cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden;height:100%">
+
+        <!-- LOCKED STATE — shown first -->
+        <div id="vpp-locked" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:180px;gap:1rem">
+          <div style="width:60px;height:60px;border-radius:50%;background:rgba(39,174,96,0.15);border:2px solid rgba(39,174,96,0.3);display:flex;align-items:center;justify-content:center;font-size:1.5rem">🔒</div>
+          <div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--green-l);letter-spacing:0.04em;margin-bottom:0.3rem">Virtual Power Plant</div>
+            <div style="font-size:0.82rem;color:var(--muted);line-height:1.5">Tap to reveal what solar<br>actually gives you</div>
+          </div>
+          <div style="font-size:0.72rem;color:rgba(39,174,96,0.5);letter-spacing:0.1em;text-transform:uppercase">Tap to unlock →</div>
+        </div>
+
+        <!-- REVEALED STATE — hidden until clicked -->
+        <div id="vpp-revealed" style="display:none">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;padding-bottom:1rem;border-bottom:1px solid rgba(39,174,96,0.2)">
+            <span style="font-size:1.5rem">☀️</span>
+            <div>
+              <div style="font-size:0.65rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:rgba(39,174,96,0.7);margin-bottom:2px">Virtual Power Plant</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--green-l);letter-spacing:0.04em">Kinhome Solar</div>
+            </div>
+          </div>
+          <ul class="summ-list" id="vpp-list">
+            <li class="summ-item vpp-item"><span class="summ-check vpp-check">✓</span><span>Get your power</span></li>
+            <li class="summ-item vpp-item"><span class="summ-check vpp-check">✓</span><span>Monthly billing</span></li>
+            <li class="summ-item vpp-item vpp-extra"><span class="summ-check vpp-check">✓</span><span>Has an end date</span></li>
+            <li class="summ-item vpp-item vpp-extra"><span class="summ-check vpp-check">✓</span><span>Use power comfortably — no rationing</span></li>
+            <li class="summ-item vpp-item vpp-extra"><span class="summ-check vpp-check">✓</span><span>Blackout protection</span></li>
+            <li class="summ-item vpp-item vpp-extra"><span class="summ-check vpp-check">✓</span><span>Predictable power</span></li>
+            <li class="summ-item vpp-item vpp-extra"><span class="summ-check vpp-check">✓</span><span>Protection from rate increases</span></li>
+            <li class="summ-item vpp-item vpp-extra"><span class="summ-check vpp-check">✓</span><span>Control over your energy</span></li>
+            <li class="summ-item vpp-item vpp-extra"><span class="summ-check vpp-check">✓</span><span>Day 1 savings</span></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SLIDE 11: THE NUMBERS ── -->
 <div class="slide slide-numbers" id="slide-9" style="overflow-y:auto;justify-content:flex-start;padding-top:4rem">
   <div class="slide-inner" style="max-width:1320px;width:100%">
     <span class="eyebrow">The Numbers</span>
@@ -1575,6 +1780,7 @@ const SLIDE_DEFS = [
   {id:'slide-6', label:'Why Work With Me', visible:true},
   {id:'slide-7', label:'Company & Financer', visible:true},
   {id:'slide-8', label:'How Solar Works', visible:true},
+  {id:'slide-summary', label:'Summary — Utility vs Solar', visible:true},
   {id:'slide-9', label:'The Numbers', visible:true},
 ];
 
@@ -1589,6 +1795,7 @@ function goToSlide(idx) {
   const visible = getVisible();
   if(idx < 0 || idx >= visible.length) return;
   const prev = document.querySelector('.slide.active');
+  if(prev && prev.id === 'slide-summary') resetSummarySlide();
   if(prev) {prev.classList.remove('active');prev.classList.add('exit-left')}
   setTimeout(()=>{if(prev)prev.classList.remove('exit-left')},600);
   current = idx;
@@ -1784,6 +1991,8 @@ function recalc() {
   if(legEl) legEl.textContent = d.utilName;
   const dunEl = document.getElementById('donations-util-name');
   if(dunEl) dunEl.textContent = d.utilName;
+  const nameEl = document.getElementById('sum-util-name');
+  if (nameEl) nameEl.textContent = d.utilName;
   // Sync bill back to slide 1 input
   syncBillToSlide1(d.bill);
   const rr = document.getElementById('rage-rate');
@@ -2052,7 +2261,29 @@ function recalcInv() {
   });
 }
 
-// ─── CHART INIT ───────────────────────────
+// ─── SUMMARY SLIDE REVEAL ──────────────────
+function revealVPP() {
+  const card = document.getElementById('vpp-reveal-card');
+  if (card.classList.contains('revealed')) return;
+  card.classList.add('revealed');
+  document.getElementById('vpp-locked').style.display = 'none';
+  const revealed = document.getElementById('vpp-revealed');
+  revealed.style.display = 'block';
+  // Stagger each extra item's animation delay
+  revealed.querySelectorAll('.vpp-extra').forEach((el, i) => {
+    el.style.animationDelay = (i * 0.07) + 's';
+  });
+}
+
+function resetSummarySlide() {
+  const card = document.getElementById('vpp-reveal-card');
+  if (!card) return;
+  card.classList.remove('revealed');
+  document.getElementById('vpp-locked').style.display = 'flex';
+  document.getElementById('vpp-revealed').style.display = 'none';
+}
+
+
 // Big hover tooltip element
 const bigTooltip = document.createElement('div');
 bigTooltip.className = 'chartjs-tooltip-big';
@@ -2241,6 +2472,74 @@ function applyAdminContent() {
 // ═══════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════
+// ═══════════════════════════════════════════
+//  SUMMARY SLIDE
+// ═══════════════════════════════════════════
+function revealSolar() {
+  const locked   = document.getElementById('summary-locked');
+  const revealed = document.getElementById('summary-revealed');
+  const col      = document.getElementById('summary-solar-col');
+  if (!locked || !revealed) return;
+  locked.style.display   = 'none';
+  revealed.style.display = 'block';
+  col.style.cursor       = 'default';
+}
+
+function resetSummarySlide() {
+  const locked   = document.getElementById('summary-locked');
+  const revealed = document.getElementById('summary-revealed');
+  const col      = document.getElementById('summary-solar-col');
+  if (locked)   locked.style.display   = 'flex';
+  if (revealed) revealed.style.display = 'none';
+  if (col)      col.style.cursor       = 'pointer';
+  // Sync utility name from the numbers slide input
+  const utilName = document.getElementById('inp-utility')?.value || 'SDG&E';
+  const nameEl   = document.getElementById('sum-util-name');
+  if (nameEl) nameEl.textContent = utilName;
+}
+
+// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════
+//  SUMMARY SLIDE
+// ═══════════════════════════════════════════
+function revealSolar() {
+  const locked   = document.getElementById('summary-locked');
+  const revealed = document.getElementById('summary-revealed');
+  const col      = document.getElementById('summary-solar-col');
+  if (!locked || !revealed) return;
+  col.style.transition = 'transform 0.15s ease';
+  col.style.transform  = 'scale(0.97)';
+  setTimeout(() => {
+    col.style.transform  = 'scale(1)';
+    locked.style.display   = 'none';
+    revealed.style.display = 'block';
+    col.style.cursor = 'default';
+    col.onclick = null;
+    // Stagger the solar bonus items in
+    revealed.querySelectorAll('.summary-bonus').forEach((el, i) => {
+      el.style.opacity   = '0';
+      el.style.transform = 'translateX(14px)';
+      el.style.transition = `opacity 0.3s ${0.06 * i}s, transform 0.3s ${0.06 * i}s`;
+      requestAnimationFrame(() => { el.style.opacity = '1'; el.style.transform = 'translateX(0)'; });
+    });
+  }, 150);
+}
+
+function resetSummarySlide() {
+  const locked   = document.getElementById('summary-locked');
+  const revealed = document.getElementById('summary-revealed');
+  const col      = document.getElementById('summary-solar-col');
+  if (!locked || !revealed || !col) return;
+  locked.style.display   = 'flex';
+  revealed.style.display = 'none';
+  col.style.cursor = 'pointer';
+  col.onclick = revealSolar;
+  // Sync utility name from the numbers slide input
+  const utilEl = document.getElementById('inp-utility');
+  const nameEl = document.getElementById('sum-util-name');
+  if (utilEl && nameEl) nameEl.textContent = utilEl.value || 'SDG&E';
+}
+
 // ═══════════════════════════════════════════
 //  DAY / NIGHT THEME
 // ═══════════════════════════════════════════
@@ -2479,12 +2778,13 @@ function setTlTab(tab) {
 // ═══════════════════════════════════════════
 //  SLIDE OVERVIEW / GALLERY VIEW
 // ═══════════════════════════════════════════
-const SLIDE_ICONS = ['✨','🔴','📊','🔀','⭐','✅','⏱️','🌟','🏢','☀️','💰'];
+const SLIDE_ICONS = ['✨','🔴','📊','🔀','⭐','✅','⏱️','🌟','🏢','☀️','⚖️','💰'];
 const SLIDE_COLORS = [
   'rgba(200,168,75,0.15)',
   'rgba(192,57,43,0.15)','rgba(192,57,43,0.1)','rgba(26,58,92,0.2)',
   'rgba(244,166,35,0.12)','rgba(200,168,75,0.12)','rgba(200,168,75,0.1)',
   'rgba(244,166,35,0.12)','rgba(200,168,75,0.1)','rgba(244,166,35,0.1)',
+  'rgba(26,58,92,0.2)',
   'rgba(39,174,96,0.12)'
 ];
 

@@ -383,11 +383,19 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
 .chartjs-tooltip-big .t-util{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--rage-l);line-height:1}
 .chartjs-tooltip-big .t-solar{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--green-l);line-height:1;margin-top:2px}
 @media print{
-  #nav-prev,#nav-next,#slide-counter,#presenter-btn,#progress,.gallery-btn{display:none!important}
-  body,html{overflow:auto!important;height:auto!important}
+  #nav-prev,#nav-next,#slide-counter,#presenter-btn,#progress,
+  .gallery-btn,#edit-mode-btn,#theme-btn,#admin-btn,
+  #gallery-overlay,#gallery-modal,#edit-saved-toast{display:none!important}
+  body,html{overflow:auto!important;height:auto!important;background:#fff!important}
+  body.day-mode,body{background:#fff!important}
   #deck{height:auto!important;position:relative!important}
-  .slide{position:relative!important;opacity:1!important;transform:none!important;pointer-events:all!important;page-break-after:always;min-height:100vh}
+  .slide{
+    position:relative!important;opacity:1!important;transform:none!important;
+    pointer-events:all!important;page-break-after:always;min-height:100vh;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
   .slide[data-print="false"]{display:none!important}
+  .particle-bg{display:none!important}
 }
 
 /* ── INLINE EDITING ── */
@@ -412,7 +420,122 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
 }
 #edit-saved-toast.show{opacity:1}
 
-/* ── TIMELINE NODES ── */
+/* ── DAY / NIGHT MODE ── */
+body.day-mode{
+  --deep:#F0EDE6;--navy:#E8E4DC;--sky:#D4CFC5;
+  --text:#1A1208;--muted:rgba(26,18,8,0.6);--dim:rgba(26,18,8,0.35);
+  --border:rgba(150,110,30,0.25);--border-red:rgba(180,50,30,0.25);
+  --panel:rgba(0,0,0,0.04);
+}
+body.day-mode .slide-rage{background:radial-gradient(ellipse 80% 70% at 50% -10%,rgba(220,80,60,0.18) 0%,transparent 60%),var(--deep)}
+body.day-mode .slide-pain{background:radial-gradient(ellipse 70% 60% at 80% 110%,rgba(200,80,50,0.12) 0%,transparent 60%),var(--deep)}
+body.day-mode .slide-choice{background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(100,140,200,0.15) 0%,transparent 60%),var(--deep)}
+body.day-mode .slide-solar{background:radial-gradient(ellipse 80% 60% at 50% -5%,rgba(220,160,30,0.15) 0%,transparent 65%),var(--deep)}
+body.day-mode .slide-gold{background:radial-gradient(ellipse 70% 60% at 50% 0%,rgba(200,160,60,0.12) 0%,transparent 60%),var(--deep)}
+body.day-mode .slide-numbers{background:radial-gradient(ellipse 60% 50% at 30% 50%,rgba(80,120,200,0.1) 0%,transparent 60%),var(--deep)}
+body.day-mode .n-card{background:rgba(0,0,0,0.04);border-color:rgba(0,0,0,0.1)}
+body.day-mode .n-input,body.day-mode .n-select{background:rgba(255,255,255,0.7);border-color:rgba(0,0,0,0.15);color:var(--text)}
+body.day-mode .chart-box{background:rgba(255,255,255,0.5);border-color:rgba(0,0,0,0.08)}
+body.day-mode .warranty-card{background:rgba(39,130,80,0.06);border-color:rgba(39,130,80,0.2)}
+body.day-mode .warranty-card h4{color:#1a6b3a}
+body.day-mode .stat-b{background:rgba(255,255,255,0.5);border-color:rgba(180,50,30,0.15)}
+body.day-mode .stat-b.red-glow{background:rgba(220,80,60,0.07)}
+body.day-mode .demand-card{background:rgba(200,60,40,0.05);border-color:rgba(200,60,40,0.15)}
+body.day-mode .option-card.op1{background:rgba(220,70,50,0.07)}
+body.day-mode .option-card.op3{background:rgba(39,160,80,0.07)}
+body.day-mode .qual-item{background:rgba(200,160,60,0.06);border-color:rgba(180,140,40,0.2)}
+body.day-mode .t-card{background:rgba(255,255,255,0.6);border-color:rgba(180,140,40,0.2)}
+body.day-mode .t-quote,.day-mode .t-name{color:rgba(26,18,8,0.7)}
+body.day-mode #gallery-overlay{background:rgba(240,235,225,0.97)}
+body.day-mode .gallery-overlay-title{color:var(--gold)}
+body.day-mode .overview-export-bar .oe-title{color:var(--gold-d)}
+body.day-mode .ov-mode-btn{color:rgba(26,18,8,0.5);border-color:rgba(0,0,0,0.15)}
+body.day-mode .ov-mode-btn.active{background:rgba(150,110,30,0.1);border-color:rgba(150,110,30,0.3);color:var(--gold-d)}
+body.day-mode .oe-btn{color:rgba(26,18,8,0.55);border-color:rgba(0,0,0,0.15)}
+body.day-mode .oe-btn:hover{border-color:var(--gold-d);color:var(--gold-d)}
+body.day-mode .gallery-close-btn{background:rgba(0,0,0,0.08);border-color:rgba(0,0,0,0.15);color:rgba(26,18,8,0.5)}
+body.day-mode .slide-thumb{background:rgba(255,255,255,0.6);border-color:rgba(0,0,0,0.1)}
+body.day-mode .slide-thumb .th-label{color:var(--text)}
+body.day-mode .slide-thumb:hover{border-color:var(--gold);background:rgba(200,168,75,0.12)}
+body.day-mode #nav-prev,body.day-mode #nav-next{background:rgba(255,255,255,0.5);border-color:rgba(0,0,0,0.12);color:var(--text)}
+body.day-mode .gallery-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,0,0.12);color:var(--muted)}
+body.day-mode .export-section{background:rgba(255,255,255,0.6);border-color:rgba(0,0,0,0.1)}
+body.day-mode .export-check-item{background:rgba(255,255,255,0.6);border-color:rgba(0,0,0,0.1)}
+body.day-mode .export-check-item .eci-label{color:rgba(26,18,8,0.7)}
+body.day-mode .flip-front,.day-mode .flip-back{background:rgba(255,255,255,0.5)}
+
+/* day/night toggle button */
+#theme-btn{
+  position:fixed;top:1.2rem;right:1.5rem;z-index:300;
+  background:rgba(0,0,0,0.4);border:1px solid var(--border);
+  color:var(--muted);width:38px;height:38px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;backdrop-filter:blur(8px);transition:all 0.25s;font-size:1rem;
+}
+#theme-btn:hover{border-color:var(--gold);color:var(--gold)}
+body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,0,0.15);color:rgba(26,18,8,0.6)}
+
+/* ── TITLE SLIDE ── */
+#slide-title{background:radial-gradient(ellipse 70% 60% at 50% 20%,rgba(200,168,75,0.2) 0%,transparent 65%),var(--deep)}
+.title-slide-inner{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;width:100%;max-width:800px;gap:1.5rem}
+.customer-name-display{font-family:'DM Serif Display',serif;font-size:clamp(1.4rem,4vw,2.8rem);color:var(--gold);font-style:italic;min-height:1.2em;cursor:pointer;border-bottom:1px dashed rgba(200,168,75,0.3);padding-bottom:0.2rem;transition:border-color 0.2s}
+.customer-name-display:hover{border-color:var(--gold)}
+.customer-name-input{
+  background:transparent;border:none;border-bottom:2px solid var(--gold);
+  color:var(--gold);font-family:'DM Serif Display',serif;font-style:italic;
+  font-size:clamp(1.4rem,4vw,2.8rem);text-align:center;outline:none;
+  width:100%;max-width:600px;padding:0.25rem 0;
+}
+
+/* ── BILL INPUT ON SLIDE 1 ── */
+.slide-bill-input-wrap{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  background:rgba(192,57,43,0.12);border:1px solid rgba(192,57,43,0.3);
+  border-radius:6px;padding:0.5rem 1rem;margin:1rem 0;
+}
+.slide-bill-input-wrap label{font-size:0.72rem;color:rgba(231,76,60,0.8);letter-spacing:0.08em;text-transform:uppercase;white-space:nowrap}
+.slide-bill-input{
+  background:transparent;border:none;color:var(--rage-l);
+  font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:0.05em;
+  width:120px;outline:none;text-align:right;
+}
+.slide-bill-input::placeholder{color:rgba(231,76,60,0.35)}
+
+/* ── EXPORT IN OVERVIEW ── */
+.overview-export-bar{
+  width:100%;max-width:1200px;display:flex;align-items:center;
+  justify-content:space-between;flex-wrap:wrap;gap:1rem;
+  padding:1rem 0;border-bottom:1px solid rgba(200,168,75,0.15);margin-bottom:1.5rem;
+}
+.overview-export-bar .oe-title{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--gold);letter-spacing:0.05em}
+.overview-export-bar .oe-actions{display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center}
+.oe-btn{
+  background:transparent;border:1px solid var(--border);color:var(--muted);
+  padding:0.4rem 1rem;border-radius:4px;font-family:'DM Sans',sans-serif;
+  font-size:0.78rem;cursor:pointer;transition:all 0.2s;
+}
+.oe-btn:hover{border-color:var(--gold);color:var(--gold)}
+.oe-btn.primary{background:var(--gold);color:var(--deep);border-color:var(--gold);font-weight:600}
+.oe-btn.primary:hover{background:var(--gold-l)}
+.slide-thumb.export-selected::after{
+  content:'✓';position:absolute;top:6px;right:8px;
+  color:var(--gold);font-size:0.9rem;font-weight:700;
+}
+.slide-thumb.export-selected{border-color:var(--gold)!important;border-width:2px!important}
+.overview-mode-bar{display:flex;gap:0.5rem;margin-bottom:1rem;width:100%;max-width:1200px}
+.ov-mode-btn{padding:0.4rem 1rem;border-radius:100px;font-size:0.75rem;font-weight:500;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif;border:1px solid rgba(255,255,255,0.12);background:transparent;color:var(--muted)}
+.ov-mode-btn.active{background:rgba(200,168,75,0.12);border-color:var(--border);color:var(--gold)}
+
+@media(max-width:768px){
+  #theme-btn{top:auto;bottom:3.5rem;right:50%;transform:translateX(50%)}
+  .overview-export-bar{flex-direction:column;align-items:flex-start}
+}
+/* customer step highlight */
+.tl-customer-step .tl-circle{transition:all 0.3s}
+.tl-customer-highlight .tl-circle{border-color:#2A6DB5!important;background:rgba(42,109,181,0.2)!important;box-shadow:0 0 0 3px rgba(42,109,181,0.25)}
+.tl-customer-highlight .tl-badge{background:#2A6DB5!important;color:#fff!important}
+.tl-customer-highlight .tl-label{color:#7BB8F0!important}
+
 .tl-node{display:flex;flex-direction:column;align-items:center;gap:0.3rem;cursor:pointer;z-index:1;position:relative;width:100px}
 .tl-circle{width:76px;height:76px;border-radius:50%;background:rgba(255,255,255,0.07);border:2px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;transition:all 0.25s;flex-shrink:0}
 .tl-node:hover .tl-circle,.tl-node.tl-active .tl-circle{border-color:var(--gold);background:rgba(200,168,75,0.15);transform:scale(1.08)}
@@ -597,6 +720,9 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
 <button id="edit-mode-btn" onclick="toggleEditMode()">✏ Edit</button>
 <div id="edit-saved-toast">Changes saved</div>
 
+<!-- THEME TOGGLE -->
+<button id="theme-btn" onclick="toggleTheme()" title="Day/Night mode">🌙</button>
+
 <!-- ADMIN LINK -->
 <a href="admin.html" id="admin-btn" target="_blank" onclick="return promptAdminPw(event)">⚙ Admin</a>
 
@@ -612,8 +738,18 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
 <!-- ══ SLIDE GALLERY OVERLAY ══ -->
 <div id="gallery-overlay">
   <button class="gallery-close-btn" onclick="closeOverview()">✕</button>
-  <div class="gallery-overlay-title">All Slides</div>
-  <div class="gallery-overlay-sub">Click any slide to jump to it</div>
+  <div class="overview-export-bar">
+    <div class="oe-title">All Slides</div>
+    <div class="oe-actions">
+      <button class="oe-btn" id="ov-select-all" onclick="exportSelectAll(true)">Select All</button>
+      <button class="oe-btn" id="ov-select-none" onclick="exportSelectAll(false)">None</button>
+      <button class="oe-btn primary" onclick="runExportFromOverview()">↓ Download PDF</button>
+    </div>
+  </div>
+  <div class="overview-mode-bar">
+    <button class="ov-mode-btn active" id="ov-nav-btn" onclick="setOverviewMode('nav')">Navigate</button>
+    <button class="ov-mode-btn" id="ov-export-btn" onclick="setOverviewMode('export')">Select for PDF</button>
+  </div>
   <div class="slide-gallery-grid" id="slide-gallery-grid"></div>
 </div>
 
@@ -633,8 +769,28 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
 ══════════════════════════════════════════════ -->
 <div id="deck">
 
+<!-- ══ TITLE SLIDE ══ -->
+<div class="slide slide-gold active" id="slide-title">
+  <div class="title-slide-inner">
+    <span class="eyebrow" style="letter-spacing:0.25em">Kinhome Solar</span>
+    <div class="accent-line gold" style="margin:0 auto"></div>
+    <h1 class="display xl" style="line-height:0.95;text-align:center">YOUR ENERGY<br><span style="color:var(--gold)">FUTURE</span></h1>
+    <p style="font-size:0.9rem;color:var(--muted);text-align:center;max-width:400px;line-height:1.7">A personalized solar analysis prepared for</p>
+    <!-- Editable customer name -->
+    <div id="customer-name-display" class="customer-name-display" onclick="editCustomerName()" title="Click to edit">
+      Your Family Name
+    </div>
+    <p style="font-size:0.68rem;color:var(--dim);letter-spacing:0.1em;text-transform:uppercase">tap name to edit</p>
+    <div style="margin-top:1rem;display:flex;gap:1rem;flex-wrap:wrap;justify-content:center">
+      <div style="background:rgba(200,168,75,0.1);border:1px solid var(--border);border-radius:100px;padding:0.4rem 1.1rem;font-size:0.75rem;color:var(--gold)">SDG&E Territory</div>
+      <div style="background:rgba(200,168,75,0.1);border:1px solid var(--border);border-radius:100px;padding:0.4rem 1.1rem;font-size:0.75rem;color:var(--gold)">25-Year Warranty</div>
+      <div style="background:rgba(200,168,75,0.1);border:1px solid var(--border);border-radius:100px;padding:0.4rem 1.1rem;font-size:0.75rem;color:var(--gold)">$0 Down</div>
+    </div>
+  </div>
+</div>
+
 <!-- ── SLIDE 1: UTILITY PROBLEM 1 ── -->
-<div class="slide slide-rage active" id="slide-0">
+<div class="slide slide-rage" id="slide-0">
   <div class="particle-bg" id="particles-0"></div>
   <div class="slide-inner">
     <div class="two-col">
@@ -642,7 +798,15 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
         <span class="eyebrow red editable" id="s0-eyebrow">The Problem with Your Power Company</span>
         <div class="accent-line red"></div>
         <h1 class="display xl" style="color:#fff">YOUR BILL <span class="editable" id="s0-headline" style="color:var(--rage-l)">ISN'T YOURS.</span></h1>
-        <p class="body-text editable" id="s0-body" style="margin:1.25rem 0">Every month you pay for miles of aging wire, corporate executives, and shareholder dividends — before a single electron reaches your home. SDG&E is a <strong style="color:#fff">for-profit business</strong> with one goal: extract as much as possible from a captive customer.</p>
+        <p class="body-text editable" id="s0-body" style="margin:1rem 0">Every month you pay for miles of aging wire, corporate executives, and shareholder dividends — before a single electron reaches your home. SDG&E is a <strong style="color:#fff">for-profit business</strong> with one goal: extract as much as possible from a captive customer.</p>
+
+        <!-- BILL INPUT — syncs with Numbers slide -->
+        <div class="slide-bill-input-wrap">
+          <label>Current Monthly Bill</label>
+          <span style="color:var(--rage-l);font-family:'Bebas Neue',sans-serif;font-size:2rem;line-height:1">$</span>
+          <input type="number" class="slide-bill-input" id="slide-bill-input" value="134" placeholder="0" oninput="syncBillFromSlide1(this.value)">
+        </div>
+
         <ul class="blist">
           <li><span class="icon red">✕</span><span class="editable" id="s0-b1"><strong>Delivery &amp; transmission fees</strong> — 50–80% of your bill never pays for actual electricity. It pays for wires, poles, and profit.</span></li>
           <li><span class="icon red">✕</span><span class="editable" id="s0-b2"><strong>You have no choice</strong> — monopoly utility, zero competition, prices set by regulators they lobby</span></li>
@@ -767,7 +931,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
       </div>
       <div class="warranty-card">
         <span class="w-icon">🔌</span>
-        <h4>Enphase Monitoring</h4>
+        <h4>Active Monitoring</h4>
         <p>Real-time system monitoring via app. Every panel, every kilowatt. You'll know your system is performing every day.</p>
       </div>
       <div class="warranty-card">
@@ -800,9 +964,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
       <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:var(--text)">Roof condition</strong> — adequate remaining life, no issues flagged</div></div>
       <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:var(--text)">Sufficient sun exposure</strong> — your roof orientation maximizes production</div></div>
       <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:var(--text)">Credit pre-approval</strong> — you qualify for 0% down financing</div></div>
-      <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:var(--text)">Federal Tax Credit (ITC)</strong> — 30% of system cost back on your taxes</div></div>
-      <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:var(--text)">Net Energy Metering</strong> — bank your excess energy, pull it back for free</div></div>
-      <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:var(--text)">Utility territory</strong> — SDG&E NEM 3.0 rates confirmed for your address</div></div>
+      <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:var(--text)">Utility &amp; Federal Incentives</strong> — you qualify for available rebates and tax credits in your area</div></div>
+      <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:var(--text)">Utility territory</strong> — SDG&E rates confirmed for your address</div></div>
       <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:var(--text)">HOA / permits</strong> — no restrictions, permit-ready in your jurisdiction</div></div>
       <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:var(--text)">No out-of-pocket costs</strong> — $0 down, installation fully financed</div></div>
     </div>
@@ -836,79 +999,63 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
         <div style="font-size:0.72rem;color:var(--muted);line-height:1.5" id="tl-card-body">Click any step to learn more about what happens and how long it takes.</div>
       </div>
 
-      <!-- TOP ROW -->
+      <!-- TOP ROW: Consultation → Survey → Final Design → Permitting -->
       <div style="display:flex;justify-content:space-between;align-items:flex-end;padding:0 2rem;margin-bottom:0.5rem;position:relative">
-        <!-- connecting line -->
         <div style="position:absolute;top:40px;left:14%;right:14%;height:2px;background:rgba(200,168,75,0.3);z-index:0"></div>
+
+        <!-- Consultation -->
+        <div class="tl-node" onclick="tlClick('Consultation','1–2 Days','We sit down together to review your usage, goals, and options. You get a personalized system design and proposal before anything is signed.')">
+          <div class="tl-circle"><span style="font-size:1.6rem">🤝</span></div>
+          <div class="tl-badge">1–2<br>DAYS</div>
+          <div class="tl-label">CONSULTATION</div>
+        </div>
+
+        <!-- Site Survey — customer step -->
+        <div class="tl-node tl-customer-step" id="tl-node-survey" onclick="tlClick('Site Survey','2–3 Days','A technician visits your home to measure your roof, assess shading, and confirm the final system layout before design is locked in.')">
+          <div class="tl-circle"><span style="font-size:1.6rem">📏</span></div>
+          <div class="tl-badge">2–3<br>DAYS</div>
+          <div class="tl-label">SITE SURVEY</div>
+        </div>
 
         <!-- Final Design -->
         <div class="tl-node" onclick="tlClick('Final Design','2–3 Days','Your system is engineered for maximum production on your specific roof. Shading analysis, panel placement, and load calculations all finalized.')">
-          <div class="tl-circle">
-            <span style="font-size:1.6rem">📐</span>
-          </div>
+          <div class="tl-circle"><span style="font-size:1.6rem">📐</span></div>
           <div class="tl-badge">2–3<br>DAYS</div>
           <div class="tl-label">FINAL DESIGN</div>
         </div>
 
         <!-- Permitting -->
         <div class="tl-node" onclick="tlClick('Permitting','1–5 Weeks','We handle all permit applications with your city and utility. This is the longest step — we manage it entirely so you don\'t have to.')">
-          <div class="tl-circle">
-            <span style="font-size:1.6rem">🏛️</span>
-          </div>
+          <div class="tl-circle"><span style="font-size:1.6rem">🏛️</span></div>
           <div class="tl-badge">1–5<br>WEEKS</div>
           <div class="tl-label">PERMITTING</div>
-        </div>
-
-        <!-- Installation -->
-        <div class="tl-node" onclick="tlClick('Installation','1 Week','Your certified crew arrives and installs the full system — panels, inverter, battery, and all wiring. Most homes done in 1–3 days.')">
-          <div class="tl-circle">
-            <span style="font-size:1.6rem">🔧</span>
-          </div>
-          <div class="tl-badge">1<br>WEEK</div>
-          <div class="tl-label">INSTALLATION</div>
-        </div>
-
-        <!-- City Inspection -->
-        <div class="tl-node" onclick="tlClick('City Inspection','1–2 Weeks','A city inspector approves the installation. We coordinate this for you — you just need to be home for a 30-minute window.')">
-          <div class="tl-circle">
-            <span style="font-size:1.6rem">🔍</span>
-          </div>
-          <div class="tl-badge">1–2<br>WEEKS</div>
-          <div class="tl-label">CITY INSPECTION</div>
         </div>
       </div>
 
       <!-- Spacer for center card -->
       <div style="height:130px"></div>
 
-      <!-- BOTTOM ROW (reversed direction — right to left flow) -->
+      <!-- BOTTOM ROW: Installation → City Inspection → Interconnection → Power On -->
       <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:0 2rem;margin-top:0.5rem;position:relative">
-        <!-- connecting line -->
         <div style="position:absolute;top:40px;left:14%;right:14%;height:2px;background:rgba(200,168,75,0.2);z-index:0"></div>
 
-        <!-- Consultation -->
-        <div class="tl-node" onclick="tlClick('Consultation','1–2 Days','We sit down together to review your usage, goals, and options. You get a personalized system design and proposal before anything is signed.')">
-          <div class="tl-circle">
-            <span style="font-size:1.6rem">🤝</span>
-          </div>
-          <div class="tl-badge">1–2<br>DAYS</div>
-          <div class="tl-label">CONSULTATION</div>
+        <!-- Installation — customer step -->
+        <div class="tl-node tl-customer-step" id="tl-node-install" onclick="tlClick('Installation','1 Week','Your certified crew arrives and installs the full system — panels, inverter, battery, and all wiring. Most homes done in 1–3 days.')">
+          <div class="tl-circle"><span style="font-size:1.6rem">🔧</span></div>
+          <div class="tl-badge">1<br>WEEK</div>
+          <div class="tl-label">INSTALLATION</div>
         </div>
 
-        <!-- Site Survey -->
-        <div class="tl-node" onclick="tlClick('Site Survey','2–3 Days','A technician visits your home to measure your roof, assess shading, and confirm the final system layout before design is locked in.')">
-          <div class="tl-circle">
-            <span style="font-size:1.6rem">📏</span>
-          </div>
-          <div class="tl-badge">2–3<br>DAYS</div>
-          <div class="tl-label">SITE SURVEY</div>
+        <!-- City Inspection -->
+        <div class="tl-node" onclick="tlClick('City Inspection','1–2 Weeks','A city inspector approves the installation. We coordinate this for you — you just need to be home for a 30-minute window.')">
+          <div class="tl-circle"><span style="font-size:1.6rem">🔍</span></div>
+          <div class="tl-badge">1–2<br>WEEKS</div>
+          <div class="tl-label">CITY INSPECTION</div>
         </div>
 
         <!-- Interconnection -->
         <div class="tl-node" onclick="tlClick('Interconnection','2–4 Weeks','Your utility processes the interconnection application and approves your system to connect to the grid. We file this — you wait for the green light.')">
-          <div class="tl-circle">
-            <span style="font-size:1.6rem">⚡</span>
-          </div>
+          <div class="tl-circle"><span style="font-size:1.6rem">⚡</span></div>
           <div class="tl-badge">2–4<br>WEEKS</div>
           <div class="tl-label">INTERCONNECTION</div>
         </div>
@@ -987,7 +1134,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
       <div class="pillar">
         <span class="p-icon">🔬</span>
         <h3 id="cp3-title">Premium Equipment Only</h3>
-        <p id="cp3-body">We exclusively install Enphase microinverters and Tier 1 panels. No cutting corners on the hardware that will power your home for 25 years.</p>
+        <p id="cp3-body">We install top tier panels, inverters, and batteries. No cutting corners on the hardware that will power your home for 25 years.</p>
       </div>
     </div>
     <div class="img-slot" id="company-logo-slot" style="max-width:500px;margin:0 auto;min-height:100px;flex-direction:row;gap:2rem" onclick="triggerImageUpload('company-logo-slot','company-logo-img')">
@@ -1392,6 +1539,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
 //  SLIDE SYSTEM
 // ═══════════════════════════════════════════
 const SLIDE_DEFS = [
+  {id:'slide-title', label:'Title Slide', visible:true},
   {id:'slide-0', label:'Utility Problem 1 — Delivery/Profit', visible:true},
   {id:'slide-1', label:'Utility Problem 2 — Demand Crisis', visible:true},
   {id:'slide-2', label:'Your 3 Options', visible:true},
@@ -1614,7 +1762,8 @@ function recalc() {
   if(legEl) legEl.textContent = d.utilName;
   const dunEl = document.getElementById('donations-util-name');
   if(dunEl) dunEl.textContent = d.utilName;
-  // Rage box
+  // Sync bill back to slide 1 input
+  syncBillToSlide1(d.bill);
   const rr = document.getElementById('rage-rate');
   const ru = document.getElementById('rage-utility');
   const ry = document.getElementById('rage-yr25');
@@ -2035,8 +2184,141 @@ function applyAdminContent() {
 //  INIT
 // ═══════════════════════════════════════════
 // ═══════════════════════════════════════════
-//  ADMIN LINK
+//  DAY / NIGHT THEME
 // ═══════════════════════════════════════════
+let isDayMode = localStorage.getItem('kinobi-theme') === 'day';
+function applyTheme() {
+  if (isDayMode) {
+    document.body.classList.add('day-mode');
+    document.getElementById('theme-btn').textContent = '☀️';
+  } else {
+    document.body.classList.remove('day-mode');
+    document.getElementById('theme-btn').textContent = '🌙';
+  }
+  // Refresh charts so colors update
+  if (typeof chartMain !== 'undefined' && chartMain) {
+    setTimeout(() => { if(chartMain) chartMain.update('none'); }, 50);
+  }
+}
+function toggleTheme() {
+  isDayMode = !isDayMode;
+  localStorage.setItem('kinobi-theme', isDayMode ? 'day' : 'night');
+  applyTheme();
+}
+
+// ═══════════════════════════════════════════
+//  CUSTOMER NAME (Title Slide)
+// ═══════════════════════════════════════════
+function editCustomerName() {
+  const display = document.getElementById('customer-name-display');
+  const saved = localStorage.getItem('kinobi-customer-name') || 'Your Family Name';
+  const name = prompt('Enter customer name:', saved);
+  if (name !== null) {
+    const val = name.trim() || 'Your Family Name';
+    display.textContent = val;
+    localStorage.setItem('kinobi-customer-name', val);
+  }
+}
+function loadCustomerName() {
+  const saved = localStorage.getItem('kinobi-customer-name');
+  if (saved) {
+    const el = document.getElementById('customer-name-display');
+    if (el) el.textContent = saved;
+  }
+}
+
+// ═══════════════════════════════════════════
+//  BILL SYNC — Slide 1 ↔ Numbers slide
+// ═══════════════════════════════════════════
+function syncBillFromSlide1(val) {
+  const numbersInput = document.getElementById('inp-bill');
+  if (numbersInput) {
+    numbersInput.value = val;
+    recalc();
+  }
+}
+function syncBillToSlide1(val) {
+  const slide1Input = document.getElementById('slide-bill-input');
+  if (slide1Input && document.activeElement !== slide1Input) {
+    slide1Input.value = val;
+  }
+}
+
+// ═══════════════════════════════════════════
+//  OVERVIEW MODES (Navigate vs Export)
+// ═══════════════════════════════════════════
+let overviewMode = 'nav'; // 'nav' or 'export'
+let exportSelectedSet = new Set();
+
+function setOverviewMode(mode) {
+  overviewMode = mode;
+  ['nav','export'].forEach(m => {
+    const btn = document.getElementById('ov-' + m + '-btn');
+    if (btn) btn.className = 'ov-mode-btn' + (m === mode ? ' active' : '');
+  });
+  const exportBar = document.querySelector('.oe-actions');
+  if (exportBar) exportBar.style.display = mode === 'export' ? 'flex' : 'none';
+  // Re-render thumbs
+  buildOverviewGrid();
+}
+
+function buildOverviewGrid() {
+  const grid = document.getElementById('slide-gallery-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  const visible = getVisible();
+  visible.forEach((s, i) => {
+    const thumb = document.createElement('div');
+    const globalIdx = slideData.indexOf(s);
+    let cls = 'slide-thumb';
+    if (i === current) cls += ' current-thumb';
+    if (overviewMode === 'export' && exportSelectedSet.has(i)) cls += ' export-selected';
+    thumb.className = cls;
+    thumb.style.background = SLIDE_COLORS[Math.min(globalIdx, SLIDE_COLORS.length-1)] || 'rgba(255,255,255,0.04)';
+    thumb.innerHTML = `
+      <div class="th-num">${i + 1}</div>
+      <div class="th-icon">${SLIDE_ICONS[Math.min(globalIdx, SLIDE_ICONS.length-1)] || '▤'}</div>
+      <div class="th-label">${s.label}</div>
+    `;
+    thumb.onclick = () => {
+      if (overviewMode === 'nav') {
+        closeOverview(); goToSlide(i);
+      } else {
+        if (exportSelectedSet.has(i)) exportSelectedSet.delete(i);
+        else exportSelectedSet.add(i);
+        buildOverviewGrid();
+      }
+    };
+    grid.appendChild(thumb);
+  });
+}
+
+function exportSelectAll(select) {
+  const visible = getVisible();
+  if (select) visible.forEach((_, i) => exportSelectedSet.add(i));
+  else exportSelectedSet.clear();
+  buildOverviewGrid();
+}
+
+function runExportFromOverview() {
+  const visible = getVisible();
+  // If nothing selected, export all
+  const toExport = exportSelectedSet.size > 0 ? exportSelectedSet : new Set(visible.map((_, i) => i));
+  // Mark slides for print
+  visible.forEach((s, i) => {
+    const el = document.getElementById(s.id);
+    if (el) el.dataset.print = toExport.has(i) ? 'true' : 'false';
+  });
+  // Also mark hidden slides as not-print
+  slideData.forEach(s => {
+    const el = document.getElementById(s.id);
+    if (el && el.dataset.print === undefined) el.dataset.print = 'false';
+  });
+  closeOverview();
+  setTimeout(() => window.print(), 300);
+}
+
+
 function promptAdminPw(e) {
   // Admin page handles its own password — just open it
   return true;
@@ -2103,13 +2385,29 @@ function setTlTab(tab) {
       btn.style.color = 'var(--muted)';
     }
   });
+  // Highlight customer-facing steps when Customer Steps tab is active
+  document.querySelectorAll('.tl-customer-step').forEach(node => {
+    if (tab === 'customer') node.classList.add('tl-customer-highlight');
+    else node.classList.remove('tl-customer-highlight');
+  });
+  // Update center card text
+  const title = document.getElementById('tl-card-title');
+  const body = document.getElementById('tl-card-body');
+  if (tab === 'customer') {
+    if (title) title.textContent = 'Customer Steps';
+    if (body) body.textContent = 'Highlighted steps are the ones where you\'ll be involved — a quick visit for survey and being home on install day.';
+  } else {
+    if (title) title.textContent = 'Solar Steps';
+    if (body) body.textContent = 'Click any step to learn more about what happens and how long it takes.';
+  }
 }
 
 // ═══════════════════════════════════════════
 //  SLIDE OVERVIEW / GALLERY VIEW
 // ═══════════════════════════════════════════
-const SLIDE_ICONS = ['🔴','📊','🔀','⭐','✅','⏱️','🌟','🏢','☀️','💰'];
+const SLIDE_ICONS = ['✨','🔴','📊','🔀','⭐','✅','⏱️','🌟','🏢','☀️','💰'];
 const SLIDE_COLORS = [
+  'rgba(200,168,75,0.15)',
   'rgba(192,57,43,0.15)','rgba(192,57,43,0.1)','rgba(26,58,92,0.2)',
   'rgba(244,166,35,0.12)','rgba(200,168,75,0.12)','rgba(200,168,75,0.1)',
   'rgba(244,166,35,0.12)','rgba(200,168,75,0.1)','rgba(244,166,35,0.1)',
@@ -2118,24 +2416,16 @@ const SLIDE_COLORS = [
 
 function openOverview() {
   const overlay = document.getElementById('gallery-overlay');
-  const grid = document.getElementById('slide-gallery-grid');
-  grid.innerHTML = '';
-  const visible = getVisible();
-  visible.forEach((s, i) => {
-    const thumb = document.createElement('div');
-    thumb.className = 'slide-thumb' + (i === current ? ' current-thumb' : '');
-    const globalIdx = slideData.indexOf(s);
-    thumb.style.background = SLIDE_COLORS[globalIdx] || 'rgba(255,255,255,0.04)';
-    thumb.innerHTML = `
-      <div class="th-num">${i + 1}</div>
-      <div class="th-icon">${SLIDE_ICONS[globalIdx] || '▤'}</div>
-      <div class="th-label">${s.label}</div>
-    `;
-    thumb.onclick = () => { closeOverview(); goToSlide(i); };
-    grid.appendChild(thumb);
+  // Default to nav mode, hide export actions bar until export mode selected
+  overviewMode = 'nav';
+  ['nav','export'].forEach(m => {
+    const btn = document.getElementById('ov-' + m + '-btn');
+    if (btn) btn.className = 'ov-mode-btn' + (m === 'nav' ? ' active' : '');
   });
+  const exportBar = document.querySelector('.oe-actions');
+  if (exportBar) exportBar.style.display = 'none';
+  buildOverviewGrid();
   overlay.classList.add('open');
-  // Keyboard close
   overlay._keyHandler = (e) => { if (e.key === 'Escape') closeOverview(); };
   document.addEventListener('keydown', overlay._keyHandler);
 }
@@ -2290,6 +2580,8 @@ document.addEventListener('input', e => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
+  applyTheme();
+  loadCustomerName();
   loadEdits();
   applyAdminContent();
   loadSavedImages();

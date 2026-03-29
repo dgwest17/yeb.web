@@ -726,6 +726,9 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
 <!-- ADMIN LINK -->
 <a href="admin.html" id="admin-btn" target="_blank" onclick="return promptAdminPw(event)">⚙ Admin</a>
 
+<!-- PRINT BUTTON -->
+<button class="gallery-btn" id="print-btn" onclick="quickPrint()" style="right:20rem" title="Print / Download PDF">🖨 Print</button>
+
 <!-- INVESTMENT BUTTON -->
 <button class="gallery-btn" id="investment-btn" onclick="toggleInvestment()" style="right:9rem">💰 Investment</button>
 
@@ -1344,7 +1347,25 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
         <!-- HIDDEN CASH TAB -->
         <button class="hidden-tab-btn" onclick="toggleCashPanel()">· · ·</button>
         <div class="cash-panel" id="cash-panel">
-          <div class="n-card-title" style="font-size:0.65rem;margin-bottom:0.5rem">Cash Purchase vs. Invest Analysis</div>
+          <div class="n-card-title" style="font-size:0.65rem;margin-bottom:0.75rem">Advanced Settings</div>
+
+          <!-- LOAN TERM — secret adjustment -->
+          <div class="n-input-group" style="margin-bottom:0.75rem">
+            <div class="n-label" style="color:var(--gold)">Loan Term (Years)</div>
+            <select class="n-select" id="inp-term" onchange="recalc()" style="font-size:0.85rem;border-color:rgba(200,168,75,0.3);color:var(--gold)">
+              <option value="10">10 Years</option>
+              <option value="12">12 Years</option>
+              <option value="15">15 Years</option>
+              <option value="20">20 Years</option>
+              <option value="25" selected>25 Years</option>
+              <option value="30">30 Years</option>
+            </select>
+            <div style="font-size:0.68rem;color:var(--dim);margin-top:0.3rem">Adjusts cumulative cost calculations and break-even year</div>
+          </div>
+
+          <div style="height:1px;background:rgba(255,255,255,0.06);margin-bottom:0.75rem"></div>
+          <div class="n-card-title" style="font-size:0.65rem;margin-bottom:0.5rem">Cash vs. Invest Analysis</div>
+
           <div class="n-input-group">
             <div class="n-label">System Cost ($)</div>
             <input type="number" class="n-input" id="inp-system" value="56294" oninput="recalc()" style="font-size:0.85rem">
@@ -1368,8 +1389,8 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
           </div>
           <div style="margin-top:0.6rem;font-size:0.78rem;color:var(--muted);line-height:1.8">
             Net Cost After ITC: <strong style="color:var(--gold)" id="cash-netcost">$39,406</strong><br>
-            S&P Growth 25yr: <strong style="color:#5B9BD5" id="cash-spgrowth">—</strong><br>
-            Solar Savings 25yr: <strong style="color:var(--green-l)" id="cash-solarsavings">—</strong><br>
+            S&P Growth <span id="cash-term-label">25</span>yr: <strong style="color:#5B9BD5" id="cash-spgrowth">—</strong><br>
+            Solar Savings <span id="cash-term-label2">25</span>yr: <strong style="color:var(--green-l)" id="cash-solarsavings">—</strong><br>
             <em style="color:var(--dim);font-size:0.7rem">Investing cash grows more numerically — but solar eliminates rate risk forever.</em>
           </div>
         </div>
@@ -1689,7 +1710,6 @@ let benefitsList = JSON.parse(localStorage.getItem('kinobi-benefits') || 'null')
 function buildData() {
   const bill       = parseFloat(document.getElementById('inp-bill').value) || 134;
   const annualKwh  = parseFloat(document.getElementById('inp-kwh-usage').value) || 3540;
-  // Use Number() + isNaN check so 0% works correctly (|| treats 0 as falsy)
   const rateRaw    = Number(document.getElementById('inp-rate').value);
   const rate       = isNaN(rateRaw) ? 0.09 : rateRaw;
   const solar      = parseFloat(document.getElementById('inp-solar').value) || 0;
@@ -1697,56 +1717,53 @@ function buildData() {
   const vppRateRaw = Number(document.getElementById('inp-vpp-rate').value);
   const vppRate    = isNaN(vppRateRaw) ? 0.009 : vppRateRaw;
   const sp         = parseFloat(document.getElementById('inp-sp').value) || 0.08;
+  const termEl     = document.getElementById('inp-term');
+  const TERM       = termEl ? (parseInt(termEl.value) || 25) : 25;
   const utilEl     = document.getElementById('inp-utility');
   const utilName   = utilEl ? utilEl.value || 'SDG&E' : 'SDG&E';
 
-  // Utility $/kWh (current)
+  const YEARS_T = Array.from({length: TERM}, (_, i) => i + 1);
+
   const kwhRate = annualKwh > 0 ? (bill * 12) / annualKwh : 0;
   const offset  = annualKwh > 0 ? Math.min(solarKwh / annualKwh, 2.0) : 0;
-
-  // Solar $/kWh (current, locked — payment covers solarKwh production)
   const solarKwhRateCurrent = (solar > 0 && solarKwh > 0) ? (solar * 12) / solarKwh : null;
 
-  // Utility trajectory — when rate === 0, Math.pow(1+0, y-1) === 1, stays perfectly flat
-  const utilMonthly = YEARS.map(y => bill * Math.pow(1 + rate, y - 1));
+  const utilMonthly = YEARS_T.map(y => bill * Math.pow(1 + rate, y - 1));
   const utilCumul   = [];
   let cum = 0;
   utilMonthly.forEach(m => { cum += m * 12; utilCumul.push(cum); });
 
-  // Solar / VPP trajectory — when vppRate === 0, stays perfectly flat
-  const solarMonthly = solar > 0 ? YEARS.map(y => solar * Math.pow(1 + vppRate, y - 1)) : null;
+  const solarMonthly = solar > 0 ? YEARS_T.map(y => solar * Math.pow(1 + vppRate, y - 1)) : null;
   const solarCumul   = solarMonthly ? solarMonthly.reduce((acc, m, i) => {
     acc.push((acc[i - 1] || 0) + m * 12); return acc;
   }, []) : null;
 
-  // kWh rate trajectories — 0% stays flat too
-  const kwhUtil  = YEARS.map(y => kwhRate * Math.pow(1 + rate, y - 1));
+  const kwhUtil  = YEARS_T.map(y => kwhRate * Math.pow(1 + rate, y - 1));
   const kwhSolar = solar > 0 && solarKwh > 0
-    ? YEARS.map(y => solarKwhRateCurrent * Math.pow(1 + vppRate, y - 1))
+    ? YEARS_T.map(y => solarKwhRateCurrent * Math.pow(1 + vppRate, y - 1))
     : null;
 
-  // Savings & breakeven
-  const savings = solarCumul ? utilCumul[24] - solarCumul[24] : 0;
+  const savings = solarCumul ? utilCumul[TERM - 1] - solarCumul[TERM - 1] : 0;
   let breakeven = null;
   if (solarCumul) {
-    for (let i = 0; i < 25; i++) {
+    for (let i = 0; i < TERM; i++) {
       if (utilCumul[i] > solarCumul[i]) { breakeven = i + 1; break; }
     }
   }
 
-  const yr25util = utilMonthly[24];
   const invSystem = parseFloat(document.getElementById('inv-system')?.value) || 56294;
   const invItc    = parseFloat(document.getElementById('inv-itc')?.value) || 0.30;
   const invSp     = parseFloat(document.getElementById('inv-sp-slider')?.value) / 100 || 0.08;
   const netCost   = invSystem * (1 - invItc);
-  const spGrowth  = netCost * Math.pow(1 + invSp, 25);
+  const spGrowth  = netCost * Math.pow(1 + invSp, TERM);
 
   return {
     utilMonthly, utilCumul, solarMonthly, solarCumul,
     kwhUtil, kwhSolar, kwhRate, solarKwhRateCurrent, offset,
-    savings, breakeven, yr25util, utilName,
+    savings, breakeven, yr25util: utilMonthly[TERM - 1], utilName,
     bill, rate, solar, solarKwh, vppRate, sp,
-    netCost, spGrowth, invSystem, invItc, invSp
+    netCost, spGrowth, invSystem, invItc, invSp,
+    TERM, YEARS_T
   };
 }
 
@@ -1800,8 +1817,16 @@ function updateDonationsTable(d) {
   const rows = document.getElementById('milestone-rows') || document.getElementById('donations-rows');
   if(!rows) return;
   rows.innerHTML = '';
-  const points = [[0,'Yr 1'],[1,'Yr 2'],[4,'Yr 5'],[9,'Yr 10'],[24,'Yr 25']];
-  points.forEach(([idx, label]) => {
+  // Build milestone points based on term — always show Yr1, Yr2, and ~25/50/100% of term
+  const T = d.TERM;
+  const points = [];
+  [1, 2, Math.round(T*0.2), Math.round(T*0.4), T].forEach(yr => {
+    if (yr >= 1 && yr <= T && !points.includes(yr)) points.push(yr);
+  });
+  points.sort((a,b) => a-b);
+
+  points.forEach(yr => {
+    const idx = yr - 1;
     const utilAmt = d.utilCumul[idx];
     const saveAmt = d.solarCumul ? d.utilCumul[idx] - d.solarCumul[idx] : null;
     const savePosColor = saveAmt !== null && saveAmt >= 0 ? 'var(--green-l)' : 'var(--rage-l)';
@@ -1809,7 +1834,7 @@ function updateDonationsTable(d) {
     const div = document.createElement('div');
     div.style.cssText = 'display:grid;grid-template-columns:56px 1fr 1fr;align-items:center;border-top:1px solid rgba(255,255,255,0.05);padding:6px 0';
     div.innerHTML = `
-      <div style="font-size:0.82rem;font-weight:600;color:var(--muted)">${label}</div>
+      <div style="font-size:0.82rem;font-weight:600;color:var(--muted)">Yr ${yr}</div>
       <div style="text-align:right;font-family:'Bebas Neue',sans-serif;font-size:1.55rem;color:var(--rage-l);letter-spacing:0.02em;line-height:1">
         $${Math.round(utilAmt).toLocaleString()}
       </div>
@@ -1847,12 +1872,11 @@ function updateSlide1(d) {
 function updateOptions(d) { /* mini charts static */ }
 
 function updateCharts(d) {
-  const labels = YEARS.map(y => 'Yr ' + y);
+  const labels = d.YEARS_T.map(y => 'Yr ' + y);
   let utilData, solarData;
 
   if (chartMode === 'kwh') {
     utilData  = d.kwhUtil.map(v => +v.toFixed(4));
-    // kwhSolar is now an array; if vppRate≈0 it's flat, otherwise slightly rising but still vastly below utility
     solarData = d.kwhSolar ? d.kwhSolar.map(v => +v.toFixed(4)) : null;
     document.getElementById('main-chart-title').textContent = 'kWh Rate Trajectory ($/kWh)';
   } else {
@@ -1865,6 +1889,12 @@ function updateCharts(d) {
   chartMain.data.datasets[0].data = utilData;
   chartMain.data.datasets[1].data = solarData || [];
   chartMain.update('none');
+
+  // Update cash term labels
+  const t1 = document.getElementById('cash-term-label');
+  const t2 = document.getElementById('cash-term-label2');
+  if (t1) t1.textContent = d.TERM;
+  if (t2) t2.textContent = d.TERM;
 }
 
 function setChartMode(mode) {
@@ -2298,6 +2328,22 @@ function exportSelectAll(select) {
   if (select) visible.forEach((_, i) => exportSelectedSet.add(i));
   else exportSelectedSet.clear();
   buildOverviewGrid();
+}
+
+function quickPrint() {
+  const visible = getVisible();
+  // If user has made selections in the overview, use those; otherwise print all visible
+  const toExport = exportSelectedSet.size > 0 ? exportSelectedSet : new Set(visible.map((_, i) => i));
+  visible.forEach((s, i) => {
+    const el = document.getElementById(s.id);
+    if (el) el.dataset.print = toExport.has(i) ? 'true' : 'false';
+  });
+  // Mark invisible slides as not-print
+  slideData.forEach(s => {
+    const el = document.getElementById(s.id);
+    if (el && !el.dataset.print) el.dataset.print = 'false';
+  });
+  setTimeout(() => window.print(), 100);
 }
 
 function runExportFromOverview() {

@@ -357,10 +357,12 @@ html,body{min-height:100vh;background:var(--deep);font-family:'DM Sans',sans-ser
       <div class="card-title">Customer Info (Personalizes All Slides)</div>
       <div class="card-grid col2">
         <div class="field">
-          <div class="f-label">Customer Name</div>
+          <div class="f-label">Customer Name (shown on title slide)</div>
           <input class="f-input" id="c-name" placeholder="e.g. The Johnson Family" oninput="markUnsaved()">
         </div>
-        <div class="f-label" style="align-self:end;font-size:0.72rem;color:var(--dim);padding-bottom:0.55rem">Shown on title slide and throughout</div>
+        <div style="align-self:end;padding-bottom:0.55rem">
+          <div style="font-size:0.72rem;color:var(--dim);line-height:1.6">Appears on the title slide as the italic name. Also editable by tapping directly on the title slide.</div>
+        </div>
       </div>
     </div>
 
@@ -491,7 +493,7 @@ html,body{min-height:100vh;background:var(--deep);font-family:'DM Sans',sans-ser
         </div>
         <div>
           <div class="field"><div class="f-label">Pillar 3 Title</div><input class="f-input" id="cp3-title" value="Premium Equipment Only" oninput="markUnsaved()"></div>
-          <div class="field"><div class="f-label">Pillar 3 Body</div><textarea class="f-input f-textarea" id="cp3-body" oninput="markUnsaved()">We exclusively install Enphase microinverters and Tier 1 panels. No cutting corners.</textarea></div>
+          <div class="field"><div class="f-label">Pillar 3 Body</div><textarea class="f-input f-textarea" id="cp3-body" oninput="markUnsaved()">We install top tier panels, inverters, and batteries. No cutting corners on the hardware that will power your home for 25 years.</textarea></div>
         </div>
       </div>
     </div>
@@ -730,6 +732,7 @@ if (sessionStorage.getItem('kinobi-authed') === '1') {
 //  STATE
 // ═══════════════════════════════════════════
 const SLIDE_DEFS = [
+  {id:'slide-title', label:'Title Slide', visible:true},
   {id:'slide-0', label:'Utility Problem 1 — Delivery/Profit', visible:true},
   {id:'slide-1', label:'Utility Problem 2 — Demand Crisis', visible:true},
   {id:'slide-2', label:'Your 3 Options', visible:true},
@@ -1130,6 +1133,9 @@ function saveAll() {
     if (el.value.trim()) textEdits[id] = el.value;
   });
   localStorage.setItem('kinobi-text-edits', JSON.stringify(textEdits));
+  // Customer name (shared key with presentation)
+  const cnEl = document.getElementById('c-name');
+  if (cnEl && cnEl.value.trim()) localStorage.setItem('kinobi-customer-name', cnEl.value.trim());
   // IG token
   const igEl = document.getElementById('ig-token');
   if(igEl && igEl.value) localStorage.setItem('ig_token', igEl.value);
@@ -1190,6 +1196,9 @@ function loadAll() {
   // IG token
   const igt = localStorage.getItem('ig_token');
   if(igt){const el=document.getElementById('ig-token');if(el)el.value=igt}
+  // Customer name
+  const cn = localStorage.getItem('kinobi-customer-name');
+  if(cn){const el=document.getElementById('c-name');if(el)el.value=cn}
   // Gallery
   renderGalleryAdmin();
   // Zone previews

@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Solar Proposal — Kinhome Solar</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#C8A84B;--gold-l:#E8C96A;--deep:#050E18;--navy:#0D1F30;--rage-l:#E74C3C;--green-l:#2ECC71;--text:#fff;--muted:#e0dbd0;--dim:#aaa89a;--border:rgba(200,168,75,0.22)}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--deep);color:var(--text);min-height:100vh}
+.fullscreen-msg{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.25rem;text-align:center;padding:2rem}
+.fullscreen-msg h1{font-family:'Bebas Neue',sans-serif;font-size:3rem;color:var(--gold);letter-spacing:0.05em}
+.fullscreen-msg p{font-size:0.95rem;color:var(--muted);max-width:420px;line-height:1.7}
+nav{position:sticky;top:0;z-index:100;background:rgba(5,14,24,0.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0.8rem 1.5rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:1.25rem;color:var(--gold);letter-spacing:0.05em}
+.nav-links{display:flex;gap:1.25rem;list-style:none}
+.nav-links a{color:var(--dim);text-decoration:none;font-size:0.75rem;letter-spacing:0.06em;text-transform:uppercase;transition:color 0.2s}
+.nav-links a:hover{color:var(--gold)}
+.expiry-banner{background:rgba(200,168,75,0.08);border-bottom:1px solid var(--border);padding:0.55rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem}
+.expiry-text{font-size:0.73rem;color:var(--dim)}
+.expiry-count{font-size:0.73rem;font-weight:600;color:var(--gold)}
+.asterisk{font-size:0.7rem;color:var(--dim);font-style:italic}
+.section{padding:4rem 1.5rem;max-width:1000px;margin:0 auto}
+.eyebrow{font-size:0.68rem;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:0.6rem;display:block}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,5vw,3.2rem);line-height:1;margin-bottom:0.75rem}
+.section-sub{font-size:0.9rem;color:var(--muted);line-height:1.75;max-width:600px;margin-bottom:2rem}
+.hero{min-height:82vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:6rem 1.5rem 4rem;background:radial-gradient(ellipse 70% 55% at 50% 20%,rgba(200,168,75,0.14) 0%,transparent 65%),var(--deep)}
+.hero-inner{max-width:740px}
+.hero-eyebrow{font-size:0.7rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;display:block}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.8rem,8vw,5rem);line-height:0.95;margin-bottom:1.25rem}
+.hero-name{font-family:'DM Serif Display',serif;font-style:italic;color:var(--gold);display:block;margin-top:0.2rem}
+.hero-sub{font-size:0.93rem;color:var(--muted);line-height:1.75;margin-bottom:2rem}
+.hero-cta{display:inline-flex;align-items:center;gap:0.5rem;background:var(--gold);color:var(--deep);padding:0.8rem 2.25rem;border-radius:4px;font-size:0.88rem;font-weight:600;text-decoration:none;transition:background 0.2s}
+.hero-cta:hover{background:var(--gold-l)}
+.stats-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:2.5rem}
+.stat-block{background:rgba(5,14,24,0.95);padding:1.25rem;text-align:center}
+.stat-val{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;display:block;line-height:1;margin-bottom:0.25rem}
+.stat-val.red{color:var(--rage-l)}.stat-val.green{color:var(--green-l)}.stat-val.gold{color:var(--gold)}
+.stat-lbl{font-size:0.62rem;color:var(--dim);text-transform:uppercase;letter-spacing:0.08em}
+.rate-adjuster{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;padding:1.25rem 1.5rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.rate-adj-label{font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:0.2rem}
+.rate-adj-sub{font-size:0.73rem;color:var(--dim)}
+.rate-select{background:rgba(255,255,255,0.08);border:1px solid rgba(231,76,60,0.35);color:var(--rage-l);padding:0.5rem 0.85rem;border-radius:4px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:600;outline:none;cursor:pointer}
+.rate-select option{background:var(--navy);color:var(--text)}
+.fixed-note{font-size:0.7rem;color:var(--dim);font-style:italic;margin-bottom:1.25rem}
+.numbers-two{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem}
+@media(max-width:600px){.numbers-two{grid-template-columns:1fr}}
+.n-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:1.25rem}
+.n-card-title{font-size:0.64rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:0.85rem}
+.bubble{display:flex;justify-content:space-between;align-items:center;border-radius:6px;padding:0.5rem 0.85rem;margin-bottom:0.45rem}
+.bubble.red{background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.25)}
+.bubble.green{background:rgba(39,174,96,0.1);border:1px solid rgba(39,174,96,0.25)}
+.bubble-label{font-size:0.63rem;color:var(--dim);letter-spacing:0.07em;text-transform:uppercase}
+.bubble-val{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;line-height:1;letter-spacing:0.03em}
+.bubble.red .bubble-val{color:var(--rage-l)}.bubble.green .bubble-val{color:var(--green-l)}
+.metrics-row{display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-bottom:1.25rem}
+.chart-box{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:1.25rem;margin-bottom:1rem}
+.chart-title{font-size:0.66rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);margin-bottom:0.85rem}
+.ml-row{display:grid;grid-template-columns:56px 1fr 1fr;border-top:1px solid rgba(255,255,255,0.05);padding:6px 0;align-items:center}
+.ml-year{font-size:0.78rem;font-weight:600;color:var(--dim)}
+.ml-util{text-align:right;font-family:'Bebas Neue',sans-serif;font-size:1.35rem;color:var(--rage-l);line-height:1}
+.ml-solar{text-align:right;font-family:'Bebas Neue',sans-serif;font-size:1.35rem;line-height:1}
+.warranty-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:0.85rem;margin:1.25rem 0}
+.warranty-card{background:rgba(39,174,96,0.07);border:1px solid rgba(39,174,96,0.2);border-radius:8px;padding:1rem}
+.warranty-card .w-icon{font-size:1.5rem;margin-bottom:0.3rem;display:block}
+.warranty-card h4{font-size:0.85rem;font-weight:500;color:var(--green-l);margin-bottom:0.2rem}
+.warranty-card p{font-size:0.73rem;color:var(--muted);line-height:1.5}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.25rem 0}
+@media(max-width:540px){.compare-grid{grid-template-columns:1fr}}
+.compare-col{border-radius:8px;padding:1.1rem 1.25rem}
+.compare-col.util{background:rgba(231,76,60,0.06);border:1px solid rgba(231,76,60,0.2)}
+.compare-col.solar-col{background:rgba(39,174,96,0.05);border:1px solid rgba(39,174,96,0.2)}
+.compare-col-title{font-family:'Bebas Neue',sans-serif;font-size:1.15rem;letter-spacing:0.06em;margin-bottom:0.85rem}
+.compare-item{display:flex;align-items:flex-start;gap:0.5rem;font-size:0.8rem;color:var(--muted);margin-bottom:0.5rem;line-height:1.4}
+.compare-item.missing{color:rgba(255,255,255,0.28)}
+.check{color:var(--green-l);font-weight:700;flex-shrink:0}.x-mark{color:rgba(231,76,60,0.4);flex-shrink:0}
+.compare-item strong{color:var(--text);font-weight:500}
+.timeline-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:0.5rem;margin:1.25rem 0}
+.tl-step{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:0.8rem;text-align:center}
+.tl-step-icon{font-size:1.3rem;margin-bottom:0.3rem}
+.tl-step-name{font-size:0.7rem;font-weight:600;color:var(--text);margin-bottom:0.15rem}
+.tl-step-time{font-size:0.6rem;color:var(--dim)}
+.tl-step.customer-step{border-color:rgba(42,109,181,0.4);background:rgba(42,109,181,0.08)}
+.tl-step.customer-step .tl-step-name{color:#7BB8F0}
+.contact-card{background:rgba(200,168,75,0.07);border:1px solid var(--border);border-radius:8px;padding:2rem;text-align:center;margin-top:1rem}
+.contact-name{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--gold);letter-spacing:0.05em;margin-bottom:0.2rem}
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);max-width:1000px;margin:0 auto}
+footer{padding:2rem 1.5rem;text-align:center;border-top:1px solid var(--border);font-size:0.73rem;color:var(--dim);line-height:1.7}
+footer a{color:var(--gold);text-decoration:none}
+
+/* ══════════════════════════════════════════
+   PROPOSE — MOBILE  ≤ 768px
+══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Nav */
+  nav{padding:0.65rem 1rem}
+  .nav-links{display:none}
+
+  /* Expiry banner */
+  .expiry-banner{flex-direction:column;align-items:flex-start;gap:0.25rem;padding:0.5rem 1rem}
+  .asterisk{font-size:0.65rem}
+
+  /* Hero */
+  .hero{min-height:70vh;padding:4.5rem 1rem 3rem}
+  .hero-title{font-size:clamp(2.2rem,9vw,3.5rem)}
+  .hero-sub{font-size:0.85rem}
+  .hero-cta{padding:0.7rem 1.75rem;font-size:0.82rem}
+
+  /* Sections */
+  .section{padding:2.75rem 1rem}
+  .section-title{font-size:clamp(1.75rem,6vw,2.6rem)}
+  .section-sub{font-size:0.83rem;margin-bottom:1.25rem}
+  .eyebrow{font-size:0.6rem}
+
+  /* Stats strip — 2 across on phone */
+  .stats-strip{grid-template-columns:repeat(2,1fr)}
+  .stat-block{padding:1rem 0.75rem}
+  .stat-val{font-size:1.5rem}
+  .stat-lbl{font-size:0.58rem}
+
+  /* Rate adjuster */
+  .rate-adjuster{flex-direction:column;align-items:flex-start;padding:1rem}
+  .rate-select{width:100%;font-size:0.85rem}
+
+  /* Numbers two-column → single */
+  .numbers-two{grid-template-columns:1fr;gap:0.75rem}
+  .n-card{padding:1rem}
+  .n-card-title{font-size:0.6rem}
+  .bubble{padding:0.4rem 0.7rem}
+  .bubble-val{font-size:1.3rem}
+  .bubble-label{font-size:0.6rem}
+
+  /* Metrics row */
+  .metrics-row{grid-template-columns:repeat(3,1fr);gap:0.5rem}
+  .stat-block{padding:0.75rem 0.5rem}
+  .stat-val{font-size:1.3rem}
+
+  /* Chart */
+  .chart-box{padding:0.85rem}
+  .chart-title{font-size:0.6rem;margin-bottom:0.65rem}
+  #propChart{height:170px!important}
+
+  /* Milestone table */
+  .ml-row{padding:5px 0}
+  .ml-util,.ml-solar{font-size:1.1rem}
+  .ml-year{font-size:0.72rem}
+
+  /* Warranty grid — 2 across */
+  .warranty-grid{grid-template-columns:1fr 1fr;gap:0.65rem}
+  .warranty-card{padding:0.85rem}
+  .warranty-card .w-icon{font-size:1.25rem}
+  .warranty-card h4{font-size:0.78rem}
+  .warranty-card p{font-size:0.68rem}
+
+  /* Compare — keep side by side, just shrink */
+  .compare-grid{gap:0.65rem}
+  .compare-col{padding:0.85rem}
+  .compare-col-title{font-size:1rem;margin-bottom:0.65rem}
+  .compare-item{font-size:0.72rem;margin-bottom:0.4rem;gap:0.4rem}
+
+  /* Timeline */
+  .timeline-steps{grid-template-columns:repeat(3,1fr);gap:0.4rem}
+  .tl-step{padding:0.65rem 0.4rem}
+  .tl-step-icon{font-size:1.1rem}
+  .tl-step-name{font-size:0.62rem}
+  .tl-step-time{font-size:0.55rem}
+
+  /* Contact */
+  .contact-card{padding:1.5rem 1rem}
+  .contact-name{font-size:1.6rem}
+
+  /* Footer */
+  footer{padding:1.5rem 1rem;font-size:0.7rem}
+}
+
+/* ══════════════════════════════════════════
+   PROPOSE — SMALL PHONES  ≤ 390px
+══════════════════════════════════════════ */
+@media (max-width: 390px) {
+  .hero{padding:4rem 0.75rem 2.5rem}
+  .section{padding:2.25rem 0.75rem}
+  .stats-strip{grid-template-columns:repeat(2,1fr)}
+  .warranty-grid{grid-template-columns:1fr}
+  .compare-grid{grid-template-columns:1fr}
+  .timeline-steps{grid-template-columns:repeat(2,1fr)}
+  .metrics-row{grid-template-columns:repeat(3,1fr)}
+}
+</style>
+</head>
+<body>
+
+<div id="loading-screen" class="fullscreen-msg">
+  <div style="font-size:2.5rem">☀️</div>
+  <h1>Your Proposal</h1>
+  <p>Loading your personalized energy analysis…</p>
+</div>
+
+<div id="expired-screen" class="fullscreen-msg" style="display:none">
+  <div style="font-size:2.5rem">⏱️</div>
+  <h1>Proposal Expired</h1>
+  <p>This proposal was valid for 30 days. Rates and system pricing may have changed — reach out for an updated analysis.</p>
+  <div style="margin-top:0.75rem;display:flex;flex-direction:column;gap:0.5rem;align-items:center">
+    <a href="tel:3039419131" style="color:var(--gold);font-size:1rem;text-decoration:none">📞 303.941.9131</a>
+    <a href="mailto:dwest@yourenergybest.com" style="color:var(--gold);font-size:0.9rem;text-decoration:none">dwest@yourenergybest.com</a>
+  </div>
+</div>
+
+<div id="main-content" style="display:none">
+
+  <div class="expiry-banner">
+    <span class="expiry-text">Prepared for <strong id="banner-name" style="color:var(--text)"></strong></span>
+    <span class="expiry-count" id="expiry-count"></span>
+    <span class="asterisk">* Numbers reflect rates at time of proposal. Market conditions may affect utility rates.</span>
+  </div>
+
+  <nav>
+    <div class="nav-logo">Kinhome Solar</div>
+    <ul class="nav-links">
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#numbers">Numbers</a></li>
+      <li><a href="#included">Included</a></li>
+      <li><a href="#comparison">Compare</a></li>
+      <li><a href="#timeline">Timeline</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div style="font-size:0.8rem;color:var(--dim)" id="nav-name"></div>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-inner">
+      <span class="hero-eyebrow">Your Personal Solar Proposal</span>
+      <h1 class="hero-title">YOUR ENERGY<br><span class="hero-name" id="hero-name">Future</span></h1>
+      <p class="hero-sub">This proposal was built specifically for your home and your usage. Every number below reflects your actual system design — built by Dave, personally.</p>
+      <a href="#numbers" class="hero-cta">See Your Numbers →</a>
+    </div>
+  </div>
+
+  <section class="section" id="overview" data-sec="overview">
+    <span class="eyebrow">Your Current Situation</span>
+    <h2 class="section-title">What You're <span style="color:var(--rage-l)">Paying Now</span></h2>
+    <div class="stats-strip">
+      <div class="stat-block"><span class="stat-val red" id="ov-bill">$134</span><span class="stat-lbl">Monthly Bill</span></div>
+      <div class="stat-block"><span class="stat-val red" id="ov-kwh">$0.45</span><span class="stat-lbl">Current $/kWh</span></div>
+      <div class="stat-block"><span class="stat-val gold" id="ov-rate">9%</span><span class="stat-lbl">Rate Assumption</span></div>
+      <div class="stat-block"><span class="stat-val red" id="ov-total">$88K</span><span class="stat-lbl" id="ov-total-lbl">25yr Utility Cost</span></div>
+      <div class="stat-block"><span class="stat-val green" id="ov-offset">81%</span><span class="stat-lbl">Production Offset</span></div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <section class="section" id="numbers" data-sec="numbers">
+    <span class="eyebrow">The Numbers</span>
+    <h2 class="section-title">Your <span style="color:var(--gold)">Financial Future</span></h2>
+
+    <div class="rate-adjuster">
+      <div>
+        <span class="rate-adj-label">Adjust Utility Rate Assumption</span>
+        <span class="rate-adj-sub">This is the only number you can change — everything else is locked to your proposal.</span>
+      </div>
+      <select class="rate-select" id="rate-select" onchange="recalc()">
+        <option value="0.00">0% — Frozen</option>
+        <option value="0.04">4% — Inflation</option>
+        <option value="0.06" selected>6% — Conservative</option>
+        <option value="0.09">9% — SDG&E Historical</option>
+        <option value="0.12">12% — Worst Case</option>
+      </select>
+    </div>
+    <p class="fixed-note">* Your solar payment, production, escalator, and term are locked from your proposal. Only the utility rate assumption above is adjustable.</p>
+
+    <div class="numbers-two">
+      <div class="n-card" style="border-color:rgba(231,76,60,0.25)">
+        <div class="n-card-title" style="color:var(--rage-l)">Staying with the Utility</div>
+        <div class="bubble red"><span class="bubble-label">Monthly Bill Today</span><span class="bubble-val" id="n-util-mo">$134</span></div>
+        <div class="bubble red"><span class="bubble-label" id="n-total-lbl">25yr Total Cost</span><span class="bubble-val" id="n-util-total">$88K</span></div>
+        <div class="bubble red"><span class="bubble-label" id="n-end-lbl">Bill at End of Term</span><span class="bubble-val" id="n-util-end">$575/mo</span></div>
+      </div>
+      <div class="n-card" style="border-color:rgba(39,174,96,0.25)">
+        <div class="n-card-title" style="color:var(--green-l)">Your Virtual Power Plant</div>
+        <div class="bubble green"><span class="bubble-label">Monthly Energy Investment</span><span class="bubble-val" id="n-solar-mo">$202</span></div>
+        <div class="bubble green"><span class="bubble-label">Solar $/kWh Rate (locked)</span><span class="bubble-val" id="n-solar-kwh">$0.344</span></div>
+        <div class="bubble green"><span class="bubble-label">Production Offset</span><span class="bubble-val" id="n-offset">81%</span></div>
+      </div>
+    </div>
+
+    <div class="metrics-row">
+      <div class="stat-block" style="border-radius:6px;border:1px solid rgba(39,174,96,0.2)"><span class="stat-val green" id="n-breakeven">—</span><span class="stat-lbl">Break-Even</span></div>
+      <div class="stat-block" style="border-radius:6px;border:1px solid rgba(200,168,75,0.2)"><span class="stat-val gold" id="n-savings">—</span><span class="stat-lbl" id="n-savings-lbl">25yr Savings</span></div>
+      <div class="stat-block" style="border-radius:6px;border:1px solid rgba(231,76,60,0.2)"><span class="stat-val red" id="n-rate-used">6%</span><span class="stat-lbl">Rate Used</span></div>
+    </div>
+
+    <div class="chart-box">
+      <p class="chart-title">kWh Rate Trajectory — <span id="util-legend">SDG&E</span> vs Your Solar Rate</p>
+      <div style="position:relative;height:clamp(150px,30vw,210px)"><canvas id="propChart"></canvas></div>
+      <div style="display:flex;gap:1.25rem;font-size:0.7rem;color:var(--dim);margin-top:0.6rem">
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:3px;background:#E74C3C;border-radius:2px;display:inline-block"></span><span id="util-legend2">SDG&E (rising)</span></span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:3px;background:#2ECC71;border-radius:2px;display:inline-block"></span>Solar (locked)</span>
+      </div>
+    </div>
+
+    <div class="chart-box">
+      <p class="chart-title" style="display:flex;justify-content:space-between">
+        <span>Donated to Utility vs Your Solar Savings</span>
+      </p>
+      <div style="display:grid;grid-template-columns:56px 1fr 1fr;margin-bottom:5px">
+        <div style="font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--dim)">Year</div>
+        <div style="font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--rage-l);text-align:right">Utility Cost</div>
+        <div style="font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--green-l);text-align:right">Solar Saves</div>
+      </div>
+      <div id="milestones"></div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <section class="section" id="included" data-sec="included">
+    <span class="eyebrow">What You're Getting</span>
+    <h2 class="section-title">Everything <span style="color:var(--gold)">Included</span></h2>
+    <p class="section-sub">This isn't just solar — it's a complete home energy system, fully protected for the life of your system.</p>
+    <div class="warranty-grid">
+      <div class="warranty-card"><span class="w-icon">☀️</span><h4>25-Year Panel Warranty</h4><p>Industry-leading performance guarantee. If output drops below spec, it's covered — no arguments.</p></div>
+      <div class="warranty-card"><span class="w-icon">🔋</span><h4>Battery Backup Included</h4><p>Whole-home battery storage. When the grid goes dark, your lights stay on.</p></div>
+      <div class="warranty-card"><span class="w-icon">🔌</span><h4>Active Monitoring</h4><p>Real-time system monitoring via app. Every panel, every kilowatt, every day.</p></div>
+      <div class="warranty-card"><span class="w-icon">⚡</span><h4 id="inc-power-title">81% More Power</h4><p id="inc-power-body">Your system is sized to over-produce — run everything comfortably.</p></div>
+      <div class="warranty-card"><span class="w-icon">🏡</span><h4>Home Value Increases</h4><p>Studies show solar adds 3–4% to home value — often more than the system cost.</p></div>
+      <div class="warranty-card"><span class="w-icon">💰</span><h4>$0 Out of Pocket</h4><p>No down payment. No cash required. Energy savings start from day one.</p></div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <section class="section" id="comparison" data-sec="comparison">
+    <span class="eyebrow">Side by Side</span>
+    <h2 class="section-title">Utility vs <span style="color:var(--gold)">Virtual Power Plant</span></h2>
+    <div class="compare-grid">
+      <div class="compare-col util">
+        <div class="compare-col-title" style="color:var(--rage-l)" id="comp-util-name">SDG&E</div>
+        <div class="compare-item"><span class="check">✓</span><span>Get your power</span></div>
+        <div class="compare-item"><span class="check">✓</span><span>Monthly billing</span></div>
+        <div class="compare-item missing"><span class="x-mark">✕</span><span>No end date — forever</span></div>
+        <div class="compare-item missing"><span class="x-mark">✕</span><span>Ration usage to manage cost</span></div>
+        <div class="compare-item missing"><span class="x-mark">✕</span><span>No backup — grid goes dark, you go dark</span></div>
+        <div class="compare-item missing"><span class="x-mark">✕</span><span>Unpredictable rates, rising every year</span></div>
+        <div class="compare-item missing"><span class="x-mark">✕</span><span>No control — captive customer</span></div>
+        <div class="compare-item missing"><span class="x-mark">✕</span><span>Costs more every single month</span></div>
+      </div>
+      <div class="compare-col solar-col">
+        <div class="compare-col-title" style="color:var(--green-l)">Virtual Power Plant</div>
+        <div class="compare-item"><span class="check">✓</span><span>Get your power</span></div>
+        <div class="compare-item"><span class="check">✓</span><span>Monthly billing</span></div>
+        <div class="compare-item"><span class="check">✓</span><span><strong>End date</strong> — loan pays off, power is free</span></div>
+        <div class="compare-item"><span class="check">✓</span><span><strong>Use power comfortably</strong> — no rationing</span></div>
+        <div class="compare-item"><span class="check">✓</span><span><strong>Blackout protection</strong> — battery keeps you on</span></div>
+        <div class="compare-item"><span class="check">✓</span><span><strong>Predictable power</strong> — rate locked in</span></div>
+        <div class="compare-item"><span class="check">✓</span><span><strong>Control</strong> — you own your energy</span></div>
+        <div class="compare-item"><span class="check">✓</span><span><strong>Day 1 Savings</strong> — costs less immediately</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <section class="section" id="timeline" data-sec="timeline">
+    <span class="eyebrow">The Process</span>
+    <h2 class="section-title">Your Solar <span style="color:var(--gold)">Timeline</span></h2>
+    <p class="section-sub">We handle everything. Steps marked with ★ require your presence — that's it.</p>
+    <div class="timeline-steps">
+      <div class="tl-step"><div class="tl-step-icon">🤝</div><div class="tl-step-name">Consultation</div><div class="tl-step-time">1–2 Days</div></div>
+      <div class="tl-step customer-step"><div class="tl-step-icon">📏</div><div class="tl-step-name">Site Survey ★</div><div class="tl-step-time">2–3 Days</div></div>
+      <div class="tl-step"><div class="tl-step-icon">📐</div><div class="tl-step-name">Final Design</div><div class="tl-step-time">2–3 Days</div></div>
+      <div class="tl-step"><div class="tl-step-icon">🏛️</div><div class="tl-step-name">Permitting</div><div class="tl-step-time">1–5 Weeks</div></div>
+      <div class="tl-step customer-step"><div class="tl-step-icon">🔧</div><div class="tl-step-name">Installation ★</div><div class="tl-step-time">1 Week</div></div>
+      <div class="tl-step"><div class="tl-step-icon">🔍</div><div class="tl-step-name">City Inspection</div><div class="tl-step-time">1–2 Weeks</div></div>
+      <div class="tl-step"><div class="tl-step-icon">⚡</div><div class="tl-step-name">Interconnection</div><div class="tl-step-time">2–4 Weeks</div></div>
+      <div class="tl-step" style="border-color:var(--gold);background:rgba(200,168,75,0.08)"><div class="tl-step-icon">🏠</div><div class="tl-step-name" style="color:var(--gold)">Power On</div><div class="tl-step-time" style="color:var(--gold)">Day 1</div></div>
+    </div>
+    <p style="font-size:0.72rem;color:var(--dim);margin-top:0.6rem">★ = requires your presence. Average total timeline: 6–10 weeks from contract to first kilowatt.</p>
+  </section>
+
+  <div class="divider"></div>
+
+  <section class="section" id="contact" data-sec="contact">
+    <span class="eyebrow">Let's Talk</span>
+    <h2 class="section-title">Ready to <span style="color:var(--gold)">Move Forward?</span></h2>
+    <p class="section-sub">I built this proposal personally. I'm here to answer any question, walk through any number, or get your site survey scheduled.</p>
+    <div class="contact-card">
+      <div class="contact-name">Dave West</div>
+      <div style="font-size:0.85rem;color:var(--dim);margin-bottom:1rem">Kinhome Solar · Your Energy Best</div>
+      <div style="display:flex;flex-direction:column;gap:0.6rem;align-items:center">
+        <a href="tel:3039419131" style="color:var(--gold);text-decoration:none;font-size:1.05rem;font-weight:500">📞 303.941.9131</a>
+        <a href="mailto:dwest@yourenergybest.com" style="color:var(--gold);text-decoration:none;font-size:0.88rem">✉️ dwest@yourenergybest.com</a>
+        <a href="https://yourenergybest.com" style="color:var(--gold);text-decoration:none;font-size:0.82rem" target="_blank">🌐 yourenergybest.com</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Prepared by <a href="https://yourenergybest.com">Kinhome Solar</a> for <span id="footer-name"></span> ·
+    <span id="footer-date"></span><br>
+    * Utility rate projections are estimates. Actual rates may vary. Solar savings calculated from your specific system design.
+  </footer>
+</div>
+
+<script>
+const params = new URLSearchParams(location.search);
+function p(key,fb=''){const v=params.get(key);return v!==null?v:fb}
+const DATA={
+  name:    p('name','Your Family'),
+  utility: p('utility','SDG&E'),
+  bill:    parseFloat(p('bill','134')),
+  kwh:     parseFloat(p('kwh','3540')),
+  solar:   parseFloat(p('solar','0')),
+  solarKwh:parseFloat(p('skwh','6402')),
+  vppRate: parseFloat(p('vpp','0.009')),
+  term:    parseInt(p('term','25')),
+  created: parseInt(p('ts','0')),
+  slides:  p('slides','overview,numbers,included,comparison,timeline,contact').split(','),
+};
+const THIRTY_DAYS=30*24*60*60*1000;
+const now=Date.now();
+const created=DATA.created||now;
+const elapsed=now-created;
+const daysLeft=Math.max(0,Math.ceil((THIRTY_DAYS-elapsed)/(24*60*60*1000)));
+
+if(DATA.created&&elapsed>THIRTY_DAYS){
+  document.getElementById('loading-screen').style.display='none';
+  document.getElementById('expired-screen').style.display='flex';
+}else{init()}
+
+let propChart;
+const YEARS=Array.from({length:DATA.term},(_,i)=>i+1);
+
+function init(){
+  // Names & labels
+  ['hero-name','banner-name','nav-name','footer-name'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=DATA.name});
+  document.getElementById('comp-util-name').textContent=DATA.utility;
+  document.getElementById('util-legend').textContent=DATA.utility;
+  document.getElementById('util-legend2').textContent=DATA.utility+' (rising)';
+  const termEl=document.getElementById('ov-total-lbl');if(termEl)termEl.textContent=DATA.term+'yr Utility Cost';
+  document.getElementById('n-total-lbl').textContent=DATA.term+'yr Total Cost';
+  document.getElementById('n-end-lbl').textContent='Bill in Year '+DATA.term;
+  document.getElementById('n-savings-lbl').textContent=DATA.term+'yr Savings';
+
+  // Footer date
+  const d=new Date(created);
+  document.getElementById('footer-date').textContent='Prepared '+d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+
+  // Expiry banner
+  document.getElementById('expiry-count').textContent=DATA.created?(daysLeft>0?daysLeft+' day'+(daysLeft!==1?'s':'')+' remaining':'Expires today'):'Valid for 30 days';
+
+  // Fixed solar numbers
+  const kwhRate=DATA.kwh>0?(DATA.bill*12)/DATA.kwh:0;
+  const sKwhRate=DATA.solar>0&&DATA.solarKwh>0?(DATA.solar*12)/DATA.solarKwh:0;
+  const offset=DATA.kwh>0?Math.round(Math.min(DATA.solarKwh/DATA.kwh,2.0)*100):0;
+
+  document.getElementById('ov-bill').textContent='$'+DATA.bill;
+  document.getElementById('ov-kwh').textContent='$'+kwhRate.toFixed(3);
+  document.getElementById('ov-offset').textContent=offset+'%';
+  document.getElementById('n-util-mo').textContent='$'+DATA.bill;
+  document.getElementById('n-solar-mo').textContent=DATA.solar?'$'+DATA.solar:'—';
+  document.getElementById('n-solar-kwh').textContent=sKwhRate?'$'+sKwhRate.toFixed(3):'—';
+  document.getElementById('n-offset').textContent=offset+'%';
+  document.getElementById('inc-power-title').textContent=offset+'% More Power';
+  document.getElementById('inc-power-body').textContent='Your system produces '+offset+'% of your usage — run everything comfortably.';
+
+  // Filter sections
+  document.querySelectorAll('[data-sec]').forEach(el=>{
+    if(!DATA.slides.includes(el.dataset.sec)){
+      el.style.display='none';
+      const nx=el.nextElementSibling;
+      if(nx&&nx.classList.contains('divider'))nx.style.display='none';
+    }
+  });
+
+  // Build chart
+  const ctx=document.getElementById('propChart').getContext('2d');
+  propChart=new Chart(ctx,{
+    type:'line',
+    data:{labels:YEARS.map(y=>'Yr'+y),datasets:[
+      {label:DATA.utility,data:[],borderColor:'#E74C3C',borderWidth:2.5,pointRadius:0,tension:0.3,fill:false},
+      {label:'Solar',data:[],borderColor:'#2ECC71',borderWidth:2,pointRadius:0,tension:0.1,fill:false,borderDash:[5,3]}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ticks:{color:'rgba(255,255,255,0.35)',font:{size:10},callback:(v,i)=>[0,4,9,14,19,24].includes(i)?'Yr'+(i+1):''},grid:{color:'rgba(255,255,255,0.04)'}},
+        y:{ticks:{color:'rgba(255,255,255,0.35)',font:{size:10},callback:v=>'$'+v.toFixed(2)},grid:{color:'rgba(255,255,255,0.05)'}}
+      }}
+  });
+
+  recalc();
+  document.getElementById('loading-screen').style.display='none';
+  document.getElementById('main-content').style.display='block';
+}
+
+function recalc(){
+  const rate=parseFloat(document.getElementById('rate-select').value)||0.06;
+  const kwhRate=DATA.kwh>0?(DATA.bill*12)/DATA.kwh:0;
+  const sKwhRate=DATA.solar>0&&DATA.solarKwh>0?(DATA.solar*12)/DATA.solarKwh:null;
+
+  const utilKwh=YEARS.map(y=>kwhRate*Math.pow(1+rate,y-1));
+  const utilMo=YEARS.map(y=>DATA.bill*Math.pow(1+rate,y-1));
+  const utilCumul=[];let cum=0;
+  utilMo.forEach(m=>{cum+=m*12;utilCumul.push(cum)});
+
+  const solKwh=sKwhRate?YEARS.map(y=>sKwhRate*Math.pow(1+DATA.vppRate,y-1)):null;
+  const solMo=DATA.solar>0?YEARS.map(y=>DATA.solar*Math.pow(1+DATA.vppRate,y-1)):null;
+  const solCumul=solMo?solMo.reduce((a,m,i)=>{a.push((a[i-1]||0)+m*12);return a},[]):null;
+
+  const T=DATA.term;
+  const savings=solCumul?utilCumul[T-1]-solCumul[T-1]:0;
+  let be=null;if(solCumul){for(let i=0;i<T;i++){if(utilCumul[i]>solCumul[i]){be=i+1;break}}}
+
+  const fmt=v=>v>=1000?'$'+Math.round(v/1000)+'K':'$'+Math.round(v);
+
+  document.getElementById('ov-rate').textContent=(rate*100).toFixed(0)+'%';
+  document.getElementById('ov-total').textContent=fmt(utilCumul[T-1]);
+  document.getElementById('n-util-total').textContent=fmt(utilCumul[T-1]);
+  document.getElementById('n-util-end').textContent='$'+Math.round(utilMo[T-1])+'/mo';
+  document.getElementById('n-breakeven').textContent=be?'Yr '+be:(solCumul?T+'+':'—');
+  document.getElementById('n-savings').textContent=solCumul?fmt(savings):'—';
+  document.getElementById('n-rate-used').textContent=(rate*100).toFixed(0)+'%';
+
+  if(propChart){
+    propChart.data.datasets[0].data=utilKwh.map(v=>+v.toFixed(4));
+    propChart.data.datasets[1].data=solKwh?solKwh.map(v=>+v.toFixed(4)):[];
+    propChart.update('none');
+  }
+
+  const mEl=document.getElementById('milestones');
+  if(mEl){
+    mEl.innerHTML='';
+    const pts=[1,2,Math.round(T*0.2),Math.round(T*0.4),T].filter((v,i,a)=>v>=1&&v<=T&&a.indexOf(v)===i).sort((a,b)=>a-b);
+    pts.forEach(yr=>{
+      const idx=yr-1,uA=utilCumul[idx];
+      const sA=solCumul?utilCumul[idx]-solCumul[idx]:null;
+      const c=sA!==null&&sA>=0?'var(--green-l)':'var(--rage-l)';
+      const ss=sA===null?'—':(sA>=0?'+':'')+'$'+Math.round(Math.abs(sA)).toLocaleString();
+      mEl.innerHTML+=`<div class="ml-row"><div class="ml-year">Yr ${yr}</div><div class="ml-util">$${Math.round(uA).toLocaleString()}</div><div class="ml-solar" style="color:${c}">${ss}</div></div>`;
+    });
+  }
+}
+</script>
+</body>
+</html>

@@ -247,6 +247,7 @@ footer a{color:var(--gold);text-decoration:none}
       <div class="stat-block"><span class="stat-val gold" id="ov-rate">9%</span><span class="stat-lbl">Rate Assumption</span></div>
       <div class="stat-block"><span class="stat-val red" id="ov-total">$88K</span><span class="stat-lbl" id="ov-total-lbl">25yr Utility Cost</span></div>
       <div class="stat-block"><span class="stat-val green" id="ov-offset">81%</span><span class="stat-lbl">Production Offset</span></div>
+      <div class="stat-block"><span class="stat-val gold" id="ov-usage">—</span><span class="stat-lbl">Annual Usage</span></div>
     </div>
   </section>
 
@@ -322,7 +323,7 @@ footer a{color:var(--gold);text-decoration:none}
     <p class="section-sub">This isn't just solar — it's a complete home energy system, fully protected for the life of your system.</p>
     <div class="warranty-grid">
       <div class="warranty-card"><span class="w-icon">☀️</span><h4>25-Year Panel Warranty</h4><p>Industry-leading performance guarantee. If output drops below spec, it's covered — no arguments.</p></div>
-      <div class="warranty-card"><span class="w-icon">🔋</span><h4>Battery Backup Included</h4><p>Whole-home battery storage. When the grid goes dark, your lights stay on.</p></div>
+      <div class="warranty-card"><span class="w-icon">🔋</span><h4 id="inc-battery-title">Battery Backup Included</h4><p id="inc-battery-body">Whole-home battery storage. When the grid goes dark, your lights stay on.</p></div>
       <div class="warranty-card"><span class="w-icon">🔌</span><h4>Active Monitoring</h4><p>Real-time system monitoring via app. Every panel, every kilowatt, every day.</p></div>
       <div class="warranty-card"><span class="w-icon">⚡</span><h4 id="inc-power-title">81% More Power</h4><p id="inc-power-body">Your system is sized to over-produce — run everything comfortably.</p></div>
       <div class="warranty-card"><span class="w-icon">🏡</span><h4>Home Value Increases</h4><p>Studies show solar adds 3–4% to home value — often more than the system cost.</p></div>
@@ -416,6 +417,7 @@ const DATA={
   solarKwh:parseFloat(p('skwh','6402')),
   vppRate: parseFloat(p('vpp','0.009')),
   term:    parseInt(p('term','25')),
+  battery: p('battery',''),
   created: parseInt(p('ts','0')),
   slides:  p('slides','overview,numbers,included,comparison,timeline,contact').split(','),
 };
@@ -459,12 +461,21 @@ function init(){
   document.getElementById('ov-bill').textContent='$'+DATA.bill;
   document.getElementById('ov-kwh').textContent='$'+kwhRate.toFixed(3);
   document.getElementById('ov-offset').textContent=offset+'%';
+  // Show annual usage in a stat if element exists
+  const ovUsageEl = document.getElementById('ov-usage');
+  if (ovUsageEl) ovUsageEl.textContent = DATA.kwh.toLocaleString() + ' kWh';
   document.getElementById('n-util-mo').textContent='$'+DATA.bill;
   document.getElementById('n-solar-mo').textContent=DATA.solar?'$'+DATA.solar:'—';
   document.getElementById('n-solar-kwh').textContent=sKwhRate?'$'+sKwhRate.toFixed(3):'—';
   document.getElementById('n-offset').textContent=offset+'%';
   document.getElementById('inc-power-title').textContent=offset+'% More Power';
   document.getElementById('inc-power-body').textContent='Your system produces '+offset+'% of your usage — run everything comfortably.';
+
+  // Show battery in included section
+  const battEl = document.getElementById('inc-battery-title');
+  if (battEl && DATA.battery && DATA.battery !== 'None') {
+    battEl.textContent = DATA.battery + ' Battery';
+  }
 
   // Filter sections
   document.querySelectorAll('[data-sec]').forEach(el=>{

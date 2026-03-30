@@ -14,7 +14,7 @@
   --deep:#050E18;--navy:#0A1628;--sky:#1A3A5C;
   --rage:#C0392B;--rage-l:#E74C3C;--rage-d:#7B241C;
   --green:#27AE60;--green-l:#2ECC71;--green-glow:rgba(39,174,96,0.3);
-  --text:#FFFFFF;--muted:rgba(255,255,255,0.55);--dim:rgba(255,255,255,0.3);
+  --text:#FFFFFF;--muted:rgba(255,255,255,0.92);--dim:rgba(255,255,255,0.68);
   --border:rgba(200,168,75,0.2);--border-red:rgba(192,57,43,0.3);
   --slide-w:100vw;--slide-h:100vh;
 }
@@ -134,7 +134,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
 .display.md{font-size:clamp(1.8rem,4vw,3.2rem)}
 .serif{font-family:'DM Serif Display',serif}
 .serif em{font-style:italic;color:var(--gold)}
-.body-text{font-size:1rem;font-weight:300;line-height:1.75;color:var(--muted);max-width:640px}
+.body-text{font-size:1rem;font-weight:400;line-height:1.75;color:#e8e4dc;max-width:640px}
 .body-text.centered{text-align:center;margin:0 auto}
 .accent-line{width:60px;height:3px;border-radius:2px;margin-bottom:1.5rem}
 .accent-line.red{background:var(--rage-l)}
@@ -163,7 +163,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
 
 /* bullet list */
 .blist{list-style:none;display:flex;flex-direction:column;gap:1rem;margin:1.5rem 0}
-.blist li{display:flex;align-items:flex-start;gap:0.75rem;font-size:0.95rem;color:var(--muted);line-height:1.6}
+.blist li{display:flex;align-items:flex-start;gap:0.75rem;font-size:0.95rem;color:#ddd8ce;line-height:1.6;font-weight:400}
 .blist li .icon{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;margin-top:1px}
 .blist li .icon.red{background:rgba(192,57,43,0.25);color:var(--rage-l)}
 .blist li .icon.gold{background:rgba(200,168,75,0.2);color:var(--gold)}
@@ -202,7 +202,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
 }
 .demand-card .icon-big{font-size:2rem;margin-bottom:0.5rem;display:block}
 .demand-card h4{font-size:0.9rem;font-weight:500;color:var(--text);margin-bottom:0.25rem}
-.demand-card p{font-size:0.75rem;color:var(--muted);line-height:1.5}
+.demand-card p{font-size:0.75rem;color:#ccc8be;line-height:1.5}
 
 /* ── SLIDE 3 — OPTIONS ── */
 .options-stack{display:flex;flex-direction:column;gap:1rem;margin:1.5rem 0;width:100%}
@@ -230,7 +230,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
 }
 .warranty-card .w-icon{font-size:1.75rem;margin-bottom:0.5rem;display:block}
 .warranty-card h4{font-size:0.9rem;font-weight:500;color:var(--green-l);margin-bottom:0.3rem}
-.warranty-card p{font-size:0.78rem;color:var(--muted);line-height:1.5}
+.warranty-card p{font-size:0.78rem;color:#d4d0c6;line-height:1.5}
 
 /* ── SLIDE 5 — QUALIFICATIONS ── */
 .qual-list{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
@@ -239,7 +239,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
   border-radius:6px;padding:1rem 1.25rem;display:flex;align-items:center;gap:0.75rem;
 }
 .qual-check{width:24px;height:24px;border-radius:50%;background:rgba(200,168,75,0.2);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
-.qual-text{font-size:0.85rem;color:var(--muted)}
+.qual-text{font-size:0.85rem;color:#d8d4ca}
 
 /* ── SLIDE 6 — TIMELINE ── */
 .timeline-container{width:100%;overflow:hidden;position:relative}
@@ -249,11 +249,11 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
 .testimonial-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1.5rem 0}
 .t-card{background:rgba(255,255,255,0.04);border:1px solid rgba(200,168,75,0.15);border-radius:8px;padding:1.25rem}
 .t-stars{color:var(--gold);font-size:0.8rem;margin-bottom:0.5rem}
-.t-quote{font-size:0.82rem;color:var(--muted);line-height:1.6;font-style:italic;margin-bottom:0.75rem}
+.t-quote{font-size:0.82rem;color:#d8d4ca;line-height:1.6;font-style:italic;margin-bottom:0.75rem}
 .t-name{font-size:0.75rem;color:var(--dim);font-weight:500}
 .ig-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:1.5rem}
-.ig-post{aspect-ratio:1;background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden;cursor:pointer}
-.ig-post img{width:100%;height:100%;object-fit:cover}
+.ig-post{background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden;cursor:pointer;min-height:80px;height:100%}
+.ig-post img{width:100%;height:100%;object-fit:cover;display:block}
 .ig-loading{display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:0.75rem;height:100%}
 
 /* ── SLIDE 8 — COMPANY ── */
@@ -261,7 +261,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
 .pillar{text-align:center;padding:2rem 1rem}
 .pillar .p-icon{font-size:2.5rem;margin-bottom:1rem;display:block}
 .pillar h3{font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--gold);margin-bottom:0.5rem}
-.pillar p{font-size:0.82rem;color:var(--muted);line-height:1.65}
+.pillar p{font-size:0.82rem;color:#d4d0c6;line-height:1.65}
 
 /* ── SLIDE 9 — HOW SOLAR WORKS ── */
 .how-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin:1.5rem 0}
@@ -271,7 +271,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
 .how-step .step-img{height:100px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;margin-bottom:0.75rem;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .how-step .step-img img{width:100%;height:100%;object-fit:cover}
 .how-step h4{font-size:0.82rem;font-weight:500;color:var(--text);margin-bottom:0.25rem}
-.how-step p{font-size:0.72rem;color:var(--muted);line-height:1.5}
+.how-step p{font-size:0.72rem;color:#ccc8be;line-height:1.5}
 
 /* ── SLIDE 10 — NUMBERS ── */
 .numbers-layout{display:grid;grid-template-columns:320px 1fr;gap:2rem;align-items:start;width:100%;max-width:1200px;margin:0 auto}
@@ -531,9 +531,9 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
   .overview-export-bar{flex-direction:column;align-items:flex-start}
 }
 /* ── SUMMARY SLIDE ── */
-.summary-cols{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;width:100%;align-items:start}
+.summary-cols{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;width:100%;align-items:stretch}
 .summary-col{
-  border-radius:10px;padding:1.5rem;min-height:420px;
+  border-radius:10px;padding:1.25rem 1.5rem;
   display:flex;flex-direction:column;
 }
 .summary-col-util{
@@ -567,23 +567,14 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
 .summary-bonus:nth-child(9){animation-delay:0.35s}
 @keyframes pulse-gold{0%,100%{box-shadow:0 0 0 0 rgba(200,168,75,0.4)}50%{box-shadow:0 0 0 8px rgba(200,168,75,0)}}
 
-@media(max-width:768px){
+@media(max-width:480px){
   .summary-cols{grid-template-columns:1fr}
   .summary-col{min-height:auto}
 }
 
-/* ── SUMMARY SLIDE ── */
-.summ-list{list-style:none;display:flex;flex-direction:column;gap:0.6rem}
-.summ-item{display:flex;align-items:flex-start;gap:0.65rem;font-size:0.9rem;font-weight:400;line-height:1.4}
-.summ-check{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:1px}
-.util-item{color:rgba(255,255,255,0.5)}
-.util-check{background:rgba(192,57,43,0.2);color:var(--rage-l)}
-.vpp-item{color:rgba(255,255,255,0.85)}
-.vpp-check{background:rgba(39,174,96,0.2);color:var(--green-l)}
-.vpp-extra{animation:slideInItem 0.35s ease both}
-@keyframes slideInItem{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:translateX(0)}}
-#vpp-reveal-card:hover #vpp-locked{opacity:0.85}
-#vpp-reveal-card.revealed{cursor:default}
+/* ── SELL YOURSELF LAYOUT ── */
+.sell-layout{display:grid;grid-template-columns:1fr 1fr;gap:2rem;flex:1;min-height:0;align-items:start}
+.ig-column{display:flex;flex-direction:column;height:100%;min-height:280px}
 
 /* customer step highlight */
 .tl-customer-step .tl-circle{transition:all 0.3s}
@@ -613,143 +604,8 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
 .gallery-close-btn:hover{border-color:var(--gold);color:var(--gold)}
 
 /* ══════════════════════════════════════════
-   MOBILE RESPONSIVE  ≤ 768px
+   TABLET  769–1024px
 ══════════════════════════════════════════ */
-@media (max-width: 768px) {
-
-  /* ── Core slide layout ── */
-  .slide{
-    padding:4.5rem 1.25rem 5rem;
-    overflow-y:auto;
-    justify-content:flex-start;
-    align-items:flex-start;
-  }
-  .slide-inner{max-width:100%!important;width:100%}
-
-  /* ── Typography ── */
-  .display.xl{font-size:2.6rem!important}
-  .display.lg{font-size:2rem!important}
-  .display.md{font-size:1.6rem!important}
-  .body-text{font-size:0.88rem}
-  .eyebrow{font-size:0.62rem}
-
-  /* ── Nav arrows — smaller, tucked in ── */
-  #nav-prev,#nav-next{width:40px;height:40px}
-  #nav-prev{left:0.5rem}
-  #nav-next{right:0.5rem}
-  #nav-prev svg,#nav-next svg{width:16px;height:16px}
-
-  /* ── Admin btn ── */
-  #admin-btn{font-size:0.6rem;padding:0.3rem 0.8rem;opacity:0.2}
-
-  /* ── Bottom toolbar — stack into 2 rows ── */
-  .gallery-btn{
-    padding:0.35rem 0.65rem;
-    font-size:0.62rem;
-    border-radius:6px;
-  }
-  /* reposition bottom buttons to a compact bar */
-  #overview-btn{right:auto;left:0.5rem;bottom:3.5rem}
-  #investment-btn{right:0.5rem;bottom:3.5rem}
-  .gallery-btn:not(#overview-btn):not(#investment-btn){bottom:0.6rem;right:0.5rem}
-  #edit-mode-btn{left:0.5rem;bottom:0.6rem;font-size:0.6rem;padding:0.3rem 0.75rem}
-  #slide-counter{bottom:0.5rem}
-
-  /* ── All two-column → single column ── */
-  .two-col{grid-template-columns:1fr!important;gap:1.25rem}
-  .two-col.flip{direction:ltr}
-
-  /* ── Slide 1 stat blocks ── */
-  .stat-row{flex-direction:column;gap:2px}
-  .stat-b .val{font-size:1.8rem}
-
-  /* ── Slide 2 demand grid ── */
-  .demand-grid{grid-template-columns:1fr 1fr!important;gap:0.75rem;margin:1rem 0}
-  .demand-card{padding:0.85rem}
-  .demand-card .icon-big{font-size:1.5rem}
-  .demand-card h4{font-size:0.8rem}
-  .demand-card p{font-size:0.7rem}
-
-  /* ── Slide 3 options ── */
-  .option-card{grid-template-columns:1fr!important}
-  .op-chart-mini{height:60px}
-
-  /* ── Slide 4 warranty grid ── */
-  .warranty-grid{grid-template-columns:1fr 1fr!important;gap:0.75rem}
-  .warranty-card{padding:0.85rem}
-  .warranty-card h4{font-size:0.82rem}
-  .warranty-card p{font-size:0.72rem}
-
-  /* ── Slide 5 qual list ── */
-  .qual-list{grid-template-columns:1fr!important;gap:0.6rem}
-  .qual-item{padding:0.75rem}
-
-  /* ── Slide 6 timeline ── */
-  .tl-node{width:72px}
-  .tl-circle{width:54px;height:54px}
-  .tl-circle span{font-size:1.2rem!important}
-  .tl-badge{width:28px;height:28px;font-size:0.42rem;right:0;top:-6px}
-  .tl-label{font-size:0.52rem}
-  #tl-center-card{width:150px!important;padding:0.85rem 0.75rem!important}
-
-  /* ── Slide 7 testimonials ── */
-  .testimonial-row{grid-template-columns:1fr!important}
-  .ig-grid{grid-template-columns:repeat(4,1fr)!important}
-
-  /* ── Slide 8 company pillars ── */
-  .company-pillars{grid-template-columns:1fr!important;gap:1rem}
-
-  /* ── Slide 9 how solar works ── */
-  .how-grid{grid-template-columns:1fr 1fr!important;gap:0.75rem}
-  .how-step .step-img{height:70px}
-  .how-step h4{font-size:0.72rem}
-  .how-step p{font-size:0.65rem}
-
-  /* ── Slide 10 numbers — full reflow ── */
-  .numbers-layout{grid-template-columns:1fr!important;gap:1rem}
-  .n-input.big{font-size:1.2rem}
-  .metric-strip{grid-template-columns:repeat(3,1fr)}
-  .m-tile .m-val{font-size:1.2rem}
-  .chart-box{padding:0.85rem}
-  #chartMain{height:160px!important}
-  .flip-card{height:auto!important}
-  .flip-front,.flip-back{position:relative!important;backface-visibility:visible!important;transform:none!important}
-  .flip-card.flipped .flip-front{display:none}
-  .flip-card:not(.flipped) .flip-back{display:none}
-  .flip-inner{transform:none!important;transition:none!important}
-
-  /* investment panel */
-  #investment-panel > div:first-of-type{flex-direction:column;gap:0.5rem}
-  #investment-panel .numbers-layout > div:first-child{grid-template-columns:1fr!important}
-  #inv-bars .m-val{font-size:1rem}
-
-  /* ── Donation table ── */
-  .d-row-util,.d-row-solar{font-size:1.1rem!important}
-
-  /* ── How solar chart ── */
-  #solarSeasonChart{height:140px!important}
-
-  /* ── Gallery overlay ── */
-  .slide-gallery-grid{grid-template-columns:repeat(2,1fr)!important;gap:0.6rem}
-  .slide-thumb .th-label{font-size:0.65rem}
-
-  /* ── Comparison grid (slide 3) ── */
-  .comparison-grid{grid-template-columns:1fr!important}
-  .cg-header,.cg-cell{padding:0.6rem 0.75rem}
-}
-
-/* ── Extra small phones ≤ 390px ── */
-@media (max-width: 390px) {
-  .display.xl{font-size:2rem!important}
-  .display.lg{font-size:1.65rem!important}
-  .slide{padding:4rem 1rem 5rem}
-  .demand-grid{grid-template-columns:1fr!important}
-  .warranty-grid{grid-template-columns:1fr!important}
-  .how-grid{grid-template-columns:1fr 1fr!important}
-  .numbers-layout .n-card{padding:0.85rem}
-}
-
-/* ── Tablet ≤ 1024px ── */
 @media (max-width: 1024px) and (min-width: 769px) {
   .slide{padding:4.5rem 2.5rem 5.5rem}
   .numbers-layout{grid-template-columns:280px 1fr!important}
@@ -757,6 +613,186 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
   .display.xl{font-size:3.5rem!important}
   .demand-grid{grid-template-columns:repeat(2,1fr)!important}
   .company-pillars{grid-template-columns:1fr 1fr 1fr!important}
+}
+
+/* ══════════════════════════════════════════
+   MOBILE  ≤ 768px
+══════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* Core slide */
+  .slide{padding:4rem 1rem 5.5rem;overflow-y:auto;justify-content:flex-start;align-items:flex-start}
+  .slide-inner{max-width:100%!important;width:100%}
+  #slide-title{justify-content:center;align-items:center}
+  .title-slide-inner{padding:0 0.5rem;gap:1rem}
+  .customer-name-display{font-size:1.4rem!important}
+
+  /* Typography */
+  .display.xl{font-size:2.2rem!important;line-height:0.95!important}
+  .display.lg{font-size:1.8rem!important}
+  .display.md{font-size:1.5rem!important}
+  .body-text{font-size:0.85rem;margin-bottom:0.75rem!important}
+  .eyebrow{font-size:0.58rem;letter-spacing:0.15em}
+  .accent-line{margin-bottom:0.6rem!important}
+
+  /* Bill input on slide 1 */
+  .slide-bill-input-wrap{margin:0.5rem 0;padding:0.4rem 0.75rem}
+  .slide-bill-input{font-size:1.6rem;width:90px}
+
+  /* Stat row (slide 1) */
+  .stat-row{flex-direction:column;gap:3px}
+  .stat-b{padding:0.65rem 0.85rem}
+  .stat-b .val{font-size:1.6rem}
+  .stat-b .lbl{font-size:0.6rem}
+
+  /* Nav arrows */
+  #nav-prev,#nav-next{width:38px;height:38px}
+  #nav-prev{left:0.35rem}#nav-next{right:0.35rem}
+  #nav-prev svg,#nav-next svg{width:14px;height:14px}
+
+  /* Admin */
+  #admin-btn{font-size:0.55rem;padding:0.25rem 0.7rem;opacity:0.15;top:0.8rem}
+  #theme-btn{width:34px;height:34px;font-size:0.9rem;top:0.75rem;right:0.75rem}
+
+  /* Bottom toolbar — two rows */
+  .gallery-btn{padding:0.3rem 0.55rem;font-size:0.58rem;border-radius:5px}
+  #print-btn{right:auto;left:0.4rem;bottom:3.6rem}
+  #overview-btn{right:auto;left:4.5rem;bottom:3.6rem}
+  #investment-btn{right:0.4rem;bottom:3.6rem}
+  .gallery-btn:not(#print-btn):not(#overview-btn):not(#investment-btn){bottom:0.5rem;right:0.4rem}
+  #edit-mode-btn{left:0.4rem;bottom:0.5rem;font-size:0.58rem;padding:0.28rem 0.65rem}
+  #slide-counter{bottom:0.4rem;gap:4px}
+  .dot{width:5px;height:5px}
+  .dot.active{width:16px}
+
+  /* Slide 1 — two-col → single */
+  .two-col{grid-template-columns:1fr!important;gap:1rem}
+  .two-col.flip{direction:ltr}
+
+  /* Demand grid 2-col on mobile */
+  .demand-grid{grid-template-columns:1fr 1fr!important;gap:0.6rem;margin:0.75rem 0}
+  .demand-card{padding:0.7rem}
+  .demand-card .icon-big{font-size:1.3rem}
+  .demand-card h4{font-size:0.75rem}
+  .demand-card p{font-size:0.65rem}
+
+  /* Options slide */
+  .options-stack{gap:0.75rem!important}
+  .option-card{display:flex!important;flex-direction:column!important;gap:0.5rem!important;padding:0.9rem!important}
+  .op-chart-mini{height:55px}
+
+  /* Highlights / warranty */
+  .warranty-grid{grid-template-columns:1fr 1fr!important;gap:0.6rem}
+  .warranty-card{padding:0.75rem}
+  .warranty-card .w-icon{font-size:1.3rem}
+  .warranty-card h4{font-size:0.78rem}
+  .warranty-card p{font-size:0.68rem}
+
+  /* Qualifications */
+  .qual-list{grid-template-columns:1fr!important;gap:0.5rem}
+  .qual-item{padding:0.65rem}
+  .qual-check{font-size:0.9rem}
+  .qual-text{font-size:0.78rem}
+
+  /* Timeline */
+  #slide-5{padding:3rem 0.75rem 5.5rem!important}
+  .tl-node{width:64px}
+  .tl-circle{width:48px;height:48px}
+  .tl-circle span{font-size:1.1rem!important}
+  .tl-badge{width:26px;height:26px;font-size:0.38rem}
+  .tl-label{font-size:0.48rem;letter-spacing:0.05em}
+  #tl-center-card{width:130px!important;padding:0.75rem 0.6rem!important;font-size:0.65rem}
+  #tl-card-title{font-size:0.95rem!important}
+
+  /* Sell yourself / IG */
+  #slide-6{padding:3.5rem 1rem 5.5rem!important}
+  .sell-layout{grid-template-columns:1fr!important;height:auto!important}
+  .ig-column{min-height:220px;height:220px}
+  #ig-feed{grid-template-rows:1fr 1fr!important}
+
+  /* Company pillars */
+  .company-pillars{grid-template-columns:1fr!important;gap:0.75rem}
+  .pillar .p-icon{font-size:1.5rem}
+  .pillar h3{font-size:1rem}
+
+  /* How solar works */
+  #slide-8{padding:3.5rem 1rem 5.5rem!important}
+  #slide-8 .slide-inner > div[style*="grid"]{grid-template-columns:1fr!important}
+  .how-grid{grid-template-columns:1fr 1fr!important;gap:0.6rem;margin-top:0.75rem!important}
+  .how-step .step-img{height:60px}
+  .how-step h4{font-size:0.7rem}
+  .how-step p{font-size:0.62rem}
+  #solarSeasonChart{height:130px!important}
+
+  /* Summary slide */
+  .summary-cols{gap:0.75rem}
+  .summary-col{padding:0.85rem 1rem}
+  .summary-col-title{font-size:1.1rem}
+  .summary-item{font-size:0.78rem;gap:0.45rem}
+  #summary-locked{padding:1.25rem 0.75rem;gap:0.75rem}
+
+  /* Numbers slide — full reflow */
+  #slide-9{padding-top:3rem!important}
+  .numbers-layout{grid-template-columns:1fr!important;gap:0.85rem}
+  .n-card{padding:0.9rem}
+  .n-card-title{font-size:0.6rem;margin-bottom:0.6rem}
+  .n-input.big{font-size:1.1rem}
+  .n-input,.n-select{font-size:0.8rem;padding:0.4rem 0.6rem}
+  .n-label{font-size:0.62rem}
+  .metric-strip{grid-template-columns:repeat(3,1fr);gap:5px}
+  .m-tile{padding:0.65rem}
+  .m-tile .m-val{font-size:1.2rem}
+  .m-tile .m-lbl{font-size:0.55rem}
+  .chart-box{padding:0.75rem}
+  #chartMain{height:150px!important}
+  .kwh-bubble,.offset-bubble,.solar-kwh-bubble{font-size:0.65rem;padding:0.3rem 0.6rem}
+
+  /* Flip card — disable 3D on mobile */
+  .flip-card{height:auto!important;perspective:none!important}
+  .flip-inner{transform:none!important;transition:none!important;position:relative!important}
+  .flip-front,.flip-back{position:relative!important;backface-visibility:visible!important;transform:none!important;width:100%!important;height:auto!important}
+  .flip-card.flipped .flip-front{display:none}
+  .flip-card:not(.flipped) .flip-back{display:none}
+
+  /* Investment panel */
+  #investment-panel{padding-top:1.25rem!important}
+  #investment-panel > div[style*="grid-template-columns:repeat(3"]{grid-template-columns:1fr!important}
+  #inv-bars .m-val{font-size:0.95rem}
+
+  /* Donations / milestone table */
+  #milestone-rows > div,#donations-rows > div{font-size:1rem!important}
+
+  /* Hidden cash panel */
+  .cash-panel{font-size:0.8rem}
+  .hidden-tab-btn{font-size:0.7rem}
+
+  /* Gallery overlay */
+  .gallery-overlay-title{font-size:1.5rem}
+  .slide-gallery-grid{grid-template-columns:repeat(2,1fr)!important;gap:0.5rem}
+  .slide-thumb{padding:0.85rem 0.5rem}
+  .slide-thumb .th-label{font-size:0.6rem}
+  .slide-thumb .th-icon{font-size:1.3rem}
+  .overview-export-bar{flex-direction:column;align-items:flex-start;gap:0.6rem;padding:0.75rem 0}
+  .oe-btn{font-size:0.7rem;padding:0.3rem 0.7rem}
+}
+
+/* ══════════════════════════════════════════
+   SMALL PHONES  ≤ 390px
+══════════════════════════════════════════ */
+@media (max-width: 390px) {
+  .slide{padding:3.5rem 0.75rem 5.5rem}
+  .display.xl{font-size:1.85rem!important}
+  .display.lg{font-size:1.55rem!important}
+  .display.md{font-size:1.3rem!important}
+  .demand-grid{grid-template-columns:1fr!important}
+  .warranty-grid{grid-template-columns:1fr!important}
+  .summary-cols{grid-template-columns:1fr!important}
+  .metric-strip{grid-template-columns:repeat(3,1fr)}
+  .m-tile .m-val{font-size:1rem}
+  .tl-node{width:56px}
+  .tl-circle{width:42px;height:42px}
+  .tl-label{font-size:0.42rem}
+  #tl-center-card{width:110px!important}
 }
 
 /* animations */
@@ -1133,19 +1169,24 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
 </div>
 
 <!-- ── SLIDE 7: SELL YOURSELF ── -->
-<div class="slide slide-solar" id="slide-6">
-  <div class="slide-inner">
-    <span class="eyebrow">Why Work With Me</span>
-    <div class="accent-line gold"></div>
-    <h1 class="display md" style="margin-bottom:1rem">I DON'T SELL SOLAR. <span style="color:var(--gold)">I PROTECT FAMILIES.</span></h1>
-    <div class="two-col" style="gap:2rem">
-      <div>
+<div class="slide slide-solar" id="slide-6" style="padding:4rem 3rem 5rem">
+  <div class="slide-inner" style="max-width:1200px;height:100%;display:flex;flex-direction:column">
+    <div style="flex-shrink:0">
+      <span class="eyebrow">Why Work With Me</span>
+      <div class="accent-line gold"></div>
+      <h1 class="display md" style="margin-bottom:0.75rem">I DON'T SELL SOLAR. <span style="color:var(--gold)">I PROTECT FAMILIES.</span></h1>
+    </div>
+
+    <div class="sell-layout">
+
+      <!-- LEFT: bullets + testimonials -->
+      <div style="display:flex;flex-direction:column;gap:1rem">
         <ul class="blist">
           <li><span class="icon gold">★</span><span><strong>Local San Diego expert</strong> — I live here, I know the rates, I know the permits, I know the utility games. This is my community too.</span></li>
           <li><span class="icon gold">★</span><span><strong>Post-install support for life</strong> — I'm not a door-knocker who disappears. My number doesn't change. Call me in year 10.</span></li>
           <li><span class="icon gold">★</span><span><strong>My mission is to make this industry truly sustainable</strong> — the better experience I give, the more people you tell about it, and the quicker we can get there together.</span></li>
         </ul>
-        <div class="testimonial-row" style="margin-top:1.5rem;grid-template-columns:1fr 1fr">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
           <div class="t-card">
             <div class="t-stars">★★★★★</div>
             <div class="t-quote" id="t1-quote">"David is conscientious, knowledgeable, and honest. He knows Solar inside and out and goes above and beyond to make sure you're taken care of every step of the way."</div>
@@ -1158,16 +1199,23 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
           </div>
         </div>
       </div>
-      <div>
-        <p style="font-size:0.72rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);margin-bottom:0.75rem">From My Feed</p>
-        <div class="ig-grid" id="ig-feed">
-          <div class="ig-post"><div class="ig-loading">Loading...</div></div>
-          <div class="ig-post"><div class="ig-loading">Loading...</div></div>
-          <div class="ig-post"><div class="ig-loading">Loading...</div></div>
-          <div class="ig-post"><div class="ig-loading">Loading...</div></div>
+
+      <!-- RIGHT: Instagram feed fills full height -->
+      <div class="ig-column">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;flex-shrink:0">
+          <p style="font-size:0.7rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim)">From My Feed</p>
+          <p style="font-size:0.65rem;color:var(--dim)">@energy.best.ca</p>
         </div>
-        <p style="font-size:0.68rem;color:var(--dim);margin-top:0.5rem;text-align:right">@energy.best.ca</p>
+        <div id="ig-feed" style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,1fr);gap:5px;flex:1;min-height:0">
+          <div class="ig-post" style="height:auto"><div class="ig-loading">Loading...</div></div>
+          <div class="ig-post" style="height:auto"><div class="ig-loading">Loading...</div></div>
+          <div class="ig-post" style="height:auto"><div class="ig-loading">Loading...</div></div>
+          <div class="ig-post" style="height:auto"><div class="ig-loading">Loading...</div></div>
+          <div class="ig-post" style="height:auto"><div class="ig-loading">Loading...</div></div>
+          <div class="ig-post" style="height:auto"><div class="ig-loading">Loading...</div></div>
+        </div>
       </div>
+
     </div>
   </div>
 </div>
@@ -1993,6 +2041,20 @@ function recalc() {
   if(dunEl) dunEl.textContent = d.utilName;
   const nameEl = document.getElementById('sum-util-name');
   if (nameEl) nameEl.textContent = d.utilName;
+  // Persist current numbers so admin proposal generator can pull them
+  try {
+    const termEl = document.getElementById('inp-term');
+    const vppEl  = document.getElementById('inp-vpp-rate');
+    localStorage.setItem('kinobi-numbers', JSON.stringify({
+      bill:     document.getElementById('inp-bill')?.value,
+      kwh:      document.getElementById('inp-kwh-usage')?.value,
+      solar:    document.getElementById('inp-solar')?.value,
+      solarKwh: document.getElementById('inp-solar-kwh')?.value,
+      term:     termEl?.value || '25',
+      vppRate:  vppEl?.value  || '0.009',
+    }));
+  } catch(e) {}
+
   // Sync bill back to slide 1 input
   syncBillToSlide1(d.bill);
   const rr = document.getElementById('rage-rate');
@@ -2375,25 +2437,39 @@ buildMiniChart('chartOp3', YEARS.map(()=>d0.solarMonthly ? Math.round(d0.solarMo
 function loadIGFeed() {
   const token = localStorage.getItem('ig_token') || '';
   if(!token){renderIGPlaceholders();return}
-  fetch(`https://graph.instagram.com/me/media?fields=id,media_url,permalink,media_type&limit=4&access_token=${token}`)
+  fetch(`https://graph.instagram.com/me/media?fields=id,media_url,permalink,media_type&limit=6&access_token=${token}`)
     .then(r=>r.json()).then(data=>{
       if(!data.data){renderIGPlaceholders();return}
       const grid = document.getElementById('ig-feed');
+      if (!grid) return;
       grid.innerHTML='';
-      data.data.filter(p=>p.media_type!=='VIDEO').slice(0,4).forEach(p=>{
-        const d=document.createElement('div');d.className='ig-post';
-        d.innerHTML=`<a href="${p.permalink}" target="_blank"><img src="${p.media_url}" loading="lazy" style="width:100%;height:100%;object-fit:cover"></a>`;
+      const posts = data.data.filter(p=>p.media_type!=='VIDEO').slice(0,6);
+      posts.forEach(p=>{
+        const d=document.createElement('div');
+        d.className='ig-post';
+        d.style.cssText='overflow:hidden;border-radius:4px;background:rgba(255,255,255,0.05)';
+        d.innerHTML=`<a href="${p.permalink}" target="_blank" style="display:block;width:100%;height:100%"><img src="${p.media_url}" loading="lazy" style="width:100%;height:100%;object-fit:cover"></a>`;
         grid.appendChild(d);
       });
+      // Fill remaining slots if fewer than 6
+      while(grid.children.length < 6) {
+        const d=document.createElement('div');
+        d.className='ig-post';
+        d.innerHTML='<div class="ig-loading" style="color:rgba(255,255,255,0.1);font-size:0.7rem">@energy.best.ca</div>';
+        grid.appendChild(d);
+      }
     }).catch(()=>renderIGPlaceholders());
 }
 
 function renderIGPlaceholders() {
   const grid = document.getElementById('ig-feed');
+  if (!grid) return;
   grid.innerHTML='';
-  for(let i=0;i<4;i++){
-    const d=document.createElement('div');d.className='ig-post';
-    d.innerHTML='<div class="ig-loading" style="color:rgba(255,255,255,0.2);font-size:0.7rem">@energy.best.ca</div>';
+  for(let i=0;i<6;i++){
+    const d=document.createElement('div');
+    d.className='ig-post';
+    d.style.cssText='overflow:hidden;border-radius:4px;background:rgba(255,255,255,0.04)';
+    d.innerHTML='<div class="ig-loading" style="color:rgba(255,255,255,0.15);font-size:0.7rem">@energy.best.ca</div>';
     grid.appendChild(d);
   }
 }

@@ -401,11 +401,17 @@ footer a{color:var(--gold);text-decoration:none}
     </div>
 
     <div class="chart-box">
-      <p class="chart-title">kWh Rate Trajectory — <span id="util-legend">SDG&E</span> vs Your Solar Rate</p>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.85rem">
+        <p class="chart-title" id="p-chart-title" style="margin-bottom:0">Monthly Payment ($)</p>
+        <div style="display:flex;gap:4px">
+          <button class="toggle-btn" id="p-btn-kwh" onclick="setPropMode('kwh')" style="font-size:0.68rem;padding:0.2rem 0.55rem">$/kWh</button>
+          <button class="toggle-btn active" id="p-btn-pay" onclick="setPropMode('payment')" style="font-size:0.68rem;padding:0.2rem 0.55rem">Monthly $</button>
+        </div>
+      </div>
       <div style="position:relative;height:clamp(150px,30vw,210px)"><canvas id="propChart"></canvas></div>
       <div style="display:flex;gap:1.25rem;font-size:0.7rem;color:var(--dim);margin-top:0.6rem">
-        <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:3px;background:#E74C3C;border-radius:2px;display:inline-block"></span><span id="util-legend2">SDG&E (rising)</span></span>
-        <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:3px;background:#2ECC71;border-radius:2px;display:inline-block"></span>Solar (locked)</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:3px;background:#E74C3C;border-radius:2px;display:inline-block"></span><span id="util-legend2">SDG&E (through Yr 30)</span></span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:3px;background:#2ECC71;border-radius:2px;display:inline-block"></span>Solar (through loan term)</span>
       </div>
     </div>
 
@@ -521,9 +527,93 @@ const elapsed=now-created;
 const daysLeft=Math.max(0,Math.ceil((THIRTY_DAYS-elapsed)/(24*60*60*1000)));
 
 let propChart;
-const YEARS=Array.from({length:DATA.term},(_,i)=>i+1);
+const T = DATA.term;
+const YEARS_30 = Array.from({length:30},(_,i)=>i+1);
+const YEARS_T  = Array.from({length:T}, (_,i)=>i+1);
+let propMode = 'payment'; // default to monthly $
 
-function init(){
+function recalc(){
+  const rate    = parseFloat(document.getElementById('rate-select').value)||0.06;
+  const kwhRate = DATA.kwh>0?(DATA.bill*12)/DATA.kwh:0;
+  const sKwhRate= DATA.solar>0&&DATA.solarKwh>0?(DATA.solar*12)/DATA.solarKwh:null;
+
+  // Utility runs to yr 30 always
+  const utilKwh30= YEARS_30.map(y=>kwhRate*Math.pow(1+rate,y-1));
+  const utilMo30 = YEARS_30.map(y=>DATA.bill*Math.pow(1+rate,y-1));
+  const utilCumul30=[]; let cum=0;
+  utilMo30.forEach(m=>{cum+=m*12;utilCumul30.push(cum)});
+
+  // Solar stops at TERM, null-padded to 30 for chart
+  const solKwhT = sKwhRate?YEARS_T.map(y=>sKwhRate*Math.pow(1+DATA.vppRate,y-1)):null;
+  const solMoT  = DATA.solar>0?YEARS_T.map(y=>DATA.solar*Math.pow(1+DATA.vppRate,y-1)):null;
+  const solCumulT= solMoT?solMoT.reduce((a,m,i)=>{a.push((a[i-1]||0)+m*12);return a},[]):null;
+
+  // Pad solar to 30 years with null for chart
+  const solKwh30 = solKwhT?[...solKwhT,...Array(30-T).fill(null)]:null;
+  const solMo30  = solMoT ?[...solMoT, ...Array(30-T).fill(null)]:null;
+
+  const savings  = solCumulT?utilCumul30[T-1]-solCumulT[T-1]:0;
+  let be=null;if(solCumulT){for(let i=0;i<T;i++){if(utilCumul30[i]>solCumulT[i]){be=i+1;break}}}
+  const fmt=v=>v>=1000?'$'+Math.round(v/1000)+'K':'$'+Math.round(v);
+
+  document.getElementById('ov-rate').textContent=(rate*100).toFixed(0)+'%';
+  document.getElementById('ov-total').textContent=fmt(utilCumul30[T-1]);
+  document.getElementById('n-util-total').textContent=fmt(utilCumul30[T-1]);
+  document.getElementById('n-util-end').textContent='$'+Math.round(utilMo30[T-1])+'/mo';
+  document.getElementById('n-breakeven').textContent=be?'Yr '+be:(solCumulT?T+'+':'—');
+  document.getElementById('n-savings').textContent=solCumulT?fmt(savings):'—';
+  document.getElementById('n-rate-used').textContent=(rate*100).toFixed(0)+'%';
+
+  // Chart — always 30 labels, solar nulls after term
+  if(propChart){
+    const labels=YEARS_30.map(y=>'Yr'+y);
+    propChart.data.labels=labels;
+    if(propMode==='kwh'){
+      propChart.data.datasets[0].data=utilKwh30.map(v=>+v.toFixed(4));
+      propChart.data.datasets[1].data=solKwh30?solKwh30.map(v=>v===null?null:+v.toFixed(4)):[];
+    } else {
+      propChart.data.datasets[0].data=utilMo30.map(v=>Math.round(v));
+      propChart.data.datasets[1].data=solMo30?solMo30.map(v=>v===null?null:+v.toFixed(2)):[];
+    }
+    propChart.update('none');
+  }
+
+  // Milestone table — always Yr 1, 2, 5, 10, 25, 30; clamp to available util data (always 30yr)
+  const mEl=document.getElementById('milestones');
+  if(mEl){
+    mEl.innerHTML='';
+    const FIXED=[1,2,5,10,25,30];
+    const pts=FIXED.filter(yr=>yr<=30);
+    // Always include term end if not in list
+    if(!pts.includes(T)) pts.push(T);
+    pts.sort((a,b)=>a-b);
+    pts.forEach(yr=>{
+      const idx=yr-1;
+      const uA=utilCumul30[idx];
+      // Solar savings only available up to TERM; after that show utility cost only
+      const sA=(solCumulT&&yr<=T)?(utilCumul30[idx]-solCumulT[idx]):null;
+      const c=sA!==null&&sA>=0?'var(--green-l)':'var(--rage-l)';
+      const ss=sA===null?'—':(sA>=0?'+':'')+'$'+Math.round(Math.abs(sA)).toLocaleString();
+      const termNote=yr===T&&T!==30?' ★':'';
+      mEl.innerHTML+=`<div class="ml-row"><div class="ml-year">Yr ${yr}${termNote}</div><div class="ml-util">$${Math.round(uA).toLocaleString()}</div><div class="ml-solar" style="color:${c}">${ss}</div></div>`;
+    });
+    // Legend if term < 30
+    if(T<30){
+      mEl.innerHTML+=`<div style="font-size:0.65rem;color:var(--dim);padding-top:5px">★ = loan payoff. Solar savings shown through Year ${T} only.</div>`;
+    }
+  }
+}
+
+function setPropMode(mode){
+  propMode=mode;
+  const kwh=document.getElementById('p-btn-kwh');
+  const pay=document.getElementById('p-btn-pay');
+  if(kwh) kwh.className='toggle-btn'+(mode==='kwh'?' active':'');
+  if(pay) pay.className='toggle-btn'+(mode==='payment'?' active':'');
+  const title=document.getElementById('p-chart-title');
+  if(title) title.textContent=mode==='kwh'?'kWh Rate Trajectory':'Monthly Payment ($)';
+  recalc();
+}
   // Rep name
   const repEl=document.getElementById('hero-rep');if(repEl)repEl.textContent=DATA.rep;
   const contactRepEl=document.getElementById('contact-rep-name');if(contactRepEl)contactRepEl.textContent=DATA.rep;
@@ -582,69 +672,21 @@ function init(){
   const ctx=document.getElementById('propChart').getContext('2d');
   propChart=new Chart(ctx,{
     type:'line',
-    data:{labels:YEARS.map(y=>'Yr'+y),datasets:[
-      {label:DATA.utility,data:[],borderColor:'#E74C3C',borderWidth:2.5,pointRadius:0,tension:0.3,fill:false},
-      {label:'Solar',data:[],borderColor:'#2ECC71',borderWidth:2,pointRadius:0,tension:0.1,fill:false,borderDash:[5,3]}
+    data:{labels:YEARS_30.map(y=>'Yr'+y),datasets:[
+      {label:DATA.utility,data:[],borderColor:'#E74C3C',borderWidth:2.5,pointRadius:0,tension:0.3,fill:false,spanGaps:false},
+      {label:'Solar',data:[],borderColor:'#2ECC71',borderWidth:2,pointRadius:0,tension:0.1,fill:false,borderDash:[5,3],spanGaps:false}
     ]},
     options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
       plugins:{legend:{display:false}},
       scales:{
-        x:{ticks:{color:'rgba(255,255,255,0.35)',font:{size:10},callback:(v,i)=>[0,4,9,14,19,24].includes(i)?'Yr'+(i+1):''},grid:{color:'rgba(255,255,255,0.04)'}},
-        y:{ticks:{color:'rgba(255,255,255,0.35)',font:{size:10},callback:v=>'$'+v.toFixed(2)},grid:{color:'rgba(255,255,255,0.05)'}}
+        x:{ticks:{color:'rgba(255,255,255,0.35)',font:{size:10},callback:(v,i)=>[0,1,4,9,14,19,24,29].includes(i)?'Yr'+(i+1):''},grid:{color:'rgba(255,255,255,0.04)'}},
+        y:{ticks:{color:'rgba(255,255,255,0.35)',font:{size:10},callback:v=>propMode==='kwh'?'$'+v.toFixed(2):'$'+Math.round(v)},grid:{color:'rgba(255,255,255,0.05)'}}
       }}
   });
 
   recalc();
   document.getElementById('loading-screen').style.display='none';
   document.getElementById('main-content').style.display='block';
-}
-
-function recalc(){
-  const rate=parseFloat(document.getElementById('rate-select').value)||0.06;
-  const kwhRate=DATA.kwh>0?(DATA.bill*12)/DATA.kwh:0;
-  const sKwhRate=DATA.solar>0&&DATA.solarKwh>0?(DATA.solar*12)/DATA.solarKwh:null;
-
-  const utilKwh=YEARS.map(y=>kwhRate*Math.pow(1+rate,y-1));
-  const utilMo=YEARS.map(y=>DATA.bill*Math.pow(1+rate,y-1));
-  const utilCumul=[];let cum=0;
-  utilMo.forEach(m=>{cum+=m*12;utilCumul.push(cum)});
-
-  const solKwh=sKwhRate?YEARS.map(y=>sKwhRate*Math.pow(1+DATA.vppRate,y-1)):null;
-  const solMo=DATA.solar>0?YEARS.map(y=>DATA.solar*Math.pow(1+DATA.vppRate,y-1)):null;
-  const solCumul=solMo?solMo.reduce((a,m,i)=>{a.push((a[i-1]||0)+m*12);return a},[]):null;
-
-  const T=DATA.term;
-  const savings=solCumul?utilCumul[T-1]-solCumul[T-1]:0;
-  let be=null;if(solCumul){for(let i=0;i<T;i++){if(utilCumul[i]>solCumul[i]){be=i+1;break}}}
-
-  const fmt=v=>v>=1000?'$'+Math.round(v/1000)+'K':'$'+Math.round(v);
-
-  document.getElementById('ov-rate').textContent=(rate*100).toFixed(0)+'%';
-  document.getElementById('ov-total').textContent=fmt(utilCumul[T-1]);
-  document.getElementById('n-util-total').textContent=fmt(utilCumul[T-1]);
-  document.getElementById('n-util-end').textContent='$'+Math.round(utilMo[T-1])+'/mo';
-  document.getElementById('n-breakeven').textContent=be?'Yr '+be:(solCumul?T+'+':'—');
-  document.getElementById('n-savings').textContent=solCumul?fmt(savings):'—';
-  document.getElementById('n-rate-used').textContent=(rate*100).toFixed(0)+'%';
-
-  if(propChart){
-    propChart.data.datasets[0].data=utilKwh.map(v=>+v.toFixed(4));
-    propChart.data.datasets[1].data=solKwh?solKwh.map(v=>+v.toFixed(4)):[];
-    propChart.update('none');
-  }
-
-  const mEl=document.getElementById('milestones');
-  if(mEl){
-    mEl.innerHTML='';
-    const pts=[1,2,Math.round(T*0.2),Math.round(T*0.4),T].filter((v,i,a)=>v>=1&&v<=T&&a.indexOf(v)===i).sort((a,b)=>a-b);
-    pts.forEach(yr=>{
-      const idx=yr-1,uA=utilCumul[idx];
-      const sA=solCumul?utilCumul[idx]-solCumul[idx]:null;
-      const c=sA!==null&&sA>=0?'var(--green-l)':'var(--rage-l)';
-      const ss=sA===null?'—':(sA>=0?'+':'')+'$'+Math.round(Math.abs(sA)).toLocaleString();
-      mEl.innerHTML+=`<div class="ml-row"><div class="ml-year">Yr ${yr}</div><div class="ml-util">$${Math.round(uA).toLocaleString()}</div><div class="ml-solar" style="color:${c}">${ss}</div></div>`;
-    });
-  }
 }
 
 function toggleDemand(item){

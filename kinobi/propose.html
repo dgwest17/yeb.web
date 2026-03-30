@@ -538,69 +538,96 @@ function recalc(){
   const kwhRate = DATA.kwh>0?(DATA.bill*12)/DATA.kwh:0;
   const sKwhRate= DATA.solar>0&&DATA.solarKwh>0?(DATA.solar*12)/DATA.solarKwh:null;
 
-  // Utility runs to yr 30 always
-  const utilKwh30= YEARS_30.map(y=>kwhRate*Math.pow(1+rate,y-1));
-  const utilMo30 = YEARS_30.map(y=>DATA.bill*Math.pow(1+rate,y-1));
+  // Utility trajectory — always 30 years
+  const utilKwh30 = YEARS_30.map(y=>kwhRate*Math.pow(1+rate,y-1));
+  const utilMo30  = YEARS_30.map(y=>DATA.bill*Math.pow(1+rate,y-1));
   const utilCumul30=[]; let cum=0;
   utilMo30.forEach(m=>{cum+=m*12;utilCumul30.push(cum)});
 
-  // Solar stops at TERM, null-padded to 30 for chart
-  const solKwhT = sKwhRate?YEARS_T.map(y=>sKwhRate*Math.pow(1+DATA.vppRate,y-1)):null;
-  const solMoT  = DATA.solar>0?YEARS_T.map(y=>DATA.solar*Math.pow(1+DATA.vppRate,y-1)):null;
-  const solCumulT= solMoT?solMoT.reduce((a,m,i)=>{a.push((a[i-1]||0)+m*12);return a},[]):null;
+  // Solar trajectory:
+  //   Years 1–TERM: pay solar payment (escalating at vppRate)
+  //   Years TERM+1–30: $0 payment (loan paid off) — still generating power, utility bills fully avoided
+  const solMo30 = YEARS_30.map(y => {
+    if(!DATA.solar) return null;
+    return y <= T ? DATA.solar*Math.pow(1+DATA.vppRate,y-1) : 0;
+  });
+  const solKwh30 = YEARS_30.map(y => {
+    if(!sKwhRate) return null;
+    return y <= T ? sKwhRate*Math.pow(1+DATA.vppRate,y-1) : 0;
+  });
 
-  // Pad solar to 30 years with null for chart
-  const solKwh30 = solKwhT?[...solKwhT,...Array(30-T).fill(null)]:null;
-  const solMo30  = solMoT ?[...solMoT, ...Array(30-T).fill(null)]:null;
+  // Cumulative solar cost (payments only, $0 after term)
+  const solCumul30 = DATA.solar ? solMo30.reduce((a,m,i)=>{
+    a.push((a[i-1]||0)+(m||0)*12); return a;
+  },[]) : null;
 
-  const savings  = solCumulT?utilCumul30[T-1]-solCumulT[T-1]:0;
-  let be=null;if(solCumulT){for(let i=0;i<T;i++){if(utilCumul30[i]>solCumulT[i]){be=i+1;break}}}
+  // Savings = utility bills avoided minus solar payments made
+  // Through term: util cumul - solar cumul
+  // After term: solar payment = $0, so savings accelerate
+  const savings30 = solCumul30 ? utilCumul30[29] - solCumul30[29] : 0;
+  const savingsAtTerm = solCumul30 ? utilCumul30[T-1] - solCumul30[T-1] : 0;
+
+  let be=null;
+  if(solCumul30){
+    for(let i=0;i<30;i++){
+      if(utilCumul30[i]>solCumul30[i]){be=i+1;break}
+    }
+  }
   const fmt=v=>v>=1000?'$'+Math.round(v/1000)+'K':'$'+Math.round(v);
 
-  document.getElementById('ov-rate').textContent=(rate*100).toFixed(0)+'%';
-  document.getElementById('ov-total').textContent=fmt(utilCumul30[T-1]);
-  document.getElementById('n-util-total').textContent=fmt(utilCumul30[T-1]);
-  document.getElementById('n-util-end').textContent='$'+Math.round(utilMo30[T-1])+'/mo';
-  document.getElementById('n-breakeven').textContent=be?'Yr '+be:(solCumulT?T+'+':'—');
-  document.getElementById('n-savings').textContent=solCumulT?fmt(savings):'—';
-  document.getElementById('n-rate-used').textContent=(rate*100).toFixed(0)+'%';
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
+  set('ov-rate',   (rate*100).toFixed(0)+'%');
+  set('ov-total',  fmt(utilCumul30[T-1]));
+  set('n-util-total', fmt(utilCumul30[T-1]));
+  set('n-util-end', '$'+Math.round(utilMo30[T-1])+'/mo');
+  set('n-breakeven', be?'Yr '+be:(solCumul30?T+'+':'—'));
+  // Show 30yr savings in the headline metric
+  set('n-savings', solCumul30 ? fmt(savings30) : '—');
+  set('n-rate-used', (rate*100).toFixed(0)+'%');
+  // Update savings label to reflect 30yr
+  set('n-savings-lbl', '30yr Savings');
 
-  // Chart — always 30 labels, solar nulls after term
+  // Chart
   if(propChart){
-    const labels=YEARS_30.map(y=>'Yr'+y);
-    propChart.data.labels=labels;
+    propChart.data.labels = YEARS_30.map(y=>'Yr'+y);
     if(propMode==='kwh'){
-      propChart.data.datasets[0].data=utilKwh30.map(v=>+v.toFixed(4));
-      propChart.data.datasets[1].data=solKwh30?solKwh30.map(v=>v===null?null:+v.toFixed(4)):[];
+      propChart.data.datasets[0].data = utilKwh30.map(v=>+v.toFixed(4));
+      propChart.data.datasets[1].data = solKwh30.map(v=>v===null?null:+v.toFixed(4));
     } else {
-      propChart.data.datasets[0].data=utilMo30.map(v=>Math.round(v));
-      propChart.data.datasets[1].data=solMo30?solMo30.map(v=>v===null?null:+v.toFixed(2)):[];
+      propChart.data.datasets[0].data = utilMo30.map(v=>Math.round(v));
+      propChart.data.datasets[1].data = solMo30.map(v=>v===null?null:+v.toFixed(2));
     }
     propChart.update('none');
   }
 
-  // Milestone table — always Yr 1, 2, 5, 10, 25, 30; clamp to available util data (always 30yr)
+  // Milestone table
   const mEl=document.getElementById('milestones');
   if(mEl){
     mEl.innerHTML='';
     const FIXED=[1,2,5,10,25,30];
-    const pts=FIXED.filter(yr=>yr<=30);
-    // Always include term end if not in list
+    const pts=[...FIXED];
     if(!pts.includes(T)) pts.push(T);
     pts.sort((a,b)=>a-b);
+
     pts.forEach(yr=>{
       const idx=yr-1;
       const uA=utilCumul30[idx];
-      // Solar savings only available up to TERM; after that show utility cost only
-      const sA=(solCumulT&&yr<=T)?(utilCumul30[idx]-solCumulT[idx]):null;
+      const sA=solCumul30 ? utilCumul30[idx]-solCumul30[idx] : null;
       const c=sA!==null&&sA>=0?'var(--green-l)':'var(--rage-l)';
       const ss=sA===null?'—':(sA>=0?'+':'')+'$'+Math.round(Math.abs(sA)).toLocaleString();
-      const termNote=yr===T&&T!==30?' ★':'';
-      mEl.innerHTML+=`<div class="ml-row"><div class="ml-year">Yr ${yr}${termNote}</div><div class="ml-util">$${Math.round(uA).toLocaleString()}</div><div class="ml-solar" style="color:${c}">${ss}</div></div>`;
+      // Mark the term-end year
+      const isTermEnd = yr===T && T!==30;
+      const yearLabel = isTermEnd ? `Yr ${yr} ★` : `Yr ${yr}`;
+      mEl.innerHTML+=`<div class="ml-row"><div class="ml-year" style="font-size:0.7rem">${yearLabel}</div><div class="ml-util">$${Math.round(uA).toLocaleString()}</div><div class="ml-solar" style="color:${c}">${ss}</div></div>`;
     });
-    // Legend if term < 30
+
+    // Footer note
     if(T<30){
-      mEl.innerHTML+=`<div style="font-size:0.65rem;color:var(--dim);padding-top:5px">★ = loan payoff. Solar savings shown through Year ${T} only.</div>`;
+      let note = `★ = Solar end-date (Year ${T}). After this, $0 solar payment — savings accelerate.`;
+      if(T<25){
+        note += ` No prepayment penalty.`;
+      }
+      mEl.innerHTML+=`<div style="font-size:0.65rem;color:var(--dim);padding-top:6px;line-height:1.5">${note}</div>`;
     }
   }
 }
@@ -686,7 +713,7 @@ function init(){
           plugins:{legend:{display:false}},
           scales:{
             x:{ticks:{color:'rgba(255,255,255,0.35)',font:{size:10},callback:(v,i)=>[0,1,4,9,14,19,24,29].includes(i)?'Yr'+(i+1):''},grid:{color:'rgba(255,255,255,0.04)'}},
-            y:{ticks:{color:'rgba(255,255,255,0.35)',font:{size:10},callback:v=>propMode==='kwh'?'$'+v.toFixed(2):'$'+Math.round(v)},grid:{color:'rgba(255,255,255,0.05)'}}
+            y:{min:0,ticks:{color:'rgba(255,255,255,0.35)',font:{size:10},callback:v=>propMode==='kwh'?'$'+v.toFixed(2):'$'+Math.round(v)},grid:{color:'rgba(255,255,255,0.05)'}}
           }}
       });
     } catch(e){ console.warn('Chart init failed:',e); }

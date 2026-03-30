@@ -2232,25 +2232,40 @@ function buildData() {
   const utilEl     = document.getElementById('inp-utility');
   const utilName   = utilEl ? utilEl.value || 'SDG&E' : 'SDG&E';
 
-  const YEARS_T = Array.from({length: TERM}, (_, i) => i + 1);
+  const CHART_MAX = 30;
+  const YEARS_30  = Array.from({length: CHART_MAX}, (_, i) => i + 1);
+  const YEARS_T   = Array.from({length: TERM},       (_, i) => i + 1);
 
   const kwhRate = annualKwh > 0 ? (bill * 12) / annualKwh : 0;
   const offset  = annualKwh > 0 ? Math.min(solarKwh / annualKwh, 2.0) : 0;
   const solarKwhRateCurrent = (solar > 0 && solarKwh > 0) ? (solar * 12) / solarKwh : null;
 
-  const utilMonthly = YEARS_T.map(y => bill * Math.pow(1 + rate, y - 1));
-  const utilCumul   = [];
+  // Utility always runs to year 30 for chart; TERM-length for cumulative calcs
+  const utilMonthly30 = YEARS_30.map(y => bill * Math.pow(1 + rate, y - 1));
+  const utilMonthly   = utilMonthly30.slice(0, TERM);
+  const utilCumul = [];
   let cum = 0;
   utilMonthly.forEach(m => { cum += m * 12; utilCumul.push(cum); });
 
+  // Solar runs to TERM only, then null-padded to 30 for chart
   const solarMonthly = solar > 0 ? YEARS_T.map(y => solar * Math.pow(1 + vppRate, y - 1)) : null;
   const solarCumul   = solarMonthly ? solarMonthly.reduce((acc, m, i) => {
     acc.push((acc[i - 1] || 0) + m * 12); return acc;
   }, []) : null;
 
-  const kwhUtil  = YEARS_T.map(y => kwhRate * Math.pow(1 + rate, y - 1));
-  const kwhSolar = solar > 0 && solarKwh > 0
+  // kWh trajectories — utility to 30, solar to TERM
+  const kwhUtil   = YEARS_30.map(y => kwhRate * Math.pow(1 + rate, y - 1));
+  const kwhSolar  = solar > 0 && solarKwh > 0
     ? YEARS_T.map(y => solarKwhRateCurrent * Math.pow(1 + vppRate, y - 1))
+    : null;
+
+  // Monthly trajectories padded to 30 for chart
+  const utilMonthly30Chart = utilMonthly30;
+  const solarMonthly30     = solarMonthly
+    ? [...solarMonthly, ...Array(CHART_MAX - TERM).fill(null)]
+    : null;
+  const kwhSolar30 = kwhSolar
+    ? [...kwhSolar, ...Array(CHART_MAX - TERM).fill(null)]
     : null;
 
   const savings = solarCumul ? utilCumul[TERM - 1] - solarCumul[TERM - 1] : 0;
@@ -2343,12 +2358,12 @@ function updateDonationsTable(d) {
   const rows = document.getElementById('milestone-rows') || document.getElementById('donations-rows');
   if(!rows) return;
   rows.innerHTML = '';
-  // Build milestone points based on term — always show Yr1, Yr2, and ~25/50/100% of term
   const T = d.TERM;
-  const points = [];
-  [1, 2, Math.round(T*0.2), Math.round(T*0.4), T].forEach(yr => {
-    if (yr >= 1 && yr <= T && !points.includes(yr)) points.push(yr);
-  });
+  // Always show Yr 1, 2, 5, 10, 25, 30 — clamp to available data (TERM length)
+  const FIXED = [1, 2, 5, 10, 25, 30];
+  const points = FIXED.filter(yr => yr <= T);
+  // Always include the term end year if not already in list
+  if (!points.includes(T)) points.push(T);
   points.sort((a,b) => a-b);
 
   points.forEach(yr => {

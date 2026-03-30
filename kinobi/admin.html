@@ -3,546 +3,1707 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Your Solar Proposal — Kinhome Solar</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<title>Kinobi Admin — Kinhome Solar</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--gold:#C8A84B;--gold-l:#E8C96A;--deep:#050E18;--navy:#0D1F30;--rage-l:#E74C3C;--green-l:#2ECC71;--text:#fff;--muted:#e0dbd0;--dim:#aaa89a;--border:rgba(200,168,75,0.22)}
-html{scroll-behavior:smooth}
-body{font-family:'DM Sans',sans-serif;background:var(--deep);color:var(--text);min-height:100vh}
-.fullscreen-msg{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.25rem;text-align:center;padding:2rem}
-.fullscreen-msg h1{font-family:'Bebas Neue',sans-serif;font-size:3rem;color:var(--gold);letter-spacing:0.05em}
-.fullscreen-msg p{font-size:0.95rem;color:var(--muted);max-width:420px;line-height:1.7}
-nav{position:sticky;top:0;z-index:100;background:rgba(5,14,24,0.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0.8rem 1.5rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
-.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:1.25rem;color:var(--gold);letter-spacing:0.05em}
-.nav-links{display:flex;gap:1.25rem;list-style:none}
-.nav-links a{color:var(--dim);text-decoration:none;font-size:0.75rem;letter-spacing:0.06em;text-transform:uppercase;transition:color 0.2s}
-.nav-links a:hover{color:var(--gold)}
-.expiry-banner{background:rgba(200,168,75,0.08);border-bottom:1px solid var(--border);padding:0.55rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem}
-.expiry-text{font-size:0.73rem;color:var(--dim)}
-.expiry-count{font-size:0.73rem;font-weight:600;color:var(--gold)}
-.asterisk{font-size:0.7rem;color:var(--dim);font-style:italic}
-.section{padding:4rem 1.5rem;max-width:1000px;margin:0 auto}
-.eyebrow{font-size:0.68rem;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:0.6rem;display:block}
-.section-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,5vw,3.2rem);line-height:1;margin-bottom:0.75rem}
-.section-sub{font-size:0.9rem;color:var(--muted);line-height:1.75;max-width:600px;margin-bottom:2rem}
-.hero{min-height:82vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:6rem 1.5rem 4rem;background:radial-gradient(ellipse 70% 55% at 50% 20%,rgba(200,168,75,0.14) 0%,transparent 65%),var(--deep)}
-.hero-inner{max-width:740px}
-.hero-eyebrow{font-size:0.7rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;display:block}
-.hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.8rem,8vw,5rem);line-height:0.95;margin-bottom:1.25rem}
-.hero-name{font-family:'DM Serif Display',serif;font-style:italic;color:var(--gold);display:block;margin-top:0.2rem}
-.hero-sub{font-size:0.93rem;color:var(--muted);line-height:1.75;margin-bottom:2rem}
-.hero-cta{display:inline-flex;align-items:center;gap:0.5rem;background:var(--gold);color:var(--deep);padding:0.8rem 2.25rem;border-radius:4px;font-size:0.88rem;font-weight:600;text-decoration:none;transition:background 0.2s}
-.hero-cta:hover{background:var(--gold-l)}
-.stats-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:2.5rem}
-.stat-block{background:rgba(5,14,24,0.95);padding:1.25rem;text-align:center}
-.stat-val{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;display:block;line-height:1;margin-bottom:0.25rem}
-.stat-val.red{color:var(--rage-l)}.stat-val.green{color:var(--green-l)}.stat-val.gold{color:var(--gold)}
-.stat-lbl{font-size:0.62rem;color:var(--dim);text-transform:uppercase;letter-spacing:0.08em}
-.rate-adjuster{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;padding:1.25rem 1.5rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
-.rate-adj-label{font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:0.2rem}
-.rate-adj-sub{font-size:0.73rem;color:var(--dim)}
-.rate-select{background:rgba(255,255,255,0.08);border:1px solid rgba(231,76,60,0.35);color:var(--rage-l);padding:0.5rem 0.85rem;border-radius:4px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:600;outline:none;cursor:pointer}
-.rate-select option{background:var(--navy);color:var(--text)}
-.fixed-note{font-size:0.7rem;color:var(--dim);font-style:italic;margin-bottom:1.25rem}
-.numbers-two{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem}
-@media(max-width:600px){.numbers-two{grid-template-columns:1fr}}
-.n-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:1.25rem}
-.n-card-title{font-size:0.64rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:0.85rem}
-.bubble{display:flex;justify-content:space-between;align-items:center;border-radius:6px;padding:0.5rem 0.85rem;margin-bottom:0.45rem}
-.bubble.red{background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.25)}
-.bubble.green{background:rgba(39,174,96,0.1);border:1px solid rgba(39,174,96,0.25)}
-.bubble-label{font-size:0.63rem;color:var(--dim);letter-spacing:0.07em;text-transform:uppercase}
-.bubble-val{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;line-height:1;letter-spacing:0.03em}
-.bubble.red .bubble-val{color:var(--rage-l)}.bubble.green .bubble-val{color:var(--green-l)}
-.metrics-row{display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-bottom:1.25rem}
-.chart-box{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:1.25rem;margin-bottom:1rem}
-.chart-title{font-size:0.66rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);margin-bottom:0.85rem}
-.ml-row{display:grid;grid-template-columns:56px 1fr 1fr;border-top:1px solid rgba(255,255,255,0.05);padding:6px 0;align-items:center}
-.ml-year{font-size:0.78rem;font-weight:600;color:var(--dim)}
-.ml-util{text-align:right;font-family:'Bebas Neue',sans-serif;font-size:1.35rem;color:var(--rage-l);line-height:1}
-.ml-solar{text-align:right;font-family:'Bebas Neue',sans-serif;font-size:1.35rem;line-height:1}
-.warranty-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:0.85rem;margin:1.25rem 0}
-.warranty-card{background:rgba(39,174,96,0.07);border:1px solid rgba(39,174,96,0.2);border-radius:8px;padding:1rem}
-.warranty-card .w-icon{font-size:1.5rem;margin-bottom:0.3rem;display:block}
-.warranty-card h4{font-size:0.85rem;font-weight:500;color:var(--green-l);margin-bottom:0.2rem}
-.warranty-card p{font-size:0.73rem;color:var(--muted);line-height:1.5}
-.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.25rem 0}
-@media(max-width:540px){.compare-grid{grid-template-columns:1fr}}
-.compare-col{border-radius:8px;padding:1.1rem 1.25rem}
-.compare-col.util{background:rgba(231,76,60,0.06);border:1px solid rgba(231,76,60,0.2)}
-.compare-col.solar-col{background:rgba(39,174,96,0.05);border:1px solid rgba(39,174,96,0.2)}
-.compare-col-title{font-family:'Bebas Neue',sans-serif;font-size:1.15rem;letter-spacing:0.06em;margin-bottom:0.85rem}
-.compare-item{display:flex;align-items:flex-start;gap:0.5rem;font-size:0.8rem;color:var(--muted);margin-bottom:0.5rem;line-height:1.4}
-.compare-item.missing{color:rgba(255,255,255,0.28)}
-.check{color:var(--green-l);font-weight:700;flex-shrink:0}.x-mark{color:rgba(231,76,60,0.4);flex-shrink:0}
-.compare-item strong{color:var(--text);font-weight:500}
-.timeline-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:0.5rem;margin:1.25rem 0}
-.tl-step{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:0.8rem;text-align:center}
-.tl-step-icon{font-size:1.3rem;margin-bottom:0.3rem}
-.tl-step-name{font-size:0.7rem;font-weight:600;color:var(--text);margin-bottom:0.15rem}
-.tl-step-time{font-size:0.6rem;color:var(--dim)}
-.tl-step.customer-step{border-color:rgba(42,109,181,0.4);background:rgba(42,109,181,0.08)}
-.tl-step.customer-step .tl-step-name{color:#7BB8F0}
-.contact-card{background:rgba(200,168,75,0.07);border:1px solid var(--border);border-radius:8px;padding:2rem;text-align:center;margin-top:1rem}
-.contact-name{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--gold);letter-spacing:0.05em;margin-bottom:0.2rem}
-.divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);max-width:1000px;margin:0 auto}
-footer{padding:2rem 1.5rem;text-align:center;border-top:1px solid var(--border);font-size:0.73rem;color:var(--dim);line-height:1.7}
-footer a{color:var(--gold);text-decoration:none}
-
-/* ══════════════════════════════════════════
-   PROPOSE — MOBILE  ≤ 768px
-══════════════════════════════════════════ */
-@media (max-width: 768px) {
-  /* Nav */
-  nav{padding:0.65rem 1rem}
-  .nav-links{display:none}
-
-  /* Expiry banner */
-  .expiry-banner{flex-direction:column;align-items:flex-start;gap:0.25rem;padding:0.5rem 1rem}
-  .asterisk{font-size:0.65rem}
-
-  /* Hero */
-  .hero{min-height:70vh;padding:4.5rem 1rem 3rem}
-  .hero-title{font-size:clamp(2.2rem,9vw,3.5rem)}
-  .hero-sub{font-size:0.85rem}
-  .hero-cta{padding:0.7rem 1.75rem;font-size:0.82rem}
-
-  /* Sections */
-  .section{padding:2.75rem 1rem}
-  .section-title{font-size:clamp(1.75rem,6vw,2.6rem)}
-  .section-sub{font-size:0.83rem;margin-bottom:1.25rem}
-  .eyebrow{font-size:0.6rem}
-
-  /* Stats strip — 2 across on phone */
-  .stats-strip{grid-template-columns:repeat(2,1fr)}
-  .stat-block{padding:1rem 0.75rem}
-  .stat-val{font-size:1.5rem}
-  .stat-lbl{font-size:0.58rem}
-
-  /* Rate adjuster */
-  .rate-adjuster{flex-direction:column;align-items:flex-start;padding:1rem}
-  .rate-select{width:100%;font-size:0.85rem}
-
-  /* Numbers two-column → single */
-  .numbers-two{grid-template-columns:1fr;gap:0.75rem}
-  .n-card{padding:1rem}
-  .n-card-title{font-size:0.6rem}
-  .bubble{padding:0.4rem 0.7rem}
-  .bubble-val{font-size:1.3rem}
-  .bubble-label{font-size:0.6rem}
-
-  /* Metrics row */
-  .metrics-row{grid-template-columns:repeat(3,1fr);gap:0.5rem}
-  .stat-block{padding:0.75rem 0.5rem}
-  .stat-val{font-size:1.3rem}
-
-  /* Chart */
-  .chart-box{padding:0.85rem}
-  .chart-title{font-size:0.6rem;margin-bottom:0.65rem}
-  #propChart{height:170px!important}
-
-  /* Milestone table */
-  .ml-row{padding:5px 0}
-  .ml-util,.ml-solar{font-size:1.1rem}
-  .ml-year{font-size:0.72rem}
-
-  /* Warranty grid — 2 across */
-  .warranty-grid{grid-template-columns:1fr 1fr;gap:0.65rem}
-  .warranty-card{padding:0.85rem}
-  .warranty-card .w-icon{font-size:1.25rem}
-  .warranty-card h4{font-size:0.78rem}
-  .warranty-card p{font-size:0.68rem}
-
-  /* Compare — keep side by side, just shrink */
-  .compare-grid{gap:0.65rem}
-  .compare-col{padding:0.85rem}
-  .compare-col-title{font-size:1rem;margin-bottom:0.65rem}
-  .compare-item{font-size:0.72rem;margin-bottom:0.4rem;gap:0.4rem}
-
-  /* Timeline */
-  .timeline-steps{grid-template-columns:repeat(3,1fr);gap:0.4rem}
-  .tl-step{padding:0.65rem 0.4rem}
-  .tl-step-icon{font-size:1.1rem}
-  .tl-step-name{font-size:0.62rem}
-  .tl-step-time{font-size:0.55rem}
-
-  /* Contact */
-  .contact-card{padding:1.5rem 1rem}
-  .contact-name{font-size:1.6rem}
-
-  /* Footer */
-  footer{padding:1.5rem 1rem;font-size:0.7rem}
+:root{
+  --gold:#C8A84B;--gold-l:#E8C96A;--gold-d:#8A6E2A;
+  --deep:#050E18;--navy:#0D1F30;--panel:#111D2C;
+  --rage-l:#E74C3C;--green-l:#2ECC71;
+  --text:#FFFFFF;--muted:rgba(255,255,255,0.78);--dim:rgba(255,255,255,0.48);
+  --border:rgba(200,168,75,0.2);--border-s:rgba(255,255,255,0.08);
+  --sidebar:240px;
 }
+html,body{min-height:100vh;background:var(--deep);font-family:'DM Sans',sans-serif;color:var(--text)}
 
-/* ══════════════════════════════════════════
-   PROPOSE — SMALL PHONES  ≤ 390px
-══════════════════════════════════════════ */
-@media (max-width: 390px) {
-  .hero{padding:4rem 0.75rem 2.5rem}
-  .section{padding:2.25rem 0.75rem}
-  .stats-strip{grid-template-columns:repeat(2,1fr)}
-  .warranty-grid{grid-template-columns:1fr}
-  .compare-grid{grid-template-columns:1fr}
-  .timeline-steps{grid-template-columns:repeat(2,1fr)}
-  .metrics-row{grid-template-columns:repeat(3,1fr)}
+/* ── PASSWORD GATE ── */
+#pw-gate{
+  position:fixed;inset:0;z-index:9999;background:var(--deep);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1.25rem;
+}
+#pw-gate.hidden{display:none}
+.pw-title{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--gold);letter-spacing:0.06em}
+.pw-sub{font-size:0.85rem;color:var(--muted)}
+.pw-input{
+  background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);
+  padding:0.65rem 1.25rem;border-radius:4px;font-family:'DM Sans',sans-serif;font-size:1rem;
+  outline:none;width:260px;text-align:center;letter-spacing:0.08em;
+}
+.pw-input:focus{border-color:var(--gold)}
+.pw-btn{
+  background:var(--gold);color:var(--deep);border:none;padding:0.65rem 2rem;
+  border-radius:4px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:600;cursor:pointer;
+}
+.pw-error{color:var(--rage-l);font-size:0.8rem;min-height:1.2em}
+
+/* ── LAYOUT ── */
+.shell{display:grid;grid-template-columns:var(--sidebar) 1fr;min-height:100vh}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  background:var(--navy);border-right:1px solid var(--border-s);
+  padding:1.5rem 0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;
+}
+.sidebar-logo{
+  padding:0 1.5rem 1.5rem;border-bottom:1px solid var(--border-s);margin-bottom:1rem;
+}
+.logo-text{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--gold);letter-spacing:0.05em;line-height:1}
+.logo-sub{font-size:0.7rem;color:var(--dim);letter-spacing:0.1em;text-transform:uppercase;margin-top:2px}
+
+.nav-section{padding:0.5rem 1rem 0;margin-bottom:0.5rem}
+.nav-section-label{font-size:0.62rem;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--dim);padding:0 0.5rem;margin-bottom:0.4rem}
+.nav-item{
+  display:flex;align-items:center;gap:0.6rem;padding:0.6rem 0.75rem;border-radius:6px;
+  cursor:pointer;transition:all 0.15s;font-size:0.85rem;color:var(--muted);
+  margin-bottom:2px;border:1px solid transparent;
+}
+.nav-item:hover{background:rgba(255,255,255,0.04);color:var(--text)}
+.nav-item.active{background:rgba(200,168,75,0.1);border-color:var(--border);color:var(--gold)}
+.nav-item .ni-icon{width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.nav-item .ni-badge{margin-left:auto;background:rgba(200,168,75,0.2);color:var(--gold);font-size:0.65rem;padding:1px 6px;border-radius:10px}
+
+.sidebar-footer{margin-top:auto;padding:1rem 1.5rem;border-top:1px solid var(--border-s)}
+.launch-btn{
+  display:block;width:100%;padding:0.65rem;background:var(--gold);color:var(--deep);
+  border:none;border-radius:4px;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:600;
+  cursor:pointer;text-align:center;text-decoration:none;letter-spacing:0.03em;transition:background 0.2s;
+}
+.launch-btn:hover{background:var(--gold-l)}
+
+/* ── MAIN ── */
+.main{padding:2.5rem;overflow-y:auto}
+.page{display:none}
+.page.active{display:block}
+
+.page-header{margin-bottom:2rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border-s)}
+.page-title{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:var(--gold);letter-spacing:0.04em;line-height:1}
+.page-sub{font-size:0.85rem;color:var(--muted);margin-top:0.4rem}
+
+/* ── CARDS ── */
+.card{background:var(--panel);border:1px solid var(--border-s);border-radius:8px;padding:1.5rem;margin-bottom:1.25rem}
+.card-title{font-size:0.7rem;font-weight:500;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:1.25rem}
+.card-grid{display:grid;gap:1rem}
+.card-grid.col2{grid-template-columns:1fr 1fr}
+.card-grid.col3{grid-template-columns:1fr 1fr 1fr}
+
+/* ── FORM ELEMENTS ── */
+.field{display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.75rem}
+.field:last-child{margin-bottom:0}
+.f-label{font-size:0.72rem;color:var(--dim);letter-spacing:0.06em}
+.f-input{
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+  color:var(--text);padding:0.55rem 0.75rem;border-radius:4px;
+  font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;
+  transition:border-color 0.2s;width:100%;
+}
+.f-input:focus{border-color:var(--gold)}
+.f-textarea{resize:vertical;min-height:80px;line-height:1.5}
+.f-select{cursor:pointer}
+.f-select option{background:var(--navy)}
+.f-hint{font-size:0.7rem;color:var(--dim);line-height:1.5}
+
+/* ── SLIDE MANAGER TABLE ── */
+.slide-table{width:100%;border-collapse:collapse}
+.slide-table th{
+  padding:0.6rem 0.75rem;text-align:left;font-size:0.65rem;font-weight:500;
+  letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);
+  border-bottom:1px solid var(--border-s);
+}
+.slide-table td{padding:0.7rem 0.75rem;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle}
+.slide-table tr:last-child td{border-bottom:none}
+.slide-table tr:hover td{background:rgba(255,255,255,0.02)}
+.slide-num{color:var(--dim);font-size:0.8rem;width:32px}
+.slide-label-input{
+  background:transparent;border:none;color:var(--text);font-family:'DM Sans',sans-serif;
+  font-size:0.88rem;outline:none;width:100%;
+}
+.slide-label-input:focus{border-bottom:1px solid var(--gold);padding-bottom:1px}
+
+.vis-toggle{
+  display:inline-flex;align-items:center;gap:6px;
+  background:transparent;border:1px solid rgba(255,255,255,0.12);
+  color:var(--muted);padding:0.3rem 0.75rem;border-radius:3px;
+  font-size:0.72rem;cursor:pointer;transition:all 0.18s;font-family:'DM Sans',sans-serif;
+  white-space:nowrap;
+}
+.vis-toggle.on{border-color:var(--green-l);color:var(--green-l)}
+.vis-toggle.off{border-color:rgba(231,76,60,0.4);color:var(--rage-l)}
+.vis-toggle:hover{border-color:var(--gold);color:var(--gold)}
+
+.move-btn{
+  background:transparent;border:1px solid var(--border-s);color:var(--dim);
+  width:28px;height:28px;border-radius:3px;cursor:pointer;font-size:13px;
+  display:inline-flex;align-items:center;justify-content:center;transition:all 0.15s;
+}
+.move-btn:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ── TESTIMONIAL CARDS ── */
+.t-list{display:flex;flex-direction:column;gap:0.75rem}
+.t-item{
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);
+  border-radius:6px;padding:1rem 1.25rem;
+}
+.t-item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem}
+.t-item-num{font-size:0.72rem;color:var(--dim)}
+.t-del{background:transparent;border:none;color:rgba(231,76,60,0.5);cursor:pointer;font-size:16px;line-height:1;transition:color 0.15s;padding:2px 6px}
+.t-del:hover{color:var(--rage-l)}
+
+/* ── IMAGE UPLOAD AREAS ── */
+.img-zone{
+  border:1px dashed rgba(200,168,75,0.3);border-radius:6px;
+  padding:1.5rem;text-align:center;cursor:pointer;transition:all 0.2s;
+  position:relative;overflow:hidden;min-height:100px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.5rem;
+}
+.img-zone:hover{border-color:var(--gold);background:rgba(200,168,75,0.04)}
+.img-zone img{max-width:100%;max-height:120px;object-fit:contain;border-radius:4px}
+.img-zone span{font-size:0.75rem;color:var(--dim)}
+.img-zone .upload-icon{font-size:1.5rem}
+
+/* ── SAVE BAR ── */
+.save-bar{
+  position:fixed;bottom:0;left:var(--sidebar);right:0;z-index:50;
+  background:rgba(5,14,24,0.95);border-top:1px solid var(--border);
+  padding:0.75rem 2.5rem;display:flex;justify-content:space-between;align-items:center;
+  backdrop-filter:blur(8px);
+}
+.save-status{font-size:0.8rem;color:var(--dim)}
+.save-status.saved{color:var(--green-l)}
+.save-status.unsaved{color:var(--gold)}
+.btn-save{
+  background:var(--gold);color:var(--deep);border:none;padding:0.6rem 2rem;
+  border-radius:4px;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:600;
+  cursor:pointer;transition:background 0.2s;
+}
+.btn-save:hover{background:var(--gold-l)}
+.btn-secondary{
+  background:transparent;border:1px solid var(--border);color:var(--muted);
+  padding:0.6rem 1.25rem;border-radius:4px;font-family:'DM Sans',sans-serif;
+  font-size:0.85rem;cursor:pointer;transition:all 0.2s;
+}
+.btn-secondary:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ── EXPORT PAGE ── */
+.export-checklist{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.75rem;margin-bottom:1.5rem}
+.export-check-item{
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+  border-radius:6px;padding:0.75rem 1rem;cursor:pointer;transition:all 0.2s;
+  display:flex;align-items:center;gap:0.6rem;
+}
+.export-check-item.on{border-color:var(--gold);background:rgba(200,168,75,0.07)}
+.export-check-item .eci-check{width:18px;height:18px;border:1px solid rgba(255,255,255,0.2);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;transition:all 0.15s}
+.export-check-item.on .eci-check{background:var(--gold);border-color:var(--gold);color:var(--deep)}
+.export-check-item .eci-label{font-size:0.82rem;color:var(--muted)}
+.export-check-item.on .eci-label{color:var(--text)}
+.export-big-btn{
+  display:flex;align-items:center;gap:0.75rem;background:var(--gold);color:var(--deep);
+  border:none;padding:1rem 2.5rem;border-radius:4px;font-family:'DM Sans',sans-serif;
+  font-size:1rem;font-weight:600;cursor:pointer;transition:background 0.2s;
+}
+.export-big-btn:hover{background:var(--gold-l)}
+.export-note{font-size:0.78rem;color:var(--dim);margin-top:0.75rem;line-height:1.6}
+
+/* ── GALLERY PAGE ── */
+.gallery-upload-zone{
+  border:2px dashed rgba(200,168,75,0.3);border-radius:8px;padding:3rem 2rem;
+  text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:1.5rem;
+}
+.gallery-upload-zone:hover{border-color:var(--gold);background:rgba(200,168,75,0.04)}
+.gallery-upload-zone h3{color:var(--gold);margin-bottom:0.4rem;font-weight:500}
+.gallery-upload-zone p{color:var(--muted);font-size:0.82rem}
+.gallery-grid-admin{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem}
+.gallery-item-admin{
+  aspect-ratio:4/3;border-radius:6px;overflow:hidden;position:relative;
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+  cursor:pointer;
+}
+.gallery-item-admin img{width:100%;height:100%;object-fit:cover}
+.gallery-item-del{
+  position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;
+  background:rgba(0,0,0,0.7);border:none;color:#fff;font-size:14px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s;
+}
+.gallery-item-admin:hover .gallery-item-del{opacity:1}
+
+/* ── METRIC PILLS (dashboard) ── */
+.metric-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border-s);border:1px solid var(--border-s);border-radius:6px;overflow:hidden;margin-bottom:1.25rem}
+.metric-pill{background:var(--panel);padding:1rem 1.25rem;text-align:center}
+.metric-pill .mp-val{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--gold);display:block;line-height:1}
+.metric-pill .mp-lbl{font-size:0.68rem;color:var(--dim);text-transform:uppercase;letter-spacing:0.1em;margin-top:2px}
+
+/* ── SYNC BUTTON ── */
+.sync-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(200,168,75,0.1);border:1px solid var(--border);
+  color:var(--gold);padding:0.35rem 0.85rem;border-radius:4px;
+  font-family:'DM Sans',sans-serif;font-size:0.75rem;font-weight:500;
+  cursor:pointer;transition:all 0.2s;letter-spacing:0.03em;
+}
+.sync-btn:hover{background:rgba(200,168,75,0.2);border-color:var(--gold-l)}
+.sync-btn:disabled{opacity:0.4;cursor:default}
+.sync-btn.syncing .sync-icon{display:inline-block;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sync-ok{background:rgba(39,174,96,0.1);border:1px solid rgba(39,174,96,0.3);color:var(--green-l);border-radius:4px}
+.sync-err{background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);color:var(--rage-l);border-radius:4px}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:5rem;right:2rem;z-index:999;
+  background:var(--green-l);color:#0a3a1a;
+  padding:0.65rem 1.25rem;border-radius:4px;font-size:0.85rem;font-weight:500;
+  opacity:0;transition:opacity 0.3s;pointer-events:none;
+}
+.toast.show{opacity:1}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .shell{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .save-bar{left:0}
 }
 </style>
 </head>
 <body>
 
-<div id="loading-screen" class="fullscreen-msg">
-  <div style="font-size:2.5rem">☀️</div>
-  <h1>Your Proposal</h1>
-  <p>Loading your personalized energy analysis…</p>
+<div id="pw-gate">
+  <div class="pw-title">Kinobi Admin</div>
+  <div class="pw-sub">Enter password to continue</div>
+  <input class="pw-input" id="pw-input" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')checkPassword()">
+  <button class="pw-btn" onclick="checkPassword()">Unlock</button>
+  <div class="pw-error" id="pw-error"></div>
 </div>
 
-<div id="expired-screen" class="fullscreen-msg" style="display:none">
-  <div style="font-size:2.5rem">⏱️</div>
-  <h1>Proposal Expired</h1>
-  <p>This proposal was valid for 30 days. Rates and system pricing may have changed — reach out for an updated analysis.</p>
-  <div style="margin-top:0.75rem;display:flex;flex-direction:column;gap:0.5rem;align-items:center">
-    <a href="tel:3039419131" style="color:var(--gold);font-size:1rem;text-decoration:none">📞 303.941.9131</a>
-    <a href="mailto:dwest@yourenergybest.com" style="color:var(--gold);font-size:0.9rem;text-decoration:none">dwest@yourenergybest.com</a>
-  </div>
-</div>
+<div class="shell" id="admin-shell" style="display:none">
 
-<div id="main-content" style="display:none">
-
-  <div class="expiry-banner">
-    <span class="expiry-text">Prepared for <strong id="banner-name" style="color:var(--text)"></strong></span>
-    <span class="expiry-count" id="expiry-count"></span>
-    <span class="asterisk">* Numbers reflect rates at time of proposal. Market conditions may affect utility rates.</span>
+<!-- ══════ SIDEBAR ══════ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-text">Kinobi</div>
+    <div class="logo-sub">Presentation Admin</div>
   </div>
 
-  <nav>
-    <div class="nav-logo">Kinhome Solar</div>
-    <ul class="nav-links">
-      <li><a href="#overview">Overview</a></li>
-      <li><a href="#numbers">Numbers</a></li>
-      <li><a href="#included">Included</a></li>
-      <li><a href="#comparison">Compare</a></li>
-      <li><a href="#timeline">Timeline</a></li>
-      <li><a href="#contact">Contact</a></li>
-    </ul>
-    <div style="font-size:0.8rem;color:var(--dim)" id="nav-name"></div>
-  </nav>
-
-  <div class="hero">
-    <div class="hero-inner">
-      <span class="hero-eyebrow">Your Personal Solar Proposal</span>
-      <h1 class="hero-title">YOUR ENERGY<br><span class="hero-name" id="hero-name">Future</span></h1>
-      <p class="hero-sub">This proposal was built specifically for your home and your usage. Every number below reflects your actual system design — built by Dave, personally.</p>
-      <a href="#numbers" class="hero-cta">See Your Numbers →</a>
+  <div class="nav-section">
+    <div class="nav-section-label">Presentation</div>
+    <div class="nav-item active" onclick="showPage('slides')">
+      <span class="ni-icon">▤</span> Slides
+    </div>
+    <div class="nav-item" onclick="showPage('content')">
+      <span class="ni-icon">✏</span> Content
+    </div>
+    <div class="nav-item" onclick="showPage('images')">
+      <span class="ni-icon">🖼</span> Images
     </div>
   </div>
 
-  <section class="section" id="overview" data-sec="overview">
-    <span class="eyebrow">Your Current Situation</span>
-    <h2 class="section-title">What You're <span style="color:var(--rage-l)">Paying Now</span></h2>
-    <div class="stats-strip">
-      <div class="stat-block"><span class="stat-val red" id="ov-bill">$134</span><span class="stat-lbl">Monthly Bill</span></div>
-      <div class="stat-block"><span class="stat-val red" id="ov-kwh">$0.45</span><span class="stat-lbl">Current $/kWh</span></div>
-      <div class="stat-block"><span class="stat-val gold" id="ov-rate">9%</span><span class="stat-lbl">Rate Assumption</span></div>
-      <div class="stat-block"><span class="stat-val red" id="ov-total">$88K</span><span class="stat-lbl" id="ov-total-lbl">25yr Utility Cost</span></div>
-      <div class="stat-block"><span class="stat-val green" id="ov-offset">81%</span><span class="stat-lbl">Production Offset</span></div>
+  <div class="nav-section">
+    <div class="nav-section-label">Tools</div>
+    <div class="nav-item" onclick="showPage('export')">
+      <span class="ni-icon">↓</span> PDF Export
     </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <section class="section" id="numbers" data-sec="numbers">
-    <span class="eyebrow">The Numbers</span>
-    <h2 class="section-title">Your <span style="color:var(--gold)">Financial Future</span></h2>
-
-    <div class="rate-adjuster">
-      <div>
-        <span class="rate-adj-label">Adjust Utility Rate Assumption</span>
-        <span class="rate-adj-sub">This is the only number you can change — everything else is locked to your proposal.</span>
-      </div>
-      <select class="rate-select" id="rate-select" onchange="recalc()">
-        <option value="0.00">0% — Frozen</option>
-        <option value="0.04">4% — Inflation</option>
-        <option value="0.06" selected>6% — Conservative</option>
-        <option value="0.09">9% — SDG&E Historical</option>
-        <option value="0.12">12% — Worst Case</option>
-      </select>
+    <div class="nav-item" onclick="showPage('proposals')">
+      <span class="ni-icon">🔗</span> Customer Proposals
     </div>
-    <p class="fixed-note">* Your solar payment, production, escalator, and term are locked from your proposal. Only the utility rate assumption above is adjustable.</p>
+    <div class="nav-item" onclick="showPage('settings')">
+      <span class="ni-icon">⚙</span> Settings
+    </div>
+  </div>
 
-    <div class="numbers-two">
-      <div class="n-card" style="border-color:rgba(231,76,60,0.25)">
-        <div class="n-card-title" style="color:var(--rage-l)">Staying with the Utility</div>
-        <div class="bubble red"><span class="bubble-label">Monthly Bill Today</span><span class="bubble-val" id="n-util-mo">$134</span></div>
-        <div class="bubble red"><span class="bubble-label" id="n-total-lbl">25yr Total Cost</span><span class="bubble-val" id="n-util-total">$88K</span></div>
-        <div class="bubble red"><span class="bubble-label" id="n-end-lbl">Bill at End of Term</span><span class="bubble-val" id="n-util-end">$575/mo</span></div>
-      </div>
-      <div class="n-card" style="border-color:rgba(39,174,96,0.25)">
-        <div class="n-card-title" style="color:var(--green-l)">Your Virtual Power Plant</div>
-        <div class="bubble green"><span class="bubble-label">Monthly Energy Investment</span><span class="bubble-val" id="n-solar-mo">$202</span></div>
-        <div class="bubble green"><span class="bubble-label">Solar $/kWh Rate (locked)</span><span class="bubble-val" id="n-solar-kwh">$0.344</span></div>
-        <div class="bubble green"><span class="bubble-label">Production Offset</span><span class="bubble-val" id="n-offset">81%</span></div>
-      </div>
+  <div class="sidebar-footer">
+    <a href="index.html" class="launch-btn" target="_blank">▶ Launch Presentation</a>
+  </div>
+</aside>
+
+<!-- ══════ MAIN ══════ -->
+<main class="main" style="padding-bottom:5rem">
+
+  <!-- ── PAGE: SLIDES ── -->
+  <div class="page active" id="page-slides">
+    <div class="page-header">
+      <div class="page-title">Slide Manager</div>
+      <div class="page-sub">Toggle visibility, reorder, and rename slides. Changes apply instantly on next presentation load.</div>
     </div>
 
-    <div class="metrics-row">
-      <div class="stat-block" style="border-radius:6px;border:1px solid rgba(39,174,96,0.2)"><span class="stat-val green" id="n-breakeven">—</span><span class="stat-lbl">Break-Even</span></div>
-      <div class="stat-block" style="border-radius:6px;border:1px solid rgba(200,168,75,0.2)"><span class="stat-val gold" id="n-savings">—</span><span class="stat-lbl" id="n-savings-lbl">25yr Savings</span></div>
-      <div class="stat-block" style="border-radius:6px;border:1px solid rgba(231,76,60,0.2)"><span class="stat-val red" id="n-rate-used">6%</span><span class="stat-lbl">Rate Used</span></div>
+    <div class="card">
+      <div class="card-title">Slide Order & Visibility</div>
+      <table class="slide-table">
+        <thead>
+          <tr>
+            <th style="width:36px">#</th>
+            <th>Slide Name</th>
+            <th style="width:100px">Visibility</th>
+            <th style="width:80px">Reorder</th>
+          </tr>
+        </thead>
+        <tbody id="slide-tbody"></tbody>
+      </table>
     </div>
 
-    <div class="chart-box">
-      <p class="chart-title">kWh Rate Trajectory — <span id="util-legend">SDG&E</span> vs Your Solar Rate</p>
-      <div style="position:relative;height:clamp(150px,30vw,210px)"><canvas id="propChart"></canvas></div>
-      <div style="display:flex;gap:1.25rem;font-size:0.7rem;color:var(--dim);margin-top:0.6rem">
-        <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:3px;background:#E74C3C;border-radius:2px;display:inline-block"></span><span id="util-legend2">SDG&E (rising)</span></span>
-        <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:3px;background:#2ECC71;border-radius:2px;display:inline-block"></span>Solar (locked)</span>
+    <div class="card">
+      <div class="card-title">Quick Actions</div>
+      <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+        <button class="btn-secondary" onclick="setAllVisible(true)">Show All Slides</button>
+        <button class="btn-secondary" onclick="setAllVisible(false)">Hide All</button>
+        <button class="btn-secondary" onclick="resetSlideOrder()">Reset to Default</button>
       </div>
     </div>
+  </div>
 
-    <div class="chart-box">
-      <p class="chart-title" style="display:flex;justify-content:space-between">
-        <span>Donated to Utility vs Your Solar Savings</span>
+  <!-- ── PAGE: CONTENT ── -->
+  <div class="page" id="page-content">
+    <div class="page-header">
+      <div class="page-title">Content Editor</div>
+      <div class="page-sub">Edit all text that appears in the presentation. Changes save to browser storage and load automatically in the slideshow.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Customer Info (Personalizes All Slides)</div>
+      <div class="card-grid col2">
+        <div class="field">
+          <div class="f-label">Customer Name (shown on title slide)</div>
+          <input class="f-input" id="c-name" placeholder="e.g. The Johnson Family" oninput="markUnsaved()">
+        </div>
+        <div style="align-self:end;padding-bottom:0.55rem">
+          <div style="font-size:0.72rem;color:var(--dim);line-height:1.6">Appears on the title slide as the italic name. Also editable by tapping directly on the title slide.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 1 TEXT -->
+    <div class="card">
+      <div class="card-title">Slide 1 — Utility Problem: Delivery & Profit</div>
+      <div class="field">
+        <div class="f-label">Eyebrow (top label)</div>
+        <input class="f-input slide-text-field" data-edit-id="s0-eyebrow" placeholder="The Problem with Your Power Company" oninput="markUnsaved()">
+      </div>
+      <div class="field">
+        <div class="f-label">Headline (red portion)</div>
+        <input class="f-input slide-text-field" data-edit-id="s0-headline" placeholder="ISN'T YOURS." oninput="markUnsaved()">
+      </div>
+      <div class="field">
+        <div class="f-label">Body paragraph</div>
+        <textarea class="f-input f-textarea slide-text-field" data-edit-id="s0-body" oninput="markUnsaved()"></textarea>
+      </div>
+      <div class="card-grid col2" style="margin-top:0.5rem">
+        <div class="field">
+          <div class="f-label">Bullet 1</div>
+          <textarea class="f-input f-textarea slide-text-field" style="min-height:60px" data-edit-id="s0-b1" oninput="markUnsaved()"></textarea>
+        </div>
+        <div class="field">
+          <div class="f-label">Bullet 2</div>
+          <textarea class="f-input f-textarea slide-text-field" style="min-height:60px" data-edit-id="s0-b2" oninput="markUnsaved()"></textarea>
+        </div>
+        <div class="field">
+          <div class="f-label">Bullet 3</div>
+          <textarea class="f-input f-textarea slide-text-field" style="min-height:60px" data-edit-id="s0-b3" oninput="markUnsaved()"></textarea>
+        </div>
+        <div class="field">
+          <div class="f-label">Footnote (below stat blocks)</div>
+          <input class="f-input slide-text-field" data-edit-id="s0-footnote" oninput="markUnsaved()">
+        </div>
+      </div>
+      <div class="card-grid col2" style="margin-top:0.75rem">
+        <div class="field"><div class="f-label">Stat Label — Year 1</div><input class="f-input slide-text-field" data-edit-id="s0-lbl1" oninput="markUnsaved()"></div>
+        <div class="field"><div class="f-label">Stat Label — 5 Years</div><input class="f-input slide-text-field" data-edit-id="s0-lbl2" oninput="markUnsaved()"></div>
+        <div class="field"><div class="f-label">Stat Label — 10 Years</div><input class="f-input slide-text-field" data-edit-id="s0-lbl3" oninput="markUnsaved()"></div>
+        <div class="field"><div class="f-label">Stat Label — 25 Years</div><input class="f-input slide-text-field" data-edit-id="s0-lbl4" oninput="markUnsaved()"></div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2 TEXT -->
+    <div class="card">
+      <div class="card-title">Slide 2 — Utility Problem: Demand Crisis</div>
+      <div class="field">
+        <div class="f-label">Eyebrow</div>
+        <input class="f-input slide-text-field" data-edit-id="s1-eyebrow" oninput="markUnsaved()">
+      </div>
+      <div class="field">
+        <div class="f-label">Headline</div>
+        <input class="f-input slide-text-field" data-edit-id="s1-headline" oninput="markUnsaved()">
+      </div>
+      <div class="field">
+        <div class="f-label">Intro paragraph</div>
+        <textarea class="f-input f-textarea slide-text-field" data-edit-id="s1-intro" oninput="markUnsaved()"></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-top:0.5rem">
+        <div class="field"><div class="f-label">Card 1 — Icon</div><input class="f-input slide-text-field" data-edit-id="s1-c1-icon" style="font-size:1.2rem" oninput="markUnsaved()"></div>
+        <div class="field"><div class="f-label">Card 1 — Title</div><input class="f-input slide-text-field" data-edit-id="s1-c1-title" oninput="markUnsaved()"></div>
+        <div class="field" style="grid-column:1/-1"><div class="f-label">Card 1 — Body</div><textarea class="f-input f-textarea slide-text-field" style="min-height:55px" data-edit-id="s1-c1-body" oninput="markUnsaved()"></textarea></div>
+
+        <div class="field"><div class="f-label">Card 2 — Icon</div><input class="f-input slide-text-field" data-edit-id="s1-c2-icon" style="font-size:1.2rem" oninput="markUnsaved()"></div>
+        <div class="field"><div class="f-label">Card 2 — Title</div><input class="f-input slide-text-field" data-edit-id="s1-c2-title" oninput="markUnsaved()"></div>
+        <div class="field" style="grid-column:1/-1"><div class="f-label">Card 2 — Body</div><textarea class="f-input f-textarea slide-text-field" style="min-height:55px" data-edit-id="s1-c2-body" oninput="markUnsaved()"></textarea></div>
+
+        <div class="field"><div class="f-label">Card 3 — Icon</div><input class="f-input slide-text-field" data-edit-id="s1-c3-icon" style="font-size:1.2rem" oninput="markUnsaved()"></div>
+        <div class="field"><div class="f-label">Card 3 — Title</div><input class="f-input slide-text-field" data-edit-id="s1-c3-title" oninput="markUnsaved()"></div>
+        <div class="field" style="grid-column:1/-1"><div class="f-label">Card 3 — Body</div><textarea class="f-input f-textarea slide-text-field" style="min-height:55px" data-edit-id="s1-c3-body" oninput="markUnsaved()"></textarea></div>
+
+        <div class="field"><div class="f-label">Card 4 — Icon</div><input class="f-input slide-text-field" data-edit-id="s1-c4-icon" style="font-size:1.2rem" oninput="markUnsaved()"></div>
+        <div class="field"><div class="f-label">Card 4 — Title</div><input class="f-input slide-text-field" data-edit-id="s1-c4-title" oninput="markUnsaved()"></div>
+        <div class="field" style="grid-column:1/-1"><div class="f-label">Card 4 — Body</div><textarea class="f-input f-textarea slide-text-field" style="min-height:55px" data-edit-id="s1-c4-body" oninput="markUnsaved()"></textarea></div>
+
+        <div class="field"><div class="f-label">Card 5 — Icon</div><input class="f-input slide-text-field" data-edit-id="s1-c5-icon" style="font-size:1.2rem" oninput="markUnsaved()"></div>
+        <div class="field"><div class="f-label">Card 5 — Title</div><input class="f-input slide-text-field" data-edit-id="s1-c5-title" oninput="markUnsaved()"></div>
+        <div class="field" style="grid-column:1/-1"><div class="f-label">Card 5 — Body</div><textarea class="f-input f-textarea slide-text-field" style="min-height:55px" data-edit-id="s1-c5-body" oninput="markUnsaved()"></textarea></div>
+
+        <div class="field"><div class="f-label">Card 6 — Icon</div><input class="f-input slide-text-field" data-edit-id="s1-c6-icon" style="font-size:1.2rem" oninput="markUnsaved()"></div>
+        <div class="field"><div class="f-label">Card 6 — Title</div><input class="f-input slide-text-field" data-edit-id="s1-c6-title" oninput="markUnsaved()"></div>
+        <div class="field" style="grid-column:1/-1"><div class="f-label">Card 6 — Body</div><textarea class="f-input f-textarea slide-text-field" style="min-height:55px" data-edit-id="s1-c6-body" oninput="markUnsaved()"></textarea></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="display:flex;justify-content:space-between;align-items:center">
+        <span>Testimonials (Slide 7)</span>
+        <button class="sync-btn" id="sync-t-btn" onclick="syncTestimonials()">
+          <span class="sync-icon">↻</span> Sync from yourenergybest.com
+        </button>
+      </div>
+      <div id="sync-t-status" style="display:none;font-size:0.75rem;padding:0.5rem 0.75rem;border-radius:4px;margin-bottom:0.75rem"></div>
+      <div class="t-list" id="t-list"></div>
+      <button class="btn-secondary" style="margin-top:1rem" onclick="addTestimonial()">+ Add Testimonial</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Highlights (Slide 4 — What You're Getting)</div>
+      <div class="card-grid col2">
+        <div class="field"><div class="f-label">Benefit 1 Title</div><input class="f-input" id="h-b1-title" value="25-Year Panel Warranty" oninput="markUnsaved()"></div>
+        <div class="field"><div class="f-label">Benefit 1 Body</div><input class="f-input" id="h-b1-body" value="Industry-leading performance guarantee. If output drops below spec, it's covered." oninput="markUnsaved()"></div>
+        <div class="field"><div class="f-label">Benefit 2 Title</div><input class="f-input" id="h-b2-title" value="Battery Backup Included" oninput="markUnsaved()"></div>
+        <div class="field"><div class="f-label">Benefit 2 Body</div><input class="f-input" id="h-b2-body" value="Whole-home battery storage. When the grid goes dark, your lights stay on." oninput="markUnsaved()"></div>
+        <div class="field"><div class="f-label">Benefit 3 Title</div><input class="f-input" id="h-b3-title" value="New Roof Included" oninput="markUnsaved()"></div>
+        <div class="field"><div class="f-label">Benefit 3 Body</div><input class="f-input" id="h-b3-body" value="No more leaks. Your roof is replaced as part of the system." oninput="markUnsaved()"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Your 3 Bullet Points (Slide 7 — Why Work With Me)</div>
+      <div class="field"><div class="f-label">Bullet 1</div><textarea class="f-input f-textarea" id="my-b1" oninput="markUnsaved()">Local San Diego expert — I live here, I know the rates, I know the permits, I know the utility games. This is my community too.</textarea></div>
+      <div class="field"><div class="f-label">Bullet 2</div><textarea class="f-input f-textarea" id="my-b2" oninput="markUnsaved()">Post-install support for life — I'm not a door-knocker who disappears. My number doesn't change. Call me in year 10.</textarea></div>
+      <div class="field"><div class="f-label">Bullet 3</div><textarea class="f-input f-textarea" id="my-b3" oninput="markUnsaved()">My mission is to make this industry truly sustainable — the better experience I give, the more people you tell about it, and the quicker we can get there together.</textarea></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Company Pillars (Slide 8)</div>
+      <div class="card-grid col3">
+        <div>
+          <div class="field"><div class="f-label">Pillar 1 Title</div><input class="f-input" id="cp1-title" value="Industry-Leading Warranty" oninput="markUnsaved()"></div>
+          <div class="field"><div class="f-label">Pillar 1 Body</div><textarea class="f-input f-textarea" id="cp1-body" oninput="markUnsaved()">25 years on panels, inverters, and labor. No other company in San Diego backs their work like this.</textarea></div>
+        </div>
+        <div>
+          <div class="field"><div class="f-label">Pillar 2 Title</div><input class="f-input" id="cp2-title" value="A-Rated Financing Partner" oninput="markUnsaved()"></div>
+          <div class="field"><div class="f-label">Pillar 2 Body</div><textarea class="f-input f-textarea" id="cp2-body" oninput="markUnsaved()">Best rates, clean contracts, no hidden balloon payments, no predatory terms.</textarea></div>
+        </div>
+        <div>
+          <div class="field"><div class="f-label">Pillar 3 Title</div><input class="f-input" id="cp3-title" value="Premium Equipment Only" oninput="markUnsaved()"></div>
+          <div class="field"><div class="f-label">Pillar 3 Body</div><textarea class="f-input f-textarea" id="cp3-body" oninput="markUnsaved()">We install top tier panels, inverters, and batteries. No cutting corners on the hardware that will power your home for 25 years.</textarea></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="display:flex;justify-content:space-between;align-items:center">
+        <span>Instagram Feed (Slide 7)</span>
+        <button class="sync-btn" id="sync-ig-btn" onclick="syncInstagram()">
+          <span class="sync-icon">↻</span> Sync Token from yourenergybest.com
+        </button>
+      </div>
+      <div id="sync-ig-status" style="display:none;font-size:0.75rem;padding:0.5rem 0.75rem;border-radius:4px;margin-bottom:0.75rem"></div>
+      <div class="field">
+        <div class="f-label">Long-Lived Access Token</div>
+        <input class="f-input" id="ig-token" type="password" placeholder="Auto-filled by sync, or paste manually" oninput="markUnsaved()">
+        <div class="f-hint" style="margin-top:0.4rem">The sync button fetches your active token from <strong>yourenergybest.com</strong> automatically. Token is stored locally and never sent anywhere else.</div>
+      </div>
+      <div id="ig-preview" style="display:none;margin-top:1rem">
+        <div class="f-label" style="margin-bottom:0.5rem">Feed Preview (latest 4 posts)</div>
+        <div id="ig-preview-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PAGE: IMAGES ── -->
+  <div class="page" id="page-images">
+    <div class="page-header">
+      <div class="page-title">Image Manager</div>
+      <div class="page-sub">Upload images for specific slide slots and manage your general gallery.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Slide-Specific Images</div>
+      <div class="card-grid col2" style="gap:1.25rem">
+
+        <div>
+          <div class="f-label" style="margin-bottom:0.5rem">Slide 6 — Solar Timeline</div>
+          <div class="img-zone" id="zone-timeline" onclick="zoneUpload('timeline-img','zone-timeline')">
+            <img id="zone-timeline-preview" src="" style="display:none">
+            <span class="upload-icon">📅</span>
+            <span>Click to upload timeline image</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="f-label" style="margin-bottom:0.5rem">Slide 8 — Company Logos / Certs</div>
+          <div class="img-zone" id="zone-logos" onclick="zoneUpload('company-logo-img','zone-logos')">
+            <img id="zone-logos-preview" src="" style="display:none">
+            <span class="upload-icon">🏢</span>
+            <span>Click to upload logos / certifications</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="f-label" style="margin-bottom:0.5rem">Slide 9 — How Solar Works (Step 1)</div>
+          <div class="img-zone" id="zone-step0" onclick="zoneUpload('step-img-0-img','zone-step0')">
+            <img id="zone-step0-preview" src="" style="display:none">
+            <span class="upload-icon">☀️</span><span>Sunlight / Panels image</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="f-label" style="margin-bottom:0.5rem">Slide 9 — How Solar Works (Step 2)</div>
+          <div class="img-zone" id="zone-step1" onclick="zoneUpload('step-img-1-img','zone-step1')">
+            <img id="zone-step1-preview" src="" style="display:none">
+            <span class="upload-icon">⚡</span><span>Microinverter / Conversion image</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="f-label" style="margin-bottom:0.5rem">Slide 9 — How Solar Works (Step 3)</div>
+          <div class="img-zone" id="zone-step2" onclick="zoneUpload('step-img-2-img','zone-step2')">
+            <img id="zone-step2-preview" src="" style="display:none">
+            <span class="upload-icon">🏠</span><span>Powers Your Home image</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="f-label" style="margin-bottom:0.5rem">Slide 9 — How Solar Works (Step 4)</div>
+          <div class="img-zone" id="zone-step3" onclick="zoneUpload('step-img-3-img','zone-step3')">
+            <img id="zone-step3-preview" src="" style="display:none">
+            <span class="upload-icon">🔋</span><span>Battery / Export image</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">General Gallery (shown on Gallery button in presentation)</div>
+      <div class="gallery-upload-zone" onclick="document.getElementById('gallery-upload').click()">
+        <h3>Drop images here or click to upload</h3>
+        <p>Any images — system photos, installs, roof shots, team photos</p>
+      </div>
+      <input type="file" id="gallery-upload" accept="image/*" multiple style="display:none" onchange="handleGalleryUpload(event)">
+      <div class="gallery-grid-admin" id="gallery-grid-admin">
+        <div style="color:var(--dim);font-size:0.82rem;padding:1rem;grid-column:1/-1">No gallery images yet.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PAGE: EXPORT ── -->
+  <div class="page" id="page-export">
+    <div class="page-header">
+      <div class="page-title">PDF Export</div>
+      <div class="page-sub">Select which slides to include, then print to PDF. Each selected slide becomes one page.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Select Slides to Include</div>
+      <div class="export-checklist" id="export-checklist"></div>
+      <div style="display:flex;gap:0.75rem;margin-bottom:1rem;flex-wrap:wrap">
+        <button class="btn-secondary" onclick="exportSelectAll(true)">Select All</button>
+        <button class="btn-secondary" onclick="exportSelectAll(false)">Deselect All</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Export</div>
+      <p class="f-hint" style="margin-bottom:1.25rem">This opens the presentation in a new tab with only your selected slides visible, then triggers the browser print dialog. Choose "Save as PDF" and set paper size to Landscape / Letter for best results.</p>
+      <button class="export-big-btn" onclick="runExport()">
+        <span style="font-size:1.2rem">↓</span> Download PDF
+      </button>
+      <p class="export-note">Tip: In the print dialog → More settings → Layout: Landscape → Paper size: Letter → Margins: None → Enable "Background graphics"</p>
+    </div>
+  </div>
+
+  <!-- ── PAGE: PROPOSALS ── -->
+  <div class="page" id="page-proposals">
+    <div class="page-header">
+      <div class="page-title">Customer Proposals</div>
+      <div class="page-sub">Build a personalized interactive proposal for a customer. Generate a shareable link they can open on any device — with live sliders and their specific numbers.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Customer Details</div>
+      <div class="card-grid col2">
+        <div class="field"><div class="f-label">Customer Name</div><input class="f-input" id="prop-name" placeholder="e.g. The Johnson Family"></div>
+        <div class="field"><div class="f-label">Utility Provider</div>
+          <select class="f-input f-select" id="prop-utility">
+            <option value="SDG&E" selected>SDG&E</option>
+            <option value="SCE">SCE (SoCal Edison)</option>
+            <option value="PG&E">PG&E</option>
+            <option value="LADWP">LADWP</option>
+            <option value="APS">APS (Arizona)</option>
+            <option value="NV Energy">NV Energy (Nevada)</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Current Situation</div>
+      <div class="card-grid col2">
+        <div class="field"><div class="f-label">Monthly Utility Bill ($)</div><input class="f-input" id="prop-bill" type="number" placeholder="134" value="134"></div>
+        <div class="field"><div class="f-label">Annual kWh Usage</div><input class="f-input" id="prop-kwh" type="number" placeholder="3540" value="3540"></div>
+        <div class="field"><div class="f-label">Annual Rate Increase (%)</div>
+          <select class="f-input f-select" id="prop-rate">
+            <option value="4">4% — Inflation</option>
+            <option value="6">6% — Conservative</option>
+            <option value="9" selected>9% — SDG&E Historical</option>
+            <option value="12">12% — Worst Case</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">VPP Proposal</div>
+      <div class="card-grid col2">
+        <div class="field"><div class="f-label">Monthly Energy Investment ($)</div><input class="f-input" id="prop-solar" type="number" placeholder="202" value="202"></div>
+        <div class="field"><div class="f-label">Annual kWh Production</div><input class="f-input" id="prop-solar-kwh" type="number" placeholder="6402" value="6402"></div>
+        <div class="field"><div class="f-label">VPP Rate Escalator (%)</div>
+          <select class="f-input f-select" id="prop-vpp-rate">
+            <option value="0">0.0% — Fully Fixed</option>
+            <option value="0.9" selected>0.9% — Standard</option>
+            <option value="1.9">1.9%</option>
+            <option value="2.9">2.9%</option>
+            <option value="3.5">3.5%</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Key Benefits (shown on proposal page)</div>
+      <div id="prop-benefits-list" style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.75rem"></div>
+      <button class="btn-secondary" onclick="addPropBenefit()">+ Add Benefit</button>
+    </div>
+
+    <div class="card" style="border-color:rgba(200,168,75,0.25)">
+      <div class="card-title" style="color:var(--gold)">Generate Proposal Link</div>
+      <p style="font-size:0.82rem;color:var(--muted);margin-bottom:1.25rem;line-height:1.6">
+        This creates a shareable URL that opens an interactive proposal page pre-loaded with the customer's specific numbers. They can adjust sliders and explore different scenarios. No login required — just send the link.
       </p>
-      <div style="display:grid;grid-template-columns:56px 1fr 1fr;margin-bottom:5px">
-        <div style="font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--dim)">Year</div>
-        <div style="font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--rage-l);text-align:right">Utility Cost</div>
-        <div style="font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--green-l);text-align:right">Solar Saves</div>
-      </div>
-      <div id="milestones"></div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <section class="section" id="included" data-sec="included">
-    <span class="eyebrow">What You're Getting</span>
-    <h2 class="section-title">Everything <span style="color:var(--gold)">Included</span></h2>
-    <p class="section-sub">This isn't just solar — it's a complete home energy system, fully protected for the life of your system.</p>
-    <div class="warranty-grid">
-      <div class="warranty-card"><span class="w-icon">☀️</span><h4>25-Year Panel Warranty</h4><p>Industry-leading performance guarantee. If output drops below spec, it's covered — no arguments.</p></div>
-      <div class="warranty-card"><span class="w-icon">🔋</span><h4>Battery Backup Included</h4><p>Whole-home battery storage. When the grid goes dark, your lights stay on.</p></div>
-      <div class="warranty-card"><span class="w-icon">🔌</span><h4>Active Monitoring</h4><p>Real-time system monitoring via app. Every panel, every kilowatt, every day.</p></div>
-      <div class="warranty-card"><span class="w-icon">⚡</span><h4 id="inc-power-title">81% More Power</h4><p id="inc-power-body">Your system is sized to over-produce — run everything comfortably.</p></div>
-      <div class="warranty-card"><span class="w-icon">🏡</span><h4>Home Value Increases</h4><p>Studies show solar adds 3–4% to home value — often more than the system cost.</p></div>
-      <div class="warranty-card"><span class="w-icon">💰</span><h4>$0 Out of Pocket</h4><p>No down payment. No cash required. Energy savings start from day one.</p></div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <section class="section" id="comparison" data-sec="comparison">
-    <span class="eyebrow">Side by Side</span>
-    <h2 class="section-title">Utility vs <span style="color:var(--gold)">Virtual Power Plant</span></h2>
-    <div class="compare-grid">
-      <div class="compare-col util">
-        <div class="compare-col-title" style="color:var(--rage-l)" id="comp-util-name">SDG&E</div>
-        <div class="compare-item"><span class="check">✓</span><span>Get your power</span></div>
-        <div class="compare-item"><span class="check">✓</span><span>Monthly billing</span></div>
-        <div class="compare-item missing"><span class="x-mark">✕</span><span>No end date — forever</span></div>
-        <div class="compare-item missing"><span class="x-mark">✕</span><span>Ration usage to manage cost</span></div>
-        <div class="compare-item missing"><span class="x-mark">✕</span><span>No backup — grid goes dark, you go dark</span></div>
-        <div class="compare-item missing"><span class="x-mark">✕</span><span>Unpredictable rates, rising every year</span></div>
-        <div class="compare-item missing"><span class="x-mark">✕</span><span>No control — captive customer</span></div>
-        <div class="compare-item missing"><span class="x-mark">✕</span><span>Costs more every single month</span></div>
-      </div>
-      <div class="compare-col solar-col">
-        <div class="compare-col-title" style="color:var(--green-l)">Virtual Power Plant</div>
-        <div class="compare-item"><span class="check">✓</span><span>Get your power</span></div>
-        <div class="compare-item"><span class="check">✓</span><span>Monthly billing</span></div>
-        <div class="compare-item"><span class="check">✓</span><span><strong>End date</strong> — loan pays off, power is free</span></div>
-        <div class="compare-item"><span class="check">✓</span><span><strong>Use power comfortably</strong> — no rationing</span></div>
-        <div class="compare-item"><span class="check">✓</span><span><strong>Blackout protection</strong> — battery keeps you on</span></div>
-        <div class="compare-item"><span class="check">✓</span><span><strong>Predictable power</strong> — rate locked in</span></div>
-        <div class="compare-item"><span class="check">✓</span><span><strong>Control</strong> — you own your energy</span></div>
-        <div class="compare-item"><span class="check">✓</span><span><strong>Day 1 Savings</strong> — costs less immediately</span></div>
+      <button class="btn-save" onclick="generateProposalLink()" style="margin-bottom:1rem">Generate Link</button>
+      <div id="prop-link-output" style="display:none">
+        <div class="f-label" style="margin-bottom:0.4rem">Shareable Link</div>
+        <div style="display:flex;gap:0.5rem;align-items:center">
+          <input class="f-input" id="prop-link-url" readonly style="font-size:0.72rem;font-family:monospace;flex:1">
+          <button class="btn-secondary" onclick="copyProposalLink()">Copy</button>
+          <a id="prop-link-open" href="#" target="_blank" class="btn-secondary" style="text-decoration:none">Open ↗</a>
+        </div>
+        <div id="prop-copy-status" style="font-size:0.72rem;color:var(--green-l);margin-top:0.4rem;display:none">✓ Copied to clipboard!</div>
       </div>
     </div>
-  </section>
 
-  <div class="divider"></div>
-
-  <section class="section" id="timeline" data-sec="timeline">
-    <span class="eyebrow">The Process</span>
-    <h2 class="section-title">Your Solar <span style="color:var(--gold)">Timeline</span></h2>
-    <p class="section-sub">We handle everything. Steps marked with ★ require your presence — that's it.</p>
-    <div class="timeline-steps">
-      <div class="tl-step"><div class="tl-step-icon">🤝</div><div class="tl-step-name">Consultation</div><div class="tl-step-time">1–2 Days</div></div>
-      <div class="tl-step customer-step"><div class="tl-step-icon">📏</div><div class="tl-step-name">Site Survey ★</div><div class="tl-step-time">2–3 Days</div></div>
-      <div class="tl-step"><div class="tl-step-icon">📐</div><div class="tl-step-name">Final Design</div><div class="tl-step-time">2–3 Days</div></div>
-      <div class="tl-step"><div class="tl-step-icon">🏛️</div><div class="tl-step-name">Permitting</div><div class="tl-step-time">1–5 Weeks</div></div>
-      <div class="tl-step customer-step"><div class="tl-step-icon">🔧</div><div class="tl-step-name">Installation ★</div><div class="tl-step-time">1 Week</div></div>
-      <div class="tl-step"><div class="tl-step-icon">🔍</div><div class="tl-step-name">City Inspection</div><div class="tl-step-time">1–2 Weeks</div></div>
-      <div class="tl-step"><div class="tl-step-icon">⚡</div><div class="tl-step-name">Interconnection</div><div class="tl-step-time">2–4 Weeks</div></div>
-      <div class="tl-step" style="border-color:var(--gold);background:rgba(200,168,75,0.08)"><div class="tl-step-icon">🏠</div><div class="tl-step-name" style="color:var(--gold)">Power On</div><div class="tl-step-time" style="color:var(--gold)">Day 1</div></div>
-    </div>
-    <p style="font-size:0.72rem;color:var(--dim);margin-top:0.6rem">★ = requires your presence. Average total timeline: 6–10 weeks from contract to first kilowatt.</p>
-  </section>
-
-  <div class="divider"></div>
-
-  <section class="section" id="contact" data-sec="contact">
-    <span class="eyebrow">Let's Talk</span>
-    <h2 class="section-title">Ready to <span style="color:var(--gold)">Move Forward?</span></h2>
-    <p class="section-sub">I built this proposal personally. I'm here to answer any question, walk through any number, or get your site survey scheduled.</p>
-    <div class="contact-card">
-      <div class="contact-name">Dave West</div>
-      <div style="font-size:0.85rem;color:var(--dim);margin-bottom:1rem">Kinhome Solar · Your Energy Best</div>
-      <div style="display:flex;flex-direction:column;gap:0.6rem;align-items:center">
-        <a href="tel:3039419131" style="color:var(--gold);text-decoration:none;font-size:1.05rem;font-weight:500">📞 303.941.9131</a>
-        <a href="mailto:dwest@yourenergybest.com" style="color:var(--gold);text-decoration:none;font-size:0.88rem">✉️ dwest@yourenergybest.com</a>
-        <a href="https://yourenergybest.com" style="color:var(--gold);text-decoration:none;font-size:0.82rem" target="_blank">🌐 yourenergybest.com</a>
+    <div class="card">
+      <div class="card-title">Saved Proposals</div>
+      <div id="saved-proposals-list">
+        <div style="color:var(--dim);font-size:0.82rem">No saved proposals yet.</div>
       </div>
     </div>
-  </section>
+  </div>
 
-  <footer>
-    Prepared by <a href="https://yourenergybest.com">Kinhome Solar</a> for <span id="footer-name"></span> ·
-    <span id="footer-date"></span><br>
-    * Utility rate projections are estimates. Actual rates may vary. Solar savings calculated from your specific system design.
-  </footer>
+  <!-- ── PAGE: SETTINGS ── -->
+  <div class="page" id="page-settings">
+    <div class="page-header">
+      <div class="page-title">Settings</div>
+      <div class="page-sub">Global defaults, password management, and customer proposal generator.</div>
+    </div>
+
+    <!-- PROPOSAL GENERATOR -->
+    <div class="card" style="border-color:rgba(200,168,75,0.3);background:rgba(200,168,75,0.04)">
+      <div class="card-title" style="color:var(--gold)">🔗 Generate Customer Proposal Link</div>
+      <p style="font-size:0.82rem;color:var(--muted);margin-bottom:1.25rem;line-height:1.6">Numbers auto-populate from the current presentation. The customer gets a fixed proposal — only the utility rate assumption is adjustable on their end. Link expires in 30 days.</p>
+
+      <!-- Customer details -->
+      <div class="card-grid col2" style="margin-bottom:1rem">
+        <div class="field">
+          <div class="f-label">Customer Name</div>
+          <input class="f-input" id="prop-name" placeholder="The Johnson Family">
+        </div>
+        <div class="field">
+          <div class="f-label">Utility Provider</div>
+          <select class="f-input f-select" id="prop-utility">
+            <option value="SDG&amp;E" selected>SDG&amp;E</option>
+            <option value="SCE">SCE</option>
+            <option value="PG&amp;E">PG&amp;E</option>
+            <option value="LADWP">LADWP</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Numbers pulled from presentation -->
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:1rem;margin-bottom:1rem">
+        <div style="font-size:0.65rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:0.75rem">Numbers (pulled from presentation)</div>
+        <div class="card-grid col2">
+          <div class="field">
+            <div class="f-label">Monthly Bill ($)</div>
+            <input class="f-input" type="number" id="prop-bill" placeholder="134">
+          </div>
+          <div class="field">
+            <div class="f-label">Annual kWh Usage</div>
+            <input class="f-input" type="number" id="prop-kwh" placeholder="3540">
+          </div>
+          <div class="field">
+            <div class="f-label">Monthly Solar Payment ($)</div>
+            <input class="f-input" type="number" id="prop-solar" placeholder="202">
+          </div>
+          <div class="field">
+            <div class="f-label">Annual Solar Production (kWh)</div>
+            <input class="f-input" type="number" id="prop-skwh" placeholder="6402">
+          </div>
+          <div class="field">
+            <div class="f-label">VPP Escalator</div>
+            <select class="f-input f-select" id="prop-vpp">
+              <option value="0.000">0.0% — Fully Fixed Forever</option>
+              <option value="0.0099">0.99%</option>
+              <option value="0.0199">1.99%</option>
+              <option value="0.0299" selected>2.99% — Standard Locked Rate</option>
+              <option value="0.035">3.5%</option>
+            </select>
+          </div>
+          <div class="field">
+            <div class="f-label">Loan Term (Years)</div>
+            <select class="f-input f-select" id="prop-term">
+              <option value="10">10</option>
+              <option value="12">12</option>
+              <option value="15">15</option>
+              <option value="20">20</option>
+              <option value="25" selected>25</option>
+              <option value="30">30</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-secondary" style="margin-top:0.75rem;font-size:0.75rem" onclick="pullFromPresentation()">↓ Pull from Presentation Numbers</button>
+      </div>
+
+      <!-- Slide selector -->
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:1rem;margin-bottom:1rem">
+        <div style="font-size:0.65rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:0.75rem">Which Sections to Show Customer</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem" id="prop-slides-grid">
+          <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.8rem;cursor:pointer"><input type="checkbox" id="ps-overview" checked> Overview</label>
+          <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.8rem;cursor:pointer"><input type="checkbox" id="ps-numbers" checked> Numbers</label>
+          <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.8rem;cursor:pointer"><input type="checkbox" id="ps-included" checked> Everything Included</label>
+          <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.8rem;cursor:pointer"><input type="checkbox" id="ps-comparison" checked> Utility vs Solar</label>
+          <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.8rem;cursor:pointer"><input type="checkbox" id="ps-timeline" checked> Timeline</label>
+          <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.8rem;cursor:pointer"><input type="checkbox" id="ps-contact" checked> Contact</label>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center">
+        <button class="btn-save" onclick="generateProposalLink()">Generate Link</button>
+        <button class="btn-secondary" onclick="openProposalPreview()">Preview →</button>
+        <span style="font-size:0.72rem;color:var(--dim)">Link expires 30 days from creation</span>
+      </div>
+
+      <!-- Generated link output -->
+      <div id="prop-link-output" style="display:none;margin-top:1.25rem">
+        <div class="f-label" style="margin-bottom:0.4rem">Shareable Proposal URL</div>
+        <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
+          <input class="f-input" id="prop-link-input" readonly style="font-size:0.72rem;cursor:text;flex:1;min-width:200px">
+          <button class="btn-secondary" onclick="copyProposalLink()">Copy</button>
+          <a id="prop-link-open" href="#" target="_blank" class="btn-secondary" style="text-decoration:none;padding:0.6rem 1rem">Open ↗</a>
+        </div>
+        <div style="font-size:0.72rem;color:var(--dim);margin-top:0.5rem;line-height:1.5">Send this link to the customer. They can explore their numbers, adjust the utility rate assumption, and revisit any time within 30 days. No login needed.</div>
+        <!-- Saved proposals -->
+        <div style="margin-top:1rem;border-top:1px solid rgba(255,255,255,0.06);padding-top:0.75rem">
+          <div style="font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--dim);margin-bottom:0.5rem">Saved Proposals</div>
+          <div id="saved-proposals-list" style="display:flex;flex-direction:column;gap:0.4rem;max-height:180px;overflow-y:auto"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Default Financial Assumptions</div>
+      <div class="card-grid col2">
+        <div class="field">
+          <div class="f-label">Default Utility Provider</div>
+          <input class="f-input" id="s-utility" value="SDG&E" oninput="markUnsaved()">
+        </div>
+        <div class="field">
+          <div class="f-label">Default Monthly Bill ($)</div>
+          <input class="f-input" type="number" id="s-bill" value="134" oninput="markUnsaved()">
+        </div>
+        <div class="field">
+          <div class="f-label">Default Annual Rate Increase</div>
+          <select class="f-input f-select" id="s-rate" onchange="markUnsaved()">
+            <option value="0.00">0% — Frozen</option>
+            <option value="0.04">4% — Inflation</option>
+            <option value="0.06">6% — Conservative</option>
+            <option value="0.09" selected>9% — SDG&E Historical</option>
+            <option value="0.12">12% — Worst Case</option>
+          </select>
+        </div>
+        <div class="field">
+          <div class="f-label">Federal Tax Credit</div>
+          <select class="f-input f-select" id="s-itc" onchange="markUnsaved()">
+            <option value="0.30" selected>30%</option>
+            <option value="0.26">26%</option>
+            <option value="0.22">22%</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Admin Password</div>
+      <div class="card-grid col2">
+        <div class="field">
+          <div class="f-label">New Password</div>
+          <input class="f-input" id="new-pw" type="password" placeholder="Enter new password" autocomplete="new-password">
+        </div>
+        <div class="field">
+          <div class="f-label">Confirm Password</div>
+          <input class="f-input" id="new-pw-confirm" type="password" placeholder="Confirm new password" autocomplete="new-password">
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:1rem;margin-top:0.75rem">
+        <button class="btn-save" onclick="changePassword()">Update Password</button>
+        <span id="pw-change-status" style="font-size:0.78rem;color:var(--dim)"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Danger Zone</div>
+      <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+        <button class="btn-secondary" style="color:var(--rage-l);border-color:rgba(231,76,60,0.3)" onclick="clearAllData()">Clear All Saved Data</button>
+        <button class="btn-secondary" onclick="exportJSON()">Export Settings as JSON</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+</div><!-- /admin-shell -->
+
+<!-- SAVE BAR -->
+<div class="save-bar">
+  <div class="save-status" id="save-status">All changes saved</div>
+  <div style="display:flex;gap:0.75rem">
+    <button class="btn-secondary" onclick="loadAll()">Revert</button>
+    <button class="btn-save" onclick="saveAll()">Save Changes</button>
+  </div>
 </div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">Saved!</div>
+
+<!-- Hidden file input -->
+<input type="file" id="zone-upload-input" accept="image/*" style="display:none">
 
 <script>
-const params = new URLSearchParams(location.search);
-function p(key,fb=''){const v=params.get(key);return v!==null?v:fb}
-const DATA={
-  name:    p('name','Your Family'),
-  utility: p('utility','SDG&E'),
-  bill:    parseFloat(p('bill','134')),
-  kwh:     parseFloat(p('kwh','3540')),
-  solar:   parseFloat(p('solar','0')),
-  solarKwh:parseFloat(p('skwh','6402')),
-  vppRate: parseFloat(p('vpp','0.009')),
-  term:    parseInt(p('term','25')),
-  created: parseInt(p('ts','0')),
-  slides:  p('slides','overview,numbers,included,comparison,timeline,contact').split(','),
+// ── PASSWORD GATE ──
+const ADMIN_PW = localStorage.getItem('kinobi-admin-pass') || 'solar2025';
+function checkPassword() {
+  const val = document.getElementById('pw-input').value;
+  if (val === ADMIN_PW) {
+    sessionStorage.setItem('kinobi-authed','1');
+    document.getElementById('pw-gate').classList.add('hidden');
+    document.getElementById('admin-shell').style.display = 'grid';
+    loadAll();
+  } else {
+    document.getElementById('pw-error').textContent = 'Incorrect password. Try again.';
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-input').focus();
+  }
+}
+if (sessionStorage.getItem('kinobi-authed') === '1') {
+  document.getElementById('pw-gate').classList.add('hidden');
+  document.getElementById('admin-shell').style.display = 'grid';
+  window.addEventListener('load', loadAll);
+} else {
+  document.getElementById('pw-input').focus();
+}
+// ═══════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════
+const SLIDE_DEFS = [
+  {id:'slide-title', label:'Title Slide', visible:true},
+  {id:'slide-0', label:'Utility Problem 1 — Delivery/Profit', visible:true},
+  {id:'slide-1', label:'Utility Problem 2 — Demand Crisis', visible:true},
+  {id:'slide-2', label:'Your 3 Options', visible:true},
+  {id:'slide-3', label:'What You\'re Getting — Highlights', visible:true},
+  {id:'slide-4', label:'Qualifications', visible:true},
+  {id:'slide-5', label:'Solar Timeline', visible:true},
+  {id:'slide-6', label:'Why Work With Me', visible:true},
+  {id:'slide-7', label:'Company & Financer', visible:true},
+  {id:'slide-8', label:'How Solar Works', visible:true},
+  {id:'slide-summary', label:'Summary — Utility vs Solar', visible:true},
+  {id:'slide-9', label:'The Numbers', visible:true},
+];
+
+let slideData = JSON.parse(localStorage.getItem('kinobi-slides') || 'null') || SLIDE_DEFS.map(s=>({...s}));
+let testimonials = JSON.parse(localStorage.getItem('kinobi-testimonials') || 'null') || [
+  {quote:'"He stayed in contact the whole way. Installation was seamless and my bill dropped to zero."', name:'— Maria G., Chula Vista'},
+  {quote:'"I called 4 companies. He was the only one who actually explained what I was getting. Best decision I\'ve made for my home."', name:'— James R., Escondido'},
+];
+let galleryImages = JSON.parse(localStorage.getItem('kinobi-gallery') || '[]');
+let exportSelected = new Set(slideData.map((_,i)=>i));
+
+let _zoneTarget = null;
+
+// ═══════════════════════════════════════════
+//  NAV
+// ═══════════════════════════════════════════
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if(id==='export') buildExportChecklist();
+  if(id==='proposals') { renderPropBenefits(); renderSavedProposals(); }
+}
+
+// ═══════════════════════════════════════════
+//  SLIDE TABLE
+// ═══════════════════════════════════════════
+function buildSlideTable() {
+  const tbody = document.getElementById('slide-tbody');
+  tbody.innerHTML = '';
+  slideData.forEach((s,i) => {
+    const tr = document.createElement('tr');
+    tr.dataset.idx = i;
+    tr.innerHTML = `
+      <td class="slide-num">${i+1}</td>
+      <td><input class="slide-label-input" value="${s.label}" oninput="slideData[${i}].label=this.value;markUnsaved()"></td>
+      <td>
+        <button class="vis-toggle ${s.visible?'on':'off'}" onclick="toggleVis(${i},this)">
+          ${s.visible?'✓ Visible':'✕ Hidden'}
+        </button>
+      </td>
+      <td style="display:flex;gap:4px">
+        <button class="move-btn" onclick="moveSlide(${i},-1)" ${i===0?'disabled':''}>↑</button>
+        <button class="move-btn" onclick="moveSlide(${i},1)" ${i===slideData.length-1?'disabled':''}>↓</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function toggleVis(i, btn) {
+  slideData[i].visible = !slideData[i].visible;
+  btn.textContent = slideData[i].visible ? '✓ Visible' : '✕ Hidden';
+  btn.className = 'vis-toggle ' + (slideData[i].visible?'on':'off');
+  markUnsaved();
+}
+
+function moveSlide(i, dir) {
+  const j = i + dir;
+  if(j < 0 || j >= slideData.length) return;
+  [slideData[i], slideData[j]] = [slideData[j], slideData[i]];
+  buildSlideTable();
+  markUnsaved();
+}
+
+function setAllVisible(v) {
+  slideData.forEach(s=>s.visible=v);
+  buildSlideTable();
+  markUnsaved();
+}
+
+function resetSlideOrder() {
+  if(!confirm('Reset slide order and labels to defaults?')) return;
+  slideData = SLIDE_DEFS.map(s=>({...s}));
+  buildSlideTable();
+  markUnsaved();
+}
+
+// ═══════════════════════════════════════════
+//  TESTIMONIALS
+// ═══════════════════════════════════════════
+function buildTestimonialList() {
+  const list = document.getElementById('t-list');
+  list.innerHTML = '';
+  testimonials.forEach((t,i) => {
+    const div = document.createElement('div');
+    div.className = 't-item';
+    div.innerHTML = `
+      <div class="t-item-header">
+        <span class="t-item-num">Testimonial ${i+1}</span>
+        <button class="t-del" onclick="deleteTestimonial(${i})">✕</button>
+      </div>
+      <div class="field">
+        <div class="f-label">Quote</div>
+        <textarea class="f-input f-textarea" style="min-height:60px" oninput="testimonials[${i}].quote=this.value;markUnsaved()">${t.quote}</textarea>
+      </div>
+      <div class="field">
+        <div class="f-label">Name / Attribution</div>
+        <input class="f-input" value="${t.name}" oninput="testimonials[${i}].name=this.value;markUnsaved()">
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function addTestimonial() {
+  testimonials.push({quote:'"Add your testimonial here."', name:'— Customer Name, City'});
+  buildTestimonialList();
+  markUnsaved();
+}
+
+function deleteTestimonial(i) {
+  testimonials.splice(i,1);
+  buildTestimonialList();
+  markUnsaved();
+}
+
+// ═══════════════════════════════════════════
+//  IMAGE ZONES
+// ═══════════════════════════════════════════
+const ZONE_MAP = {
+  'timeline-img': 'zone-timeline-preview',
+  'company-logo-img': 'zone-logos-preview',
+  'step-img-0-img': 'zone-step0-preview',
+  'step-img-1-img': 'zone-step1-preview',
+  'step-img-2-img': 'zone-step2-preview',
+  'step-img-3-img': 'zone-step3-preview',
 };
-const THIRTY_DAYS=30*24*60*60*1000;
-const now=Date.now();
-const created=DATA.created||now;
-const elapsed=now-created;
-const daysLeft=Math.max(0,Math.ceil((THIRTY_DAYS-elapsed)/(24*60*60*1000)));
 
-if(DATA.created&&elapsed>THIRTY_DAYS){
-  document.getElementById('loading-screen').style.display='none';
-  document.getElementById('expired-screen').style.display='flex';
-}else{init()}
+function zoneUpload(imgKey, zoneId) {
+  _zoneTarget = {imgKey, zoneId};
+  const inp = document.getElementById('zone-upload-input');
+  inp.onchange = e => {
+    if(!e.target.files[0]) return;
+    const r = new FileReader();
+    r.onload = ev => {
+      const src = ev.target.result;
+      localStorage.setItem('kinobi-img-'+_zoneTarget.imgKey, src);
+      const preview = document.getElementById(ZONE_MAP[_zoneTarget.imgKey]);
+      if(preview){preview.src=src;preview.style.display='block'}
+      const zone = document.getElementById(_zoneTarget.zoneId);
+      if(zone){zone.querySelector('span.upload-icon').style.display='none';zone.querySelector('span:not(.upload-icon)').style.display='none'}
+      toast('Image saved!');
+    };
+    r.readAsDataURL(e.target.files[0]);
+    inp.value='';
+  };
+  inp.click();
+}
 
-let propChart;
-const YEARS=Array.from({length:DATA.term},(_,i)=>i+1);
-
-function init(){
-  // Names & labels
-  ['hero-name','banner-name','nav-name','footer-name'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=DATA.name});
-  document.getElementById('comp-util-name').textContent=DATA.utility;
-  document.getElementById('util-legend').textContent=DATA.utility;
-  document.getElementById('util-legend2').textContent=DATA.utility+' (rising)';
-  const termEl=document.getElementById('ov-total-lbl');if(termEl)termEl.textContent=DATA.term+'yr Utility Cost';
-  document.getElementById('n-total-lbl').textContent=DATA.term+'yr Total Cost';
-  document.getElementById('n-end-lbl').textContent='Bill in Year '+DATA.term;
-  document.getElementById('n-savings-lbl').textContent=DATA.term+'yr Savings';
-
-  // Footer date
-  const d=new Date(created);
-  document.getElementById('footer-date').textContent='Prepared '+d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
-
-  // Expiry banner
-  document.getElementById('expiry-count').textContent=DATA.created?(daysLeft>0?daysLeft+' day'+(daysLeft!==1?'s':'')+' remaining':'Expires today'):'Valid for 30 days';
-
-  // Fixed solar numbers
-  const kwhRate=DATA.kwh>0?(DATA.bill*12)/DATA.kwh:0;
-  const sKwhRate=DATA.solar>0&&DATA.solarKwh>0?(DATA.solar*12)/DATA.solarKwh:0;
-  const offset=DATA.kwh>0?Math.round(Math.min(DATA.solarKwh/DATA.kwh,2.0)*100):0;
-
-  document.getElementById('ov-bill').textContent='$'+DATA.bill;
-  document.getElementById('ov-kwh').textContent='$'+kwhRate.toFixed(3);
-  document.getElementById('ov-offset').textContent=offset+'%';
-  document.getElementById('n-util-mo').textContent='$'+DATA.bill;
-  document.getElementById('n-solar-mo').textContent=DATA.solar?'$'+DATA.solar:'—';
-  document.getElementById('n-solar-kwh').textContent=sKwhRate?'$'+sKwhRate.toFixed(3):'—';
-  document.getElementById('n-offset').textContent=offset+'%';
-  document.getElementById('inc-power-title').textContent=offset+'% More Power';
-  document.getElementById('inc-power-body').textContent='Your system produces '+offset+'% of your usage — run everything comfortably.';
-
-  // Filter sections
-  document.querySelectorAll('[data-sec]').forEach(el=>{
-    if(!DATA.slides.includes(el.dataset.sec)){
-      el.style.display='none';
-      const nx=el.nextElementSibling;
-      if(nx&&nx.classList.contains('divider'))nx.style.display='none';
+function loadZonePreviews() {
+  Object.entries(ZONE_MAP).forEach(([imgKey, previewId]) => {
+    const saved = localStorage.getItem('kinobi-img-'+imgKey);
+    if(saved) {
+      const el = document.getElementById(previewId);
+      if(el){el.src=saved;el.style.display='block'}
     }
   });
+}
 
-  // Build chart
-  const ctx=document.getElementById('propChart').getContext('2d');
-  propChart=new Chart(ctx,{
-    type:'line',
-    data:{labels:YEARS.map(y=>'Yr'+y),datasets:[
-      {label:DATA.utility,data:[],borderColor:'#E74C3C',borderWidth:2.5,pointRadius:0,tension:0.3,fill:false},
-      {label:'Solar',data:[],borderColor:'#2ECC71',borderWidth:2,pointRadius:0,tension:0.1,fill:false,borderDash:[5,3]}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
-      plugins:{legend:{display:false}},
-      scales:{
-        x:{ticks:{color:'rgba(255,255,255,0.35)',font:{size:10},callback:(v,i)=>[0,4,9,14,19,24].includes(i)?'Yr'+(i+1):''},grid:{color:'rgba(255,255,255,0.04)'}},
-        y:{ticks:{color:'rgba(255,255,255,0.35)',font:{size:10},callback:v=>'$'+v.toFixed(2)},grid:{color:'rgba(255,255,255,0.05)'}}
-      }}
+// ═══════════════════════════════════════════
+//  GALLERY
+// ═══════════════════════════════════════════
+function renderGalleryAdmin() {
+  const g = document.getElementById('gallery-grid-admin');
+  if(!galleryImages.length){g.innerHTML='<div style="color:var(--dim);font-size:0.82rem;padding:1rem;grid-column:1/-1">No gallery images yet.</div>';return}
+  g.innerHTML='';
+  galleryImages.forEach((src,i)=>{
+    const d=document.createElement('div');d.className='gallery-item-admin';
+    d.innerHTML=`<img src="${src}" alt=""><button class="gallery-item-del" onclick="deleteGalleryImg(${i})">✕</button>`;
+    g.appendChild(d);
   });
-
-  recalc();
-  document.getElementById('loading-screen').style.display='none';
-  document.getElementById('main-content').style.display='block';
 }
 
-function recalc(){
-  const rate=parseFloat(document.getElementById('rate-select').value)||0.06;
-  const kwhRate=DATA.kwh>0?(DATA.bill*12)/DATA.kwh:0;
-  const sKwhRate=DATA.solar>0&&DATA.solarKwh>0?(DATA.solar*12)/DATA.solarKwh:null;
+function handleGalleryUpload(e) {
+  Array.from(e.target.files).forEach(f=>{
+    const r=new FileReader();
+    r.onload=ev=>{galleryImages.push(ev.target.result);localStorage.setItem('kinobi-gallery',JSON.stringify(galleryImages));renderGalleryAdmin()};
+    r.readAsDataURL(f);
+  });
+}
 
-  const utilKwh=YEARS.map(y=>kwhRate*Math.pow(1+rate,y-1));
-  const utilMo=YEARS.map(y=>DATA.bill*Math.pow(1+rate,y-1));
-  const utilCumul=[];let cum=0;
-  utilMo.forEach(m=>{cum+=m*12;utilCumul.push(cum)});
+function deleteGalleryImg(i) {
+  galleryImages.splice(i,1);
+  localStorage.setItem('kinobi-gallery',JSON.stringify(galleryImages));
+  renderGalleryAdmin();
+}
 
-  const solKwh=sKwhRate?YEARS.map(y=>sKwhRate*Math.pow(1+DATA.vppRate,y-1)):null;
-  const solMo=DATA.solar>0?YEARS.map(y=>DATA.solar*Math.pow(1+DATA.vppRate,y-1)):null;
-  const solCumul=solMo?solMo.reduce((a,m,i)=>{a.push((a[i-1]||0)+m*12);return a},[]):null;
+// ═══════════════════════════════════════════
+//  EXPORT
+// ═══════════════════════════════════════════
+function buildExportChecklist() {
+  const c = document.getElementById('export-checklist');
+  c.innerHTML = '';
+  slideData.forEach((s,i)=>{
+    const on = exportSelected.has(i);
+    const d = document.createElement('div');
+    d.className = 'export-check-item' + (on?' on':'');
+    d.innerHTML = `<div class="eci-check">${on?'✓':''}</div><div class="eci-label">${s.label}</div>`;
+    d.onclick = () => {
+      if(exportSelected.has(i)) exportSelected.delete(i); else exportSelected.add(i);
+      d.classList.toggle('on');
+      d.querySelector('.eci-check').textContent = exportSelected.has(i)?'✓':'';
+    };
+    c.appendChild(d);
+  });
+}
 
-  const T=DATA.term;
-  const savings=solCumul?utilCumul[T-1]-solCumul[T-1]:0;
-  let be=null;if(solCumul){for(let i=0;i<T;i++){if(utilCumul[i]>solCumul[i]){be=i+1;break}}}
+function exportSelectAll(v) {
+  if(v) slideData.forEach((_,i)=>exportSelected.add(i));
+  else exportSelected.clear();
+  buildExportChecklist();
+}
 
-  const fmt=v=>v>=1000?'$'+Math.round(v/1000)+'K':'$'+Math.round(v);
+function runExport() {
+  // Store which slides to print, then open presentation
+  const toPrint = slideData.map((s,i)=>({...s, printInclude: exportSelected.has(i)}));
+  localStorage.setItem('kinobi-print-config', JSON.stringify(toPrint));
+  const w = window.open('index.html?print=1','_blank');
+  // The presentation will read kinobi-print-config and trigger print
+}
 
-  document.getElementById('ov-rate').textContent=(rate*100).toFixed(0)+'%';
-  document.getElementById('ov-total').textContent=fmt(utilCumul[T-1]);
-  document.getElementById('n-util-total').textContent=fmt(utilCumul[T-1]);
-  document.getElementById('n-util-end').textContent='$'+Math.round(utilMo[T-1])+'/mo';
-  document.getElementById('n-breakeven').textContent=be?'Yr '+be:(solCumul?T+'+':'—');
-  document.getElementById('n-savings').textContent=solCumul?fmt(savings):'—';
-  document.getElementById('n-rate-used').textContent=(rate*100).toFixed(0)+'%';
+// ═══════════════════════════════════════════
+//  SYNC FUNCTIONS
+// ═══════════════════════════════════════════
+const SITE_URL = 'https://yourenergybest.com';
 
-  if(propChart){
-    propChart.data.datasets[0].data=utilKwh.map(v=>+v.toFixed(4));
-    propChart.data.datasets[1].data=solKwh?solKwh.map(v=>+v.toFixed(4)):[];
-    propChart.update('none');
+async function syncTestimonials() {
+  const btn = document.getElementById('sync-t-btn');
+  const status = document.getElementById('sync-t-status');
+  btn.disabled = true;
+  btn.classList.add('syncing');
+  btn.innerHTML = '<span class="sync-icon">↻</span> Syncing...';
+  status.style.display = 'none';
+
+  // Strip HTML tags and decode entities from a string
+  function stripHTML(str) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = str || '';
+    return tmp.textContent.trim();
   }
 
-  const mEl=document.getElementById('milestones');
-  if(mEl){
-    mEl.innerHTML='';
-    const pts=[1,2,Math.round(T*0.2),Math.round(T*0.4),T].filter((v,i,a)=>v>=1&&v<=T&&a.indexOf(v)===i).sort((a,b)=>a-b);
-    pts.forEach(yr=>{
-      const idx=yr-1,uA=utilCumul[idx];
-      const sA=solCumul?utilCumul[idx]-solCumul[idx]:null;
-      const c=sA!==null&&sA>=0?'var(--green-l)':'var(--rage-l)';
-      const ss=sA===null?'—':(sA>=0?'+':'')+'$'+Math.round(Math.abs(sA)).toLocaleString();
-      mEl.innerHTML+=`<div class="ml-row"><div class="ml-year">Yr ${yr}</div><div class="ml-util">$${Math.round(uA).toLocaleString()}</div><div class="ml-solar" style="color:${c}">${ss}</div></div>`;
-    });
+  try {
+    const res = await fetch(SITE_URL + '/content.json', { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+
+    const items = data?.testimonials?.items || data?.testimonials || [];
+    if (!items.length) throw new Error('No testimonials found in content.json');
+
+    testimonials = items.map(t => ({
+      quote: '"' + stripHTML(t.text || t.quote || '') + '"',
+      name: '— ' + stripHTML(t.name || 'Customer') + (t.role ? ', ' + stripHTML(t.role) : '')
+    }));
+
+    localStorage.setItem('kinobi-testimonials', JSON.stringify(testimonials));
+    buildTestimonialList();
+    markUnsaved();
+
+    status.className = 'sync-ok';
+    status.textContent = '✓ Synced ' + testimonials.length + ' testimonials from yourenergybest.com';
+    status.style.display = 'block';
+    toast('Synced ' + testimonials.length + ' testimonials!');
+  } catch (err) {
+    status.className = 'sync-err';
+    status.textContent = '✕ Sync failed: ' + err.message + '. Check that yourenergybest.com/content.json is accessible.';
+    status.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove('syncing');
+    btn.innerHTML = '<span class="sync-icon">↻</span> Sync from yourenergybest.com';
   }
 }
+
+async function syncInstagram() {
+  const btn = document.getElementById('sync-ig-btn');
+  const status = document.getElementById('sync-ig-status');
+  btn.disabled = true;
+  btn.classList.add('syncing');
+  btn.innerHTML = '<span class="sync-icon">↻</span> Syncing...';
+  status.style.display = 'none';
+
+  try {
+    // Fetch the token from your site's token file
+    const res = await fetch(SITE_URL + '/.instagram_token', { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status + ' — token file not accessible');
+    const text = await res.text().then(t => t.trim());
+
+    // Token file is JSON: {"access_token":"...","token_type":"bearer"}
+    let token;
+    try {
+      const parsed = JSON.parse(text);
+      token = parsed.access_token || parsed.token || text;
+    } catch {
+      token = text; // plain text token
+    }
+
+    if (!token || token.length < 20) throw new Error('Token appears invalid or empty');
+
+    // Save token
+    localStorage.setItem('ig_token', token);
+    const el = document.getElementById('ig-token');
+    if (el) el.value = token;
+    markUnsaved();
+
+    // Preview the feed
+    await previewIGFeed(token);
+
+    status.className = 'sync-ok';
+    status.textContent = '✓ Instagram token synced successfully. Feed preview loaded below.';
+    status.style.display = 'block';
+    toast('Instagram token synced!');
+  } catch (err) {
+    // Fallback: try fetching via the Instagram Graph API with stored token
+    const stored = localStorage.getItem('ig_token');
+    if (stored) {
+      try {
+        await previewIGFeed(stored);
+        status.className = 'sync-ok';
+        status.textContent = '✓ Using stored token — feed verified active. (Could not reach token file: ' + err.message + ')';
+        status.style.display = 'block';
+      } catch {
+        status.className = 'sync-err';
+        status.textContent = '✕ ' + err.message + '. Try pasting your token manually below.';
+        status.style.display = 'block';
+      }
+    } else {
+      status.className = 'sync-err';
+      status.textContent = '✕ ' + err.message + '. Paste your token manually in the field below.';
+      status.style.display = 'block';
+    }
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove('syncing');
+    btn.innerHTML = '<span class="sync-icon">↻</span> Sync Token from yourenergybest.com';
+  }
+}
+
+async function previewIGFeed(token) {
+  const res = await fetch(
+    `https://graph.instagram.com/me/media?fields=id,media_url,permalink,media_type&limit=4&access_token=${token}`
+  );
+  const data = await res.json();
+  if (data.error) throw new Error('Instagram API: ' + data.error.message);
+
+  const grid = document.getElementById('ig-preview-grid');
+  const preview = document.getElementById('ig-preview');
+  if (!grid || !preview) return;
+
+  grid.innerHTML = '';
+  const posts = (data.data || []).filter(p => p.media_type !== 'VIDEO').slice(0, 4);
+  if (!posts.length) throw new Error('No image posts found');
+
+  posts.forEach(p => {
+    const div = document.createElement('div');
+    div.style.cssText = 'aspect-ratio:1;border-radius:5px;overflow:hidden;border:1px solid rgba(255,255,255,0.1)';
+    div.innerHTML = `<a href="${p.permalink}" target="_blank"><img src="${p.media_url}" style="width:100%;height:100%;object-fit:cover"></a>`;
+    grid.appendChild(div);
+  });
+  preview.style.display = 'block';
+}
+
+// ═══════════════════════════════════════════
+//  SAVE / LOAD
+// ═══════════════════════════════════════════
+let _unsaved = false;
+
+function markUnsaved() {
+  _unsaved = true;
+  const el = document.getElementById('save-status');
+  el.textContent = 'Unsaved changes';
+  el.className = 'save-status unsaved';
+}
+
+function saveAll() {
+  // Slides
+  localStorage.setItem('kinobi-slides', JSON.stringify(slideData));
+  // Testimonials
+  localStorage.setItem('kinobi-testimonials', JSON.stringify(testimonials));
+  // Content fields
+  const fields = ['c-name','my-b1','my-b2','my-b3','h-b1-title','h-b1-body','h-b2-title','h-b2-body','h-b3-title','h-b3-body','cp1-title','cp1-body','cp2-title','cp2-body','cp3-title','cp3-body','s-utility','s-bill','s-rate','s-itc'];
+  const content = {};
+  fields.forEach(id=>{const el=document.getElementById(id);if(el)content[id]=el.value});
+  localStorage.setItem('kinobi-content', JSON.stringify(content));
+  // Slide text edits (shared key with presentation)
+  const textEdits = {};
+  document.querySelectorAll('.slide-text-field[data-edit-id]').forEach(el => {
+    const id = el.dataset.editId;
+    if (el.value.trim()) textEdits[id] = el.value;
+  });
+  localStorage.setItem('kinobi-text-edits', JSON.stringify(textEdits));
+  // Customer name (shared key with presentation)
+  const cnEl = document.getElementById('c-name');
+  if (cnEl && cnEl.value.trim()) localStorage.setItem('kinobi-customer-name', cnEl.value.trim());
+  // IG token
+  const igEl = document.getElementById('ig-token');
+  if(igEl && igEl.value) localStorage.setItem('ig_token', igEl.value);
+  _unsaved = false;
+  const statusEl = document.getElementById('save-status');
+  statusEl.textContent = 'All changes saved';
+  statusEl.className = 'save-status saved';
+  toast('Saved!');
+}
+
+function loadAll() {
+  // Slides
+  const sd = JSON.parse(localStorage.getItem('kinobi-slides')||'null');
+  if(sd) slideData = sd; else slideData = SLIDE_DEFS.map(s=>({...s}));
+  buildSlideTable();
+  // Testimonials
+  const td = JSON.parse(localStorage.getItem('kinobi-testimonials')||'null');
+  if(td) testimonials = td;
+  buildTestimonialList();
+  // Content
+  const cd = JSON.parse(localStorage.getItem('kinobi-content')||'{}');
+  Object.entries(cd).forEach(([id,val])=>{const el=document.getElementById(id);if(el)el.value=val});
+  // Slide text edits — populate from saved edits or defaults
+  const DEFAULTS = {
+    's0-eyebrow': 'The Problem with Your Power Company',
+    's0-headline': 'ISN\'T YOURS.',
+    's0-body': 'Every month you pay for miles of aging wire, corporate executives, and shareholder dividends — before a single electron reaches your home. SDG&E is a for-profit business with one goal: extract as much as possible from a captive customer.',
+    's0-b1': 'Delivery & transmission fees — 50–80% of your bill never pays for actual electricity. It pays for wires, poles, and profit.',
+    's0-b2': 'You have no choice — monopoly utility, zero competition, prices set by regulators they lobby',
+    's0-b3': 'They legally profit more when they build more infrastructure — your bills fund their expansion',
+    's0-lbl1': 'Year 1 Cost to SDG&E',
+    's0-lbl2': '5 Years Donated',
+    's0-lbl3': '10 Years Donated',
+    's0-lbl4': '25 Years — Gone Forever',
+    's0-footnote': 'Based on 9% annual rate increases — SDG&E\'s historical average',
+    's1-eyebrow': 'The Demand Crisis Coming For Your Wallet',
+    's1-headline': 'CALIFORNIA\'S GRID IS BREAKING UNDER PRESSURE',
+    's1-intro': 'Electricity demand is exploding — and utilities will pass every penny of the cost to you.',
+    's1-c1-icon': '🏭', 's1-c1-title': 'AI Data Centers',
+    's1-c1-body': 'Tech giants are plugging in massive AI farms — each one consuming as much power as a small city. Demand up 300% by 2030.',
+    's1-c2-icon': '🚗', 's1-c2-title': 'Electric Vehicles',
+    's1-c2-body': 'California mandates all-EV sales by 2035. Millions of cars plugging in nightly will overwhelm the aging grid.',
+    's1-c3-icon': '🌡️', 's1-c3-title': 'Extreme Heat & A/C',
+    's1-c3-body': 'Record-breaking summers are extending cooling seasons — demand spikes are becoming the norm, not the exception.',
+    's1-c4-icon': '🏘️', 's1-c4-title': 'Population Growth',
+    's1-c4-body': 'Southern California adds hundreds of thousands of residents yearly — all competing for the same strained grid capacity.',
+    's1-c5-icon': '🔥', 's1-c5-title': 'Wildfire Liability',
+    's1-c5-body': 'SDG&E spent billions on fire lawsuits. AB 1054 lets them pass those costs directly to ratepayers — that means you.',
+    's1-c6-icon': '📈', 's1-c6-title': 'No Rate Relief in Sight',
+    's1-c6-body': 'CPUC approved double-digit rate hikes in 2023 and 2024. There is no mechanism to protect you from what\'s coming.',
+  };
+  const savedEdits = JSON.parse(localStorage.getItem('kinobi-text-edits')||'{}');
+  document.querySelectorAll('.slide-text-field[data-edit-id]').forEach(el => {
+    const id = el.dataset.editId;
+    // Saved edits take priority; fall back to defaults
+    el.value = savedEdits[id] || DEFAULTS[id] || '';
+  });
+  // IG token
+  const igt = localStorage.getItem('ig_token');
+  if(igt){const el=document.getElementById('ig-token');if(el)el.value=igt}
+  // Customer name
+  const cn = localStorage.getItem('kinobi-customer-name');
+  if(cn){const el=document.getElementById('c-name');if(el)el.value=cn}
+  // Pre-fill proposal name from customer name
+  const propNameEl = document.getElementById('prop-name');
+  if (propNameEl && cn && !propNameEl.value) propNameEl.value = cn;
+  // Load saved proposals
+  renderSavedProposals();
+  // Gallery
+  renderGalleryAdmin();
+  // Zone previews
+  loadZonePreviews();
+  _unsaved = false;
+  document.getElementById('save-status').textContent='All changes saved';
+  document.getElementById('save-status').className='save-status saved';
+}
+
+function clearAllData() {
+  if(!confirm('Delete ALL saved data? This cannot be undone.')) return;
+  ['kinobi-slides','kinobi-testimonials','kinobi-content','kinobi-gallery','ig_token',
+   'kinobi-img-timeline-img','kinobi-img-company-logo-img',
+   'kinobi-img-step-img-0-img','kinobi-img-step-img-1-img','kinobi-img-step-img-2-img','kinobi-img-step-img-3-img'
+  ].forEach(k=>localStorage.removeItem(k));
+  location.reload();
+}
+
+function exportJSON() {
+  const data = {slides:slideData,testimonials,content:JSON.parse(localStorage.getItem('kinobi-content')||'{}')};
+  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a = document.createElement('a');a.href=URL.createObjectURL(blob);a.download='kinobi-settings.json';a.click();
+}
+
+// ═══════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+// ═══════════════════════════════════════════
+//  PROPOSAL LINK GENERATOR
+// ═══════════════════════════════════════════
+function pullFromPresentation() {
+  // Read numbers from shared localStorage keys (same keys the presentation uses)
+  const content = JSON.parse(localStorage.getItem('kinobi-content') || '{}');
+  const customerName = localStorage.getItem('kinobi-customer-name') || '';
+
+  // Customer name
+  if (customerName) {
+    const el = document.getElementById('prop-name');
+    if (el && !el.value) el.value = customerName;
+  }
+
+  // Bill — try kinobi-content s-bill, or read from a known default
+  if (content['s-bill']) setField('prop-bill', content['s-bill']);
+  if (content['s-utility']) {
+    const sel = document.getElementById('prop-utility');
+    if (sel) {
+      for (let o of sel.options) { if (o.value === content['s-utility']) { o.selected = true; break; } }
+    }
+  }
+
+  // The presentation stores the numbers slide inputs in localStorage too
+  // Try reading them directly
+  const savedNumbers = JSON.parse(localStorage.getItem('kinobi-numbers') || '{}');
+  if (savedNumbers.bill)     setField('prop-bill',  savedNumbers.bill);
+  if (savedNumbers.kwh)      setField('prop-kwh',   savedNumbers.kwh);
+  if (savedNumbers.solar)    setField('prop-solar', savedNumbers.solar);
+  if (savedNumbers.solarKwh) setField('prop-skwh',  savedNumbers.solarKwh);
+  if (savedNumbers.term) {
+    const sel = document.getElementById('prop-term');
+    if (sel) { for (let o of sel.options) { if (parseInt(o.value) === parseInt(savedNumbers.term)) { o.selected=true; break; } } }
+  }
+  if (savedNumbers.vppRate) {
+    const sel = document.getElementById('prop-vpp');
+    if (sel) { for (let o of sel.options) { if (parseFloat(o.value) === parseFloat(savedNumbers.vppRate)) { o.selected=true; break; } } }
+  }
+
+  toast('Pulled from presentation ✓');
+}
+
+function setField(id, val) {
+  const el = document.getElementById(id);
+  if (el && val !== undefined && val !== null && val !== '') el.value = val;
+}
+
+function getSelectedSlides() {
+  const checks = ['overview','numbers','included','comparison','timeline','contact'];
+  return checks.filter(s => {
+    const el = document.getElementById('ps-' + s);
+    return el && el.checked;
+  }).join(',');
+}
+
+function buildProposalURL() {
+  const base = location.origin + location.pathname.replace('admin.html', '') + 'propose.html';
+  const get = id => document.getElementById(id)?.value || '';
+  const p = new URLSearchParams({
+    name:    get('prop-name')    || 'Your Family',
+    utility: get('prop-utility') || 'SDG&E',
+    bill:    get('prop-bill')    || '134',
+    kwh:     get('prop-kwh')     || '3540',
+    solar:   get('prop-solar')   || '0',
+    skwh:    get('prop-skwh')    || '6402',
+    vpp:     get('prop-vpp')     || '0.0299',
+    term:    get('prop-term')    || '25',
+    slides:  getSelectedSlides(),
+    ts:      Date.now(),   // creation timestamp for 30-day expiry
+  });
+  return base + '?' + p.toString();
+}
+
+function generateProposalLink() {
+  const name = document.getElementById('prop-name')?.value || 'Customer';
+  const url = buildProposalURL();
+
+  // Save to proposals history in localStorage
+  const proposals = JSON.parse(localStorage.getItem('kinobi-proposals') || '[]');
+  proposals.unshift({ name, url, created: Date.now() });
+  // Keep last 20
+  if (proposals.length > 20) proposals.splice(20);
+  localStorage.setItem('kinobi-proposals', JSON.stringify(proposals));
+
+  const inp = document.getElementById('prop-link-input');
+  const out = document.getElementById('prop-link-output');
+  const openBtn = document.getElementById('prop-link-open');
+  if (inp) inp.value = url;
+  if (openBtn) openBtn.href = url;
+  if (out) out.style.display = 'block';
+
+  renderSavedProposals();
+  toast('Link generated for ' + name + '!');
+}
+
+function renderSavedProposals() {
+  const list = document.getElementById('saved-proposals-list');
+  if (!list) return;
+  const proposals = JSON.parse(localStorage.getItem('kinobi-proposals') || '[]');
+  const THIRTY = 30 * 24 * 60 * 60 * 1000;
+  list.innerHTML = '';
+  if (!proposals.length) { list.innerHTML = '<div style="font-size:0.75rem;color:var(--dim)">No saved proposals yet.</div>'; return; }
+  proposals.forEach((p, i) => {
+    const daysLeft = Math.max(0, Math.ceil((THIRTY - (Date.now() - p.created)) / (24*60*60*1000)));
+    const expired = daysLeft === 0;
+    const d = new Date(p.created);
+    const dateStr = d.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0.6rem;background:rgba(255,255,255,0.03);border-radius:4px;border:1px solid rgba(255,255,255,0.06)';
+    row.innerHTML = `
+      <div style="flex:1;min-width:0">
+        <div style="font-size:0.8rem;font-weight:500;color:${expired?'var(--dim)':'var(--text)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
+        <div style="font-size:0.65rem;color:var(--dim)">${dateStr} · ${expired?'<span style="color:var(--rage-l)">Expired</span>':daysLeft+' days left'}</div>
+      </div>
+      <button onclick="reuseProposal(${i})" style="font-size:0.7rem;padding:0.25rem 0.6rem;background:transparent;border:1px solid rgba(255,255,255,0.1);color:var(--muted);border-radius:3px;cursor:pointer">Reuse</button>
+      <a href="${p.url}" target="_blank" style="font-size:0.7rem;padding:0.25rem 0.6rem;background:transparent;border:1px solid var(--border);color:var(--gold);border-radius:3px;cursor:pointer;text-decoration:none">Open</a>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function reuseProposal(idx) {
+  const proposals = JSON.parse(localStorage.getItem('kinobi-proposals') || '[]');
+  const p = proposals[idx];
+  if (!p) return;
+  // Parse the URL and pre-fill the form with new timestamp
+  const params = new URLSearchParams(new URL(p.url).search);
+  setField('prop-name',  params.get('name')    || '');
+  setField('prop-bill',  params.get('bill')    || '');
+  setField('prop-kwh',   params.get('kwh')     || '');
+  setField('prop-solar', params.get('solar')   || '');
+  setField('prop-skwh',  params.get('skwh')    || '');
+  const utilSel = document.getElementById('prop-utility');
+  if (utilSel) { for(let o of utilSel.options){if(o.value===params.get('utility')){o.selected=true;break}}}
+  const vppSel = document.getElementById('prop-vpp');
+  if (vppSel) { for(let o of vppSel.options){if(o.value===params.get('vpp')){o.selected=true;break}}}
+  const termSel = document.getElementById('prop-term');
+  if (termSel) { for(let o of termSel.options){if(o.value===params.get('term')){o.selected=true;break}}}
+  // Restore slide checkboxes
+  const slides = (params.get('slides') || '').split(',');
+  ['overview','numbers','included','comparison','timeline','contact'].forEach(s => {
+    const el = document.getElementById('ps-' + s);
+    if (el) el.checked = slides.includes(s);
+  });
+  document.getElementById('prop-link-output').style.display = 'none';
+  toast('Loaded — hit Generate to refresh the link');
+}
+
+function openProposalPreview() {
+  const url = buildProposalURL();
+  window.open(url, '_blank');
+}
+
+function copyProposalLink() {
+  const inp = document.getElementById('prop-link-input');
+  if (!inp) return;
+  navigator.clipboard.writeText(inp.value)
+    .then(() => toast('Copied!'))
+    .catch(() => { inp.select(); document.execCommand('copy'); toast('Copied!'); });
+}
+
+// ═══════════════════════════════════════════
+//  CUSTOMER PROPOSALS
+// ═══════════════════════════════════════════
+let propBenefits = [
+  '$0 out-of-pocket — fully financed',
+  '25-year full system warranty',
+  'Rate locked in forever — no surprises',
+  'Backup battery included',
+  'Home value increases',
+  'Active monitoring via app',
+];
+let savedProposals = JSON.parse(localStorage.getItem('kinobi-proposals') || '[]');
+
+function renderPropBenefits() {
+  const list = document.getElementById('prop-benefits-list');
+  if (!list) return;
+  list.innerHTML = '';
+  propBenefits.forEach((b, i) => {
+    const div = document.createElement('div');
+    div.style.cssText = 'display:flex;gap:0.5rem;align-items:center';
+    div.innerHTML = `
+      <input class="f-input" value="${b}" style="flex:1;font-size:0.85rem" oninput="propBenefits[${i}]=this.value">
+      <button class="btn-secondary" style="padding:0.3rem 0.6rem;color:var(--rage-l);border-color:rgba(231,76,60,0.3)" onclick="removePropBenefit(${i})">✕</button>
+    `;
+    list.appendChild(div);
+  });
+}
+function addPropBenefit() {
+  propBenefits.push('New benefit');
+  renderPropBenefits();
+  const inputs = document.querySelectorAll('#prop-benefits-list input');
+  if (inputs.length) inputs[inputs.length-1].focus();
+}
+function removePropBenefit(i) { propBenefits.splice(i,1); renderPropBenefits(); }
+
+function generateProposalLink() {
+  const proposal = {
+    name:      document.getElementById('prop-name').value || 'Your Family',
+    utility:   document.getElementById('prop-utility').value || 'SDG&E',
+    bill:      parseFloat(document.getElementById('prop-bill').value) || 134,
+    annualKwh: parseFloat(document.getElementById('prop-kwh').value) || 3540,
+    rate:      parseFloat(document.getElementById('prop-rate').value) || 9,
+    solar:     parseFloat(document.getElementById('prop-solar').value) || 202,
+    solarKwh:  parseFloat(document.getElementById('prop-solar-kwh').value) || 6402,
+    vppRate:   parseFloat(document.getElementById('prop-vpp-rate').value) || 0.9,
+    benefits:  [...propBenefits],
+    created:   new Date().toLocaleDateString(),
+  };
+  const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(proposal))));
+  const base = location.href.replace('admin.html','proposal.html');
+  const url = base + '#' + encoded;
+  document.getElementById('prop-link-url').value = url;
+  document.getElementById('prop-link-open').href = url;
+  document.getElementById('prop-link-output').style.display = 'block';
+  savedProposals.unshift({ name: proposal.name, url, created: proposal.created });
+  if (savedProposals.length > 20) savedProposals = savedProposals.slice(0,20);
+  localStorage.setItem('kinobi-proposals', JSON.stringify(savedProposals));
+  renderSavedProposals();
+  toast('Link generated!');
+}
+function copyProposalLink() {
+  const url = document.getElementById('prop-link-url').value;
+  navigator.clipboard.writeText(url).catch(()=>{ document.getElementById('prop-link-url').select(); document.execCommand('copy'); });
+  const s = document.getElementById('prop-copy-status');
+  s.style.display='block'; setTimeout(()=>s.style.display='none',2500);
+}
+function renderSavedProposals() {
+  const list = document.getElementById('saved-proposals-list');
+  if (!list) return;
+  if (!savedProposals.length) { list.innerHTML='<div style="color:var(--dim);font-size:0.82rem">No saved proposals yet.</div>'; return; }
+  list.innerHTML='';
+  savedProposals.forEach((p,i) => {
+    const div=document.createElement('div');
+    div.style.cssText='display:flex;align-items:center;gap:0.75rem;padding:0.65rem 0;border-bottom:1px solid rgba(255,255,255,0.05)';
+    div.innerHTML=`
+      <div style="flex:1"><div style="font-size:0.88rem;color:var(--text);font-weight:500">${p.name}</div><div style="font-size:0.7rem;color:var(--dim)">${p.created}</div></div>
+      <a href="${p.url}" target="_blank" class="btn-secondary" style="text-decoration:none;font-size:0.72rem;padding:0.3rem 0.75rem">Open ↗</a>
+      <button class="btn-secondary" style="font-size:0.72rem;padding:0.3rem 0.75rem" onclick="copyUrl('${p.url}',this)">Copy</button>
+      <button class="btn-secondary" style="font-size:0.72rem;padding:0.3rem 0.5rem;color:var(--rage-l);border-color:rgba(231,76,60,0.3)" onclick="deleteProposal(${i})">✕</button>
+    `;
+    list.appendChild(div);
+  });
+}
+function copyUrl(url,btn) {
+  navigator.clipboard.writeText(url).catch(()=>{});
+  const orig=btn.textContent; btn.textContent='✓'; setTimeout(()=>btn.textContent=orig,1500);
+}
+function deleteProposal(i) { savedProposals.splice(i,1); localStorage.setItem('kinobi-proposals',JSON.stringify(savedProposals)); renderSavedProposals(); }
+
+function changePassword() {
+  const np = document.getElementById('new-pw').value;
+  const nc = document.getElementById('new-pw-confirm').value;
+  const status = document.getElementById('pw-change-status');
+  if (!np) { status.style.color = 'var(--rage-l)'; status.textContent = 'Password cannot be empty.'; return; }
+  if (np !== nc) { status.style.color = 'var(--rage-l)'; status.textContent = 'Passwords do not match.'; return; }
+  localStorage.setItem('kinobi-admin-pass', np);
+  document.getElementById('new-pw').value = '';
+  document.getElementById('new-pw-confirm').value = '';
+  status.style.color = 'var(--green-l)';
+  status.textContent = '✓ Password updated successfully.';
+  setTimeout(() => status.textContent = '', 3000);
+}
+
+// ═══════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════
+// loadAll is called by checkPassword() or the session check above — not here directly
 </script>
 </body>
 </html>

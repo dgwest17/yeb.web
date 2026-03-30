@@ -88,6 +88,29 @@ nav{position:sticky;top:0;z-index:100;background:rgba(5,14,24,0.94);backdrop-fil
 .contact-card{background:rgba(200,168,75,0.07);border:1px solid var(--border);border-radius:8px;padding:2rem;text-align:center;margin-top:1rem}
 .contact-name{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--gold);letter-spacing:0.05em;margin-bottom:0.2rem}
 .divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);max-width:1000px;margin:0 auto}
+/* accordion demand cards */
+.demand-accordion{display:flex;flex-direction:column;gap:0;border:1px solid rgba(231,76,60,0.2);border-radius:8px;overflow:hidden}
+.da-item{border-bottom:1px solid rgba(231,76,60,0.12);cursor:pointer;transition:background 0.2s}
+.da-item:last-child{border-bottom:none}
+.da-item.open{background:rgba(231,76,60,0.06)}
+.da-header{display:flex;align-items:center;gap:0.75rem;padding:0.9rem 1.1rem;user-select:none}
+.da-icon{font-size:1.2rem;flex-shrink:0;width:28px;text-align:center}
+.da-title{font-size:0.9rem;font-weight:600;color:var(--text);flex:1}
+.da-arrow{font-size:1rem;color:var(--dim);transition:transform 0.25s;display:inline-block;line-height:1}
+.da-item.open .da-arrow{transform:rotate(90deg)}
+.da-body{display:none;padding:0 1.1rem 0.9rem 3.1rem;font-size:0.83rem;color:var(--muted);line-height:1.65}
+.da-item.open .da-body{display:block}
+
+/* bill bullets */
+.bill-bullet{display:flex;align-items:flex-start;gap:0.75rem;padding:0.85rem 1rem;background:rgba(231,76,60,0.06);border:1px solid rgba(231,76,60,0.15);border-radius:6px;font-size:0.88rem;color:var(--muted);line-height:1.6}
+.bill-x{color:var(--rage-l);font-weight:700;flex-shrink:0;margin-top:0.05rem}
+.bill-bullet strong{color:var(--text)}
+
+/* why bullets */
+.why-bullet{display:flex;align-items:flex-start;gap:0.75rem;padding:0.9rem 1rem;background:rgba(200,168,75,0.05);border:1px solid rgba(200,168,75,0.15);border-radius:6px;font-size:0.88rem;color:var(--muted);line-height:1.6}
+.why-star{color:var(--gold);font-size:1rem;flex-shrink:0;margin-top:0.05rem}
+.why-bullet strong{color:var(--text)}
+
 footer{padding:2rem 1.5rem;text-align:center;border-top:1px solid var(--border);font-size:0.73rem;color:var(--dim);line-height:1.7}
 footer a{color:var(--gold);text-decoration:none}
 
@@ -213,15 +236,18 @@ footer a{color:var(--gold);text-decoration:none}
   <div class="expiry-banner">
     <span class="expiry-text">Prepared for <strong id="banner-name" style="color:var(--text)"></strong></span>
     <span class="expiry-count" id="expiry-count"></span>
-    <span class="asterisk">* Numbers reflect rates at time of proposal. Market conditions may affect utility rates.</span>
+    <span class="asterisk">* Market conditions may affect solar rates.</span>
   </div>
 
   <nav>
     <div class="nav-logo">Kinhome Solar</div>
     <ul class="nav-links">
       <li><a href="#overview">Overview</a></li>
+      <li><a href="#bill">Your Bill</a></li>
+      <li><a href="#grid">The Grid</a></li>
       <li><a href="#numbers">Numbers</a></li>
       <li><a href="#included">Included</a></li>
+      <li><a href="#why">Why Us</a></li>
       <li><a href="#comparison">Compare</a></li>
       <li><a href="#timeline">Timeline</a></li>
       <li><a href="#contact">Contact</a></li>
@@ -233,11 +259,12 @@ footer a{color:var(--gold);text-decoration:none}
     <div class="hero-inner">
       <span class="hero-eyebrow">Your Personal Solar Proposal</span>
       <h1 class="hero-title">YOUR ENERGY<br><span class="hero-name" id="hero-name">Future</span></h1>
-      <p class="hero-sub">This proposal was built specifically for your home and your usage. Every number below reflects your actual system design — built by Dave, personally.</p>
+      <p class="hero-sub">This proposal was built specifically for your home and your usage. Every number below reflects your actual system design — built by <span id="hero-rep">David West</span>, personally.</p>
       <a href="#numbers" class="hero-cta">See Your Numbers →</a>
     </div>
   </div>
 
+  <!-- 1. OVERVIEW -->
   <section class="section" id="overview" data-sec="overview">
     <span class="eyebrow">Your Current Situation</span>
     <h2 class="section-title">What You're <span style="color:var(--rage-l)">Paying Now</span></h2>
@@ -253,6 +280,86 @@ footer a{color:var(--gold);text-decoration:none}
 
   <div class="divider"></div>
 
+  <!-- 2. YOUR BILL ISN'T YOURS -->
+  <section class="section" id="bill" data-sec="bill">
+    <span class="eyebrow">The Problem With Your Power Company</span>
+    <h2 class="section-title">YOUR BILL <span style="color:var(--rage-l)">ISN'T YOURS.</span></h2>
+    <p class="section-sub">Every month you pay for miles of aging wire, corporate executives, and shareholder dividends — before a single electron reaches your home. SDG&E is a <strong style="color:var(--text)">for-profit business</strong> with one goal: extract as much as possible from a captive customer.</p>
+    <div style="display:flex;flex-direction:column;gap:0.75rem">
+      <div class="bill-bullet"><span class="bill-x">✕</span><div><strong>Delivery &amp; transmission fees</strong> — 50–80% of your bill never pays for actual electricity. It pays for wires, poles, and profit.</div></div>
+      <div class="bill-bullet"><span class="bill-x">✕</span><div><strong>You have no choice</strong> — monopoly utility, zero competition, prices set by regulators they lobby.</div></div>
+      <div class="bill-bullet"><span class="bill-x">✕</span><div><strong>They legally profit more</strong> when they build more infrastructure — your bills fund their expansion.</div></div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- 3. CALIFORNIA'S GRID IS BREAKING -->
+  <section class="section" id="grid" data-sec="grid">
+    <span class="eyebrow">The Demand Crisis</span>
+    <h2 class="section-title">CALIFORNIA'S GRID IS <span style="color:var(--rage-l)">BREAKING UNDER PRESSURE</span></h2>
+    <p class="section-sub">Electricity demand is exploding — and utilities will pass every penny of the cost directly to you.</p>
+    <div class="demand-accordion">
+      <div class="da-item" onclick="toggleDemand(this)">
+        <div class="da-header"><span class="da-icon">🏭</span><span class="da-title">AI Data Centers</span><span class="da-arrow">›</span></div>
+        <div class="da-body">Tech giants are plugging in massive AI farms — each one consuming as much power as a small city. Demand is projected up 300% by 2030.</div>
+      </div>
+      <div class="da-item" onclick="toggleDemand(this)">
+        <div class="da-header"><span class="da-icon">🚗</span><span class="da-title">Electric Vehicles</span><span class="da-arrow">›</span></div>
+        <div class="da-body">California mandates all-EV sales by 2035. Millions of cars plugging in nightly will overwhelm the aging grid.</div>
+      </div>
+      <div class="da-item" onclick="toggleDemand(this)">
+        <div class="da-header"><span class="da-icon">🌡️</span><span class="da-title">Extreme Heat &amp; A/C</span><span class="da-arrow">›</span></div>
+        <div class="da-body">Record-breaking summers are extending cooling seasons. Demand spikes are becoming the norm, not the exception.</div>
+      </div>
+      <div class="da-item" onclick="toggleDemand(this)">
+        <div class="da-header"><span class="da-icon">🏘️</span><span class="da-title">Population Growth</span><span class="da-arrow">›</span></div>
+        <div class="da-body">Southern California adds hundreds of thousands of residents yearly — all competing for the same strained grid capacity.</div>
+      </div>
+      <div class="da-item" onclick="toggleDemand(this)">
+        <div class="da-header"><span class="da-icon">🔥</span><span class="da-title">Wildfire Liability</span><span class="da-arrow">›</span></div>
+        <div class="da-body">SDG&E spent billions on fire lawsuits. AB 1054 lets them pass those costs directly to ratepayers — that means you.</div>
+      </div>
+      <div class="da-item" onclick="toggleDemand(this)">
+        <div class="da-header"><span class="da-icon">📈</span><span class="da-title">No Rate Relief in Sight</span><span class="da-arrow">›</span></div>
+        <div class="da-body">CPUC approved double-digit rate hikes in 2023 and 2024. There is no mechanism to protect you from what's coming.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- 4. EVERYTHING INCLUDED -->
+  <section class="section" id="included" data-sec="included">
+    <span class="eyebrow">What You're Getting</span>
+    <h2 class="section-title">Everything <span style="color:var(--gold)">Included</span></h2>
+    <p class="section-sub">This isn't just solar — it's a complete home energy system, fully protected for the life of your system.</p>
+    <div class="warranty-grid">
+      <div class="warranty-card"><span class="w-icon">☀️</span><h4>25-Year Panel Warranty</h4><p>Industry-leading performance guarantee. If output drops below spec, it's covered — no arguments.</p></div>
+      <div class="warranty-card"><span class="w-icon">🔋</span><h4 id="inc-battery-title">Battery Backup Included</h4><p id="inc-battery-body">Whole-home battery storage. When the grid goes dark, your lights stay on.</p></div>
+      <div class="warranty-card"><span class="w-icon">🔌</span><h4>Active Monitoring</h4><p>Real-time system monitoring via app. Every panel, every kilowatt, every day.</p></div>
+      <div class="warranty-card"><span class="w-icon">⚡</span><h4 id="inc-power-title">81% More Power</h4><p id="inc-power-body">Your system is sized to over-produce — run everything comfortably.</p></div>
+      <div class="warranty-card"><span class="w-icon">🏡</span><h4>Home Value Increases</h4><p>Studies show solar adds 3–4% to home value — often more than the system cost.</p></div>
+      <div class="warranty-card"><span class="w-icon">💰</span><h4>$0 Out of Pocket</h4><p>No down payment. No cash required. Energy savings start from day one.</p></div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- 5. WHY WORK WITH ME -->
+  <section class="section" id="why" data-sec="why">
+    <span class="eyebrow">Why Work With Me</span>
+    <h2 class="section-title">I DON'T SELL SOLAR. <span style="color:var(--gold)">I PROTECT FAMILIES.</span></h2>
+    <div style="display:flex;flex-direction:column;gap:1rem;margin-bottom:2rem">
+      <div class="why-bullet"><span class="why-star">★</span><div><strong>Local San Diego expert</strong> — I live here, I know the rates, I know the permits, I know the utility games. This is my community too.</div></div>
+      <div class="why-bullet"><span class="why-star">★</span><div><strong>Post-install support for life</strong> — I'm not a door-knocker who disappears. My number doesn't change. Call me in year 10.</div></div>
+      <div class="why-bullet"><span class="why-star">★</span><div><strong>My mission is to make this industry truly sustainable</strong> — the better experience I give, the more people you tell about it, and the quicker we can get there together.</div></div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- 6. NUMBERS -->
   <section class="section" id="numbers" data-sec="numbers">
     <span class="eyebrow">The Numbers</span>
     <h2 class="section-title">Your <span style="color:var(--gold)">Financial Future</span></h2>
@@ -303,9 +410,7 @@ footer a{color:var(--gold);text-decoration:none}
     </div>
 
     <div class="chart-box">
-      <p class="chart-title" style="display:flex;justify-content:space-between">
-        <span>Donated to Utility vs Your Solar Savings</span>
-      </p>
+      <p class="chart-title">Donated to Utility vs Your Solar Savings</p>
       <div style="display:grid;grid-template-columns:56px 1fr 1fr;margin-bottom:5px">
         <div style="font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--dim)">Year</div>
         <div style="font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--rage-l);text-align:right">Utility Cost</div>
@@ -317,22 +422,7 @@ footer a{color:var(--gold);text-decoration:none}
 
   <div class="divider"></div>
 
-  <section class="section" id="included" data-sec="included">
-    <span class="eyebrow">What You're Getting</span>
-    <h2 class="section-title">Everything <span style="color:var(--gold)">Included</span></h2>
-    <p class="section-sub">This isn't just solar — it's a complete home energy system, fully protected for the life of your system.</p>
-    <div class="warranty-grid">
-      <div class="warranty-card"><span class="w-icon">☀️</span><h4>25-Year Panel Warranty</h4><p>Industry-leading performance guarantee. If output drops below spec, it's covered — no arguments.</p></div>
-      <div class="warranty-card"><span class="w-icon">🔋</span><h4 id="inc-battery-title">Battery Backup Included</h4><p id="inc-battery-body">Whole-home battery storage. When the grid goes dark, your lights stay on.</p></div>
-      <div class="warranty-card"><span class="w-icon">🔌</span><h4>Active Monitoring</h4><p>Real-time system monitoring via app. Every panel, every kilowatt, every day.</p></div>
-      <div class="warranty-card"><span class="w-icon">⚡</span><h4 id="inc-power-title">81% More Power</h4><p id="inc-power-body">Your system is sized to over-produce — run everything comfortably.</p></div>
-      <div class="warranty-card"><span class="w-icon">🏡</span><h4>Home Value Increases</h4><p>Studies show solar adds 3–4% to home value — often more than the system cost.</p></div>
-      <div class="warranty-card"><span class="w-icon">💰</span><h4>$0 Out of Pocket</h4><p>No down payment. No cash required. Energy savings start from day one.</p></div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
+  <!-- 7. COMPARISON -->
   <section class="section" id="comparison" data-sec="comparison">
     <span class="eyebrow">Side by Side</span>
     <h2 class="section-title">Utility vs <span style="color:var(--gold)">Virtual Power Plant</span></h2>
@@ -364,6 +454,7 @@ footer a{color:var(--gold);text-decoration:none}
 
   <div class="divider"></div>
 
+  <!-- 8. TIMELINE -->
   <section class="section" id="timeline" data-sec="timeline">
     <span class="eyebrow">The Process</span>
     <h2 class="section-title">Your Solar <span style="color:var(--gold)">Timeline</span></h2>
@@ -383,12 +474,13 @@ footer a{color:var(--gold);text-decoration:none}
 
   <div class="divider"></div>
 
+  <!-- 9. CONTACT -->
   <section class="section" id="contact" data-sec="contact">
     <span class="eyebrow">Let's Talk</span>
     <h2 class="section-title">Ready to <span style="color:var(--gold)">Move Forward?</span></h2>
     <p class="section-sub">I built this proposal personally. I'm here to answer any question, walk through any number, or get your site survey scheduled.</p>
     <div class="contact-card">
-      <div class="contact-name">Dave West</div>
+      <div class="contact-name" id="contact-rep-name">David West</div>
       <div style="font-size:0.85rem;color:var(--dim);margin-bottom:1rem">Kinhome Solar · Your Energy Best</div>
       <div style="display:flex;flex-direction:column;gap:0.6rem;align-items:center">
         <a href="tel:3039419131" style="color:var(--gold);text-decoration:none;font-size:1.05rem;font-weight:500">📞 303.941.9131</a>
@@ -415,11 +507,12 @@ const DATA={
   kwh:     parseFloat(p('kwh','3540')),
   solar:   parseFloat(p('solar','0')),
   solarKwh:parseFloat(p('skwh','6402')),
-  vppRate: parseFloat(p('vpp','0.009')),
+  vppRate: parseFloat(p('vpp','0.0299')),
   term:    parseInt(p('term','25')),
   battery: p('battery',''),
+  rep:     p('rep','David West'),
   created: parseInt(p('ts','0')),
-  slides:  p('slides','overview,numbers,included,comparison,timeline,contact').split(','),
+  slides:  p('slides','overview,bill,grid,numbers,included,why,comparison,timeline,contact').split(','),
 };
 const THIRTY_DAYS=30*24*60*60*1000;
 const now=Date.now();
@@ -427,15 +520,14 @@ const created=DATA.created||now;
 const elapsed=now-created;
 const daysLeft=Math.max(0,Math.ceil((THIRTY_DAYS-elapsed)/(24*60*60*1000)));
 
-if(DATA.created&&elapsed>THIRTY_DAYS){
-  document.getElementById('loading-screen').style.display='none';
-  document.getElementById('expired-screen').style.display='flex';
-}else{init()}
-
 let propChart;
 const YEARS=Array.from({length:DATA.term},(_,i)=>i+1);
 
 function init(){
+  // Rep name
+  const repEl=document.getElementById('hero-rep');if(repEl)repEl.textContent=DATA.rep;
+  const contactRepEl=document.getElementById('contact-rep-name');if(contactRepEl)contactRepEl.textContent=DATA.rep;
+
   // Names & labels
   ['hero-name','banner-name','nav-name','footer-name'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=DATA.name});
   document.getElementById('comp-util-name').textContent=DATA.utility;
@@ -553,6 +645,18 @@ function recalc(){
       mEl.innerHTML+=`<div class="ml-row"><div class="ml-year">Yr ${yr}</div><div class="ml-util">$${Math.round(uA).toLocaleString()}</div><div class="ml-solar" style="color:${c}">${ss}</div></div>`;
     });
   }
+}
+
+function toggleDemand(item){
+  item.classList.toggle('open');
+}
+
+// Run after all functions defined
+if(DATA.created&&elapsed>THIRTY_DAYS){
+  document.getElementById('loading-screen').style.display='none';
+  document.getElementById('expired-screen').style.display='flex';
+}else{
+  init();
 }
 </script>
 </body>

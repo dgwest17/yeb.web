@@ -533,7 +533,8 @@ const YEARS_T  = Array.from({length:T}, (_,i)=>i+1);
 let propMode = 'payment'; // default to monthly $
 
 function recalc(){
-  const rate    = parseFloat(document.getElementById('rate-select').value)||0.06;
+  const rateEl = document.getElementById('rate-select');
+  const rate   = parseFloat(rateEl?.value)||0.06;
   const kwhRate = DATA.kwh>0?(DATA.bill*12)/DATA.kwh:0;
   const sKwhRate= DATA.solar>0&&DATA.solarKwh>0?(DATA.solar*12)/DATA.solarKwh:null;
 
@@ -614,52 +615,55 @@ function setPropMode(mode){
   if(title) title.textContent=mode==='kwh'?'kWh Rate Trajectory':'Monthly Payment ($)';
   recalc();
 }
+
+function init(){
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
+
   // Rep name
-  const repEl=document.getElementById('hero-rep');if(repEl)repEl.textContent=DATA.rep;
-  const contactRepEl=document.getElementById('contact-rep-name');if(contactRepEl)contactRepEl.textContent=DATA.rep;
+  set('hero-rep', DATA.rep);
+  set('contact-rep-name', DATA.rep);
 
   // Names & labels
-  ['hero-name','banner-name','nav-name','footer-name'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=DATA.name});
-  document.getElementById('comp-util-name').textContent=DATA.utility;
-  document.getElementById('util-legend').textContent=DATA.utility;
-  document.getElementById('util-legend2').textContent=DATA.utility+' (rising)';
-  const termEl=document.getElementById('ov-total-lbl');if(termEl)termEl.textContent=DATA.term+'yr Utility Cost';
-  document.getElementById('n-total-lbl').textContent=DATA.term+'yr Total Cost';
-  document.getElementById('n-end-lbl').textContent='Bill in Year '+DATA.term;
-  document.getElementById('n-savings-lbl').textContent=DATA.term+'yr Savings';
+  ['hero-name','banner-name','nav-name','footer-name'].forEach(id=>set(id,DATA.name));
+  set('comp-util-name', DATA.utility);
+  set('util-legend',  DATA.utility);
+  set('util-legend2', DATA.utility+' (through Yr 30)');
+  set('ov-total-lbl', DATA.term+'yr Utility Cost');
+  set('n-total-lbl',  DATA.term+'yr Total Cost');
+  set('n-end-lbl',    'Bill in Year '+DATA.term);
+  set('n-savings-lbl',DATA.term+'yr Savings');
 
   // Footer date
   const d=new Date(created);
-  document.getElementById('footer-date').textContent='Prepared '+d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  set('footer-date','Prepared '+d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}));
 
   // Expiry banner
-  document.getElementById('expiry-count').textContent=DATA.created?(daysLeft>0?daysLeft+' day'+(daysLeft!==1?'s':'')+' remaining':'Expires today'):'Valid for 30 days';
+  set('expiry-count', DATA.created
+    ?(daysLeft>0?daysLeft+' day'+(daysLeft!==1?'s':'')+' remaining':'Expires today')
+    :'Valid for 30 days');
 
   // Fixed solar numbers
-  const kwhRate=DATA.kwh>0?(DATA.bill*12)/DATA.kwh:0;
-  const sKwhRate=DATA.solar>0&&DATA.solarKwh>0?(DATA.solar*12)/DATA.solarKwh:0;
-  const offset=DATA.kwh>0?Math.round(Math.min(DATA.solarKwh/DATA.kwh,2.0)*100):0;
+  const kwhRate  = DATA.kwh>0?(DATA.bill*12)/DATA.kwh:0;
+  const sKwhRate = DATA.solar>0&&DATA.solarKwh>0?(DATA.solar*12)/DATA.solarKwh:0;
+  const offset   = DATA.kwh>0?Math.round(Math.min(DATA.solarKwh/DATA.kwh,2.0)*100):0;
 
-  document.getElementById('ov-bill').textContent='$'+DATA.bill;
-  document.getElementById('ov-kwh').textContent='$'+kwhRate.toFixed(3);
-  document.getElementById('ov-offset').textContent=offset+'%';
-  // Show annual usage in a stat if element exists
-  const ovUsageEl = document.getElementById('ov-usage');
-  if (ovUsageEl) ovUsageEl.textContent = DATA.kwh.toLocaleString() + ' kWh';
-  document.getElementById('n-util-mo').textContent='$'+DATA.bill;
-  document.getElementById('n-solar-mo').textContent=DATA.solar?'$'+DATA.solar:'—';
-  document.getElementById('n-solar-kwh').textContent=sKwhRate?'$'+sKwhRate.toFixed(3):'—';
-  document.getElementById('n-offset').textContent=offset+'%';
-  document.getElementById('inc-power-title').textContent=offset+'% More Power';
-  document.getElementById('inc-power-body').textContent='Your system produces '+offset+'% of your usage — run everything comfortably.';
+  set('ov-bill',   '$'+DATA.bill);
+  set('ov-kwh',    '$'+kwhRate.toFixed(3));
+  set('ov-offset', offset+'%');
+  set('ov-usage',  DATA.kwh.toLocaleString()+' kWh');
+  set('n-util-mo', '$'+DATA.bill);
+  set('n-solar-mo',DATA.solar?'$'+DATA.solar:'—');
+  set('n-solar-kwh',sKwhRate?'$'+sKwhRate.toFixed(3):'—');
+  set('n-offset',  offset+'%');
+  set('inc-power-title', offset+'% More Power');
+  set('inc-power-body',  'Your system produces '+offset+'% of your usage — run everything comfortably.');
 
-  // Show battery in included section
-  const battEl = document.getElementById('inc-battery-title');
-  if (battEl && DATA.battery && DATA.battery !== 'None') {
-    battEl.textContent = DATA.battery + ' Battery';
+  // Battery card
+  if(DATA.battery&&DATA.battery!=='None'&&DATA.battery!==''){
+    set('inc-battery-title', DATA.battery+' Battery');
   }
 
-  // Filter sections
+  // Filter sections not in slides list
   document.querySelectorAll('[data-sec]').forEach(el=>{
     if(!DATA.slides.includes(el.dataset.sec)){
       el.style.display='none';
@@ -668,21 +672,25 @@ function setPropMode(mode){
     }
   });
 
-  // Build chart
-  const ctx=document.getElementById('propChart').getContext('2d');
-  propChart=new Chart(ctx,{
-    type:'line',
-    data:{labels:YEARS_30.map(y=>'Yr'+y),datasets:[
-      {label:DATA.utility,data:[],borderColor:'#E74C3C',borderWidth:2.5,pointRadius:0,tension:0.3,fill:false,spanGaps:false},
-      {label:'Solar',data:[],borderColor:'#2ECC71',borderWidth:2,pointRadius:0,tension:0.1,fill:false,borderDash:[5,3],spanGaps:false}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
-      plugins:{legend:{display:false}},
-      scales:{
-        x:{ticks:{color:'rgba(255,255,255,0.35)',font:{size:10},callback:(v,i)=>[0,1,4,9,14,19,24,29].includes(i)?'Yr'+(i+1):''},grid:{color:'rgba(255,255,255,0.04)'}},
-        y:{ticks:{color:'rgba(255,255,255,0.35)',font:{size:10},callback:v=>propMode==='kwh'?'$'+v.toFixed(2):'$'+Math.round(v)},grid:{color:'rgba(255,255,255,0.05)'}}
-      }}
-  });
+  // Build chart — only if canvas exists (numbers section may be hidden)
+  const ctxEl=document.getElementById('propChart');
+  if(ctxEl){
+    try {
+      propChart=new Chart(ctxEl.getContext('2d'),{
+        type:'line',
+        data:{labels:YEARS_30.map(y=>'Yr'+y),datasets:[
+          {label:DATA.utility,data:[],borderColor:'#E74C3C',borderWidth:2.5,pointRadius:0,tension:0.3,fill:false,spanGaps:false},
+          {label:'Solar',    data:[],borderColor:'#2ECC71',borderWidth:2,  pointRadius:0,tension:0.1,fill:false,borderDash:[5,3],spanGaps:false}
+        ]},
+        options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+          plugins:{legend:{display:false}},
+          scales:{
+            x:{ticks:{color:'rgba(255,255,255,0.35)',font:{size:10},callback:(v,i)=>[0,1,4,9,14,19,24,29].includes(i)?'Yr'+(i+1):''},grid:{color:'rgba(255,255,255,0.04)'}},
+            y:{ticks:{color:'rgba(255,255,255,0.35)',font:{size:10},callback:v=>propMode==='kwh'?'$'+v.toFixed(2):'$'+Math.round(v)},grid:{color:'rgba(255,255,255,0.05)'}}
+          }}
+      });
+    } catch(e){ console.warn('Chart init failed:',e); }
+  }
 
   recalc();
   document.getElementById('loading-screen').style.display='none';
@@ -698,7 +706,14 @@ if(DATA.created&&elapsed>THIRTY_DAYS){
   document.getElementById('loading-screen').style.display='none';
   document.getElementById('expired-screen').style.display='flex';
 }else{
-  init();
+  try {
+    init();
+  } catch(e) {
+    console.error('Proposal init error:', e);
+    // Fail open — show the page even if something broke
+    document.getElementById('loading-screen').style.display='none';
+    document.getElementById('main-content').style.display='block';
+  }
 }
 </script>
 </body>

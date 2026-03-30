@@ -51,13 +51,7 @@ nav{position:sticky;top:0;z-index:100;background:rgba(5,14,24,0.94);backdrop-fil
 .section-sub{font-size:0.9rem;color:var(--muted);line-height:1.75;max-width:600px;margin-bottom:2rem}
 
 /* ── HERO ── */
-.hero{
-  min-height:88vh;display:flex;align-items:center;justify-content:center;text-align:center;
-  padding:6rem 1.5rem 4rem;
-  background:
-    linear-gradient(to bottom, rgba(5,14,24,0.55) 0%, rgba(5,14,24,0.3) 40%, rgba(5,14,24,0.85) 85%, rgba(5,14,24,1) 100%),
-    url('https://images.unsplash.com/photo-1509391366360-2e959784a276?w=1600&q=80&auto=format&fit=crop') center/cover no-repeat;
-}
+.hero{min-height:82vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:6rem 1.5rem 4rem;background:radial-gradient(ellipse 70% 55% at 50% 20%,rgba(200,168,75,0.14) 0%,transparent 65%),var(--deep)}
 .hero-inner{max-width:740px;position:relative;z-index:1}
 .hero-eyebrow{font-size:0.7rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;display:block}
 .hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.8rem,8vw,5rem);line-height:0.95;margin-bottom:1.25rem;text-shadow:0 2px 20px rgba(0,0,0,0.5)}
@@ -118,7 +112,7 @@ nav{position:sticky;top:0;z-index:100;background:rgba(5,14,24,0.94);backdrop-fil
 .tl-step.customer-step .tl-step-name{color:#7BB8F0}
 .contact-card{background:rgba(200,168,75,0.07);border:1px solid var(--border);border-radius:8px;padding:2rem;text-align:center;margin-top:1rem}
 .contact-name{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--gold);letter-spacing:0.05em;margin-bottom:0.2rem}
-.divider{display:none} /* replaced by image bands */
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);max-width:1000px;margin:0 auto} /* replaced by image bands */
 /* toggle buttons for chart */
 .toggle-btn{background:transparent;border:1px solid rgba(255,255,255,0.1);color:var(--dim);padding:0.25rem 0.65rem;border-radius:3px;font-size:0.7rem;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif}
 .toggle-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(200,168,75,0.1)}
@@ -311,8 +305,6 @@ footer a{color:var(--gold);text-decoration:none}
     </div>
   </section>
 
-  <div class="sec-img" style="background-image:url('https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=1400&q=75&auto=format&fit=crop');background-position:center 60%"></div>
-
   <!-- 2. YOUR BILL ISN'T YOURS -->
   <section class="section" id="bill" data-sec="bill">
     <span class="eyebrow">The Problem With Your Power Company</span>
@@ -324,8 +316,6 @@ footer a{color:var(--gold);text-decoration:none}
       <div class="bill-bullet"><span class="bill-x">✕</span><div><strong>They legally profit more</strong> when they build more infrastructure — your bills fund their expansion.</div></div>
     </div>
   </section>
-
-  <div class="sec-img" style="background-image:url('https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=1400&q=75&auto=format&fit=crop');background-position:center 40%"></div>
 
   <!-- 3. CALIFORNIA'S GRID IS BREAKING -->
   <section class="section" id="grid" data-sec="grid">
@@ -360,8 +350,6 @@ footer a{color:var(--gold);text-decoration:none}
     </div>
   </section>
 
-  <div class="sec-img" style="background-image:url('https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=1400&q=75&auto=format&fit=crop');background-position:center 50%"></div>
-
   <!-- 4. EVERYTHING INCLUDED -->
   <section class="section" id="included" data-sec="included">
     <span class="eyebrow">What You're Getting</span>
@@ -377,8 +365,6 @@ footer a{color:var(--gold);text-decoration:none}
     </div>
   </section>
 
-  <div class="sec-img" style="background-image:url('https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=1400&q=75&auto=format&fit=crop');background-position:center 30%"></div>
-
   <!-- 5. WHY WORK WITH ME -->
   <section class="section" id="why" data-sec="why">
     <span class="eyebrow">Why Work With Me</span>
@@ -389,8 +375,6 @@ footer a{color:var(--gold);text-decoration:none}
       <div class="why-bullet"><span class="why-star">★</span><div><strong>My mission is to make this industry truly sustainable</strong> — the better experience I give, the more people you tell about it, and the quicker we can get there together.</div></div>
     </div>
   </section>
-
-  <div class="sec-img" style="background-image:url('https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1400&q=75&auto=format&fit=crop');background-position:center 40%"></div>
 
   <!-- 6. NUMBERS -->
   <section class="section" id="numbers" data-sec="numbers">
@@ -459,8 +443,6 @@ footer a{color:var(--gold);text-decoration:none}
     </div>
   </section>
 
-  <div class="sec-img" style="background-image:url('https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?w=1400&q=75&auto=format&fit=crop');background-position:center 50%"></div>
-
   <!-- 7. COMPARISON -->
   <section class="section" id="comparison" data-sec="comparison">
     <span class="eyebrow">Side by Side</span>
@@ -491,8 +473,6 @@ footer a{color:var(--gold);text-decoration:none}
     </div>
   </section>
 
-  <div class="sec-img" style="background-image:url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1400&q=75&auto=format&fit=crop');background-position:center 45%"></div>
-
   <!-- 8. TIMELINE -->
   <section class="section" id="timeline" data-sec="timeline">
     <span class="eyebrow">The Process</span>
@@ -510,8 +490,6 @@ footer a{color:var(--gold);text-decoration:none}
     </div>
     <p style="font-size:0.72rem;color:var(--dim);margin-top:0.6rem">★ = requires your presence. Average total timeline: 6–10 weeks from contract to first kilowatt.</p>
   </section>
-
-  <div class="sec-img" style="background-image:url('https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1400&q=75&auto=format&fit=crop');background-position:center 60%"></div>
 
   <!-- 9. CONTACT -->
   <section class="section" id="contact" data-sec="contact">

@@ -980,6 +980,191 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
   </button>
 </div>
 
+<!-- ══ NET BILLING / DAILY MODAL ══ -->
+<div id="nm-modal" style="display:none;position:fixed;inset:0;z-index:600;background:#080c18;flex-direction:column;align-items:center;justify-content:flex-start;overflow-y:auto">
+
+  <!-- Top nav -->
+  <div style="width:100%;padding:0.75rem 1rem;display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;align-items:center;background:rgba(5,14,24,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06);position:sticky;top:0;z-index:10">
+    <div style="background:rgba(255,255,255,0.92);border-radius:100px;padding:0.35rem 1rem;font-size:0.7rem;color:#111;font-weight:700">About Net Billing</div>
+    <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:100px;padding:0.35rem 1rem;font-size:0.7rem;color:var(--muted)">Will I Still Get a Utility Bill?</div>
+    <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:100px;padding:0.35rem 1rem;font-size:0.7rem;color:var(--muted)">What If I Use More Power?</div>
+    <button onclick="closeNetMeteringModal()" style="margin-left:auto;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:100px;padding:0.35rem 0.9rem;font-size:0.7rem;color:var(--muted);cursor:pointer">✕ Close</button>
+  </div>
+
+  <div style="width:100%;max-width:900px;padding:1rem;flex:1;display:flex;flex-direction:column;gap:0.75rem">
+
+    <!-- SVG Scene -->
+    <div style="position:relative;width:100%;border-radius:12px;overflow:hidden;aspect-ratio:16/9;max-height:52vh">
+      <svg id="nm-svg" viewBox="0 0 800 420" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
+        <defs>
+          <style>
+            @keyframes dashfwd  { to { stroke-dashoffset: -28; } }
+            @keyframes dashrev  { to { stroke-dashoffset:  28; } }
+            @keyframes blinkwin { 0%,100%{opacity:0} 50%{opacity:1} }
+            .fl-fwd { stroke-dasharray:8,6; animation: dashfwd 0.65s linear infinite; }
+            .fl-rev { stroke-dasharray:8,6; animation: dashrev 0.65s linear infinite; }
+          </style>
+        </defs>
+
+        <!-- Sky -->
+        <rect id="nm-sky-rect" x="0" y="0" width="800" height="292" fill="#5baee0"/>
+        <!-- Stars (night only) -->
+        <g id="nm-stars" opacity="0">
+          <circle cx="80"  cy="30"  r="1.2" fill="#fff"/><circle cx="180" cy="18"  r="1"   fill="#fff"/>
+          <circle cx="310" cy="25"  r="1.5" fill="#fff"/><circle cx="450" cy="12"  r="1"   fill="#fff"/>
+          <circle cx="560" cy="35"  r="1.2" fill="#fff"/><circle cx="640" cy="20"  r="1"   fill="#fff"/>
+          <circle cx="720" cy="42"  r="1"   fill="#fff"/><circle cx="130" cy="55"  r="1.2" fill="#fff"/>
+          <circle cx="390" cy="48"  r="1"   fill="#fff"/><circle cx="500" cy="60"  r="1.2" fill="#fff"/>
+          <circle cx="200" cy="70"  r="1"   fill="#fff"/><circle cx="680" cy="65"  r="1.2" fill="#fff"/>
+        </g>
+
+        <!-- Ground -->
+        <rect x="0" y="290" width="800" height="130" fill="#7a9a50"/>
+        <rect x="0" y="290" width="800" height="6"   fill="#6a8a42"/>
+
+        <!-- BG house left (no solar) -->
+        <g opacity="0.38">
+          <rect x="15" y="222" width="105" height="68" fill="#b0a898"/>
+          <polygon points="7,222 128,222 128,200 68,168 7,200" fill="#888"/>
+          <rect x="28" y="238" width="26" height="22" id="nm-bgl1" fill="#5580a0"/>
+          <rect x="66" y="238" width="26" height="22" id="nm-bgl2" fill="#5580a0"/>
+          <rect x="38" y="260" width="20" height="30" fill="#7a6030"/>
+        </g>
+        <!-- BG house right (no solar) -->
+        <g opacity="0.32">
+          <rect x="672" y="218" width="112" height="72" fill="#b8b0a0"/>
+          <polygon points="663,218 792,218 792,196 728,163 663,196" fill="#8a8888"/>
+          <rect x="682" y="234" width="28" height="24" id="nm-bgr1" fill="#5580a0"/>
+          <rect x="724" y="234" width="28" height="24" id="nm-bgr2" fill="#5580a0"/>
+          <rect x="695" y="258" width="22" height="32" fill="#7a6030"/>
+        </g>
+
+        <!-- === MAIN HOUSE === -->
+        <!-- Garage wing (left) with battery -->
+        <rect x="108" y="200" width="138" height="90" fill="#ccc4b4"/>
+        <polygon points="100,200 254,200 254,178 177,145 100,178" fill="#8a8070"/>
+        <!-- Garage door -->
+        <rect x="117" y="228" width="80" height="58" fill="#a89878" rx="2"/>
+        <line x1="117" y1="246" x2="197" y2="246" stroke="#90805a" stroke-width="1.5"/>
+        <line x1="117" y1="263" x2="197" y2="263" stroke="#90805a" stroke-width="1.5"/>
+        <!-- BATTERY on garage wall -->
+        <rect x="203" y="215" width="34" height="62" rx="5" fill="#1a2535" stroke="#2a4a6a" stroke-width="2"/>
+        <rect x="218" y="210" width="8"  height="6" rx="2" fill="#2a4a6a"/>
+        <rect x="207" y="222" width="26" height="7" rx="2" id="nm-b1" fill="#2ECC71"/>
+        <rect x="207" y="232" width="26" height="7" rx="2" id="nm-b2" fill="#2ECC71"/>
+        <rect x="207" y="242" width="26" height="7" rx="2" id="nm-b3" fill="#2ECC71"/>
+        <rect x="207" y="252" width="18" height="7" rx="2" id="nm-b4" fill="#555"/>
+        <text x="220" y="272" text-anchor="middle" font-size="9" fill="#4af" font-family="sans-serif">BAT</text>
+
+        <!-- Main body -->
+        <rect x="252" y="178" width="238" height="112" fill="#d4ccc0"/>
+        <!-- Roof -->
+        <polygon points="235,178 498,178 498,154 371,104 235,154" fill="#8a8070"/>
+        <!-- Solar panels -->
+        <rect x="308" y="120" width="118" height="42" fill="#1a2a4a" rx="3"/>
+        <line x1="335" y1="120" x2="335" y2="162" stroke="#2a4a7a" stroke-width="1.2"/>
+        <line x1="362" y1="120" x2="362" y2="162" stroke="#2a4a7a" stroke-width="1.2"/>
+        <line x1="389" y1="120" x2="389" y2="162" stroke="#2a4a7a" stroke-width="1.2"/>
+        <line x1="308" y1="141" x2="426" y2="141" stroke="#2a4a7a" stroke-width="0.8"/>
+        <!-- Windows with glow layer -->
+        <rect x="268" y="198" width="48" height="38" rx="2" fill="#5580a0"/>
+        <rect x="268" y="198" width="48" height="38" rx="2" id="nm-w1" fill="#ffe066" opacity="0"/>
+        <rect x="330" y="198" width="48" height="38" rx="2" fill="#5580a0"/>
+        <rect x="330" y="198" width="48" height="38" rx="2" id="nm-w2" fill="#ffe066" opacity="0"/>
+        <rect x="393" y="198" width="65" height="38" rx="2" fill="#5580a0" opacity="0.7"/>
+        <rect x="393" y="198" width="65" height="38" rx="2" id="nm-w3" fill="#ffe066" opacity="0"/>
+        <!-- Door -->
+        <rect x="342" y="250" width="38" height="40" fill="#8B6914" rx="2"/>
+        <circle cx="373" cy="270" r="3" fill="#C8A84B"/>
+        <!-- Inverter -->
+        <rect x="475" y="215" width="26" height="36" rx="3" fill="#e0d8c8" stroke="#bbb" stroke-width="1"/>
+        <rect x="479" y="219" width="18" height="4" fill="#555" rx="1"/>
+        <rect x="479" y="226" width="18" height="4" fill="#555" rx="1"/>
+        <circle cx="488" cy="238" r="4" id="nm-inv-dot" fill="#2ECC71"/>
+
+        <!-- Meter -->
+        <circle cx="548" cy="268" r="18" fill="#f5f0e8" stroke="#aaa" stroke-width="1.5"/>
+        <circle cx="548" cy="268" r="13" fill="none" stroke="#ccc" stroke-width="1"/>
+        <line id="nm-meter-hand" x1="548" y1="268" x2="548" y2="257" stroke="#333" stroke-width="2.5" stroke-linecap="round"/>
+
+        <!-- Power tower -->
+        <g transform="translate(658,142)" opacity="0.5">
+          <line x1="18" y1="0" x2="18" y2="150" stroke="#aaa" stroke-width="2.5"/>
+          <line x1="0"  y1="36" x2="36" y2="36" stroke="#aaa" stroke-width="2"/>
+          <line x1="4"  y1="66" x2="32" y2="66" stroke="#aaa" stroke-width="1.5"/>
+          <line x1="0"  y1="36" x2="4"  y2="66" stroke="#aaa" stroke-width="1.2"/>
+          <line x1="36" y1="36" x2="32" y2="66" stroke="#aaa" stroke-width="1.2"/>
+          <line x1="8"  y1="92" x2="28" y2="92" stroke="#aaa" stroke-width="1"/>
+        </g>
+
+        <!-- === FLOW PATHS === -->
+        <!-- Panels → Inverter -->
+        <path id="fl-pi" d="M367,162 C367,185 475,200 475,225" fill="none" stroke="#C8A84B" stroke-width="3" opacity="0"/>
+        <!-- Inverter → Battery -->
+        <path id="fl-ib" d="M475,233 C400,240 310,242 237,242" fill="none" stroke="#2ECC71" stroke-width="3" opacity="0"/>
+        <!-- Inverter → House -->
+        <path id="fl-ih" d="M475,233 C470,255 460,258 393,258" fill="none" stroke="#2ECC71" stroke-width="3" opacity="0"/>
+        <!-- Excess → Grid (thin gold) -->
+        <path id="fl-eg" d="M237,250 C390,268 528,268 658,210" fill="none" stroke="#C8A84B" stroke-width="2" opacity="0"/>
+        <!-- Battery → House (night primary) -->
+        <path id="fl-bh" d="M237,242 C280,248 320,255 330,258" fill="none" stroke="#2ECC71" stroke-width="3.5" opacity="0"/>
+        <!-- Grid → House (night backup) -->
+        <path id="fl-gh" d="M658,210 C600,268 528,268 475,233 C470,255 460,258 393,258" fill="none" stroke="#E74C3C" stroke-width="2.5" opacity="0"/>
+
+        <!-- Celestial -->
+        <circle id="nm-cel-glow" cx="155" cy="68" r="50" fill="#ffd700" opacity="0.35"/>
+        <circle id="nm-cel"      cx="155" cy="68" r="30" fill="#FFF9A0"/>
+
+        <!-- Caption bar -->
+        <rect x="0" y="376" width="800" height="44" fill="rgba(5,14,24,0.78)"/>
+        <text id="nm-caption" x="400" y="402" text-anchor="middle" font-size="13" fill="#fff" font-family="'DM Sans',sans-serif" font-weight="500">During the day, panels charge your battery and power your home directly.</text>
+      </svg>
+    </div>
+
+    <!-- Controls row -->
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:1.1rem">☀️</span>
+        <div style="display:flex;background:rgba(255,255,255,0.1);border-radius:100px;padding:3px;gap:2px">
+          <button id="nm-day-btn"   onclick="setNmMode('day')"   style="background:#fff;color:#111;border:none;border-radius:100px;padding:5px 18px;font-size:0.75rem;font-weight:700;cursor:pointer;transition:all 0.3s">DAY</button>
+          <button id="nm-night-btn" onclick="setNmMode('night')" style="background:transparent;color:rgba(255,255,255,0.6);border:none;border-radius:100px;padding:5px 18px;font-size:0.75rem;font-weight:600;cursor:pointer;transition:all 0.3s">NIGHT</button>
+        </div>
+        <span style="font-size:1.1rem">🌙</span>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-end">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+          <div style="width:30px;height:78px;background:rgba(255,255,255,0.1);border-radius:5px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end">
+            <div id="nm-prod-bar" style="background:#d4e600;width:100%;border-radius:5px;transition:height 1.2s ease;height:65px"></div>
+          </div>
+          <span style="font-size:0.56rem;color:var(--dim)">SOLAR</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+          <div style="width:30px;height:78px;background:rgba(255,255,255,0.1);border-radius:5px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end">
+            <div id="nm-bat-bar" style="background:#2ECC71;width:100%;border-radius:5px;transition:height 1.2s ease;height:70px"></div>
+          </div>
+          <span style="font-size:0.56rem;color:var(--dim)">BATTERY</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+          <div style="width:30px;height:78px;background:rgba(255,255,255,0.1);border-radius:5px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end">
+            <div id="nm-cons-bar" style="background:#E74C3C;width:100%;border-radius:5px;transition:height 1.2s ease;height:38px"></div>
+          </div>
+          <span style="font-size:0.56rem;color:var(--dim)">USAGE</span>
+        </div>
+      </div>
+      <div style="font-size:0.78rem;color:var(--muted);max-width:320px;line-height:1.6;flex:1;min-width:180px" id="nm-subtext">Net billing credits your account for any excess sent to the grid. At night, your battery covers your home first.</div>
+    </div>
+
+    <!-- Legend -->
+    <div style="display:flex;gap:1.2rem;flex-wrap:wrap;padding:0.6rem 0.85rem;background:rgba(255,255,255,0.04);border-radius:8px;border:1px solid rgba(255,255,255,0.07)">
+      <div style="display:flex;align-items:center;gap:6px;font-size:0.67rem;color:var(--muted)"><span style="width:20px;height:3px;background:#C8A84B;border-radius:2px;display:inline-block"></span>Solar Production</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:0.67rem;color:var(--muted)"><span style="width:20px;height:3px;background:#2ECC71;border-radius:2px;display:inline-block"></span>Battery / Clean Power to Home</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:0.67rem;color:var(--muted)"><span style="width:20px;height:3px;background:#E74C3C;border-radius:2px;display:inline-block"></span>Grid Draw (backup)</div>
+    </div>
+
+  </div>
+</div>
+
+
 <!-- ══ CREATE PROPOSAL MODAL ══ -->
 <div id="proposal-modal">
   <div id="proposal-modal-inner">
@@ -1024,7 +1209,7 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
     <!-- Term + Battery -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1rem">
       <div class="pm-field">
-        <div class="pm-label">Loan Term (Years)</div>
+        <div class="pm-label">Solar Term (Years)</div>
         <select class="pm-input" id="pm-term">
           <option value="10">10 Years</option>
           <option value="12">12 Years</option>
@@ -1520,7 +1705,7 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
       <!-- Left: Daily/Monthly/Yearly selector + legend -->
       <div style="display:flex;flex-direction:column;gap:1rem">
         <div style="display:flex;flex-direction:column;gap:0.5rem">
-          <div id="solar-tab-daily" class="solar-tab" onclick="setSolarTab('daily')" style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;padding:0.5rem 0.75rem;border-radius:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)">
+          <div id="solar-tab-daily" class="solar-tab" onclick="openNetMeteringModal()" style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;padding:0.5rem 0.75rem;border-radius:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)">
             <div style="width:28px;height:28px;border-radius:50%;border:1.5px solid var(--muted);display:flex;align-items:center;justify-content:center;font-size:0.72rem;color:var(--muted)">1</div>
             <span style="font-size:0.85rem;color:var(--muted);font-weight:500;letter-spacing:0.05em">DAILY</span>
           </div>
@@ -1670,7 +1855,7 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
           <ul class="summary-list">
             <li class="summary-item summary-item-solar"><span class="summary-check">✓</span><span>Get your power</span></li>
             <li class="summary-item summary-item-solar"><span class="summary-check">✓</span><span>Monthly billing</span></li>
-            <li class="summary-item summary-item-solar summary-bonus"><span class="summary-check">✓</span><span><strong>End date</strong> — loan pays off, power is free</span></li>
+            <li class="summary-item summary-item-solar summary-bonus"><span class="summary-check">✓</span><span><strong>End date</strong> — solar term ends, power is free</span></li>
             <li class="summary-item summary-item-solar summary-bonus"><span class="summary-check">✓</span><span><strong>Use power comfortably</strong> — no rationing</span></li>
             <li class="summary-item summary-item-solar summary-bonus"><span class="summary-check">✓</span><span><strong>Blackout protection</strong> — battery keeps you on</span></li>
             <li class="summary-item summary-item-solar summary-bonus"><span class="summary-check">✓</span><span><strong>Predictable power</strong> — rate locked in</span></li>
@@ -1854,7 +2039,7 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
 
           <!-- LOAN TERM — secret adjustment -->
           <div class="n-input-group" style="margin-bottom:0.75rem">
-            <div class="n-label" style="color:var(--gold)">Loan Term (Years)</div>
+            <div class="n-label" style="color:var(--gold)">Solar Term (Years)</div>
             <select class="n-select" id="inp-term" onchange="recalc()" style="font-size:0.85rem;border-color:rgba(200,168,75,0.3);color:var(--gold)">
               <option value="10">10 Years</option>
               <option value="12">12 Years</option>
@@ -2809,6 +2994,114 @@ function applyAdminContent() {
   });
 }
 
+
+// ═══════════════════════════════════════════
+//  NET BILLING DAILY MODAL
+// ═══════════════════════════════════════════
+let nmMode = 'day';
+let nmMeterAngle = 0;
+let nmMeterTimer = null;
+
+function openNetMeteringModal() {
+  document.getElementById('nm-modal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  setNmMode('day');
+}
+
+function closeNetMeteringModal() {
+  document.getElementById('nm-modal').style.display = 'none';
+  document.body.style.overflow = '';
+  if (nmMeterTimer) clearInterval(nmMeterTimer);
+}
+
+function setNmMode(mode) {
+  nmMode = mode;
+
+  const get  = id => document.getElementById(id);
+  const show = (id, cls) => { const el = get(id); if(el){ el.style.opacity='1'; el.className=cls||''; } };
+  const hide = id        => { const el = get(id); if(el){ el.style.opacity='0'; el.className=''; } };
+  const setH = (id,h)    => { const el = get(id); if(el) el.style.height=h; };
+
+  const dayBtn   = get('nm-day-btn');
+  const nightBtn = get('nm-night-btn');
+  const caption  = get('nm-caption');
+
+  if (mode === 'day') {
+    // Sky
+    get('nm-sky-rect').setAttribute('fill','#5baee0');
+    get('nm-stars').style.opacity = '0';
+    // Sun
+    get('nm-cel').setAttribute('fill','#FFF9A0');
+    get('nm-cel-glow').setAttribute('fill','#ffd700');
+    get('nm-cel-glow').style.opacity = '0.35';
+    // Caption
+    if(caption) caption.textContent = 'Panels charge your battery and power your home. Excess goes to the grid for small credits.';
+    // Flow: panels→inverter, inverter→battery, inverter→house, excess→grid
+    show('fl-pi','fl-fwd'); show('fl-ib','fl-fwd'); show('fl-ih','fl-fwd'); show('fl-eg','fl-fwd');
+    hide('fl-bh'); hide('fl-gh');
+    // Bars
+    setH('nm-prod-bar','65px'); setH('nm-bat-bar','70px'); setH('nm-cons-bar','36px');
+    // Windows off (day)
+    ['nm-w1','nm-w2','nm-w3'].forEach(id=>{ const el=get(id); if(el) el.style.opacity='0'; });
+    // BG houses day color
+    ['nm-bgl1','nm-bgl2','nm-bgr1','nm-bgr2'].forEach(id=>{ const el=get(id); if(el) el.setAttribute('fill','#5580a0'); });
+    // Inverter green
+    const inv = get('nm-inv-dot'); if(inv) inv.setAttribute('fill','#2ECC71');
+    // Battery bars full (green)
+    ['nm-b1','nm-b2','nm-b3'].forEach(id=>{ const el=get(id); if(el) el.setAttribute('fill','#2ECC71'); });
+    const b4 = get('nm-b4'); if(b4) b4.setAttribute('fill','#2ECC71');
+    // Buttons
+    dayBtn.style.background='#fff'; dayBtn.style.color='#111';
+    nightBtn.style.background='transparent'; nightBtn.style.color='rgba(255,255,255,0.55)';
+
+  } else {
+    // Sky
+    get('nm-sky-rect').setAttribute('fill','#060c1a');
+    get('nm-stars').style.opacity = '1';
+    // Moon
+    get('nm-cel').setAttribute('fill','#d0d8e8');
+    get('nm-cel-glow').setAttribute('fill','#9ab0d0');
+    get('nm-cel-glow').style.opacity = '0.18';
+    // Caption
+    if(caption) caption.textContent = 'No solar at night — battery powers your home. If it runs low, the grid covers the rest.';
+    // Flow: battery→house primary; grid→house backup (thinner)
+    hide('fl-pi'); hide('fl-ib'); hide('fl-ih'); hide('fl-eg');
+    show('fl-bh','fl-fwd'); show('fl-gh','fl-rev');
+    // Bars — battery draining, no production, consumption up
+    setH('nm-prod-bar','4px'); setH('nm-bat-bar','32px'); setH('nm-cons-bar','68px');
+    // Windows lit up (warm glow)
+    ['nm-w1','nm-w2','nm-w3'].forEach(id=>{ const el=get(id); if(el) el.style.opacity='0.82'; });
+    // BG houses DARK (no lights)
+    ['nm-bgl1','nm-bgl2','nm-bgr1','nm-bgr2'].forEach(id=>{ const el=get(id); if(el) el.setAttribute('fill','#1a2230'); });
+    // Inverter dim
+    const inv = get('nm-inv-dot'); if(inv) inv.setAttribute('fill','#555');
+    // Battery bars low
+    const b1=get('nm-b1'),b2=get('nm-b2'),b3=get('nm-b3'),b4=get('nm-b4');
+    if(b1) b1.setAttribute('fill','#2ECC71');
+    if(b2) b2.setAttribute('fill','#e6a817');
+    if(b3) b3.setAttribute('fill','#555');
+    if(b4) b4.setAttribute('fill','#555');
+    // Buttons
+    nightBtn.style.background='rgba(255,255,255,0.15)'; nightBtn.style.color='#fff';
+    dayBtn.style.background='transparent'; dayBtn.style.color='rgba(255,255,255,0.4)';
+  }
+
+  // Animate meter hand
+  if (nmMeterTimer) clearInterval(nmMeterTimer);
+  nmMeterTimer = setInterval(() => {
+    nmMeterAngle += (mode === 'day' ? 2.5 : -1.5);
+    const hand = get('nm-meter-hand');
+    if (!hand) return;
+    const cx=548, cy=268, r=11;
+    const rad = nmMeterAngle * Math.PI / 180;
+    hand.setAttribute('x2', cx + r * Math.sin(rad));
+    hand.setAttribute('y2', cy - r * Math.cos(rad));
+  }, 55);
+}
+
+document.getElementById('nm-modal')?.addEventListener('click', function(e) {
+  if (e.target === this) closeNetMeteringModal();
+});
 
 // ═══════════════════════════════════════════
 //  HAMBURGER MENU

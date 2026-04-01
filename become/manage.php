@@ -400,7 +400,17 @@ function openModuleEditor(modId) {
       </div>
       <div class="ed-field"><label>🔓 Unlock Requirement</label>
         <select class="ed-input" onchange="setModuleUnlock(${modId}, this.value)">${levelOpts}</select>
-        <p style="color:var(--mute);font-size:.75rem;margin-top:.3rem">Sequential = rep must complete the previous module first. Level-based = unlocks when rep reaches that level (can skip ahead).</p>
+      </div>
+      <div class="ed-field"><label>🔗 Prerequisites — Which modules must be completed first?</label>
+        <div id="prereq-list-${modId}" style="margin-bottom:.5rem">${buildPrereqList(modId, mod)}</div>
+        <select class="ed-input" id="prereq-add-${modId}" onchange="addPrereq(${modId}, parseInt(this.value));this.value=''">
+          <option value="">+ Add prerequisite...</option>
+          ${data.modules.filter(m => m.id != modId).map(m => {
+            const f = data.folders.find(f => f.id == m.folder_id);
+            return `<option value="${m.id}">${m.icon||'📄'} ${esc(m.title)} (${f?esc(f.title):''})</option>`;
+          }).join('')}
+        </select>
+        <p style="color:var(--mute);font-size:.72rem;margin-top:.3rem">If set, the rep must complete ALL listed modules before this one unlocks. Leave empty for sequential (previous module must be done).</p>
       </div>
       <div class="ed-field"><label>Description</label>
         <input class="ed-input" value="${esc(mod.description||'')}" placeholder="Optional short description" onchange="updateModule(${modId},{description:this.value})">
@@ -430,6 +440,48 @@ function segItemHTML(s, i) {
 }
 
 // ─── SEGMENT EDITOR (with Quill) ───
+// ─── PREREQUISITES ───
+function buildPrereqList(modId, mod) {
+  const prereqs = mod.prerequisites || [];
+  if (!prereqs.length) return '<span style="color:var(--mute);font-size:.82rem">None — uses sequential order</span>';
+  return prereqs.map(pid => {
+    const pm = data.modules.find(m => m.id == pid);
+    if (!pm) return '';
+    const pf = data.folders.find(f => f.id == pm.folder_id);
+    return `<span style="display:inline-flex;align-items:center;gap:.3rem;padding:.25rem .6rem;background:rgba(34,168,179,.08);border:1px solid rgba(34,168,179,.2);border-radius:8px;font-size:.8rem;margin:0 .3rem .3rem 0">
+      ${pm.icon||'📄'} ${esc(pm.title)} <span style="color:var(--dim);font-size:.7rem">${pf?esc(pf.title):''}</span>
+      <button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:.9rem;padding:0 .2rem" onclick="removePrereq(${modId},${pid})">✕</button>
+    </span>`;
+  }).join('');
+}
+
+async function addPrereq(modId, prereqId) {
+  if (!prereqId) return;
+  const mod = data.modules.find(m => m.id == modId);
+  if (!mod) return;
+  const prereqs = mod.prerequisites || [];
+  if (prereqs.includes(prereqId)) return;
+  prereqs.push(prereqId);
+  await api('POST', {action:'update_module', id:modId, prerequisites:prereqs});
+  mod.prerequisites = prereqs;
+  document.getElementById('prereq-list-'+modId).innerHTML = buildPrereqList(modId, mod);
+  renderTree();
+  renderFlow();
+  toast('Prerequisite added');
+}
+
+async function removePrereq(modId, prereqId) {
+  const mod = data.modules.find(m => m.id == modId);
+  if (!mod) return;
+  const prereqs = (mod.prerequisites || []).filter(p => p != prereqId);
+  await api('POST', {action:'update_module', id:modId, prerequisites:prereqs.length ? prereqs : null});
+  mod.prerequisites = prereqs.length ? prereqs : null;
+  document.getElementById('prereq-list-'+modId).innerHTML = buildPrereqList(modId, mod);
+  renderTree();
+  renderFlow();
+  toast('Prerequisite removed');
+}
+
 // ─── QUIZ BUILDER ───
 function buildQuizEditor(segId, seg) {
   // Quiz data stored in content_html as JSON block after a separator
@@ -903,6 +955,19 @@ function flowCard(m, idx) {
   const ficon = folder ? (folder.icon||'📁') : '';
   const segs = data.segments.filter(s => s.module_id == m.id).length;
   const hasPassoff = data.segments.some(s => s.module_id == m.id && s.segment_type === 'passoff');
+  const prereqs = m.prerequisites || [];
+  const prereqNames = prereqs.map(pid => {
+    const pm = data.modules.find(x => x.id == pid);
+    return pm ? (pm.icon||'📄') + ' ' + pm.title : '?';
+  });
+  const prereqHtml = prereqNames.length 
+    ? `<div style="font-size:.65rem;color:var(--teal);margin-top:.15rem">⬆ Requires: ${prereqNames.join(', ')}</div>` 
+    : '';
+  // Check which modules depend on this one
+  const children = data.modules.filter(x => (x.prerequisites||[]).includes(m.id));
+  const childHtml = children.length
+    ? `<div style="font-size:.65rem;color:var(--gold);margin-top:.1rem">⬇ Unlocks: ${children.map(c => (c.icon||'📄')+' '+c.title).join(', ')}</div>`
+    : '';
   return `<div class="flow-card drag-item" draggable="true" data-flow-mod="${m.id}" data-flow-idx="${idx}"
     ondragstart="dragFlowStart(event,${m.id})" ondragend="dragEnd(event)"
     ondragover="dragCardOver(event)" ondrop="dropOnCard(event,${m.id})">
@@ -912,7 +977,8 @@ function flowCard(m, idx) {
       <div style="font-weight:600;font-size:.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
         ${m.icon||'📄'} ${esc(m.title)}${hasPassoff?'<span style="color:var(--gold);font-size:.7rem;margin-left:.3rem">🎯</span>':''}
       </div>
-      <div style="font-size:.72rem;color:var(--dim);margin-top:.15rem">${ficon} <strong>${esc(fname)}</strong> · ${segs} seg${segs!==1?'s':''} · ${m.xp_reward||50} XP</div>
+      <div style="font-size:.72rem;color:var(--dim);margin-top:.15rem">${ficon} <strong>${esc(fname)}</strong> · ${segs} seg${segs!==1?'s':''}</div>
+      ${prereqHtml}${childHtml}
     </div>
   </div>`;
 }

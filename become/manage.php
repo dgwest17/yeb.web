@@ -169,23 +169,42 @@ select.ed-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
 @keyframes glow{0%,100%{box-shadow:0 0 15px rgba(255,183,3,0.3)}50%{box-shadow:0 0 30px rgba(255,183,3,0.6)}}
 @keyframes pulse{0%,100%{opacity:.8}50%{opacity:1}}
 
-/* Flow Board */
-.flow-section{margin-bottom:.75rem}
-.flow-hdr{display:flex;align-items:center;gap:.75rem;padding:.85rem 1.25rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:var(--r);cursor:pointer;transition:border-color .2s,background .2s}
+/* Flow Board — Visual Skill Tree Editor */
+.flow-section{margin-bottom:1rem}
+.flow-hdr{display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:var(--r);cursor:pointer;transition:all .2s}
 .flow-hdr:hover{background:var(--card-h);border-color:var(--bdr)}
 .flow-arrow{font-size:.8rem;color:var(--mute);transition:transform .2s}
-.flow-open > .flow-hdr .flow-arrow{transform:rotate(90deg)}
 .flow-open > .flow-hdr{border-color:var(--bdr-a);background:rgba(255,255,255,0.04)}
-.flow-body{display:none;padding:.75rem 0 .75rem .5rem}
+.flow-open > .flow-hdr .flow-arrow{transform:rotate(90deg)}
+.flow-body{display:none;padding:.75rem 0}
 .flow-open > .flow-body{display:block}
-.flow-drop{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.5rem;min-height:50px;padding:.5rem;border-radius:8px;transition:background .2s}
-.flow-drop.drag-over{background:rgba(34,168,179,0.08);outline:2px dashed var(--teal);outline-offset:-2px}
-.flow-empty{color:var(--mute);font-size:.82rem;text-align:center;padding:2rem;border:1px dashed rgba(255,255,255,0.1);border-radius:8px;grid-column:1/-1}
-.flow-card{display:flex;align-items:center;gap:.5rem;padding:.6rem .75rem;background:var(--card);border:1px solid var(--bdr);border-radius:8px;cursor:grab;transition:all .15s;min-width:0}
+
+/* Drop zone = vertical list that also supports horizontal rows */
+.flow-drop{min-height:60px;padding:.5rem;border-radius:8px;transition:background .2s}
+.flow-drop.drag-over{background:rgba(34,168,179,0.06);outline:2px dashed var(--teal);outline-offset:-2px}
+.flow-empty{color:var(--mute);font-size:.82rem;text-align:center;padding:2rem;border:1px dashed rgba(255,255,255,0.08);border-radius:8px}
+
+/* Flow row = a horizontal group of cards (branch) */
+.flow-row{display:flex;gap:.5rem;margin-bottom:.5rem;align-items:stretch;position:relative}
+.flow-row::before{content:'';position:absolute;left:50%;top:-8px;width:2px;height:8px;background:rgba(255,255,255,0.1)}
+.flow-row:first-child::before{display:none}
+
+/* Single card in a row */
+.flow-card{flex:1;min-width:0;display:flex;align-items:center;gap:.4rem;padding:.55rem .7rem;background:var(--card);border:1px solid var(--bdr);border-radius:8px;cursor:grab;transition:all .15s;position:relative}
 .flow-card:hover{background:var(--card-h);border-color:var(--bdr-a)}
-.flow-card.dragging{opacity:.3}
-.flow-card.drag-over-card{border-top:2px solid var(--teal);margin-top:2px}
-.flow-lvl-badge{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;font-size:1.1rem;flex-shrink:0}
+.flow-card.dragging{opacity:.2}
+.flow-card.drop-above{border-top:3px solid var(--teal)}
+.flow-card.drop-right{border-right:3px solid var(--gold)}
+.flow-card.drop-below{border-bottom:3px solid var(--teal)}
+
+/* Drop indicator zones */
+.flow-card .drop-zone-below{position:absolute;bottom:-6px;left:10%;right:10%;height:12px;z-index:5}
+.flow-card .drop-zone-right{position:absolute;right:-6px;top:10%;bottom:10%;width:12px;z-index:5}
+
+/* Connector lines between rows */
+.flow-connector{text-align:center;padding:2px 0;color:var(--dim);font-size:.6rem;opacity:.4}
+.flow-branch-label{text-align:center;font-size:.68rem;color:var(--teal);margin:-.25rem 0 .25rem;font-weight:600}
+.flow-merge-label{text-align:center;font-size:.65rem;color:var(--dim);margin:.15rem 0 .4rem;font-style:italic}
 </style>
 </head>
 <body>
@@ -874,12 +893,10 @@ function renderFlow() {
 
   const openMods = [];
   const groups = {};
-
   data.modules.forEach(m => {
     const rule = m.unlock_rule;
-    if (rule && rule.kind === 'open') {
-      openMods.push(m);
-    } else {
+    if (rule && rule.kind === 'open') { openMods.push(m); }
+    else {
       const lvl = rule && rule.kind === 'level' ? rule.value : 0;
       if (!groups[lvl]) groups[lvl] = [];
       groups[lvl].push(m);
@@ -891,190 +908,259 @@ function renderFlow() {
   const thresholds = data.thresholds || [];
   const usedLevels = Object.keys(groups).map(Number);
   const maxLvl = Math.max(3, ...usedLevels);
-  const colors = ['var(--teal)', 'var(--green)', 'var(--gold)', 'var(--orange)', 'var(--teal)', 'var(--green)'];
+  const colors = ['var(--teal)','var(--green)','var(--gold)','var(--orange)','var(--teal)','var(--green)','var(--gold)'];
 
   let html = '';
 
-  // Open to All
-  if (openMods.length || true) {
-    html += flowLevel('open', '📚 Open to All Levels', 'Reference material — always accessible', 'var(--dim)', openMods);
-  }
+  // Open to all
+  html += buildLevelSection('open', '📚 Open to All Levels', 'Always accessible — reference material', 'var(--dim)', openMods);
 
-  // Level 0
+  // Level 0+
   const th0 = thresholds.find(t => t.level == 0);
-  html += flowLevel(0,
-    (th0 ? th0.badge_icon : '👶') + ' Level 0 — ' + (th0 ? th0.title : 'Newbie'),
-    'Starting point for every new rep',
-    'var(--teal)', groups[0] || []);
+  html += buildLevelSection(0, (th0?th0.badge_icon:'👶')+' Level 0 — '+(th0?th0.title:'Newbie'), 'Starting point', 'var(--teal)', groups[0]||[]);
 
-  // Levels 1+
   for (let lvl = 1; lvl <= maxLvl; lvl++) {
     const th = thresholds.find(t => t.level == lvl);
     const mods = groups[lvl] || [];
     if (!mods.length && lvl > Math.max(3, ...usedLevels)) continue;
     const color = colors[lvl % colors.length];
-    const title = th ? th.badge_icon + ' Level ' + lvl + ' — ' + th.title : 'Level ' + lvl;
-    const sub = th ? 'Unlocks at ' + th.xp_required + ' XP' : '';
-    html += flowLevel(lvl, title, sub, color, mods);
+    const title = th ? th.badge_icon+' Level '+lvl+' — '+th.title : 'Level '+lvl;
+    const sub = th ? th.xp_required+' XP to unlock' : '';
+    html += buildLevelSection(lvl, title, sub, color, mods);
   }
 
   board.innerHTML = html;
 }
 
-function flowLevel(lvl, title, subtitle, color, mods) {
+function buildLevelSection(lvl, title, subtitle, color, mods) {
   const isOpen = lvl === 'open';
   const expanded = mods.length > 0 || lvl === 0 || lvl === 1 || isOpen ? ' flow-open' : '';
-  const dropLevel = isOpen ? 'open' : lvl;
+  const dropLvl = isOpen ? 'open' : lvl;
   const totalSegs = data.segments.filter(s => mods.some(m => m.id == s.module_id)).length;
-  const empty = isOpen
-    ? 'Drag modules here for always-available reference'
-    : (lvl === 0 ? 'Drag modules here for onboarding' : 'Drag modules here for this level');
 
-  // Build prerequisite tree view within this level
-  let bodyHtml = '';
+  // Build rows from prerequisite structure
+  // Modules with the same set of prerequisites go in the same row (branch)
+  let rowsHtml = '';
   if (mods.length) {
-    // Find root modules (no prereqs within this level)
-    const levelModIds = mods.map(m => m.id);
-    const childMap = {}; // parentId -> [children]
-    const roots = [];
-    mods.forEach(m => {
-      const prereqs = (m.prerequisites || []).filter(pid => levelModIds.includes(pid));
-      if (prereqs.length === 0) {
-        roots.push(m);
-      } else {
-        prereqs.forEach(pid => {
-          if (!childMap[pid]) childMap[pid] = [];
-          childMap[pid].push(m);
-        });
-      }
-    });
-
-    // Render as tree
-    const rendered = new Set();
-    function renderTreeNode(m, depth) {
-      if (rendered.has(m.id)) return '';
-      rendered.add(m.id);
-      let h = flowCard(m, depth);
-      const kids = childMap[m.id] || [];
-      if (kids.length > 1) {
-        h += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.4rem;margin:.4rem 0 .4rem 1.5rem;padding:.4rem;border-left:2px dashed ' + color + '33;border-radius:0 8px 8px 0">';
-        kids.forEach(k => { h += renderTreeNode(k, depth+1); });
-        h += '</div>';
-        h += '<div style="font-size:.65rem;color:var(--dim);text-align:center;margin-bottom:.4rem;font-style:italic">↑ All required for next</div>';
-      } else if (kids.length === 1) {
-        h += '<div style="margin-left:.75rem;border-left:2px solid ' + color + '22;padding-left:.5rem">';
-        h += renderTreeNode(kids[0], depth+1);
-        h += '</div>';
-      }
-      return h;
-    }
-
-    roots.forEach(m => { bodyHtml += renderTreeNode(m, 0); });
-    // Orphans
-    mods.forEach(m => {
-      if (!rendered.has(m.id)) bodyHtml += flowCard(m, 0);
+    const rows = buildRows(mods);
+    rows.forEach((row, ri) => {
+      if (ri > 0) rowsHtml += '<div class="flow-connector">│</div>';
+      if (row.length > 1) rowsHtml += '<div class="flow-branch-label">↓ Complete all ↓</div>';
+      rowsHtml += '<div class="flow-row">';
+      row.forEach(m => { rowsHtml += makeCard(m, dropLvl); });
+      rowsHtml += '</div>';
+      if (row.length > 1) rowsHtml += '<div class="flow-merge-label">↑ All required for next ↑</div>';
     });
   }
 
-  return `
-  <div class="flow-section${expanded}" data-flow-lvl="${dropLevel}">
-    <div class="flow-hdr" onclick="this.parentElement.classList.toggle('flow-open')">
-      <span class="flow-arrow">▸</span>
-      <div style="flex:1">
-        <div style="font-weight:700;font-size:1rem;color:${color}">${title}</div>
-        <div style="font-size:.75rem;color:var(--dim)">${subtitle}</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:.5rem">
-        <span style="font-size:.8rem;color:var(--dim);font-weight:600">${mods.length} module${mods.length!==1?'s':''}</span>
-        ${totalSegs ? '<span style="font-size:.68rem;padding:2px 7px;border-radius:10px;background:rgba(255,255,255,0.06);color:var(--dim)">' + totalSegs + ' segs</span>' : ''}
-      </div>
-    </div>
-    <div class="flow-body">
-      <div class="flow-drop" data-drop-level="${dropLevel}"
-        ondragover="dragFlowOver(event)" ondragleave="dragFlowLeave(event)" ondrop="dropFlowAt(event,'${dropLevel}')">
-        ${bodyHtml || '<div class="flow-empty">' + empty + '</div>'}
-      </div>
-    </div>
-  </div>`;
+  return '<div class="flow-section'+expanded+'" data-flow-lvl="'+dropLvl+'">' +
+    '<div class="flow-hdr" onclick="this.parentElement.classList.toggle(\'flow-open\')">' +
+      '<span class="flow-arrow">▸</span>' +
+      '<div style="flex:1"><div style="font-weight:700;font-size:1rem;color:'+color+'">'+title+'</div>' +
+      '<div style="font-size:.75rem;color:var(--dim)">'+subtitle+'</div></div>' +
+      '<div style="display:flex;align-items:center;gap:.5rem">' +
+        '<span style="font-size:.8rem;color:var(--dim);font-weight:600">'+mods.length+' module'+(mods.length!==1?'s':'')+'</span>' +
+        (totalSegs ? '<span style="font-size:.68rem;padding:2px 7px;border-radius:10px;background:rgba(255,255,255,0.06);color:var(--dim)">'+totalSegs+' segs</span>' : '') +
+      '</div>' +
+    '</div>' +
+    '<div class="flow-body"><div class="flow-drop" data-drop-level="'+dropLvl+'" ' +
+      'ondragover="flowDragOver(event)" ondragleave="flowDragLeave(event)" ondrop="flowDropOnLevel(event,\''+dropLvl+'\')">' +
+      (rowsHtml || '<div class="flow-empty">Drag modules here</div>') +
+    '</div></div></div>';
 }
 
-function flowCard(m, depth) {
+// Build rows: modules sharing same prerequisites group into one row (branch)
+function buildRows(mods) {
+  // Group by prerequisite set
+  const rows = [];
+  const placed = new Set();
+
+  // Find root modules (no prereqs or prereqs outside this level)
+  const levelIds = new Set(mods.map(m => m.id));
+  const roots = mods.filter(m => {
+    const p = m.prerequisites || [];
+    return p.length === 0 || !p.some(pid => levelIds.has(pid));
+  });
+  const nonRoots = mods.filter(m => !roots.includes(m));
+
+  // Group non-roots by their prerequisite set
+  const prereqGroups = {};
+  nonRoots.forEach(m => {
+    const key = (m.prerequisites || []).sort().join(',');
+    if (!prereqGroups[key]) prereqGroups[key] = [];
+    prereqGroups[key].push(m);
+  });
+
+  // Build tree-order rows
+  function addToRows(modList) {
+    const row = modList.filter(m => !placed.has(m.id));
+    if (!row.length) return;
+    row.forEach(m => placed.add(m.id));
+    rows.push(row);
+    // Find children of these modules
+    const rowIds = new Set(row.map(m => m.id));
+    const nextBatch = {};
+    nonRoots.forEach(m => {
+      if (placed.has(m.id)) return;
+      const prereqs = m.prerequisites || [];
+      const key = prereqs.sort().join(',');
+      if (prereqs.every(pid => placed.has(pid))) {
+        if (!nextBatch[key]) nextBatch[key] = [];
+        nextBatch[key].push(m);
+      }
+    });
+    Object.values(nextBatch).forEach(group => addToRows(group));
+  }
+
+  addToRows(roots);
+  // Safety: add any unplaced modules
+  const unplaced = mods.filter(m => !placed.has(m.id));
+  if (unplaced.length) rows.push(unplaced);
+
+  return rows;
+}
+
+function makeCard(m, dropLvl) {
   const folder = data.folders.find(f => f.id == m.folder_id);
   const fname = folder ? folder.title : '';
   const ficon = folder ? (folder.icon||'📁') : '';
   const segs = data.segments.filter(s => s.module_id == m.id).length;
   const prereqs = m.prerequisites || [];
-  const prereqNames = prereqs.map(pid => {
-    const pm = data.modules.find(x => x.id == pid);
-    return pm ? pm.title : '?';
-  });
+  const prereqLine = prereqs.length
+    ? prereqs.map(pid => { const pm = data.modules.find(x => x.id == pid); return pm ? pm.title : '?'; }).join(' + ')
+    : '';
   const children = data.modules.filter(x => (x.prerequisites||[]).includes(m.id));
 
-  const prereqLine = prereqNames.length
-    ? '<div style="font-size:.65rem;color:var(--teal);margin-top:.15rem">⬆ After: ' + prereqNames.join(' + ') + '</div>'
-    : (depth === 0 ? '<div style="font-size:.65rem;color:var(--mute);margin-top:.15rem;opacity:.5">Sequential</div>' : '');
-  const childLine = children.length
-    ? '<div style="font-size:.65rem;color:var(--gold);margin-top:.1rem">⬇ Then: ' + children.map(c => c.title).join(', ') + '</div>'
-    : '';
-
-  return '<div class="flow-card drag-item" draggable="true" data-flow-mod="' + m.id + '" ' +
-    'ondragstart="dragFlowStart(event,' + m.id + ')" ondragend="dragEnd(event)" ' +
-    'ondragover="dragCardOver(event)" ondrop="dropOnCard(event,' + m.id + ')">' +
-    '<span class="drag-handle">⠿</span>' +
-    '<div style="flex:1;min-width:0;cursor:pointer" onclick="switchPanel(\'content\',document.querySelector(\'.mgr-tab\'));openModuleEditor(' + m.id + ')">' +
-      '<div style="font-weight:600;font-size:.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' +
-        (m.icon||'📄') + ' ' + esc(m.title) +
+  return '<div class="flow-card" draggable="true" data-mod-id="'+m.id+'" data-level="'+dropLvl+'" ' +
+    'ondragstart="cardDragStart(event,'+m.id+')" ondragend="cardDragEnd(event)">' +
+    '<span class="drag-handle" style="cursor:grab;color:var(--mute);font-size:.9rem">⠿</span>' +
+    '<div style="flex:1;min-width:0;cursor:pointer" onclick="switchPanel(\'content\',document.querySelector(\'.mgr-tab\'));openModuleEditor('+m.id+')">' +
+      '<div style="font-weight:600;font-size:.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' +
+        (m.icon||'📄')+' '+esc(m.title) +
       '</div>' +
-      '<div style="font-size:.72rem;color:var(--dim);margin-top:.1rem">' + ficon + ' ' + esc(fname) + ' · ' + segs + ' seg' + (segs!==1?'s':'') + '</div>' +
-      prereqLine + childLine +
+      '<div style="font-size:.7rem;color:var(--dim);margin-top:.1rem">'+ficon+' '+esc(fname)+' · '+segs+' seg'+(segs!==1?'s':'')+'</div>' +
+      (prereqLine ? '<div style="font-size:.62rem;color:var(--teal);margin-top:.1rem">⬆ '+prereqLine+'</div>' : '') +
+      (children.length ? '<div style="font-size:.62rem;color:var(--gold);margin-top:.05rem">⬇ '+children.map(c=>c.title).join(', ')+'</div>' : '') +
     '</div>' +
-    '<button class="btn btn-sm btn-ghost" onclick="event.stopPropagation();quickPrereq(' + m.id + ')" title="Set prerequisites" style="font-size:.75rem;padding:.25rem .4rem;flex-shrink:0">🔗</button>' +
   '</div>';
 }
 
-// Quick prerequisite picker dialog
-function quickPrereq(modId) {
-  const mod = data.modules.find(m => m.id == modId);
-  if (!mod) return;
-  const current = mod.prerequisites || [];
-  const others = data.modules.filter(m => m.id != modId);
-  let html = '<div style="max-height:300px;overflow-y:auto">';
-  others.forEach(m => {
-    const checked = current.includes(m.id) ? 'checked' : '';
-    const f = data.folders.find(f => f.id == m.folder_id);
-    const rule = m.unlock_rule;
-    const lvl = rule && rule.kind === 'level' ? rule.value : (rule && rule.kind === 'open' ? 'Open' : 0);
-    html += '<label style="display:flex;align-items:center;gap:.5rem;padding:.4rem .5rem;border-radius:6px;cursor:pointer;font-size:.85rem;border-bottom:1px solid rgba(255,255,255,.03)">' +
-      '<input type="checkbox" ' + checked + ' value="' + m.id + '" style="accent-color:var(--teal)">' +
-      '<span>' + (m.icon||'📄') + ' ' + esc(m.title) + '</span>' +
-      '<span style="font-size:.68rem;color:var(--dim);margin-left:auto">L' + lvl + '</span>' +
-    '</label>';
+// ─── Drag & Drop for Flow Board ───
+let dragModId = null;
+
+function cardDragStart(e, modId) {
+  dragModId = modId;
+  e.dataTransfer.effectAllowed = 'move';
+  e.target.classList.add('dragging');
+}
+
+function cardDragEnd(e) {
+  e.target.classList.remove('dragging');
+  document.querySelectorAll('.drop-above,.drop-right,.drop-below,.drag-over').forEach(el => {
+    el.classList.remove('drop-above','drop-right','drop-below','drag-over');
   });
-  html += '</div>';
+  dragModId = null;
+}
 
-  const dialog = document.createElement('div');
-  dialog.style.cssText = 'position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:1rem';
-  dialog.innerHTML = '<div style="background:var(--bg);border:1px solid var(--bdr);border-radius:12px;padding:1.5rem;max-width:420px;width:100%">' +
-    '<h3 style="margin-bottom:.5rem">🔗 Prerequisites for "' + esc(mod.title) + '"</h3>' +
-    '<p style="font-size:.78rem;color:var(--dim);margin-bottom:.75rem">Check modules that must ALL be done before this one unlocks:</p>' +
-    html +
-    '<div style="display:flex;gap:.5rem;margin-top:1rem">' +
-      '<button class="btn btn-teal" id="pq-save" style="flex:1">Save</button>' +
-      '<button class="btn btn-ghost" id="pq-cancel">Cancel</button>' +
-    '</div></div>';
-  document.body.appendChild(dialog);
+function flowDragOver(e) {
+  e.preventDefault();
+  const card = e.target.closest('.flow-card');
+  if (card && parseInt(card.dataset.modId) !== dragModId) {
+    // Determine drop position based on mouse position relative to card
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const w = rect.width;
+    const h = rect.height;
 
-  dialog.querySelector('#pq-cancel').onclick = () => dialog.remove();
-  dialog.querySelector('#pq-save').onclick = async () => {
-    const checks = dialog.querySelectorAll('input[type=checkbox]:checked');
-    const prereqs = Array.from(checks).map(c => parseInt(c.value));
-    await api('POST', {action:'update_module', id:modId, prerequisites:prereqs.length ? prereqs : null});
-    mod.prerequisites = prereqs.length ? prereqs : null;
-    dialog.remove();
-    renderFlow();
-    toast('Prerequisites updated');
-  };
-  dialog.onclick = (e) => { if (e.target === dialog) dialog.remove(); };
+    card.classList.remove('drop-above','drop-right','drop-below');
+    if (y < h * 0.3) card.classList.add('drop-above');
+    else if (x > w * 0.7) card.classList.add('drop-right');
+    else card.classList.add('drop-below');
+  } else {
+    e.currentTarget.classList.add('drag-over');
+  }
+}
+
+function flowDragLeave(e) {
+  const card = e.target.closest('.flow-card');
+  if (card) card.classList.remove('drop-above','drop-right','drop-below');
+  if (e.target.classList.contains('flow-drop')) e.target.classList.remove('drag-over');
+}
+
+async function flowDropOnLevel(e, level) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  if (!dragModId) return;
+
+  const targetCard = e.target.closest('.flow-card');
+  const targetModId = targetCard ? parseInt(targetCard.dataset.modId) : null;
+  const dropMod = data.modules.find(m => m.id == dragModId);
+  if (!dropMod) return;
+
+  // Determine new unlock rule
+  let unlock;
+  if (level === 'open') unlock = {kind:'open'};
+  else if (parseInt(level) > 0) unlock = {kind:'level', value:parseInt(level)};
+  else unlock = null;
+
+  if (targetCard && targetModId && targetModId !== dragModId) {
+    const rect = targetCard.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const w = rect.width;
+    const h = rect.height;
+
+    if (x > w * 0.7) {
+      // Drop RIGHT = make sibling (same prerequisites as target)
+      const targetMod = data.modules.find(m => m.id == targetModId);
+      const prereqs = targetMod ? (targetMod.prerequisites || []).slice() : [];
+      await api('POST', {action:'update_module', id:dragModId, unlock_rule:unlock, prerequisites:prereqs.length?prereqs:null});
+      dropMod.unlock_rule = unlock;
+      dropMod.prerequisites = prereqs.length ? prereqs : null;
+      toast('Branched next to ' + (targetMod?targetMod.title:''));
+    } else if (y < h * 0.3) {
+      // Drop ABOVE = insert before, take target's prereqs, target now requires this
+      const targetMod = data.modules.find(m => m.id == targetModId);
+      const targetPrereqs = targetMod ? (targetMod.prerequisites||[]).slice() : [];
+      // This module gets target's prereqs
+      await api('POST', {action:'update_module', id:dragModId, unlock_rule:unlock, prerequisites:targetPrereqs.length?targetPrereqs:null});
+      dropMod.unlock_rule = unlock;
+      dropMod.prerequisites = targetPrereqs.length ? targetPrereqs : null;
+      // Target now requires this module
+      await api('POST', {action:'update_module', id:targetModId, prerequisites:[dragModId]});
+      if (targetMod) targetMod.prerequisites = [dragModId];
+      toast('Inserted before ' + (targetMod?targetMod.title:''));
+    } else {
+      // Drop BELOW = this module requires target
+      await api('POST', {action:'update_module', id:dragModId, unlock_rule:unlock, prerequisites:[targetModId]});
+      dropMod.unlock_rule = unlock;
+      dropMod.prerequisites = [targetModId];
+      toast('Set after ' + (data.modules.find(m=>m.id==targetModId)||{}).title);
+    }
+  } else {
+    // Dropped on empty level zone — move to level, clear prereqs
+    const modsInLevel = data.modules.filter(m => {
+      const r = m.unlock_rule;
+      if (level === 'open') return r && r.kind === 'open';
+      const l = r && r.kind === 'level' ? r.value : 0;
+      return l == level;
+    });
+    const nextOrder = modsInLevel.length ? Math.max(...modsInLevel.map(m => m.module_order||0)) + 1 : 1;
+    await api('POST', {action:'update_module', id:dragModId, unlock_rule:unlock, module_order:nextOrder, prerequisites:null});
+    dropMod.unlock_rule = unlock;
+    dropMod.module_order = nextOrder;
+    dropMod.prerequisites = null;
+    toast('Moved to ' + (level === 'open' ? 'Open to All' : 'Level ' + level));
+  }
+
+  // Clean up and re-render
+  document.querySelectorAll('.drop-above,.drop-right,.drop-below,.drag-over').forEach(el => {
+    el.classList.remove('drop-above','drop-right','drop-below','drag-over');
+  });
+  dragModId = null;
+  renderFlow();
+  renderTree();
 }
 
 async function addModuleFromFlow() {
@@ -1364,128 +1450,6 @@ async function dropMod(e, folderId, targetOrder) {
   toast('Reordered');
 }
 
-function dragEnd(e) {
-  e.target.classList.remove('dragging');
-  document.querySelectorAll('.drag-over,.dragging').forEach(el => el.classList.remove('drag-over','dragging'));
-}
-
-// ─── DRAG AND DROP: Flow board (change level + reorder within level) ───
-let dragFlowModId = null;
-
-function dragFlowStart(e, modId) {
-  dragFlowModId = modId;
-  e.dataTransfer.effectAllowed = 'move';
-  e.dataTransfer.setData('text/plain', String(modId));
-  setTimeout(() => e.target.classList.add('dragging'), 0);
-}
-
-function dragFlowOver(e) {
-  e.preventDefault();
-  e.dataTransfer.dropEffect = 'move';
-  e.currentTarget.classList.add('drag-over');
-}
-
-function dragFlowLeave(e) {
-  e.currentTarget.classList.remove('drag-over');
-}
-
-// Drop on the level drop-zone (moves module to that level, appends at end)
-async function dropFlowAt(e, level) {
-  e.preventDefault();
-  e.currentTarget.classList.remove('drag-over');
-  if (!dragFlowModId) return;
-
-  // Determine unlock rule based on target
-  let unlock;
-  let filterFn;
-  let label;
-
-  if (level === 'open') {
-    unlock = {kind:'open'};
-    filterFn = m => { const r = m.unlock_rule; return r && r.kind === 'open'; };
-    label = 'Open to All';
-  } else {
-    const lvl = parseInt(level);
-    unlock = lvl > 0 ? {kind:'level', value:lvl} : null;
-    filterFn = m => { const r = m.unlock_rule; const v = r && r.kind==='level' ? r.value : (r && r.kind==='open' ? -1 : 0); return v == lvl; };
-    label = lvl === 0 ? 'Level 0 — Newbie' : 'Level ' + lvl;
-  }
-
-  const modsInLevel = data.modules.filter(filterFn).sort((a,b) => (a.module_order||0) - (b.module_order||0));
-  const nextOrder = modsInLevel.length > 0 ? Math.max(...modsInLevel.map(m => m.module_order||0)) + 1 : 1;
-
-  await api('POST', {action:'update_module', id: dragFlowModId, unlock_rule: unlock, module_order: nextOrder});
-  const m = data.modules.find(x => x.id == dragFlowModId);
-  if (m) { m.unlock_rule = unlock; m.module_order = nextOrder; }
-  dragFlowModId = null;
-  renderTree();
-  renderFlow();
-  toast('Moved to ' + label);
-}
-
-// Drag over a card (for reorder indicator)
-function dragCardOver(e) {
-  e.preventDefault();
-  e.stopPropagation();
-  e.dataTransfer.dropEffect = 'move';
-  const card = e.currentTarget;
-  document.querySelectorAll('.flow-card.drag-over-card').forEach(el => el.classList.remove('drag-over-card'));
-  card.classList.add('drag-over-card');
-}
-
-// Drop ON a specific card (reorder: place dragged module before this card)
-async function dropOnCard(e, targetModId) {
-  e.preventDefault();
-  e.stopPropagation();
-  document.querySelectorAll('.drag-over,.drag-over-card').forEach(el => el.classList.remove('drag-over','drag-over-card'));
-  if (!dragFlowModId || dragFlowModId === targetModId) { dragFlowModId = null; return; }
-
-  const targetMod = data.modules.find(m => m.id == targetModId);
-  if (!targetMod) { dragFlowModId = null; return; }
-
-  // Figure out target level
-  const tRule = targetMod.unlock_rule;
-  const targetLevel = tRule && tRule.kind === 'level' ? tRule.value : 0;
-
-  // Get all modules in target level, sorted
-  const modsInLevel = data.modules
-    .filter(m => { const r = m.unlock_rule; return (r && r.kind==='level' ? r.value : 0) == targetLevel; })
-    .sort((a,b) => (a.module_order||0) - (b.module_order||0));
-
-  // Remove dragged module from list if it's already in this level
-  const filtered = modsInLevel.filter(m => m.id != dragFlowModId);
-
-  // Find position of target
-  const targetIdx = filtered.findIndex(m => m.id == targetModId);
-
-  // Insert before target
-  filtered.splice(targetIdx, 0, data.modules.find(m => m.id == dragFlowModId));
-
-  // Update unlock rule for dragged module
-  const unlock = targetLevel > 0 ? {kind:'level', value:targetLevel} : null;
-
-  // Save all new orders
-  const updates = filtered.map((m, i) => {
-    const payload = {action:'update_module', id: m.id, module_order: i + 1};
-    if (m.id == dragFlowModId) payload.unlock_rule = unlock;
-    return api('POST', payload);
-  });
-  await Promise.all(updates);
-
-  // Update local data
-  filtered.forEach((m, i) => {
-    const mod = data.modules.find(x => x.id == m.id);
-    if (mod) {
-      mod.module_order = i + 1;
-      if (m.id == dragFlowModId) mod.unlock_rule = unlock;
-    }
-  });
-
-  dragFlowModId = null;
-  renderTree();
-  renderFlow();
-  toast('Reordered');
-}
 
 // ─── STARTING LEVEL: Auto-suggest based on role ───
 function suggestStartLevel(role) {

@@ -301,43 +301,7 @@ foreach ($lvlGroups as $mods) {
 <div class="path-glow" id="pathGlow" style="background:<?= $curColor ?>"></div>
 
 <?php
-$nodeIdx = 0;
-foreach ($lvlGroups as $lvl => $mods):
-    $th = null;
-    foreach ($thresholds as $t) if ((int)$t['level'] === $lvl) $th = $t;
-    $c = $colors[$lvl % count($colors)];
-    $isNow = ($lvl === $userLevel);
-    $isPast = ($lvl < $userLevel);
-    $isFuture = ($lvl > $userLevel);
-    
-    $coreMods = array_values(array_filter($mods, fn($m) => !$m['_side']));
-    $sideMods = array_values(array_filter($mods, fn($m) => $m['_side']));
-?>
-
-<!-- LEVEL GATE -->
-<div class="gate <?= $isNow ? 'gate--now' : ($isFuture ? 'gate--future' : '') ?> reveal-scale" style="--gc:<?= $c ?>44">
-    <div class="gate__badge" style="background:<?= $c ?>12;border-color:<?= $c ?><?= $isFuture?'44':'' ?>;color:<?= $c ?><?= $isFuture?'77':'' ?>">
-        <?= $th ? $th['badge_icon'] : '' ?> Level <?= $lvl ?><?= $th ? ' — '.htmlspecialchars($th['title']) : '' ?>
-        <?php if($isFuture && $th):?><span class="gate__sub"><?= $th['xp_required'] ?> XP to unlock</span><?php endif;?>
-    </div>
-</div>
-
-<?php
-// Build a map of prerequisite → children for branch detection
-$childrenOf = []; // prereq_id => [module, module, ...]
-$noPrereq = []; // modules with no prerequisites (start of chains)
-foreach ($coreMods as $m) {
-    $prereqs = $m['_prereqs'] ?? null;
-    if (is_array($prereqs) && count($prereqs) > 0) {
-        foreach ($prereqs as $pid) {
-            $childrenOf[$pid][] = $m;
-        }
-    } else {
-        $noPrereq[] = $m;
-    }
-}
-
-// Render function for a single node
+// Render function for a single node (defined once, outside loops)
 $GLOBALS['_rendered_ids'] = [];
 function renderNode($m, $c, $currentId, &$nodeIdx, $childrenOf, $lvl) {
     $mid = (int)$m['id'];
@@ -370,7 +334,6 @@ function renderNode($m, $c, $currentId, &$nodeIdx, $childrenOf, $lvl) {
     
     // Check if this node has children (modules that list this as prerequisite)
     $children = $childrenOf[$mid] ?? [];
-    // Filter out already-rendered children
     $children = array_filter($children, fn($ch) => !in_array((int)$ch['id'], $GLOBALS['_rendered_ids']));
     $children = array_values($children);
     
@@ -389,12 +352,49 @@ function renderNode($m, $c, $currentId, &$nodeIdx, $childrenOf, $lvl) {
     return $html;
 }
 
-// Render the tree starting from modules with no prerequisites
+$nodeIdx = 0;
+foreach ($lvlGroups as $lvl => $mods):
+    $th = null;
+    foreach ($thresholds as $t) if ((int)$t['level'] === $lvl) $th = $t;
+    $c = $colors[$lvl % count($colors)];
+    $isNow = ($lvl === $userLevel);
+    $isPast = ($lvl < $userLevel);
+    $isFuture = ($lvl > $userLevel);
+    
+    $coreMods = array_values(array_filter($mods, fn($m) => !$m['_side']));
+    $sideMods = array_values(array_filter($mods, fn($m) => $m['_side']));
+?>
+
+<!-- LEVEL GATE -->
+<div class="gate <?= $isNow ? 'gate--now' : ($isFuture ? 'gate--future' : '') ?> reveal-scale" style="--gc:<?= $c ?>44">
+    <div class="gate__badge" style="background:<?= $c ?>12;border-color:<?= $c ?><?= $isFuture?'44':'' ?>;color:<?= $c ?><?= $isFuture?'77':'' ?>">
+        <?= $th ? $th['badge_icon'] : '' ?> Level <?= $lvl ?><?= $th ? ' — '.htmlspecialchars($th['title']) : '' ?>
+        <?php if($isFuture && $th):?><span class="gate__sub"><?= $th['xp_required'] ?> XP to unlock</span><?php endif;?>
+    </div>
+</div>
+
+<?php
+// Build prerequisite tree for THIS level's modules
+$childrenOf = [];
+$noPrereq = [];
+foreach ($coreMods as $m) {
+    $prereqs = $m['_prereqs'] ?? null;
+    if (is_array($prereqs) && count($prereqs) > 0) {
+        foreach ($prereqs as $pid) {
+            $childrenOf[$pid][] = $m;
+        }
+    } else {
+        $noPrereq[] = $m;
+    }
+}
+
+// Reset rendered tracking per level so each level renders independently
+$GLOBALS['_rendered_ids'] = [];
+
+// Render the tree
 foreach ($noPrereq as $m) {
     echo renderNode($m, $c, $currentId, $nodeIdx, $childrenOf, $lvl);
 }
-
-// Render any orphan modules not yet rendered (safety net)
 foreach ($coreMods as $m) {
     if (!in_array((int)$m['id'], $GLOBALS['_rendered_ids'])) {
         echo renderNode($m, $c, $currentId, $nodeIdx, $childrenOf, $lvl);

@@ -126,7 +126,7 @@ class ProgressionEngine {
             $prevModDone = true;
             foreach ($modsByFolder[$fid] ?? [] as $mod) {
                 $mid = (int)$mod['id'];
-                $mod['locked']    = $folder['locked'] || !$this->checkModuleUnlock($mod, $lvl, $daysSince, $prevModDone, $manualUnlocks);
+                $mod['locked']    = $folder['locked'] || !$this->checkModuleUnlock($mod, $lvl, $daysSince, $prevModDone, $manualUnlocks, $compMods);
                 $mod['completed'] = in_array($mid, $compMods);
                 $mod['segments']  = [];
 
@@ -183,14 +183,35 @@ class ProgressionEngine {
         return !$r || $this->evalRule($r, $lvl, $days);
     }
 
-    private function checkModuleUnlock($m, $lvl, $days, $prevDone, $mu) {
+    private function checkModuleUnlock($m, $lvl, $days, $prevDone, $mu, $compMods = []) {
         if (in_array((int)$m['id'], $mu['module'])) return true;
         $drip = json_decode($m['drip_rule'] ?? 'null', true);
         if ($drip && $days < ($drip['startAfterDays'] ?? 0)) return false;
         $r = json_decode($m['unlock_rule'] ?? 'null', true);
-        if (!$r) return $prevDone; // sequential default
+        
+        // Open modules are always accessible
+        if ($r && ($r['kind'] ?? '') === 'open') return true;
+        
+        // Check level requirement first
+        if ($r && ($r['kind'] ?? '') === 'level') {
+            if ($lvl < (int)($r['value'] ?? 0)) return false;
+        }
+        
+        // Check prerequisites (JSON array of module IDs that must ALL be completed)
+        $prereqs = json_decode($m['prerequisites'] ?? 'null', true);
+        if (is_array($prereqs) && count($prereqs) > 0) {
+            foreach ($prereqs as $reqId) {
+                if (!in_array((int)$reqId, $compMods)) return false;
+            }
+            return true; // all prerequisites met
+        }
+        
+        // No prerequisites set — fall back to sequential (previous module must be done)
+        if (!$r) return $prevDone;
         if (($r['kind'] ?? '') === 'previousModule') return $prevDone;
-        return $this->evalRule($r, $lvl, $days);
+        if (($r['kind'] ?? '') === 'level') return $prevDone; // level met (checked above), now check sequence
+        
+        return $this->evalRule($r, $lvl, $days) && $prevDone;
     }
 
     private function checkSegmentUnlock($seg, $lvl, $days, $prevDone, $mu) {

@@ -231,9 +231,10 @@ select.ed-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
   <div id="panel-flow" class="panel">
     <div class="sec-hdr">
       <h2>🗺️ Progression Planner</h2>
+      <button class="btn btn-ghost" onclick="addModuleFromFlow()">+ New Module</button>
     </div>
-    <p style="color:var(--dim);margin-bottom:1.5rem">This is the rep's learning journey. Modules within each level are completed sequentially top-to-bottom. Drag modules between levels to reassign, or drag within a level to reorder. When a rep completes all modules in a level, they level up and the next level unlocks.</p>
-    <div id="flowBoard" style="overflow-x:auto"></div>
+    <p style="color:var(--dim);margin-bottom:1rem;font-size:.88rem">This is your rep's exact journey. <strong>Modules play top-to-bottom within each level.</strong> Click 🔗 on any card to set which modules must be completed before it unlocks. Drag cards to reorder.</p>
+    <div id="flowBoard"></div>
   </div>
 
   <!-- PASS-OFFS PANEL -->
@@ -320,8 +321,10 @@ async function loadAll() {
   renderUsers();
   renderFlow();
   loadPassoffs();
+
   if (selectedModId) openModuleEditor(selectedModId);
 }
+const loadData = loadAll;
 
 // ─── TREE ───
 function renderTree() {
@@ -869,8 +872,8 @@ function renderFlow() {
   const board = document.getElementById('flowBoard');
   if (!board) return;
 
-  const openMods = [];   // unlock_rule.kind === 'open'
-  const groups = {};     // grouped by level number
+  const openMods = [];
+  const groups = {};
 
   data.modules.forEach(m => {
     const rule = m.unlock_rule;
@@ -888,21 +891,20 @@ function renderFlow() {
   const thresholds = data.thresholds || [];
   const usedLevels = Object.keys(groups).map(Number);
   const maxLvl = Math.max(3, ...usedLevels);
-  const colors = ['var(--teal)', 'var(--green)', 'var(--gold)', 'var(--orange)', 'var(--teal)', 'var(--green)', 'var(--gold)', 'var(--orange)'];
+  const colors = ['var(--teal)', 'var(--green)', 'var(--gold)', 'var(--orange)', 'var(--teal)', 'var(--green)'];
 
   let html = '';
 
-  // Open to All — reference material, always accessible
-  html += flowSection('open',
-    '📚 Open to All Levels',
-    'Reference material — always accessible, no completion required',
-    'var(--dim)', openMods);
+  // Open to All
+  if (openMods.length || true) {
+    html += flowLevel('open', '📚 Open to All Levels', 'Reference material — always accessible', 'var(--dim)', openMods);
+  }
 
-  // Level 0 — Newbie / Welcome
+  // Level 0
   const th0 = thresholds.find(t => t.level == 0);
-  html += flowSection(0,
+  html += flowLevel(0,
     (th0 ? th0.badge_icon : '👶') + ' Level 0 — ' + (th0 ? th0.title : 'Newbie'),
-    'Welcome phase — the starting point for every new rep',
+    'Starting point for every new rep',
     'var(--teal)', groups[0] || []);
 
   // Levels 1+
@@ -911,22 +913,69 @@ function renderFlow() {
     const mods = groups[lvl] || [];
     if (!mods.length && lvl > Math.max(3, ...usedLevels)) continue;
     const color = colors[lvl % colors.length];
-    const title = th ? `${th.badge_icon} Level ${lvl} — ${th.title}` : `Level ${lvl}`;
-    const sub = th ? `Unlocks at ${th.xp_required} XP · Complete all to level up` : 'Complete all to advance';
-    html += flowSection(lvl, title, sub, color, mods);
+    const title = th ? th.badge_icon + ' Level ' + lvl + ' — ' + th.title : 'Level ' + lvl;
+    const sub = th ? 'Unlocks at ' + th.xp_required + ' XP' : '';
+    html += flowLevel(lvl, title, sub, color, mods);
   }
 
   board.innerHTML = html;
 }
 
-function flowSection(lvl, title, subtitle, color, mods) {
+function flowLevel(lvl, title, subtitle, color, mods) {
   const isOpen = lvl === 'open';
-  const empty = isOpen
-    ? 'Drag modules here for always-available reference material'
-    : (lvl === 0 ? 'Drag modules here for the welcome / onboarding phase' : 'Drag modules here to add them to this level');
   const expanded = mods.length > 0 || lvl === 0 || lvl === 1 || isOpen ? ' flow-open' : '';
   const dropLevel = isOpen ? 'open' : lvl;
   const totalSegs = data.segments.filter(s => mods.some(m => m.id == s.module_id)).length;
+  const empty = isOpen
+    ? 'Drag modules here for always-available reference'
+    : (lvl === 0 ? 'Drag modules here for onboarding' : 'Drag modules here for this level');
+
+  // Build prerequisite tree view within this level
+  let bodyHtml = '';
+  if (mods.length) {
+    // Find root modules (no prereqs within this level)
+    const levelModIds = mods.map(m => m.id);
+    const childMap = {}; // parentId -> [children]
+    const roots = [];
+    mods.forEach(m => {
+      const prereqs = (m.prerequisites || []).filter(pid => levelModIds.includes(pid));
+      if (prereqs.length === 0) {
+        roots.push(m);
+      } else {
+        prereqs.forEach(pid => {
+          if (!childMap[pid]) childMap[pid] = [];
+          childMap[pid].push(m);
+        });
+      }
+    });
+
+    // Render as tree
+    const rendered = new Set();
+    function renderTreeNode(m, depth) {
+      if (rendered.has(m.id)) return '';
+      rendered.add(m.id);
+      let h = flowCard(m, depth);
+      const kids = childMap[m.id] || [];
+      if (kids.length > 1) {
+        h += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.4rem;margin:.4rem 0 .4rem 1.5rem;padding:.4rem;border-left:2px dashed ' + color + '33;border-radius:0 8px 8px 0">';
+        kids.forEach(k => { h += renderTreeNode(k, depth+1); });
+        h += '</div>';
+        h += '<div style="font-size:.65rem;color:var(--dim);text-align:center;margin-bottom:.4rem;font-style:italic">↑ All required for next</div>';
+      } else if (kids.length === 1) {
+        h += '<div style="margin-left:.75rem;border-left:2px solid ' + color + '22;padding-left:.5rem">';
+        h += renderTreeNode(kids[0], depth+1);
+        h += '</div>';
+      }
+      return h;
+    }
+
+    roots.forEach(m => { bodyHtml += renderTreeNode(m, 0); });
+    // Orphans
+    mods.forEach(m => {
+      if (!rendered.has(m.id)) bodyHtml += flowCard(m, 0);
+    });
+  }
+
   return `
   <div class="flow-section${expanded}" data-flow-lvl="${dropLevel}">
     <div class="flow-hdr" onclick="this.parentElement.classList.toggle('flow-open')">
@@ -937,50 +986,113 @@ function flowSection(lvl, title, subtitle, color, mods) {
       </div>
       <div style="display:flex;align-items:center;gap:.5rem">
         <span style="font-size:.8rem;color:var(--dim);font-weight:600">${mods.length} module${mods.length!==1?'s':''}</span>
-        ${totalSegs ? `<span style="font-size:.68rem;padding:2px 7px;border-radius:10px;background:rgba(255,255,255,0.06);color:var(--dim)">${totalSegs} segs</span>` : ''}
+        ${totalSegs ? '<span style="font-size:.68rem;padding:2px 7px;border-radius:10px;background:rgba(255,255,255,0.06);color:var(--dim)">' + totalSegs + ' segs</span>' : ''}
       </div>
     </div>
     <div class="flow-body">
       <div class="flow-drop" data-drop-level="${dropLevel}"
         ondragover="dragFlowOver(event)" ondragleave="dragFlowLeave(event)" ondrop="dropFlowAt(event,'${dropLevel}')">
-        ${mods.length ? mods.map((m,i) => flowCard(m, i)).join('') : `<div class="flow-empty">${empty}</div>`}
+        ${bodyHtml || '<div class="flow-empty">' + empty + '</div>'}
       </div>
     </div>
   </div>`;
 }
 
-function flowCard(m, idx) {
+function flowCard(m, depth) {
   const folder = data.folders.find(f => f.id == m.folder_id);
   const fname = folder ? folder.title : '';
   const ficon = folder ? (folder.icon||'📁') : '';
   const segs = data.segments.filter(s => s.module_id == m.id).length;
-  const hasPassoff = data.segments.some(s => s.module_id == m.id && s.segment_type === 'passoff');
   const prereqs = m.prerequisites || [];
   const prereqNames = prereqs.map(pid => {
     const pm = data.modules.find(x => x.id == pid);
-    return pm ? (pm.icon||'📄') + ' ' + pm.title : '?';
+    return pm ? pm.title : '?';
   });
-  const prereqHtml = prereqNames.length 
-    ? `<div style="font-size:.65rem;color:var(--teal);margin-top:.15rem">⬆ Requires: ${prereqNames.join(', ')}</div>` 
-    : '';
-  // Check which modules depend on this one
   const children = data.modules.filter(x => (x.prerequisites||[]).includes(m.id));
-  const childHtml = children.length
-    ? `<div style="font-size:.65rem;color:var(--gold);margin-top:.1rem">⬇ Unlocks: ${children.map(c => (c.icon||'📄')+' '+c.title).join(', ')}</div>`
+
+  const prereqLine = prereqNames.length
+    ? '<div style="font-size:.65rem;color:var(--teal);margin-top:.15rem">⬆ After: ' + prereqNames.join(' + ') + '</div>'
+    : (depth === 0 ? '<div style="font-size:.65rem;color:var(--mute);margin-top:.15rem;opacity:.5">Sequential</div>' : '');
+  const childLine = children.length
+    ? '<div style="font-size:.65rem;color:var(--gold);margin-top:.1rem">⬇ Then: ' + children.map(c => c.title).join(', ') + '</div>'
     : '';
-  return `<div class="flow-card drag-item" draggable="true" data-flow-mod="${m.id}" data-flow-idx="${idx}"
-    ondragstart="dragFlowStart(event,${m.id})" ondragend="dragEnd(event)"
-    ondragover="dragCardOver(event)" ondrop="dropOnCard(event,${m.id})">
-    <span class="drag-handle">⠿</span>
-    <span style="color:var(--mute);font-size:.75rem;font-weight:700;width:20px;text-align:center">${idx+1}</span>
-    <div style="flex:1;min-width:0">
-      <div style="font-weight:600;font-size:.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-        ${m.icon||'📄'} ${esc(m.title)}${hasPassoff?'<span style="color:var(--gold);font-size:.7rem;margin-left:.3rem">🎯</span>':''}
-      </div>
-      <div style="font-size:.72rem;color:var(--dim);margin-top:.15rem">${ficon} <strong>${esc(fname)}</strong> · ${segs} seg${segs!==1?'s':''}</div>
-      ${prereqHtml}${childHtml}
-    </div>
-  </div>`;
+
+  return '<div class="flow-card drag-item" draggable="true" data-flow-mod="' + m.id + '" ' +
+    'ondragstart="dragFlowStart(event,' + m.id + ')" ondragend="dragEnd(event)" ' +
+    'ondragover="dragCardOver(event)" ondrop="dropOnCard(event,' + m.id + ')">' +
+    '<span class="drag-handle">⠿</span>' +
+    '<div style="flex:1;min-width:0;cursor:pointer" onclick="switchPanel(\'content\',document.querySelector(\'.mgr-tab\'));openModuleEditor(' + m.id + ')">' +
+      '<div style="font-weight:600;font-size:.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' +
+        (m.icon||'📄') + ' ' + esc(m.title) +
+      '</div>' +
+      '<div style="font-size:.72rem;color:var(--dim);margin-top:.1rem">' + ficon + ' ' + esc(fname) + ' · ' + segs + ' seg' + (segs!==1?'s':'') + '</div>' +
+      prereqLine + childLine +
+    '</div>' +
+    '<button class="btn btn-sm btn-ghost" onclick="event.stopPropagation();quickPrereq(' + m.id + ')" title="Set prerequisites" style="font-size:.75rem;padding:.25rem .4rem;flex-shrink:0">🔗</button>' +
+  '</div>';
+}
+
+// Quick prerequisite picker dialog
+function quickPrereq(modId) {
+  const mod = data.modules.find(m => m.id == modId);
+  if (!mod) return;
+  const current = mod.prerequisites || [];
+  const others = data.modules.filter(m => m.id != modId);
+  let html = '<div style="max-height:300px;overflow-y:auto">';
+  others.forEach(m => {
+    const checked = current.includes(m.id) ? 'checked' : '';
+    const f = data.folders.find(f => f.id == m.folder_id);
+    const rule = m.unlock_rule;
+    const lvl = rule && rule.kind === 'level' ? rule.value : (rule && rule.kind === 'open' ? 'Open' : 0);
+    html += '<label style="display:flex;align-items:center;gap:.5rem;padding:.4rem .5rem;border-radius:6px;cursor:pointer;font-size:.85rem;border-bottom:1px solid rgba(255,255,255,.03)">' +
+      '<input type="checkbox" ' + checked + ' value="' + m.id + '" style="accent-color:var(--teal)">' +
+      '<span>' + (m.icon||'📄') + ' ' + esc(m.title) + '</span>' +
+      '<span style="font-size:.68rem;color:var(--dim);margin-left:auto">L' + lvl + '</span>' +
+    '</label>';
+  });
+  html += '</div>';
+
+  const dialog = document.createElement('div');
+  dialog.style.cssText = 'position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:1rem';
+  dialog.innerHTML = '<div style="background:var(--bg);border:1px solid var(--bdr);border-radius:12px;padding:1.5rem;max-width:420px;width:100%">' +
+    '<h3 style="margin-bottom:.5rem">🔗 Prerequisites for "' + esc(mod.title) + '"</h3>' +
+    '<p style="font-size:.78rem;color:var(--dim);margin-bottom:.75rem">Check modules that must ALL be done before this one unlocks:</p>' +
+    html +
+    '<div style="display:flex;gap:.5rem;margin-top:1rem">' +
+      '<button class="btn btn-teal" id="pq-save" style="flex:1">Save</button>' +
+      '<button class="btn btn-ghost" id="pq-cancel">Cancel</button>' +
+    '</div></div>';
+  document.body.appendChild(dialog);
+
+  dialog.querySelector('#pq-cancel').onclick = () => dialog.remove();
+  dialog.querySelector('#pq-save').onclick = async () => {
+    const checks = dialog.querySelectorAll('input[type=checkbox]:checked');
+    const prereqs = Array.from(checks).map(c => parseInt(c.value));
+    await api('POST', {action:'update_module', id:modId, prerequisites:prereqs.length ? prereqs : null});
+    mod.prerequisites = prereqs.length ? prereqs : null;
+    dialog.remove();
+    renderFlow();
+    toast('Prerequisites updated');
+  };
+  dialog.onclick = (e) => { if (e.target === dialog) dialog.remove(); };
+}
+
+async function addModuleFromFlow() {
+  const title = prompt('Module title:');
+  if (!title) return;
+  if (!data.folders.length) { toast('Create a folder first in Content tab'); return; }
+  const names = data.folders.map((f,i) => (i+1) + '. ' + (f.icon||'📁') + ' ' + f.title).join('\n');
+  const pick = prompt('Which folder?\n' + names);
+  let folderId = data.folders[0].id;
+  if (pick) {
+    const idx = parseInt(pick) - 1;
+    if (data.folders[idx]) folderId = data.folders[idx].id;
+  }
+  await api('POST', {action:'add_module', folder_id:folderId, title:title});
+  await loadData();
+  renderTree();
+  renderFlow();
+  toast('Module created');
 }
 
 // ─── CRUD OPERATIONS ───

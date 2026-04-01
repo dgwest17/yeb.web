@@ -56,18 +56,52 @@ foreach ($allMods as &$m) {
     $m['_sd'] = $doneC[$m['id']] ?? 0;
     $m['_pct'] = $m['_st'] > 0 ? round(($m['_sd'] / $m['_st']) * 100) : 0;
     $m['_f'] = $fMap[$m['folder_id']] ?? null;
-    $m['_locked'] = !$m['_open'] && $m['_lvl'] > $userLevel;
     $m['_side'] = $m['_f'] && ($m['_f']['folder_type'] ?? '') === 'sidequest';
+    $m['_prereqs'] = json_decode($m['prerequisites'] ?? 'null', true);
+    $m['_locked'] = false; // computed below
     if ($m['_open']) $openMods[] = $m;
     else { $lvlGroups[$m['_lvl']][] = $m; }
 }
 unset($m);
 ksort($lvlGroups);
 
+// Build a lookup of all modules by ID for prerequisite checking
+$modById = [];
+foreach ($allMods as &$m) $modById[$m['id']] = &$m;
+unset($m);
+
+// Compute locked state: prerequisites + level gate + sequential fallback
+foreach ($lvlGroups as $lvl => &$mods) {
+    $levelLocked = $lvl > $userLevel;
+    $prevDone = true;
+    foreach ($mods as &$m) {
+        if ($m['_open']) {
+            $m['_locked'] = false;
+        } elseif ($levelLocked) {
+            $m['_locked'] = true;
+        } elseif (is_array($m['_prereqs']) && count($m['_prereqs']) > 0) {
+            // Has explicit prerequisites — check if ALL are completed
+            $allPrereqsDone = true;
+            foreach ($m['_prereqs'] as $reqId) {
+                if (!in_array((int)$reqId, $compMods)) { $allPrereqsDone = false; break; }
+            }
+            $m['_locked'] = !$allPrereqsDone;
+        } elseif ($m['_side']) {
+            $m['_locked'] = false;
+        } else {
+            // No prerequisites set — sequential within level
+            $m['_locked'] = !$prevDone;
+        }
+        $prevDone = $m['_done'];
+    }
+    unset($m);
+}
+unset($mods);
+
 $colors = ['#22A8B3','#06D6A0','#FFB703','#FB9B47','#8ECAE6','#22A8B3','#06D6A0','#FFB703'];
 $curColor = $colors[$userLevel % count($colors)];
 
-// Find current node
+// Find current node (first unlocked, incomplete, non-side module)
 $currentId = null;
 foreach ($lvlGroups as $mods) {
     foreach ($mods as $m) {
@@ -99,8 +133,8 @@ foreach ($lvlGroups as $mods) {
 .sk{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:0 1rem 6rem}
 
 /* Library button */
-.lib-btn{position:fixed;top:1rem;left:1rem;z-index:50;background:rgba(34,168,179,.12);border:1px solid rgba(34,168,179,.25);color:var(--teal);padding:.5rem .85rem;border-radius:10px;font-weight:700;font-size:.8rem;cursor:pointer;font-family:var(--bf);backdrop-filter:blur(10px);display:flex;align-items:center;gap:.35rem;transition:all .2s}
-.lib-btn:hover{background:rgba(34,168,179,.2);transform:translateY(-1px)}
+.lib-btn{position:fixed;top:1rem;left:1rem;z-index:50;background:rgba(34,168,179,.15);border:1px solid rgba(34,168,179,.3);color:var(--teal);padding:.75rem 1.25rem;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;font-family:var(--bf);backdrop-filter:blur(12px);display:flex;align-items:center;gap:.5rem;transition:all .2s;box-shadow:0 4px 16px rgba(34,168,179,.15)}
+.lib-btn:hover{background:rgba(34,168,179,.25);transform:translateY(-2px);box-shadow:0 6px 24px rgba(34,168,179,.25)}
 
 /* Header */
 .sk-hdr{text-align:center;padding:3rem 0 2rem;position:relative}
@@ -155,6 +189,16 @@ foreach ($lvlGroups as $mods) {
 .side-branch{margin:.5rem 0 1rem;padding-left:1rem;border-left:1px dashed rgba(255,183,3,.2)}
 .side-label{font-size:.68rem;color:var(--gold);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.4rem}
 
+/* Branch group — parallel modules */
+.branch-group{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.5rem;margin-bottom:.85rem;padding:.5rem;background:rgba(255,255,255,.015);border-radius:12px;border:1px dashed rgba(255,255,255,.06)}
+.branch-group .node{margin-bottom:.25rem}
+.branch-group .node__dot{margin-left:0;width:24px;height:24px;font-size:.7rem}
+.branch-group .node__card{padding:.5rem .65rem}
+.branch-group .node__title{font-size:.82rem}
+.branch-group .node__sub{font-size:.65rem}
+.branch-label{font-size:.7rem;color:var(--teal);font-weight:600;text-align:center;margin-bottom:.35rem;opacity:.7}
+.merge-label{font-size:.65rem;color:var(--dim);text-align:center;margin:.25rem 0 .65rem;font-style:italic}
+
 /* ═══ LIBRARY OVERLAY ═══ */
 .lib{position:fixed;inset:0;z-index:40;background:rgba(10,10,15,.97);backdrop-filter:blur(12px);overflow-y:auto;padding:1.5rem;transform:translateX(-100%);transition:transform .35s cubic-bezier(.4,0,.2,1)}
 .lib.open{transform:translateX(0)}
@@ -178,7 +222,18 @@ foreach ($lvlGroups as $mods) {
 .scroll-btn{position:fixed;bottom:1.5rem;right:1.5rem;z-index:30;background:var(--teal);color:#fff;border:none;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:1rem;cursor:pointer;box-shadow:0 4px 16px rgba(34,168,179,.35);transition:transform .2s}
 .scroll-btn:hover{transform:translateY(-2px)}
 
-@media(max-width:500px){.sk{padding:0 .75rem 4rem}.node__card{padding:.5rem .65rem}.gate__badge{padding:.4rem 1rem;font-size:.85rem}}
+@media(max-width:500px){
+    .sk{padding:0 .5rem 4rem}
+    .node__card{padding:.6rem .7rem}
+    .node__title{font-size:.88rem}
+    .gate__badge{padding:.5rem 1.1rem;font-size:.88rem}
+    .lib-btn{top:.75rem;left:.75rem;padding:.65rem 1rem;font-size:.95rem}
+    .branch-group{grid-template-columns:1fr;padding:.4rem}
+    .sk-hdr h1{font-size:1.3rem}
+    .scroll-btn{width:40px;height:40px;bottom:1rem;right:1rem}
+    .node{margin-bottom:1rem}
+    .node__dot{width:30px;height:30px;font-size:.85rem}
+}
 </style>
 </head>
 <body>
@@ -267,10 +322,31 @@ foreach ($lvlGroups as $lvl => $mods):
     </div>
 </div>
 
-<?php foreach ($coreMods as $i => $m):
+<?php
+// Build a map of prerequisite → children for branch detection
+$childrenOf = []; // prereq_id => [module, module, ...]
+$noPrereq = []; // modules with no prerequisites (start of chains)
+foreach ($coreMods as $m) {
+    $prereqs = $m['_prereqs'] ?? null;
+    if (is_array($prereqs) && count($prereqs) > 0) {
+        foreach ($prereqs as $pid) {
+            $childrenOf[$pid][] = $m;
+        }
+    } else {
+        $noPrereq[] = $m;
+    }
+}
+
+// Render function for a single node
+$GLOBALS['_rendered_ids'] = [];
+function renderNode($m, $c, $currentId, &$nodeIdx, $childrenOf, $lvl) {
+    $mid = (int)$m['id'];
+    if (in_array($mid, $GLOBALS['_rendered_ids'])) return '';
+    $GLOBALS['_rendered_ids'][] = $mid;
+    
     $iD = $m['_done'];
     $iA = !$iD && !$m['_locked'];
-    $iC = (int)$m['id'] === $currentId;
+    $iC = $mid === $currentId;
     $nc = $iD ? 'var(--green)' : ($iA ? $c : 'rgba(255,255,255,.08)');
     $cls = 'node';
     if ($iD) $cls .= ' node--done';
@@ -279,20 +355,52 @@ foreach ($lvlGroups as $lvl => $mods):
     else $cls .= ' node--locked';
     $dir = $nodeIdx % 2 === 0 ? 'reveal-left' : 'reveal-right';
     $tag = $m['_locked'] ? 'div' : 'a';
-    $hr = $m['_locked'] ? '' : " href=\"/become/module.php?id={$m['id']}\"";
+    $hr = $m['_locked'] ? '' : " href=\"/become/module.php?id={$mid}\"";
     $f = $m['_f'];
+    $html = "<div class=\"{$cls} {$dir}\" ".($iC?'id="current-node"':'')." data-mod-id=\"{$mid}\">";
+    $html .= "<div class=\"node__dot\" style=\"border-color:{$nc};--nc:{$c}44\">" . ($iD ? '✅' : ($m['_locked'] ? '🔒' : ($m['icon'] ?: '📄'))) . "</div>";
+    $html .= "<{$tag} class=\"node__card\"{$hr}>";
+    $html .= "<div class=\"node__title\">" . htmlspecialchars($m['title']) . "</div>";
+    $html .= "<div class=\"node__sub\">" . ($f ? htmlspecialchars(($f['icon']??'').' '.$f['title']) : '') . ($m['_locked'] ? " · 🔒 Level {$lvl}" : '') . "</div>";
+    if ($iA && !$iD && $m['_st'] > 0) {
+        $html .= "<div class=\"node__bar\"><div class=\"node__bar-fill\" style=\"width:{$m['_pct']}%;background:{$c}\"></div></div>";
+    }
+    $html .= "</{$tag}></div>\n";
+    $nodeIdx++;
+    
+    // Check if this node has children (modules that list this as prerequisite)
+    $children = $childrenOf[$mid] ?? [];
+    // Filter out already-rendered children
+    $children = array_filter($children, fn($ch) => !in_array((int)$ch['id'], $GLOBALS['_rendered_ids']));
+    $children = array_values($children);
+    
+    if (count($children) > 1) {
+        $html .= "<div class=\"branch-label reveal\">⤵ Complete all to continue</div>\n";
+        $html .= "<div class=\"branch-group reveal\">\n";
+        foreach ($children as $child) {
+            $html .= renderNode($child, $c, $currentId, $nodeIdx, $childrenOf, $lvl);
+        }
+        $html .= "</div>\n";
+        $html .= "<div class=\"merge-label reveal\">⤴ All required to proceed</div>\n";
+    } elseif (count($children) === 1) {
+        $html .= renderNode($children[0], $c, $currentId, $nodeIdx, $childrenOf, $lvl);
+    }
+    
+    return $html;
+}
+
+// Render the tree starting from modules with no prerequisites
+foreach ($noPrereq as $m) {
+    echo renderNode($m, $c, $currentId, $nodeIdx, $childrenOf, $lvl);
+}
+
+// Render any orphan modules not yet rendered (safety net)
+foreach ($coreMods as $m) {
+    if (!in_array((int)$m['id'], $GLOBALS['_rendered_ids'])) {
+        echo renderNode($m, $c, $currentId, $nodeIdx, $childrenOf, $lvl);
+    }
+}
 ?>
-<div class="<?= $cls ?> <?= $dir ?>" <?= $iC?'id="current-node"':'' ?>>
-    <div class="node__dot" style="border-color:<?= $nc ?>;--nc:<?= $c ?>44"><?= $iD ? '✅' : ($m['_locked'] ? '🔒' : ($m['icon'] ?: '📄')) ?></div>
-    <<?= $tag ?> class="node__card"<?= $hr ?>>
-        <div class="node__title"><?= htmlspecialchars($m['title']) ?></div>
-        <div class="node__sub"><?= $f ? htmlspecialchars(($f['icon']??'').' '.$f['title']) : '' ?><?= $m['_locked'] ? " · 🔒 Level {$lvl}" : '' ?></div>
-        <?php if($iA && !$iD && $m['_st']>0):?>
-        <div class="node__bar"><div class="node__bar-fill" style="width:<?= $m['_pct'] ?>%;background:<?= $c ?>"></div></div>
-        <?php endif;?>
-    </<?= $tag ?>>
-</div>
-<?php $nodeIdx++; endforeach; ?>
 
 <?php if($sideMods):?>
 <div class="side-branch reveal">

@@ -42,7 +42,7 @@ try {
 
             // Parse JSON fields
             foreach ($folders as &$f) { $f['unlock_rule'] = json_decode($f['unlock_rule'] ?? 'null', true); }
-            foreach ($modules as &$m) { $m['unlock_rule'] = json_decode($m['unlock_rule'] ?? 'null', true); $m['drip_rule'] = json_decode($m['drip_rule'] ?? 'null', true); }
+            foreach ($modules as &$m) { $m['unlock_rule'] = json_decode($m['unlock_rule'] ?? 'null', true); $m['drip_rule'] = json_decode($m['drip_rule'] ?? 'null', true); $m['prerequisites'] = json_decode($m['prerequisites'] ?? 'null', true); }
 
             echo json_encode(['folders'=>$folders, 'modules'=>$modules, 'segments'=>$segments, 'users'=>$users, 'thresholds'=>$thresholds]);
             exit;
@@ -99,12 +99,12 @@ try {
 
         case 'update_module':
             $id = (int)($input['id'] ?? 0);
-            $allowed = ['title','icon','description','module_order','module_type','xp_reward','unlock_rule','drip_rule','next_step_text','is_active'];
+            $allowed = ['title','icon','description','module_order','module_type','xp_reward','unlock_rule','drip_rule','next_step_text','is_active','prerequisites','tree_x','tree_y'];
             $sets = []; $vals = [];
             foreach ($allowed as $k) {
                 if (array_key_exists($k, $input)) {
                     $v = $input[$k];
-                    if (in_array($k, ['unlock_rule','drip_rule']) && is_array($v)) $v = json_encode($v);
+                    if (in_array($k, ['unlock_rule','drip_rule','prerequisites']) && is_array($v)) $v = json_encode($v);
                     if (in_array($k, ['unlock_rule','drip_rule']) && is_string($v)) { json_decode($v); if (json_last_error() !== JSON_ERROR_NONE) $v = null; }
                     $sets[] = "$k = ?"; $vals[] = $v;
                 }

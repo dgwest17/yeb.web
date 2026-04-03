@@ -954,7 +954,7 @@ function buildLevelSection(lvl, title, subtitle, color, mods) {
   }
 
   return '<div class="flow-section'+expanded+'" data-flow-lvl="'+dropLvl+'">' +
-    '<div class="flow-hdr" onclick="this.parentElement.classList.toggle(\'flow-open\')">' +
+    '<div class="flow-hdr" onclick="this.parentElement.classList.toggle(&quot;flow-open&quot;)">' +
       '<span class="flow-arrow">▸</span>' +
       '<div style="flex:1"><div style="font-weight:700;font-size:1rem;color:'+color+'">'+title+'</div>' +
       '<div style="font-size:.75rem;color:var(--dim)">'+subtitle+'</div></div>' +
@@ -964,7 +964,7 @@ function buildLevelSection(lvl, title, subtitle, color, mods) {
       '</div>' +
     '</div>' +
     '<div class="flow-body"><div class="flow-drop" data-drop-level="'+dropLvl+'" ' +
-      'ondragover="flowDragOver(event)" ondragleave="flowDragLeave(event)" ondrop="flowDropOnLevel(event,\''+dropLvl+'\')">' +
+      'ondragover="flowDragOver(event)" ondragleave="flowDragLeave(event)" ondrop="flowDropOnLevel(event,&quot;'+dropLvl+'&quot;)">' +
       (rowsHtml || '<div class="flow-empty">Drag modules here</div>') +
     '</div></div></div>';
 }
@@ -1034,7 +1034,7 @@ function makeCard(m, dropLvl) {
   return '<div class="flow-card" draggable="true" data-mod-id="'+m.id+'" data-level="'+dropLvl+'" ' +
     'ondragstart="cardDragStart(event,'+m.id+')" ondragend="cardDragEnd(event)">' +
     '<span class="drag-handle" style="cursor:grab;color:var(--mute);font-size:.9rem">⠿</span>' +
-    '<div style="flex:1;min-width:0;cursor:pointer" onclick="switchPanel(\'content\',document.querySelector(\'.mgr-tab\'));openModuleEditor('+m.id+')">' +
+    '<div style="flex:1;min-width:0;cursor:pointer" data-edit-mod="'+m.id+'">' +
       '<div style="font-weight:600;font-size:.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' +
         (m.icon||'📄')+' '+esc(m.title) +
       '</div>' +
@@ -1550,6 +1550,15 @@ function toast(msg, isErr) {
 }
 
 // ─── INIT ───
+// Flow card click-to-edit delegation
+document.addEventListener('click', function(e) {
+  const editDiv = e.target.closest('[data-edit-mod]');
+  if (editDiv) {
+    const modId = parseInt(editDiv.dataset.editMod);
+    switchPanel('content', document.querySelector('.mgr-tab'));
+    openModuleEditor(modId);
+  }
+});
 loadAll();
 </script>
 </body>

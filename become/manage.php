@@ -212,10 +212,10 @@ select.ed-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
 <header class="mgr-hdr">
   <span class="mgr-logo">Become Admin</span>
   <div class="mgr-tabs">
-    <button class="mgr-tab active" onclick="switchPanel('content',this)">📚 Content</button>
-    <button class="mgr-tab" onclick="switchPanel('flow',this)">🗺️ Progression</button>
-    <button class="mgr-tab" onclick="switchPanel('passoffs',this)" id="passoff-tab">🎯 Pass-offs <span id="passoff-count" style="display:none;background:var(--red);color:#fff;border-radius:50%;font-size:.7rem;padding:1px 6px;margin-left:.25rem;animation:pulse 1.5s ease infinite"></span></button>
-    <button class="mgr-tab" onclick="switchPanel('users',this)">👥 Users</button>
+    <button class="mgr-tab active" data-panel="content">📚 Content</button>
+    <button class="mgr-tab" data-panel="flow">🗺️ Progression</button>
+    <button class="mgr-tab" data-panel="passoffs" id="passoff-tab">🎯 Pass-offs <span id="passoff-count" style="display:none;background:var(--red);color:#fff;border-radius:50%;font-size:.7rem;padding:1px 6px;margin-left:.25rem;animation:pulse 1.5s ease infinite"></span></button>
+    <button class="mgr-tab" data-panel="users">👥 Users</button>
   </div>
   <div class="mgr-hdr-right">
     <span style="color:var(--dim);font-size:.85rem"><?= $userName ?></span>
@@ -230,7 +230,7 @@ select.ed-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
   <div id="panel-content" class="panel active">
     <div class="sec-hdr">
       <h2>📚 Training Content</h2>
-      <button class="btn btn-teal" onclick="addFolder()">+ New Folder</button>
+      <button class="btn btn-teal" data-action="addFolder">+ New Folder</button>
     </div>
     <div class="content-layout">
       <div class="tree-panel" id="tree"></div>
@@ -250,7 +250,7 @@ select.ed-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
   <div id="panel-flow" class="panel">
     <div class="sec-hdr">
       <h2>🗺️ Progression Planner</h2>
-      <button class="btn btn-ghost" onclick="addModuleFromFlow()">+ New Module</button>
+      <button class="btn btn-ghost" data-action="addModuleFromFlow">+ New Module</button>
     </div>
     <p style="color:var(--dim);margin-bottom:1rem;font-size:.88rem">This is your rep's exact journey. <strong>Modules play top-to-bottom within each level.</strong> Click 🔗 on any card to set which modules must be completed before it unlocks. Drag cards to reorder.</p>
     <div id="flowBoard"></div>
@@ -260,7 +260,7 @@ select.ed-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
   <div id="panel-passoffs" class="panel">
     <div class="sec-hdr">
       <h2>🎯 Pending Pass-offs</h2>
-      <button class="btn btn-ghost" onclick="loadPassoffs()">↻ Refresh</button>
+      <button class="btn btn-ghost" data-action="loadPassoffs">↻ Refresh</button>
     </div>
     <p style="color:var(--dim);margin-bottom:1rem">Reps waiting for you to verify their memorization or skill. Click "Pass ✓" to approve and auto-complete the segment for them.</p>
     <div id="passoffsList" class="card">
@@ -272,7 +272,7 @@ select.ed-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
   <div id="panel-users" class="panel">
     <div class="sec-hdr">
       <h2>👥 Team Members</h2>
-      <button class="btn btn-teal" onclick="showAddUser()">+ Add Rep</button>
+      <button class="btn btn-teal" data-action="showAddUser">+ Add Rep</button>
     </div>
     <div class="card" id="usersList"></div>
     <div class="card" id="addUserForm" style="display:none">
@@ -302,8 +302,8 @@ select.ed-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
         <p style="color:var(--mute);font-size:.75rem;margin-top:.3rem">Higher starting level = more folders and modules unlocked from day one. Leaders and closers typically start at level 4+.</p>
       </div>
       <div style="display:flex;gap:.5rem;margin-top:1rem">
-        <button class="btn btn-green" onclick="createUser()">Create</button>
-        <button class="btn btn-ghost" onclick="document.getElementById('addUserForm').style.display='none'">Cancel</button>
+        <button class="btn btn-green" data-action="createUser">Create</button>
+        <button class="btn btn-ghost" data-action="cancelAddUser">Cancel</button>
       </div>
     </div>
   </div>
@@ -311,8 +311,8 @@ select.ed-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
 
 <div class="toast" id="toast"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
-<script>
+<script data-cfasync="false" src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
+<script data-cfasync="false">
 const API = '/become/api/admin.php';
 let data = { folders:[], modules:[], segments:[], users:[], thresholds:[] };
 let selectedModId = null;
@@ -1549,16 +1549,45 @@ function toast(msg, isErr) {
   t._to = setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-// ─── INIT ───
-// Flow card click-to-edit delegation
+// ─── INIT — All event delegation (Cloudflare-safe, no onclick) ───
 document.addEventListener('click', function(e) {
-  const editDiv = e.target.closest('[data-edit-mod]');
+  // Tab switching
+  var tab = e.target.closest('[data-panel]');
+  if (tab) {
+    var name = tab.dataset.panel;
+    document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('.mgr-tab').forEach(function(t) { t.classList.remove('active'); });
+    document.getElementById('panel-' + name).classList.add('active');
+    tab.classList.add('active');
+    return;
+  }
+
+  // Button actions
+  var actionBtn = e.target.closest('[data-action]');
+  if (actionBtn) {
+    var action = actionBtn.dataset.action;
+    if (action === 'addFolder') addFolder();
+    else if (action === 'addModuleFromFlow') addModuleFromFlow();
+    else if (action === 'loadPassoffs') loadPassoffs();
+    else if (action === 'showAddUser') showAddUser();
+    else if (action === 'createUser') createUser();
+    else if (action === 'cancelAddUser') document.getElementById('addUserForm').style.display = 'none';
+    return;
+  }
+
+  // Flow card click-to-edit
+  var editDiv = e.target.closest('[data-edit-mod]');
   if (editDiv) {
-    const modId = parseInt(editDiv.dataset.editMod);
-    switchPanel('content', document.querySelector('.mgr-tab'));
+    var modId = parseInt(editDiv.dataset.editMod);
+    document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('.mgr-tab').forEach(function(t) { t.classList.remove('active'); });
+    document.getElementById('panel-content').classList.add('active');
+    document.querySelector('.mgr-tab').classList.add('active');
     openModuleEditor(modId);
+    return;
   }
 });
+
 loadAll();
 </script>
 </body>

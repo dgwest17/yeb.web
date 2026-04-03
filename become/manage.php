@@ -1423,7 +1423,7 @@ async function setUserLevel(userId, level) {
 }
 
 // ─── DRAG AND DROP: Module reorder in tree ───
-let dragModId = null;
+// dragModId already declared in flow board section
 
 function dragModStart(e, modId) {
   dragModId = modId;

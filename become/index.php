@@ -65,36 +65,48 @@ foreach ($allMods as &$m) {
 unset($m);
 ksort($lvlGroups);
 
-// Build a lookup of all modules by ID for prerequisite checking
-$modById = [];
-foreach ($allMods as &$m) $modById[$m['id']] = &$m;
-unset($m);
-
-// Compute locked state: prerequisites + level gate + sequential fallback
+// Compute locked state: stage-based within each level
+// Same module_order = same stage (parallel, all must complete)
+// Higher module_order = later stage (locked until previous stage done)
 foreach ($lvlGroups as $lvl => &$mods) {
     $levelLocked = $lvl > $userLevel;
-    $prevDone = true;
+    if ($levelLocked) {
+        foreach ($mods as &$m) { $m['_locked'] = true; }
+        unset($m);
+        continue;
+    }
+
+    // Group by stage (module_order)
+    $stages = [];
     foreach ($mods as &$m) {
-        if ($m['_open']) {
-            $m['_locked'] = false;
-        } elseif ($levelLocked) {
-            $m['_locked'] = true;
-        } elseif (is_array($m['_prereqs']) && count($m['_prereqs']) > 0) {
-            // Has explicit prerequisites — check if ALL are completed
-            $allPrereqsDone = true;
-            foreach ($m['_prereqs'] as $reqId) {
-                if (!in_array((int)$reqId, $compMods)) { $allPrereqsDone = false; break; }
-            }
-            $m['_locked'] = !$allPrereqsDone;
-        } elseif ($m['_side']) {
-            $m['_locked'] = false;
-        } else {
-            // No prerequisites set — sequential within level
-            $m['_locked'] = !$prevDone;
-        }
-        $prevDone = $m['_done'];
+        $stage = (int)($m['module_order'] ?? 1);
+        $m['_stage'] = $stage;
+        if (!isset($stages[$stage])) $stages[$stage] = [];
+        $stages[$stage][] = &$m;
     }
     unset($m);
+    ksort($stages);
+
+    $prevStageDone = true; // first stage is always unlocked (within an unlocked level)
+    foreach ($stages as $stageNum => $stageMods) {
+        // Check if all mods in this stage are done
+        $allDone = true;
+        foreach ($stageMods as &$sm) {
+            if ($sm['_open']) {
+                $sm['_locked'] = false;
+            } elseif ($sm['_side']) {
+                $sm['_locked'] = false; // side quests don't block
+            } else {
+                $sm['_locked'] = !$prevStageDone;
+            }
+            if (!$sm['_done']) $allDone = false;
+        }
+        unset($sm);
+        // Only advance to next stage if ALL non-side modules in this stage are done
+        $coreInStage = array_filter($stageMods, fn($m) => !$m['_side'] && !$m['_open']);
+        $coreDone = !count($coreInStage) || !array_filter($coreInStage, fn($m) => !$m['_done']);
+        $prevStageDone = $coreDone ? true : false;
+    }
 }
 unset($mods);
 
@@ -301,57 +313,6 @@ foreach ($lvlGroups as $mods) {
 <div class="path-glow" id="pathGlow" style="background:<?= $curColor ?>"></div>
 
 <?php
-// Render function for a single node (defined once, outside loops)
-$GLOBALS['_rendered_ids'] = [];
-function renderNode($m, $c, $currentId, &$nodeIdx, $childrenOf, $lvl) {
-    $mid = (int)$m['id'];
-    if (in_array($mid, $GLOBALS['_rendered_ids'])) return '';
-    $GLOBALS['_rendered_ids'][] = $mid;
-    
-    $iD = $m['_done'];
-    $iA = !$iD && !$m['_locked'];
-    $iC = $mid === $currentId;
-    $nc = $iD ? 'var(--green)' : ($iA ? $c : 'rgba(255,255,255,.08)');
-    $cls = 'node';
-    if ($iD) $cls .= ' node--done';
-    elseif ($iC) $cls .= ' node--now';
-    elseif ($iA) $cls .= ' node--now';
-    else $cls .= ' node--locked';
-    $dir = $nodeIdx % 2 === 0 ? 'reveal-left' : 'reveal-right';
-    $tag = $m['_locked'] ? 'div' : 'a';
-    $hr = $m['_locked'] ? '' : " href=\"/become/module.php?id={$mid}\"";
-    $f = $m['_f'];
-    $html = "<div class=\"{$cls} {$dir}\" ".($iC?'id="current-node"':'')." data-mod-id=\"{$mid}\">";
-    $html .= "<div class=\"node__dot\" style=\"border-color:{$nc};--nc:{$c}44\">" . ($iD ? '✅' : ($m['_locked'] ? '🔒' : ($m['icon'] ?: '📄'))) . "</div>";
-    $html .= "<{$tag} class=\"node__card\"{$hr}>";
-    $html .= "<div class=\"node__title\">" . htmlspecialchars($m['title']) . "</div>";
-    $html .= "<div class=\"node__sub\">" . ($f ? htmlspecialchars(($f['icon']??'').' '.$f['title']) : '') . ($m['_locked'] ? " · 🔒 Level {$lvl}" : '') . "</div>";
-    if ($iA && !$iD && $m['_st'] > 0) {
-        $html .= "<div class=\"node__bar\"><div class=\"node__bar-fill\" style=\"width:{$m['_pct']}%;background:{$c}\"></div></div>";
-    }
-    $html .= "</{$tag}></div>\n";
-    $nodeIdx++;
-    
-    // Check if this node has children (modules that list this as prerequisite)
-    $children = $childrenOf[$mid] ?? [];
-    $children = array_filter($children, fn($ch) => !in_array((int)$ch['id'], $GLOBALS['_rendered_ids']));
-    $children = array_values($children);
-    
-    if (count($children) > 1) {
-        $html .= "<div class=\"branch-label reveal\">⤵ Complete all to continue</div>\n";
-        $html .= "<div class=\"branch-group reveal\">\n";
-        foreach ($children as $child) {
-            $html .= renderNode($child, $c, $currentId, $nodeIdx, $childrenOf, $lvl);
-        }
-        $html .= "</div>\n";
-        $html .= "<div class=\"merge-label reveal\">⤴ All required to proceed</div>\n";
-    } elseif (count($children) === 1) {
-        $html .= renderNode($children[0], $c, $currentId, $nodeIdx, $childrenOf, $lvl);
-    }
-    
-    return $html;
-}
-
 $nodeIdx = 0;
 foreach ($lvlGroups as $lvl => $mods):
     $th = null;
@@ -363,6 +324,15 @@ foreach ($lvlGroups as $lvl => $mods):
     
     $coreMods = array_values(array_filter($mods, fn($m) => !$m['_side']));
     $sideMods = array_values(array_filter($mods, fn($m) => $m['_side']));
+
+    // Group core mods by stage
+    $stages = [];
+    foreach ($coreMods as $m) {
+        $sn = (int)($m['module_order'] ?? 1);
+        if (!isset($stages[$sn])) $stages[$sn] = [];
+        $stages[$sn][] = $m;
+    }
+    ksort($stages);
 ?>
 
 <!-- LEVEL GATE -->
@@ -373,34 +343,45 @@ foreach ($lvlGroups as $lvl => $mods):
     </div>
 </div>
 
-<?php
-// Build prerequisite tree for THIS level's modules
-$childrenOf = [];
-$noPrereq = [];
-foreach ($coreMods as $m) {
-    $prereqs = $m['_prereqs'] ?? null;
-    if (is_array($prereqs) && count($prereqs) > 0) {
-        foreach ($prereqs as $pid) {
-            $childrenOf[$pid][] = $m;
-        }
-    } else {
-        $noPrereq[] = $m;
-    }
-}
-
-// Reset rendered tracking per level so each level renders independently
-$GLOBALS['_rendered_ids'] = [];
-
-// Render the tree
-foreach ($noPrereq as $m) {
-    echo renderNode($m, $c, $currentId, $nodeIdx, $childrenOf, $lvl);
-}
-foreach ($coreMods as $m) {
-    if (!in_array((int)$m['id'], $GLOBALS['_rendered_ids'])) {
-        echo renderNode($m, $c, $currentId, $nodeIdx, $childrenOf, $lvl);
-    }
-}
-?>
+<?php foreach ($stages as $stageNum => $stageMods):
+    $isMulti = count($stageMods) > 1;
+    if ($isMulti): ?>
+    <div class="branch-label reveal">↓ Complete all ↓</div>
+    <div class="branch-group reveal">
+    <?php endif;
+    
+    foreach ($stageMods as $m):
+        $iD = $m['_done'];
+        $iA = !$iD && !$m['_locked'];
+        $iC = (int)$m['id'] === $currentId;
+        $nc = $iD ? 'var(--green)' : ($iA ? $c : 'rgba(255,255,255,.08)');
+        $cls = 'node';
+        if ($iD) $cls .= ' node--done';
+        elseif ($iC) $cls .= ' node--now';
+        elseif ($iA) $cls .= ' node--now';
+        else $cls .= ' node--locked';
+        $dir = $nodeIdx % 2 === 0 ? 'reveal-left' : 'reveal-right';
+        $tag = $m['_locked'] ? 'div' : 'a';
+        $hr = $m['_locked'] ? '' : " href=\"/become/module.php?id={$m['id']}\"";
+        $f = $m['_f'];
+    ?>
+    <div class="<?= $cls ?> <?= $dir ?>" <?= $iC?'id="current-node"':'' ?>>
+        <div class="node__dot" style="border-color:<?= $nc ?>;--nc:<?= $c ?>44"><?= $iD ? '✅' : ($m['_locked'] ? '🔒' : ($m['icon'] ?: '📄')) ?></div>
+        <<?= $tag ?> class="node__card"<?= $hr ?>>
+            <div class="node__title"><?= htmlspecialchars($m['title']) ?></div>
+            <div class="node__sub"><?= $f ? htmlspecialchars(($f['icon']??'').' '.$f['title']) : '' ?><?= $m['_locked'] ? " · 🔒 Level {$lvl}" : '' ?></div>
+            <?php if($iA && !$iD && $m['_st']>0):?>
+            <div class="node__bar"><div class="node__bar-fill" style="width:<?= $m['_pct'] ?>%;background:<?= $c ?>"></div></div>
+            <?php endif;?>
+        </<?= $tag ?>>
+    </div>
+    <?php $nodeIdx++; endforeach;
+    
+    if ($isMulti): ?>
+    </div>
+    <div class="merge-label reveal">↑ All required ↑</div>
+    <?php endif;
+endforeach; ?>
 
 <?php if($sideMods):?>
 <div class="side-branch reveal">

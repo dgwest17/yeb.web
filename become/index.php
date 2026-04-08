@@ -167,7 +167,12 @@ foreach ($lvlGroups as $mods) {
 .path-glow{position:absolute;left:13px;top:0;width:2px;border-radius:1px;transition:height 1.5s ease;z-index:1}
 
 /* Level Gate */
-.gate{position:relative;margin:2.5rem 0 1.5rem -28px;text-align:center;z-index:3}
+/* Collapsible levels */
+.level-group{position:relative}
+.level-content{transition:max-height .4s ease,opacity .3s ease;overflow:hidden}
+.level--collapsed .level-content{max-height:0;opacity:0}
+.level--collapsed .gate__badge{opacity:.6}
+.gate{position:relative;margin:2rem 0 1rem -28px;text-align:center;z-index:3;cursor:pointer}
 .gate__line{height:2px;margin-bottom:-.5rem}
 .gate__badge{display:inline-block;padding:.55rem 1.5rem;border-radius:14px;font-family:var(--hf);font-size:.95rem;border:2px solid;position:relative;backdrop-filter:blur(8px)}
 .gate--now .gate__badge{animation:gatePulse 2.5s ease infinite}
@@ -336,12 +341,15 @@ foreach ($lvlGroups as $lvl => $mods):
 ?>
 
 <!-- LEVEL GATE -->
-<div class="gate <?= $isNow ? 'gate--now' : ($isFuture ? 'gate--future' : '') ?> reveal-scale" style="--gc:<?= $c ?>44">
+<div class="level-group <?= $isPast ? 'level--collapsed' : '' ?> <?= $isNow ? 'level--current' : '' ?>" data-level="<?= $lvl ?>" id="level-<?= $lvl ?>">
+<div class="gate <?= $isNow ? 'gate--now' : ($isFuture ? 'gate--future' : '') ?> reveal-scale" style="--gc:<?= $c ?>44" data-toggle="level-collapse">
     <div class="gate__badge" style="background:<?= $c ?>12;border-color:<?= $c ?><?= $isFuture?'44':'' ?>;color:<?= $c ?><?= $isFuture?'77':'' ?>">
         <?= $th ? $th['badge_icon'] : '' ?> Level <?= $lvl ?><?= $th ? ' — '.htmlspecialchars($th['title']) : '' ?>
         <?php if($isFuture && $th):?><span class="gate__sub"><?= $th['xp_required'] ?> XP to unlock</span><?php endif;?>
+        <?php if($isPast):?><span class="gate__sub">✅ Complete · tap to expand</span><?php endif;?>
     </div>
 </div>
+<div class="level-content">
 
 <?php foreach ($stages as $stageNum => $stageMods):
     $isMulti = count($stageMods) > 1;
@@ -399,6 +407,8 @@ endforeach; ?>
 </div>
 <?php endif;?>
 
+</div><!-- .level-content -->
+</div><!-- .level-group -->
 <?php endforeach;?>
 
 <?php if($openMods):?>
@@ -426,15 +436,20 @@ var observer = new IntersectionObserver(function(entries) {
     entries.forEach(function(e) {
         if (e.isIntersecting) {
             e.target.classList.add('visible');
-            // Stagger children
             var children = e.target.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale');
             children.forEach(function(c, i) {
-                setTimeout(function() { c.classList.add('visible'); }, i * 100);
+                setTimeout(function() { c.classList.add('visible'); }, i * 80);
             });
         }
     });
-}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
 reveals.forEach(function(el) { observer.observe(el); });
+
+// Set max-height for expanded levels so transition works
+document.querySelectorAll('.level-group:not(.level--collapsed) .level-content').forEach(function(el) {
+    el.style.maxHeight = el.scrollHeight + 2000 + 'px';
+    el.style.opacity = '1';
+});
 
 // Animate path glow line to current node
 var currentNode = document.getElementById('current-node');
@@ -446,25 +461,66 @@ if (currentNode && pathGlow) {
 }
 
 // Scroll to current on load
-if (currentNode) setTimeout(function() { currentNode.scrollIntoView({behavior:'smooth',block:'center'}); }, 800);
+if (currentNode) setTimeout(function() { currentNode.scrollIntoView({behavior:'smooth',block:'center'}); }, 600);
 
-// Scroll button
-document.getElementById('scrollBtn').addEventListener('click', function() {
-    var t = document.getElementById('current-node');
-    if (t) t.scrollIntoView({behavior:'smooth',block:'center'});
-});
-
-// Library
-document.getElementById('libBtn').addEventListener('click', function() {
-    document.getElementById('libPanel').classList.toggle('open');
-});
-document.getElementById('libClose').addEventListener('click', function() {
-    document.getElementById('libPanel').classList.remove('open');
-});
-// Library card expand
+// Event delegation for everything
 document.addEventListener('click', function(e) {
+    // Level collapse/expand toggle
+    var gate = e.target.closest('[data-toggle="level-collapse"]');
+    if (gate) {
+        var group = gate.closest('.level-group');
+        if (group) {
+            var content = group.querySelector('.level-content');
+            if (group.classList.contains('level--collapsed')) {
+                group.classList.remove('level--collapsed');
+                content.style.maxHeight = content.scrollHeight + 2000 + 'px';
+                content.style.opacity = '1';
+                // Reveal hidden nodes
+                content.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale').forEach(function(el) {
+                    el.classList.add('visible');
+                });
+            } else {
+                group.classList.add('level--collapsed');
+                content.style.maxHeight = '0';
+                content.style.opacity = '0';
+            }
+        }
+        return;
+    }
+
+    // Scroll button
+    if (e.target.closest('#scrollBtn')) {
+        var t = document.getElementById('current-node');
+        if (t) {
+            // Make sure current level is expanded
+            var lvlGroup = t.closest('.level-group');
+            if (lvlGroup && lvlGroup.classList.contains('level--collapsed')) {
+                lvlGroup.classList.remove('level--collapsed');
+                var ct = lvlGroup.querySelector('.level-content');
+                ct.style.maxHeight = ct.scrollHeight + 2000 + 'px';
+                ct.style.opacity = '1';
+            }
+            setTimeout(function() { t.scrollIntoView({behavior:'smooth',block:'center'}); }, 100);
+        }
+        return;
+    }
+
+    // Library toggle
+    if (e.target.closest('#libBtn')) {
+        document.getElementById('libPanel').classList.toggle('open');
+        return;
+    }
+    if (e.target.closest('#libClose')) {
+        document.getElementById('libPanel').classList.remove('open');
+        return;
+    }
+
+    // Library card expand
     var card = e.target.closest('[data-lib-card]');
-    if (card && !e.target.closest('.lib-mod')) card.classList.toggle('expanded');
+    if (card && !e.target.closest('.lib-mod')) {
+        card.classList.toggle('expanded');
+        return;
+    }
 });
 </script>
 </body>

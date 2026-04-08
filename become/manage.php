@@ -1,1511 +1,976 @@
-<?php
-/**
- * become/manage.php — Training Portal Admin Panel
- * Location: public_html/become/manage.php
- * 
- * Visual content editor for folders, modules, segments, and users.
- * Requires leader or admin role.
- */
-session_start();
-$role = $_SESSION['portal_role'] ?? '';
-if (!in_array($role, ['leader', 'admin'])) {
-    header('Location: /become/login.php');
-    exit;
-}
-$userName = htmlspecialchars($_SESSION['portal_user'] ?? 'Admin');
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Manage — Become</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css" rel="stylesheet">
-<style>
-:root{--bg:#0a0a0f;--card:rgba(255,255,255,0.03);--card-h:rgba(255,255,255,0.06);--bdr:rgba(34,168,179,0.15);--bdr-a:rgba(34,168,179,0.4);--teal:#22A8B3;--teal-d:#1a8a93;--orange:#FB9B47;--green:#06D6A0;--gold:#FFB703;--red:#EF476F;--txt:#fff;--dim:rgba(255,255,255,0.5);--mute:rgba(255,255,255,0.25);--hf:'Playfair Display',serif;--bf:'DM Sans',sans-serif;--r:12px}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:var(--bf);background:var(--bg);color:var(--txt);min-height:100vh}
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 20% 80%,rgba(34,168,179,0.05) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(251,155,71,0.03) 0%,transparent 60%)}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Southern California & San Diego Solar Energy Solutions | Your Energy Best</title>
+  <meta name="description" content="Solar, batteries, and HVAC solutions with $0 down options for eligible San Diego homes." />
+  <link rel="icon" type="image/png" href="img/logo.png" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="surf-theme.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <style>
+    .nav { padding: 0.5rem 2rem; }
+    .nav__logo img { height: 70px; width: auto; }
+    .nav.scrolled { background: rgba(2, 48, 71, 0.95); backdrop-filter: blur(10px); }
+    .stat__number.counting { color: var(--teal); }
+    .hero__content { display: flex; flex-direction: column; gap: 3rem; }
+    .hero__text { order: 1; }
+    .hero__visual { order: 2; }
 
-/* Header */
-.mgr-hdr{position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--bdr);padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
-.mgr-logo{font-family:var(--hf);font-size:1.3rem;background:linear-gradient(135deg,var(--teal),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.mgr-tabs{display:flex;gap:.25rem}
-.mgr-tab{padding:.5rem 1rem;background:none;border:1px solid transparent;border-radius:8px;color:var(--dim);font-family:var(--bf);font-size:.85rem;font-weight:600;cursor:pointer;transition:all .2s}
-.mgr-tab:hover{color:var(--txt);background:var(--card)}
-.mgr-tab.active{color:var(--teal);border-color:var(--bdr-a);background:rgba(34,168,179,0.08)}
-.mgr-hdr-right{display:flex;align-items:center;gap:1rem}
-.mgr-hdr-right a{color:var(--dim);text-decoration:none;font-size:.85rem}
-.mgr-hdr-right a:hover{color:var(--teal)}
+    /* ═══════════════════════════════════════
+       MOBILE NAV — Complete Override
+       Ensures hamburger + slide-out works
+       ═══════════════════════════════════════ */
 
-/* Layout */
-.mgr{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:1.5rem}
-.panel{display:none}
-.panel.active{display:block}
+    /* Nav bar layout */
+    .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 9999; transition: background 0.3s, padding 0.3s; }
+    .nav__inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; position: relative; }
 
-/* Cards & Buttons */
-.card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:1.25rem;margin-bottom:.75rem}
-.btn{padding:.5rem 1.2rem;border:none;border-radius:8px;font-family:var(--bf);font-weight:700;font-size:.85rem;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:.4rem}
-.btn-teal{background:linear-gradient(135deg,var(--teal),var(--teal-d));color:#fff}
-.btn-teal:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(34,168,179,0.3)}
-.btn-gold{background:linear-gradient(135deg,var(--gold),var(--orange));color:#0a0a0f}
-.btn-green{background:var(--green);color:#0a0a0f}
-.btn-red{background:var(--red);color:#fff;font-size:.8rem;padding:.35rem .75rem}
-.btn-ghost{background:none;border:1px solid var(--bdr);color:var(--dim)}
-.btn-ghost:hover{border-color:var(--teal);color:var(--teal)}
-.btn-sm{padding:.3rem .7rem;font-size:.78rem}
+    /* Hamburger toggle — ALWAYS visible on mobile */
+    .nav__toggle {
+      display: none; /* hidden on desktop */
+      background: none; border: none; cursor: pointer;
+      width: 32px; height: 24px; position: relative; z-index: 10001;
+      padding: 0; flex-shrink: 0;
+    }
+    .nav__toggle span {
+      display: block; position: absolute; left: 0; right: 0;
+      height: 2.5px; background: #fff; border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+    .nav__toggle span:nth-child(1) { top: 0; }
+    .nav__toggle span:nth-child(2) { top: 10px; }
+    .nav__toggle span:nth-child(3) { top: 20px; }
 
-/* Section Headers */
-.sec-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid rgba(255,255,255,0.05)}
-.sec-hdr h2{font-family:var(--hf);font-size:1.4rem}
+    /* Hamburger → X animation */
+    .nav__toggle.active span:nth-child(1) { top: 10px; transform: rotate(45deg); }
+    .nav__toggle.active span:nth-child(2) { opacity: 0; }
+    .nav__toggle.active span:nth-child(3) { top: 10px; transform: rotate(-45deg); }
 
-/* Tree */
-.tree-folder{margin-bottom:.75rem}
-.tree-folder-hdr{display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);cursor:pointer;transition:border-color .2s}
-.tree-folder-hdr:hover{border-color:var(--bdr-a)}
-.tree-folder-hdr .icon{font-size:1.2rem}
-.tree-folder-hdr .title{flex:1;font-weight:700;font-size:.95rem}
-.tree-folder-hdr .meta{color:var(--dim);font-size:.8rem}
-.tree-folder-hdr .arrow{color:var(--mute);transition:transform .2s;font-size:.8rem}
-.tree-folder.open > .tree-folder-hdr .arrow{transform:rotate(90deg)}
-.tree-folder-body{display:none;padding:.5rem 0 .5rem 1.25rem;border-left:2px solid rgba(34,168,179,0.1);margin-left:1rem}
-.tree-folder.open > .tree-folder-body{display:block}
+    /* Nav links — horizontal on desktop */
+    .nav__links {
+      display: flex; list-style: none; gap: 0.25rem; align-items: center;
+      margin: 0; padding: 0;
+    }
+    .nav__links a {
+      color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9rem;
+      font-weight: 500; padding: 0.5rem 0.75rem; border-radius: 6px;
+      transition: color 0.2s, background 0.2s; white-space: nowrap;
+    }
+    .nav__links a:hover, .nav__links a.active { color: #fff; background: rgba(255,255,255,0.08); }
 
-.tree-mod{display:flex;align-items:center;gap:.75rem;padding:.6rem .75rem;border-radius:8px;cursor:pointer;transition:background .2s;margin-bottom:.25rem}
-.tree-mod:hover{background:var(--card-h)}
-.tree-mod.selected{background:rgba(34,168,179,0.1);border:1px solid var(--bdr-a)}
-.tree-mod .icon{font-size:1rem}
-.tree-mod .title{flex:1;font-weight:600;font-size:.88rem}
-.tree-mod .count{color:var(--dim);font-size:.75rem}
+    /* Phone + CTA on desktop */
+    .nav__phone {
+      display: flex; align-items: center; gap: 0.4rem;
+      color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.85rem;
+      font-weight: 500; white-space: nowrap;
+    }
+    .nav__phone:hover { color: #FFB703; }
+    .nav__phone svg { flex-shrink: 0; }
+    .nav__cta-mobile { display: none; } /* hidden on desktop, shown on mobile */
 
-/* Editor Panel */
-.editor{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:1.5rem;min-height:400px}
-.editor-empty{text-align:center;padding:4rem 2rem;color:var(--mute)}
-.editor-empty .icon{font-size:3rem;margin-bottom:1rem}
-.ed-field{margin-bottom:1rem}
-.ed-field label{display:block;font-size:.8rem;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.35rem}
-.ed-input{width:100%;padding:.6rem .85rem;background:rgba(255,255,255,0.04);border:1px solid var(--bdr);border-radius:8px;color:var(--txt);font-family:var(--bf);font-size:.95rem;outline:none;transition:border-color .2s}
-.ed-input:focus{border-color:var(--teal)}
-.ed-input::placeholder{color:var(--mute)}
-select.ed-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' fill='none' stroke='%2322A8B3' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .75rem center;padding-right:2rem}
-.ed-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
-@media(max-width:600px){.ed-row{grid-template-columns:1fr}}
+    /* Dark overlay behind mobile menu */
+    .nav__overlay {
+      display: none; position: fixed; inset: 0; z-index: 9998;
+      background: rgba(0,0,0,0.6); opacity: 0; transition: opacity 0.3s;
+    }
+    .nav__overlay.open { display: block; opacity: 1; }
 
-/* Quill overrides for dark theme */
-.quill-wrap{border:1px solid var(--bdr);border-radius:8px;overflow:hidden;margin-bottom:.5rem}
-.quill-wrap:focus-within{border-color:var(--teal)}
-.quill-wrap .ql-toolbar{background:rgba(255,255,255,0.03);border:none;border-bottom:1px solid var(--bdr);padding:8px 12px;flex-wrap:wrap}
-.quill-wrap .ql-toolbar .ql-stroke{stroke:var(--dim)}
-.quill-wrap .ql-toolbar .ql-fill{fill:var(--dim)}
-.quill-wrap .ql-toolbar .ql-picker-label{color:var(--dim)}
-.quill-wrap .ql-toolbar button:hover .ql-stroke,.quill-wrap .ql-toolbar .ql-picker-label:hover{stroke:var(--teal);color:var(--teal)}
-.quill-wrap .ql-toolbar button.ql-active .ql-stroke{stroke:var(--teal)}
-.quill-wrap .ql-toolbar button.ql-active{color:var(--teal)}
-.quill-wrap .ql-toolbar .ql-picker-item:hover{color:var(--teal)}
-.quill-wrap .ql-container{border:none;color:var(--txt);font-family:var(--bf);font-size:1rem;min-height:350px}
-.quill-wrap .ql-editor{padding:1.25rem;min-height:350px;line-height:1.8}
-.quill-wrap .ql-editor.ql-blank::before{color:var(--mute);font-style:italic}
-.quill-wrap .ql-editor h1{font-family:var(--hf);font-size:1.6rem;color:var(--teal);margin:.75rem 0 .5rem}
-.quill-wrap .ql-editor h2{font-family:var(--hf);font-size:1.3rem;color:var(--teal);margin:.75rem 0 .4rem}
-.quill-wrap .ql-editor h3{font-family:var(--hf);font-size:1.1rem;color:var(--orange);margin:.5rem 0 .3rem}
-.quill-wrap .ql-editor p{margin-bottom:.6rem}
-.quill-wrap .ql-editor a{color:var(--teal)}
-.quill-wrap .ql-editor blockquote{border-left:3px solid var(--gold);padding-left:1rem;color:var(--dim);margin:.75rem 0;font-style:italic}
-.quill-wrap .ql-editor pre{background:rgba(255,255,255,0.05);border:1px solid var(--bdr);border-radius:6px;padding:.75rem 1rem;font-family:monospace;font-size:.9rem;margin:.75rem 0;overflow-x:auto}
-.quill-wrap .ql-editor img{max-width:100%;border-radius:8px;margin:.5rem 0}
-.quill-wrap .ql-editor iframe{max-width:100%;border-radius:8px}
-.quill-wrap .ql-editor ul,.quill-wrap .ql-editor ol{padding-left:1.5rem;margin:.5rem 0}
-.quill-wrap .ql-editor li{margin-bottom:.25rem}
-.quill-wrap .ql-editor hr{border:none;border-top:1px solid rgba(255,255,255,0.1);margin:1.5rem 0}
-.quill-wrap .ql-snow .ql-picker-options{background:var(--bg);border-color:var(--bdr)}
-.quill-wrap .ql-snow .ql-picker-options .ql-picker-item{color:var(--dim)}
-.quill-wrap .ql-snow .ql-picker-options .ql-picker-item:hover{color:var(--teal)}
-.quill-wrap .ql-snow .ql-tooltip{background:var(--bg);border-color:var(--bdr);color:var(--txt);box-shadow:0 4px 20px rgba(0,0,0,0.5)}
-.quill-wrap .ql-snow .ql-tooltip input{background:rgba(255,255,255,0.05);border-color:var(--bdr);color:var(--txt)}
-.quill-wrap .ql-snow .ql-tooltip a{color:var(--teal)}
+    /* Body scroll lock when nav is open */
+    body.nav-open { overflow: hidden; }
 
-/* Segment list in editor */
-.seg-item{display:flex;align-items:center;gap:.6rem;padding:.6rem .75rem;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:8px;margin-bottom:.4rem;cursor:pointer;transition:all .2s}
-.seg-item:hover{background:var(--card-h);border-color:var(--bdr)}
-.seg-item.editing{border-color:var(--teal);background:rgba(34,168,179,0.05)}
-.seg-item .num{color:var(--mute);font-size:.75rem;font-weight:700;width:24px;text-align:center}
-.seg-item .seg-title{flex:1;font-size:.9rem}
-.seg-item .seg-actions{display:flex;gap:.25rem}
+    /* ─── MOBILE BREAKPOINT ─── */
+    @media (max-width: 900px) {
+      .nav { padding: 0.5rem 1rem; }
+      .nav__logo img { height: 50px; }
 
-/* Users table */
-.user-row{display:grid;grid-template-columns:auto 1fr 1fr auto auto;gap:1rem;align-items:center;padding:.75rem 1rem;border-bottom:1px solid rgba(255,255,255,0.04)}
-.user-row:last-child{border:none}
-.user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--teal-d));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex-shrink:0}
-.user-name{font-weight:600;font-size:.9rem}
-.user-name small{display:block;color:var(--dim);font-weight:400;font-size:.8rem}
-.user-role{font-size:.8rem;padding:.2rem .6rem;border-radius:12px;font-weight:600}
-.user-role--admin{background:rgba(255,183,3,0.15);color:var(--gold)}
-.user-role--leader{background:rgba(251,155,71,0.15);color:var(--orange)}
-.user-role--rep{background:rgba(34,168,179,0.15);color:var(--teal)}
+      /* Show hamburger */
+      .nav__toggle { display: block !important; }
 
-/* Toast */
-.toast{position:fixed;top:1rem;right:1rem;padding:.6rem 1.2rem;border-radius:8px;font-weight:700;font-size:.9rem;z-index:9999;transform:translateX(120%);transition:transform .3s}
-.toast.show{transform:translateX(0)}
-.toast-ok{background:var(--green);color:#0a0a0f}
-.toast-err{background:var(--red);color:#fff}
+      /* Hide phone on mobile (it's in the menu instead) */
+      .nav__phone span { display: none; }
+      .nav__phone { padding: 0.4rem; }
 
-/* Responsive */
-.content-layout{display:grid;grid-template-columns:320px 1fr;gap:1rem}
-@media(max-width:800px){.content-layout{grid-template-columns:1fr}.tree-panel{max-height:300px;overflow-y:auto}}
+      /* Show mobile CTA */
+      .nav__cta-mobile {
+        display: inline-block;
+        background: #FFB703; color: #023047;
+        padding: 0.5rem 1rem; border-radius: 100px;
+        font-weight: 700; font-size: 0.8rem; text-decoration: none;
+        white-space: nowrap; margin-right: 0.5rem;
+      }
 
-/* Drag and Drop */
-.drag-item{cursor:grab;transition:opacity .2s,transform .2s}
-.drag-item:active{cursor:grabbing}
-.drag-item.dragging{opacity:.4;transform:scale(.95)}
-.drag-over{outline:2px dashed var(--teal);outline-offset:-2px;background:rgba(34,168,179,0.06) !important}
-.drop-col{min-height:60px;transition:background .2s}
-.drop-col.drag-over{background:rgba(34,168,179,0.08)}
-.drag-handle{cursor:grab;color:var(--mute);font-size:.9rem;padding:0 .25rem;user-select:none}
-.drag-handle:hover{color:var(--teal)}
+      /* Slide-out menu */
+      .nav__links {
+        position: fixed !important; top: 0 !important; right: 0 !important;
+        width: 280px; max-width: 80vw; height: 100vh !important;
+        background: linear-gradient(180deg, #023047 0%, #011627 100%) !important;
+        flex-direction: column !important; align-items: stretch !important;
+        padding: 5rem 1.5rem 2rem !important;
+        gap: 0 !important;
+        transform: translateX(100%) !important;
+        transition: transform 0.35s cubic-bezier(0.16,1,0.3,1) !important;
+        z-index: 10000 !important;
+        box-shadow: -4px 0 30px rgba(0,0,0,0.3);
+        overflow-y: auto;
+      }
+      .nav__links.open { transform: translateX(0) !important; }
 
-/* Glow animation for pending passoffs */
-@keyframes glow{0%,100%{box-shadow:0 0 15px rgba(255,183,3,0.3)}50%{box-shadow:0 0 30px rgba(255,183,3,0.6)}}
-@keyframes pulse{0%,100%{opacity:.8}50%{opacity:1}}
-
-/* Flow Board — Stage-based progression */
-.flow-section{margin-bottom:.75rem}
-.flow-hdr{display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:var(--r);cursor:pointer;transition:all .2s}
-.flow-hdr:hover{background:var(--card-h);border-color:var(--bdr)}
-.flow-arrow{font-size:.8rem;color:var(--mute);transition:transform .2s}
-.flow-open > .flow-hdr{border-color:var(--bdr-a);background:rgba(255,255,255,0.04)}
-.flow-open > .flow-hdr .flow-arrow{transform:rotate(90deg)}
-.flow-body{display:none;padding:.5rem 0}
-.flow-open > .flow-body{display:block}
-.flow-level-drop{min-height:40px;padding:.25rem}
-.flow-level-drop.level-drop-over{background:rgba(34,168,179,0.04);border-radius:8px}
-.flow-empty{color:var(--mute);font-size:.82rem;text-align:center;padding:2rem;border:1px dashed rgba(255,255,255,0.08);border-radius:8px}
-
-.flow-arrow-down{text-align:center;color:rgba(255,255,255,0.15);font-size:.85rem;padding:2px 0;user-select:none}
-
-.flow-stage{border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:.5rem;margin-bottom:.25rem;transition:all .2s;background:rgba(255,255,255,0.015)}
-.flow-stage.stage-drop-over{background:rgba(34,168,179,0.06);border-color:var(--teal);outline:1px dashed var(--teal)}
-.flow-stage-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.35rem;padding:0 .25rem}
-.flow-stage-num{font-size:.7rem;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
-.flow-stage-hint{font-size:.65rem;color:var(--teal);font-style:italic}
-
-.flow-stage-cards{display:flex;gap:.4rem;flex-wrap:wrap}
-
-.flow-mod{display:flex;align-items:center;gap:.35rem;padding:.45rem .6rem;background:var(--card);border:1px solid var(--bdr);border-radius:8px;cursor:grab;transition:all .15s;flex:1;min-width:180px;max-width:100%}
-.flow-mod:hover{background:var(--card-h);border-color:var(--bdr-a)}
-.flow-mod.dragging{opacity:.2}
-.flow-mod-handle{color:var(--mute);font-size:.85rem;cursor:grab;flex-shrink:0}
-.flow-mod-info{flex:1;min-width:0;cursor:pointer}
-.flow-mod-title{font-weight:600;font-size:.82rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.flow-mod-meta{font-size:.68rem;color:var(--dim);margin-top:.05rem}
-</style>
+      .nav__links li { border-bottom: 1px solid rgba(255,255,255,0.06); }
+      .nav__links a {
+        display: block; padding: 1rem 0.75rem;
+        font-size: 1.05rem; border-radius: 0;
+        color: rgba(255,255,255,0.8);
+      }
+      .nav__links a:hover, .nav__links a.active {
+        color: #FFB703; background: rgba(255,183,3,0.06);
+      }
+    }
+  </style>
 </head>
 <body>
 
-<header class="mgr-hdr">
-  <span class="mgr-logo">Become Admin</span>
-  <div class="mgr-tabs">
-    <button class="mgr-tab active" data-panel="content">📚 Content</button>
-    <button class="mgr-tab" data-panel="flow">🗺️ Progression</button>
-    <button class="mgr-tab" data-panel="passoffs" id="passoff-tab">🎯 Pass-offs <span id="passoff-count" style="display:none;background:var(--red);color:#fff;border-radius:50%;font-size:.7rem;padding:1px 6px;margin-left:.25rem;animation:pulse 1.5s ease infinite"></span></button>
-    <button class="mgr-tab" data-panel="users">👥 Users</button>
+<!-- ─── NAVIGATION (with phone number) ─── -->
+<nav class="nav" id="mainNav" role="navigation" aria-label="Main navigation">
+  <div class="container nav__inner">
+    <a href="index.html" class="nav__logo" aria-label="Your Energy Best – Home">
+      <img src="img/logo.png" alt="Your Energy Best" />
+    </a>
+    <a href="tel:7608607862" class="nav__phone" aria-label="Call us">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.12.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.58 2.81.7A2 2 0 0122 16.92z"/></svg>
+      <span>(760) 860-7862</span>
+    </a>
+    <a href="quote.html" class="nav__cta-mobile">Get Your Custom Quote</a>
+    <button class="nav__toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
+      <span></span><span></span><span></span>
+    </button>
+<ul class="nav__links" id="navLinks" role="menubar">
+  <li role="none"><a href="index.html" class="active" role="menuitem">Home</a></li>
+  <li role="none"><a href="options/" role="menuitem">Options</a></li>
+  <li role="none"><a href="services.html" role="menuitem">Services</a></li>
+  <li role="none"><a href="quote.html" role="menuitem">Get a Quote</a></li>
+  <li role="none"><a href="build" role="menuitem">Build With Us</a></li>
+  <li role="none"><a href="blog.html" role="menuitem">Blog</a></li>
+  <li role="none"><a href="#testimonials" role="menuitem">Testimonials</a></li>
+    </ul>
   </div>
-  <div class="mgr-hdr-right">
-    <span style="color:var(--dim);font-size:.85rem"><?= $userName ?></span>
-    <a href="/become/">← Portal</a>
-    <a href="/become/logout.php">Log Out</a>
+</nav>
+<!-- Mobile nav overlay -->
+<div class="nav__overlay" id="navOverlay" aria-hidden="true"></div>
+
+<!-- ─── HERO ─── -->
+<section class="hero">
+  <div class="hero__bg"></div>
+  <!-- Animated rolling waves -->
+  <div class="hero-waves">
+    <div class="hero-waves__layer hero-waves__layer--1"></div>
+    <div class="hero-waves__layer hero-waves__layer--2"></div>
+    <div class="hero-waves__layer hero-waves__layer--3"></div>
   </div>
-</header>
-
-<div class="mgr">
-
-  <!-- CONTENT PANEL -->
-  <div id="panel-content" class="panel active">
-    <div class="sec-hdr">
-      <h2>📚 Training Content</h2>
-      <button class="btn btn-teal" data-action="addFolder">+ New Folder</button>
+  <div class="hero__content">
+    <div class="hero__text anim-fadeUp">
+      <span class="eyebrow">San Diego's Solar & Energy Experts</span>
+      <h1><span class="title-white" id="home-title-part1">Surf Into</span> <em class="title-orange" id="home-title-part2">Energy Freedom</em></h1>
+      <p id="home-subtitle">Ride the wave to lower bills — solar, batteries, and HVAC with $0 down options for eligible San Diego homes.</p>
+      <!-- Accordion trigger -->
+      <button class="customer-accordion-trigger" id="accordionTrigger">Start Your Process</button>
     </div>
-    <div class="content-layout">
-      <div class="tree-panel" id="tree"></div>
-      <div id="editorArea">
-        <div class="editor">
-          <div class="editor-empty">
-            <div class="icon">📝</div>
-            <h3>Select a module to edit</h3>
-            <p style="color:var(--mute);margin-top:.5rem">Choose a module from the tree on the left, or create a new folder to get started.</p>
-          </div>
+    <div class="hero__visual anim-fadeUp anim-delay-2">
+      <div class="hero__card-grid" id="customer-options">
+        <a href="quote.html?option=new" class="hero__card" data-option="New to Solar">
+          <div class="hero__card__icon hero__card__icon--teal">☀️</div>
+          <h4>New to Solar?</h4>
+          <p>We'll walk you through everything — from design to savings.</p>
+        </a>
+        <a href="quote.html?option=existing" class="hero__card" data-option="Already Have Solar">
+          <div class="hero__card__icon hero__card__icon--orange">🔋</div>
+          <h4>Already Have Solar?</h4>
+          <p>Add battery storage and maximize what you already own.</p>
+        </a>
+        <a href="quote.html?option=proposal" class="hero__card" data-option="Ready for Proposal">
+          <div class="hero__card__icon hero__card__icon--green">📋</div>
+          <h4>Ready for a Proposal?</h4>
+          <p>Get a detailed, no-obligation solar proposal in 48 hours.</p>
+        </a>
+        <a href="quote.html?option=financing" class="hero__card" data-option="$0 Down Financing">
+          <div class="hero__card__icon hero__card__icon--teal">💰</div>
+          <h4>$0 Down Financing</h4>
+          <p>Start saving day one with flexible payment options.</p>
+        </a>
+      </div>
+      <!-- Hero savings CTA (Rec #1) -->
+      <div class="hero__savings-cta">
+        <a href="quote.html">⚡ See how much you could save on your San Diego energy bill →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── STATS BAR ─── -->
+<section class="stats">
+  <!-- Wave divider on top -->
+  <div class="wave-divider wave-divider--top wave-divider--navy">
+    <svg viewBox="0 0 1440 70" preserveAspectRatio="none"><path d="M0,35 C240,60 480,10 720,35 C960,60 1200,15 1440,35 L1440,70 L0,70Z"/></svg>
+  </div>
+  <div class="container">
+    <div class="stats__grid" id="cms-stats"></div>
+  </div>
+</section>
+
+<!-- ─── TRUST BAR (Rec #3) ─── -->
+<section class="trust-bar">
+  <div class="container">
+    <div class="trust-bar__inner">
+      <span class="trust-bar__item">✓ Licensed & Insured</span>
+      <span class="trust-bar__item">✓ CSLB Licensed</span>
+      <span class="trust-bar__item trust-bar__item--rating">★ 5.0 Google Rating (194 Reviews)</span>
+      <span class="trust-bar__item">✓ San Diego Local</span>
+      <span class="trust-bar__item">✓ $0 Down Available</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── HOW IT WORKS ─── -->
+<section class="section" id="how-it-works">
+  <div class="container">
+    <div class="section-head text-center">
+      <span class="tag">The Process</span>
+      <h2>Simple. Transparent. Rewarding.</h2>
+      <p>From your first question to your first savings check — we handle the heavy lifting.</p>
+    </div>
+    <div style="display:grid; grid-template-columns: repeat(3,1fr); gap: var(--space-xl); max-width: 960px; margin-inline: auto;" class="anim-fadeUp">
+      <div class="text-center">
+        <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--teal-dark));display:flex;align-items:center;justify-content:center;margin-inline:auto auto var(--space-md); color:#fff; font-size:1.4rem;">1</div>
+        <h4>Design</h4>
+        <p style="font-size:.88rem; margin:0;">We assess your roof, usage, and goals to build a custom solar plan.</p>
+      </div>
+      <div class="text-center">
+        <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--orange),var(--orange-dark));display:flex;align-items:center;justify-content:center;margin-inline:auto auto var(--space-md); color:#fff; font-size:1.4rem;">2</div>
+        <h4>Install</h4>
+        <p style="font-size:.88rem; margin:0;">Our certified team handles permits, wiring, and installation.</p>
+      </div>
+      <div class="text-center">
+        <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--teal-light),var(--teal));display:flex;align-items:center;justify-content:center;margin-inline:auto auto var(--space-md); color:#fff; font-size:1.4rem;">3</div>
+        <h4>Save</h4>
+        <p style="font-size:.88rem; margin:0;">Watch your energy bill drop — we monitor your system for years to come.</p>
+      </div>
+    </div>
+    <!-- What happens next microcopy (Rec #8) -->
+    <div class="next-step-microcopy text-center" style="margin-top: var(--space-xl);">
+      <a href="quote.html" class="btn btn--primary">Get Your Free Quote</a>
+      <p class="microcopy">Takes 30 seconds · No credit check · No commitment</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─── REBATE ALERT ─── -->
+<section class="section--tight" style="background:var(--cream);">
+  <div class="container" style="max-width:860px;">
+    <div id="cms-rebate"></div>
+  </div>
+</section>
+
+<!-- ─── WHY YOUR ENERGY BEST (Rec #5 — Differentiators) ─── -->
+<section class="section" id="why-yeb">
+  <div class="container">
+    <div class="section-head text-center">
+      <span class="tag">Why Us</span>
+      <h2>What Makes Us Different</h2>
+      <p>We're not a national call center. We're your San Diego neighbors.</p>
+    </div>
+    <div class="diff-grid">
+      <div class="diff-card">
+        <div class="diff-card__icon">🏠</div>
+        <h4>Personalized Design</h4>
+        <p>Custom-engineered for your roof, your usage, your goals — not a cookie-cutter template.</p>
+      </div>
+      <div class="diff-card">
+        <div class="diff-card__icon">💰</div>
+        <h4>$0 Down Options</h4>
+        <p>Multiple financing paths so you start saving from day one — no upfront cost required.</p>
+      </div>
+      <div class="diff-card">
+        <div class="diff-card__icon">📱</div>
+        <h4>Transparent Process</h4>
+        <p>Know exactly where your project stands at every step. No surprises, no runaround.</p>
+      </div>
+      <div class="diff-card">
+        <div class="diff-card__icon">🤝</div>
+        <h4>Local San Diego Team</h4>
+        <p>Real people who live here, work here, and show up. Not a 1-800 number.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CALIFORNIA UTILITIES vs SOLAR COMPARISON (CMS-driven) ─── -->
+<section class="section" style="background: var(--navy);">
+  <div class="container" style="max-width: 860px;">
+    <div class="section-head text-center">
+      <span class="tag" style="background: rgba(255,255,255,0.1); color: var(--teal-light);">The Math</span>
+      <h2 style="color: var(--white);" id="comparison-title">California Utilities vs. Going Solar</h2>
+      <p style="color: rgba(255,255,255,0.6);" id="comparison-subtitle">Utility rates have increased 40%+ in three years. Here's what that looks like over time.</p>
+    </div>
+    <div id="cms-comparison">
+      <!-- Rendered by CMS.renderComparison() -->
+    </div>
+    <div class="text-center" style="margin-top: var(--space-xl);">
+      <a href="quote.html" class="btn btn--primary btn--lg">Lock In Your Rate →</a>
+      <p class="microcopy" style="color: rgba(255,255,255,0.5);">Takes 30 seconds · No credit check · No commitment</p>
+    </div>
+  </div>
+</section>
+
+<!-- Animated wave break -->
+<div class="wave-break"></div>
+
+<!-- ─── PROJECT GALLERY ─── -->
+<section class="section">
+  <div class="container">
+    <div class="section-head text-center">
+      <span class="tag">Our Work</span>
+      <h2>Real installations. Real savings.</h2>
+      <p>A look at some of the solar systems we've designed and built across San Diego.</p>
+    </div>
+    <div class="gallery-carousel-container" style="overflow:hidden; position:relative;">
+      <div style="display:flex; gap:var(--space-md); animation:scroll-gallery 30s linear infinite;" id="cms-gallery"></div>
+    </div>
+  </div>
+</section>
+
+<style>
+@keyframes scroll-gallery {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.gallery-carousel-container:hover #cms-gallery { animation-play-state: paused; }
+</style>
+
+<!-- ─── TESTIMONIALS ─── -->
+<section class="section" id="testimonials" style="background:var(--gray-100);">
+  <div class="container">
+    <div class="section-head text-center">
+      <span class="tag">Testimonials</span>
+      <h2>What our customers are saying</h2>
+    </div>
+    <div id="cms-testimonials"></div>
+  </div>
+</section>
+
+<!-- ─── PARTNERS (Single-line scrolling carousel) ─── -->
+<section class="partners">
+  <div class="container">
+    <p class="partners__label">Trusted equipment &amp; certifications</p>
+    <div class="partners__logos">
+      <div class="partners__track" id="partnersTrack">
+        <span><span class="logo-icon logo-icon--tesla">T</span> Tesla Powerwall</span>
+        <span><span class="logo-icon logo-icon--enphase">E</span> Enphase</span>
+        <span><span class="logo-icon logo-icon--rec">R</span> REC Solar</span>
+        <span><span class="logo-icon logo-icon--qcell">Q</span> Qcell</span>
+        <span><span class="logo-icon logo-icon--silfab">S</span> Silfab Solar</span>
+        <span><span class="logo-icon logo-icon--franklin">F</span> Franklin WH</span>
+        <span><span class="logo-icon logo-icon--nabcep">✓</span> NABCEP Certified</span>
+        <!-- Duplicated for seamless loop -->
+        <span><span class="logo-icon logo-icon--tesla">T</span> Tesla Powerwall</span>
+        <span><span class="logo-icon logo-icon--enphase">E</span> Enphase</span>
+        <span><span class="logo-icon logo-icon--rec">R</span> REC Solar</span>
+        <span><span class="logo-icon logo-icon--qcell">Q</span> Qcell</span>
+        <span><span class="logo-icon logo-icon--silfab">S</span> Silfab Solar</span>
+        <span><span class="logo-icon logo-icon--franklin">F</span> Franklin WH</span>
+        <span><span class="logo-icon logo-icon--nabcep">✓</span> NABCEP Certified</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── INSTALL MAP (Rec #9) ─── -->
+<section class="section" id="install-map" style="background: var(--gray-100);">
+  <div class="container">
+    <div class="section-head text-center">
+      <span class="tag">Local Impact</span>
+      <h2>Solar Across San Diego</h2>
+      <p>We've installed in neighborhoods across the county — maybe even on your street.</p>
+    </div>
+    <div id="installMapLeaflet" style="height:500px;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.1);"></div>
+    <p class="text-center" style="margin-top:0.75rem;font-size:0.85rem;color:var(--slate);">270+ installations · Click and zoom to explore</p>
+    <div class="text-center" style="margin-top: var(--space-lg);">
+      <a href="quote.html" class="btn btn--primary">Join Your Neighbors — Get a Quote</a>
+      <p class="microcopy">Takes 30 seconds · No credit check · No commitment</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─── INSTAGRAM (Live Feed) ─── -->
+<section class="section instagram-section">
+  <div class="container">
+    <div class="section-head text-center">
+      <span class="tag">Follow Along</span>
+      <h2>@energy.best.ca</h2>
+      <p>See our latest installations, tips, and behind-the-scenes on Instagram.</p>
+    </div>
+    <div class="ig-grid" id="igGrid">
+      <!-- Skeleton loaders while fetching -->
+      <div class="ig-skeleton"></div><div class="ig-skeleton"></div><div class="ig-skeleton"></div><div class="ig-skeleton"></div>
+      <div class="ig-skeleton"></div><div class="ig-skeleton"></div><div class="ig-skeleton"></div><div class="ig-skeleton"></div>
+    </div>
+    <div class="text-center mt-lg">
+      <a href="https://instagram.com/energy.best.ca" target="_blank" rel="noopener" class="btn btn--outline btn--sm">View Full Profile</a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── ABOUT DAVID / REFERRAL (Orange Background) ─── -->
+<section class="about-section">
+  <div class="container" style="max-width:860px;">
+    <div style="text-align:center;">
+      <div class="section-head text-center">
+        <span class="tag">Meet the Team</span>
+        <h2>David West</h2>
+      </div>
+      <p id="about-text">David founded Your Energy Best with a simple mission: make solar accessible, honest, and hassle-free for every San Diego homeowner. With years in the industry and a NABCEP certification, he personally oversees every project to make sure you get the best possible outcome.</p>
+      <div class="referral-box" style="margin-top:var(--space-xl); padding:var(--space-md) var(--space-lg); background:rgba(255,255,255,.2); backdrop-filter:blur(6px); border-radius:var(--radius); border-left:3px solid var(--white); max-width:740px; margin-inline:auto; text-align:left;">
+        <h4 style="color:var(--white); margin-bottom:.3rem;">🎁 Referral Program</h4>
+        <p id="referral-text" style="font-size:.88rem; margin:0; color:rgba(255,255,255,.85);">Know someone who'd benefit from solar? Refer a friend and earn a reward when they install. Ask us how.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FAQ ─── -->
+<section class="section" style="background:var(--gray-100);">
+  <div class="container">
+    <div class="section-head text-center">
+      <span class="tag">FAQ</span>
+      <h2>Got questions?</h2>
+    </div>
+    <div class="faq" id="cms-faq"></div>
+    <!-- FAQ Exit CTA (Rec #7) -->
+    <div class="faq-exit-cta text-center">
+      <p><strong>Still have questions?</strong> That's what we're here for.</p>
+      <p>Get personalized answers from a San Diego solar expert — no sales pitch, just straight talk.</p>
+      <a href="https://calendly.com/yourenergybest" target="_blank" rel="noopener" class="btn btn--primary" style="margin-top: var(--space-md);">Talk to an Expert →</a>
+      <p class="microcopy">Or call us directly: <a href="tel:7608607862" style="color:var(--teal); font-weight:600;">(760) 860-7862</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA ─── -->
+<section class="section">
+  <div class="container">
+    <div class="cta-banner">
+      <h2>Ride the Wave to Lower Bills</h2>
+      <p>Get a free, no-obligation solar quote in under 48 hours. Zero pressure, zero hidden fees.</p>
+      <a href="quote.html" class="btn btn--primary btn--lg">Get Your Free Quote</a>
+      <p class="microcopy" style="color: rgba(255,255,255,0.6);">Takes 30 seconds · No credit check · No commitment</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─── -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div>
+        <img src="img/logo.png" alt="Your Energy Best" class="footer__logo" />
+        <p>San Diego's trusted solar installer. We design, install, and support residential solar and battery systems — with honesty and expertise at every step.</p>
+        <div class="footer__contact">
+          <a href="tel:7608607862">📞 (760) 860-7862</a>
+        </div>
+        <div class="footer__social">
+          <a href="https://instagram.com/energy.best.ca" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+          </a>
         </div>
       </div>
+      <div class="footer__col">
+  <h5>Quick Links</h5>
+  <a href="index.html">Home</a>
+  <a href="options/">Energy Options</a>
+  <a href="services.html">Services</a>
+  <a href="quote.html">Get a Quote</a>
+  <a href="build">Build With Us</a>
+  <a href="blog.html">Blog</a>
+      </div>
+      <div class="footer__col">
+        <h5>Resources</h5>
+        <a href="https://sdcommunitypower.org/solar-battery-savings/" target="_blank" rel="noopener">Battery Rebates (SDCP)</a>
+        <a href="#">Solar Tax Credits</a>
+        <a href="#">How Solar Works</a>
+      </div>
+      <div class="footer__col">
+        <h5>Get Started</h5>
+        <a href="quote.html">Free Solar Quote</a>
+        <a href="build">Join Our Sales Team</a>
+        <a href="tel:7608607862">Call (760) 860-7862</a>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>&copy; 2026 Your Energy Best. All rights reserved.</span>
+      <span><a href="#">Privacy Policy</a> &nbsp;·&nbsp; <a href="#">Terms of Service</a></span>
     </div>
   </div>
+</footer>
 
-  <!-- PROGRESSION PLANNER -->
-  <div id="panel-flow" class="panel">
-    <div class="sec-hdr">
-      <h2>🗺️ Progression Planner</h2>
-      <button class="btn btn-ghost" data-action="addModuleFromFlow">+ New Module</button>
-    </div>
-    <p style="color:var(--dim);margin-bottom:1rem;font-size:.88rem">This is your rep's exact journey. <strong>Modules play top-to-bottom within each level.</strong> Click 🔗 on any card to set which modules must be completed before it unlocks. Drag cards to reorder.</p>
-    <div id="flowBoard"></div>
-  </div>
-
-  <!-- PASS-OFFS PANEL -->
-  <div id="panel-passoffs" class="panel">
-    <div class="sec-hdr">
-      <h2>🎯 Pending Pass-offs</h2>
-      <button class="btn btn-ghost" data-action="loadPassoffs">↻ Refresh</button>
-    </div>
-    <p style="color:var(--dim);margin-bottom:1rem">Reps waiting for you to verify their memorization or skill. Click "Pass ✓" to approve and auto-complete the segment for them.</p>
-    <div id="passoffsList" class="card">
-      <div style="text-align:center;padding:2rem;color:var(--mute)">Loading...</div>
-    </div>
-  </div>
-
-  <!-- USERS PANEL -->
-  <div id="panel-users" class="panel">
-    <div class="sec-hdr">
-      <h2>👥 Team Members</h2>
-      <button class="btn btn-teal" data-action="showAddUser">+ Add Rep</button>
-    </div>
-    <div class="card" id="usersList"></div>
-    <div class="card" id="addUserForm" style="display:none">
-      <h3 style="margin-bottom:1rem;font-family:var(--hf)">New Team Member</h3>
-      <div class="ed-row">
-        <div class="ed-field"><label>Username</label><input class="ed-input" id="nu-user" placeholder="jsmith"></div>
-        <div class="ed-field"><label>Password</label><input class="ed-input" id="nu-pass" type="password" placeholder="Temporary password"></div>
-      </div>
-      <div class="ed-row">
-        <div class="ed-field"><label>First Name</label><input class="ed-input" id="nu-first"></div>
-        <div class="ed-field"><label>Last Name</label><input class="ed-input" id="nu-last"></div>
-      </div>
-      <div class="ed-field"><label>Role</label>
-        <select class="ed-input" id="nu-role" onchange="suggestStartLevel(this.value)"><option value="rep">Rep (Rookie)</option><option value="trainer">Trainer</option><option value="leader">Leader</option><option value="admin">Admin</option></select>
-      </div>
-      <div class="ed-field"><label>Starting Level — Controls what content they can access immediately</label>
-        <select class="ed-input" id="nu-level">
-          <option value="0">Level 0 — Newbie 👶 (default for new reps)</option>
-          <option value="1">Level 1 — Rookie 🌱</option>
-          <option value="2">Level 2 — Apprentice ⚡</option>
-          <option value="3">Level 3 — Builder 🔨</option>
-          <option value="4">Level 4 — Closer 🎯</option>
-          <option value="5">Level 5 — Expert 🏆</option>
-          <option value="6">Level 6 — Master 👑</option>
-          <option value="7">Level 7 — Legend 🌟</option>
-        </select>
-        <p style="color:var(--mute);font-size:.75rem;margin-top:.3rem">Higher starting level = more folders and modules unlocked from day one. Leaders and closers typically start at level 4+.</p>
-      </div>
-      <div style="display:flex;gap:.5rem;margin-top:1rem">
-        <button class="btn btn-green" data-action="createUser">Create</button>
-        <button class="btn btn-ghost" data-action="cancelAddUser">Cancel</button>
-      </div>
+<!-- ─── NEWSLETTER POPUP ─── -->
+<div class="newsletter-popup" id="newsletterPopup">
+  <div class="newsletter-popup__content">
+    <button class="newsletter-popup__close" id="newsletterClose">✕</button>
+    <div class="newsletter-popup__icon">⚡</div>
+    <h3>Stay in the loop</h3>
+    <p>Get solar tips, rebate alerts, and exclusive savings — delivered to your inbox.</p>
+    <form id="newsletterForm" class="newsletter-popup__form">
+      <input type="text" id="nlFirstName" placeholder="First name" required />
+      <input type="email" id="nlEmail" placeholder="Email address" required />
+      <button type="submit">Subscribe</button>
+    </form>
+    <p class="newsletter-popup__fine">No spam, ever. Unsubscribe anytime.</p>
+    <div class="newsletter-popup__success" id="nlSuccess" style="display:none;">
+      <p>✓ You're in! Watch your inbox.</p>
     </div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
-
-<script data-cfasync="false" src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
-<script data-cfasync="false">
-const API = '/become/api/admin.php';
-let data = { folders:[], modules:[], segments:[], users:[], thresholds:[] };
-let selectedModId = null;
-let quillEditor = null;
-
-// ─── API Helper ───
-async function api(method, params) {
-  try {
-    const opts = method === 'GET'
-      ? { method:'GET' }
-      : { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(params) };
-    const url = method === 'GET' ? API + '?action=' + params.action : API;
-    const res = await fetch(url, opts);
-    const json = await res.json();
-    if (json.error) throw new Error(json.error);
-    return json;
-  } catch(e) { toast(e.message, true); throw e; }
-}
-
-// ─── Load All Data ───
-async function loadAll() {
-  const d = await api('GET', {action:'all'});
-  data = d;
-  renderTree();
-  renderUsers();
-  renderFlow();
-  loadPassoffs();
-
-  if (selectedModId) openModuleEditor(selectedModId);
-}
-const loadData = loadAll;
-
-// ─── TREE ───
-function renderTree() {
-  const tree = document.getElementById('tree');
-  const folders = data.folders.filter(f => !f.parent_id);
-  tree.innerHTML = folders.map(f => folderHTML(f)).join('') || '<div style="text-align:center;padding:2rem;color:var(--mute)">No folders yet. Click "+ New Folder" to start.</div>';
-}
-
-function folderHTML(f) {
-  const mods = data.modules.filter(m => m.folder_id == f.id).sort((a,b) => a.module_order - b.module_order);
-  const children = data.folders.filter(c => c.parent_id == f.id);
-  const rule = f.unlock_rule;
-  const lvlReq = rule && rule.kind === 'level' ? rule.value : 0;
-  const lvlBadge = lvlReq ? `<span style="font-size:.7rem;padding:2px 6px;border-radius:10px;background:rgba(255,183,3,0.15);color:var(--gold);font-weight:700;margin-left:.25rem">Lvl ${lvlReq}+</span>` : '<span style="font-size:.7rem;padding:2px 6px;border-radius:10px;background:rgba(6,214,160,0.15);color:var(--green);font-weight:700;margin-left:.25rem">Open</span>';
-  return `
-    <div class="tree-folder open" data-id="${f.id}">
-      <div class="tree-folder-hdr" onclick="this.parentElement.classList.toggle('open')">
-        <span class="icon">${f.icon||'📁'}</span>
-        <span class="title">${esc(f.title)}</span>
-        ${lvlBadge}
-        <span class="meta">${mods.length} mod</span>
-        <span class="arrow">▸</span>
-      </div>
-      <div class="tree-folder-body">
-        <div style="display:flex;gap:.4rem;margin-bottom:.5rem;padding:.25rem 0">
-          <button class="btn btn-sm btn-teal" onclick="event.stopPropagation();addModule(${f.id})">+ Module</button>
-          <button class="btn btn-sm btn-ghost" onclick="event.stopPropagation();openFolderEditor(${f.id})">✏️ Edit</button>
-          <button class="btn btn-sm btn-red" onclick="event.stopPropagation();deleteFolder(${f.id})">✕</button>
-        </div>
-        ${mods.map((m, mi) => {
-          const segCount = data.segments.filter(s => s.module_id == m.id).length;
-          const sel = selectedModId == m.id ? ' selected' : '';
-          const mRule = m.unlock_rule;
-          const mLvl = mRule && mRule.kind === 'level' ? mRule.value : 0;
-          const mBadge = mLvl ? `<span style="font-size:.65rem;padding:1px 5px;border-radius:8px;background:rgba(255,183,3,0.12);color:var(--gold);font-weight:600">L${mLvl}</span>` : '';
-          return `<div class="tree-mod${sel} drag-item" draggable="true" data-mod-id="${m.id}" data-folder-id="${f.id}" data-order="${mi}"
-            ondragstart="dragModStart(event,${m.id})" ondragover="dragModOver(event)" ondrop="dropMod(event,${f.id},${mi})" ondragend="dragEnd(event)">
-            <span class="drag-handle" title="Drag to reorder">⠿</span>
-            <span class="icon">${m.icon||'📄'}</span>
-            <span class="title" onclick="openModuleEditor(${m.id})">${esc(m.title)}</span>
-            ${mBadge}
-            <span class="count">${segCount} segs</span>
-          </div>`;
-        }).join('')}
-        ${children.map(c => folderHTML(c)).join('')}
-      </div>
-    </div>`;
-}
-
-// ─── MODULE EDITOR ───
-function openModuleEditor(modId) {
-  selectedModId = modId;
-  const mod = data.modules.find(m => m.id == modId);
-  if (!mod) return;
-  const segs = data.segments.filter(s => s.module_id == modId).sort((a,b) => a.segment_order - b.segment_order);
-  
-  document.querySelectorAll('.tree-mod').forEach(el => el.classList.remove('selected'));
-  const sel = document.querySelector(`.tree-mod[onclick*="openModuleEditor(${modId})"]`);
-  if (sel) sel.classList.add('selected');
-
-  const area = document.getElementById('editorArea');
-  const curUnlock = mod.unlock_rule;
-  const isOpen = curUnlock && curUnlock.kind === 'open';
-  const curLvl = curUnlock && curUnlock.kind === 'level' ? curUnlock.value : (isOpen ? 'open' : 0);
-  const levelOpts = `<option value="open" ${isOpen?'selected':''}>📚 Open to All (always accessible)</option>` +
-    [0,1,2,3,4,5,6,7].map(l => `<option value="${l}" ${!isOpen && curLvl==l?'selected':''}>${l===0?'👶 Level 0 — Newbie (sequential)':'Level '+l+' — '+(data.thresholds.find(t=>t.level==l)||{title:'?'}).title}</option>`).join('');
-
-  area.innerHTML = `
-    <div class="editor">
-      <div class="ed-field"><label>Module Title</label>
-        <input class="ed-input" id="ed-mod-title" value="${esc(mod.title)}" onchange="updateModule(${modId},{title:this.value})">
-      </div>
-      <div class="ed-row">
-        <div class="ed-field"><label>Icon</label><input class="ed-input" id="ed-mod-icon" value="${mod.icon||''}" style="max-width:80px" onchange="updateModule(${modId},{icon:this.value})"></div>
-        <div class="ed-field"><label>XP Reward</label><input class="ed-input" type="number" value="${mod.xp_reward||50}" onchange="updateModule(${modId},{xp_reward:parseInt(this.value)})"></div>
-      </div>
-      <div class="ed-field"><label>🔓 Unlock Requirement</label>
-        <select class="ed-input" onchange="setModuleUnlock(${modId}, this.value)">${levelOpts}</select>
-      </div>
-      <div class="ed-field"><label>🔗 Prerequisites — Which modules must be completed first?</label>
-        <div id="prereq-list-${modId}" style="margin-bottom:.5rem">${buildPrereqList(modId, mod)}</div>
-        <select class="ed-input" id="prereq-add-${modId}" onchange="addPrereq(${modId}, parseInt(this.value));this.value=''">
-          <option value="">+ Add prerequisite...</option>
-          ${data.modules.filter(m => m.id != modId).map(m => {
-            const f = data.folders.find(f => f.id == m.folder_id);
-            return `<option value="${m.id}">${m.icon||'📄'} ${esc(m.title)} (${f?esc(f.title):''})</option>`;
-          }).join('')}
-        </select>
-        <p style="color:var(--mute);font-size:.72rem;margin-top:.3rem">If set, the rep must complete ALL listed modules before this one unlocks. Leave empty for sequential (previous module must be done).</p>
-      </div>
-      <div class="ed-field"><label>Description</label>
-        <input class="ed-input" value="${esc(mod.description||'')}" placeholder="Optional short description" onchange="updateModule(${modId},{description:this.value})">
-      </div>
-
-      <div style="display:flex;justify-content:space-between;align-items:center;margin:1.5rem 0 .75rem">
-        <label style="font-size:.8rem;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.05em">Segments</label>
-        <button class="btn btn-sm btn-green" onclick="addSegment(${modId})">+ Add Segment</button>
-      </div>
-      <div id="seg-list">${segs.map((s,i) => segItemHTML(s,i)).join('')}</div>
-      
-      <div id="seg-editor" style="margin-top:1.5rem"></div>
-    </div>`;
-}
-
-function segItemHTML(s, i) {
-  const isPassoff = s.segment_type === 'passoff';
-  return `<div class="seg-item" id="si-${s.id}" onclick="openSegEditor(${s.id})">
-    <span class="num">${i+1}</span>
-    <span class="seg-title">${esc(s.title)}</span>
-    ${isPassoff ? '<span style="font-size:.65rem;padding:2px 6px;border-radius:8px;background:rgba(255,183,3,0.15);color:var(--gold);font-weight:700">🎯 Pass-off</span>' : ''}
-    <span style="color:var(--green);font-size:.75rem;font-weight:600">+${s.xp_reward} XP</span>
-    <div class="seg-actions">
-      <button class="btn btn-sm btn-red" onclick="event.stopPropagation();deleteSegment(${s.id})">✕</button>
-    </div>
-  </div>`;
-}
-
-// ─── SEGMENT EDITOR (with Quill) ───
-// ─── PREREQUISITES ───
-function buildPrereqList(modId, mod) {
-  const prereqs = mod.prerequisites || [];
-  if (!prereqs.length) return '<span style="color:var(--mute);font-size:.82rem">None — uses sequential order</span>';
-  return prereqs.map(pid => {
-    const pm = data.modules.find(m => m.id == pid);
-    if (!pm) return '';
-    const pf = data.folders.find(f => f.id == pm.folder_id);
-    return `<span style="display:inline-flex;align-items:center;gap:.3rem;padding:.25rem .6rem;background:rgba(34,168,179,.08);border:1px solid rgba(34,168,179,.2);border-radius:8px;font-size:.8rem;margin:0 .3rem .3rem 0">
-      ${pm.icon||'📄'} ${esc(pm.title)} <span style="color:var(--dim);font-size:.7rem">${pf?esc(pf.title):''}</span>
-      <button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:.9rem;padding:0 .2rem" onclick="removePrereq(${modId},${pid})">✕</button>
-    </span>`;
-  }).join('');
-}
-
-async function addPrereq(modId, prereqId) {
-  if (!prereqId) return;
-  const mod = data.modules.find(m => m.id == modId);
-  if (!mod) return;
-  const prereqs = mod.prerequisites || [];
-  if (prereqs.includes(prereqId)) return;
-  prereqs.push(prereqId);
-  await api('POST', {action:'update_module', id:modId, prerequisites:prereqs});
-  mod.prerequisites = prereqs;
-  document.getElementById('prereq-list-'+modId).innerHTML = buildPrereqList(modId, mod);
-  renderTree();
-  renderFlow();
-  toast('Prerequisite added');
-}
-
-async function removePrereq(modId, prereqId) {
-  const mod = data.modules.find(m => m.id == modId);
-  if (!mod) return;
-  const prereqs = (mod.prerequisites || []).filter(p => p != prereqId);
-  await api('POST', {action:'update_module', id:modId, prerequisites:prereqs.length ? prereqs : null});
-  mod.prerequisites = prereqs.length ? prereqs : null;
-  document.getElementById('prereq-list-'+modId).innerHTML = buildPrereqList(modId, mod);
-  renderTree();
-  renderFlow();
-  toast('Prerequisite removed');
-}
-
-// ─── QUIZ BUILDER ───
-function buildQuizEditor(segId, seg) {
-  // Quiz data stored in content_html as JSON block after a separator
-  let quiz = [];
-  try {
-    const qd = seg.customer_quote; // Reuse customer_quote field to store quiz JSON
-    if (qd) quiz = JSON.parse(qd);
-  } catch(e) {}
-  if (!Array.isArray(quiz)) quiz = [];
-
-  let html = `<div class="ed-field" style="background:rgba(255,183,3,0.05);border:1px solid rgba(255,183,3,0.15);border-radius:8px;padding:1rem;margin-bottom:1rem">
-    <label style="font-size:.85rem;font-weight:700;color:var(--gold);display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem">📝 Quiz Questions <button class="btn btn-sm btn-gold" onclick="addQuizQuestion(${segId})">+ Add Question</button></label>`;
-
-  quiz.forEach((q, qi) => {
-    html += `<div style="background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:.75rem;margin-bottom:.5rem">
-      <div style="display:flex;gap:.5rem;align-items:start;margin-bottom:.5rem">
-        <span style="color:var(--gold);font-weight:700;font-size:.85rem">${qi+1}.</span>
-        <input class="ed-input" value="${esc(q.question||'')}" placeholder="Question text" style="flex:1;font-size:.9rem"
-          onchange="updateQuizQuestion(${segId},${qi},'question',this.value)">
-        <button class="btn btn-sm btn-red" onclick="removeQuizQuestion(${segId},${qi})">✕</button>
-      </div>
-      <div style="padding-left:1.5rem">`;
-
-    (q.options || []).forEach((opt, oi) => {
-      const isCorrect = q.correct === oi;
-      html += `<div style="display:flex;gap:.5rem;align-items:center;margin-bottom:.3rem">
-        <input type="radio" name="q${segId}_${qi}" ${isCorrect?'checked':''} onchange="setCorrectAnswer(${segId},${qi},${oi})" style="accent-color:var(--green)">
-        <input class="ed-input" value="${esc(opt)}" placeholder="Option ${oi+1}" style="flex:1;font-size:.85rem;padding:.4rem .6rem"
-          onchange="updateQuizOption(${segId},${qi},${oi},this.value)">
-        <button class="btn btn-sm btn-red" onclick="removeQuizOption(${segId},${qi},${oi})" style="padding:.2rem .4rem;font-size:.7rem">✕</button>
-      </div>`;
-    });
-
-    html += `<button class="btn btn-sm btn-ghost" onclick="addQuizOption(${segId},${qi})" style="margin-top:.25rem;font-size:.75rem">+ Add Option</button>
-      </div></div>`;
-  });
-
-  if (!quiz.length) {
-    html += `<p style="color:var(--mute);font-size:.85rem;text-align:center;padding:1rem">No questions yet. Click "+ Add Question" to create a quiz.</p>`;
-  }
-
-  html += `<p style="color:var(--mute);font-size:.72rem;margin-top:.5rem">Select the radio button next to the correct answer. Reps must get all questions right to complete the segment.</p></div>`;
-  return html;
-}
-
-function getQuizData(segId) {
-  const seg = data.segments.find(s => s.id == segId);
-  if (!seg) return [];
-  try { return JSON.parse(seg.customer_quote || '[]'); } catch(e) { return []; }
-}
-
-function saveQuizData(segId, quiz) {
-  const json = JSON.stringify(quiz);
-  updateSegment(segId, {customer_quote: json});
-  const seg = data.segments.find(s => s.id == segId);
-  if (seg) seg.customer_quote = json;
-}
-
-function addQuizQuestion(segId) {
-  const quiz = getQuizData(segId);
-  quiz.push({question: '', options: ['', ''], correct: 0});
-  saveQuizData(segId, quiz);
-  setTimeout(() => openSegEditor(segId), 300);
-}
-
-function removeQuizQuestion(segId, qi) {
-  const quiz = getQuizData(segId);
-  quiz.splice(qi, 1);
-  saveQuizData(segId, quiz);
-  setTimeout(() => openSegEditor(segId), 300);
-}
-
-function updateQuizQuestion(segId, qi, field, value) {
-  const quiz = getQuizData(segId);
-  if (quiz[qi]) quiz[qi][field] = value;
-  saveQuizData(segId, quiz);
-}
-
-function addQuizOption(segId, qi) {
-  const quiz = getQuizData(segId);
-  if (quiz[qi]) quiz[qi].options.push('');
-  saveQuizData(segId, quiz);
-  setTimeout(() => openSegEditor(segId), 300);
-}
-
-function removeQuizOption(segId, qi, oi) {
-  const quiz = getQuizData(segId);
-  if (quiz[qi]) {
-    quiz[qi].options.splice(oi, 1);
-    if (quiz[qi].correct >= quiz[qi].options.length) quiz[qi].correct = 0;
-  }
-  saveQuizData(segId, quiz);
-  setTimeout(() => openSegEditor(segId), 300);
-}
-
-function updateQuizOption(segId, qi, oi, value) {
-  const quiz = getQuizData(segId);
-  if (quiz[qi] && quiz[qi].options) quiz[qi].options[oi] = value;
-  saveQuizData(segId, quiz);
-}
-
-function setCorrectAnswer(segId, qi, oi) {
-  const quiz = getQuizData(segId);
-  if (quiz[qi]) quiz[qi].correct = oi;
-  saveQuizData(segId, quiz);
-}
-
-function openSegEditor(segId) {
-  document.querySelectorAll('.seg-item').forEach(el => el.classList.remove('editing'));
-  const si = document.getElementById('si-' + segId);
-  if (si) si.classList.add('editing');
-
-  const seg = data.segments.find(s => s.id == segId);
-  if (!seg) return;
-
-  const ed = document.getElementById('seg-editor');
-  ed.innerHTML = `
-    <div class="card" style="border-color:var(--bdr-a)">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-        <h3 style="font-family:var(--hf);font-size:1.1rem">✏️ Editing: ${esc(seg.title)}</h3>
-        <button class="btn btn-sm btn-ghost" onclick="closeSegEditor()">Close</button>
-      </div>
-      <div class="ed-row">
-        <div class="ed-field"><label>Segment Title</label>
-          <input class="ed-input" id="ed-seg-title" value="${esc(seg.title)}" onchange="updateSegment(${segId},{title:this.value})">
-        </div>
-        <div class="ed-field"><label>XP Reward</label>
-          <input class="ed-input" type="number" value="${seg.xp_reward||10}" onchange="updateSegment(${segId},{xp_reward:parseInt(this.value)})">
-        </div>
-      </div>
-      <div class="ed-field"><label>🎯 Segment Type</label>
-        <select class="ed-input" id="seg-type-select-${segId}" onchange="updateSegment(${segId},{segment_type:this.value});setTimeout(()=>openSegEditor(${segId}),500)">
-          <option value="lesson" ${(seg.segment_type||'lesson')==='lesson'?'selected':''}>📄 Lesson — Rep marks complete on their own</option>
-          <option value="passoff" ${seg.segment_type==='passoff'?'selected':''}>🎯 Leader Pass-off — Rep must be approved by a leader</option>
-          <option value="quiz" ${seg.segment_type==='quiz'?'selected':''}>📝 Quiz — Rep must answer questions correctly</option>
-        </select>
-      </div>
-      ${seg.segment_type === 'quiz' ? buildQuizEditor(segId, seg) : ''}
-      <div class="ed-field"><label>Content ${seg.segment_type === 'quiz' ? '(shown above the quiz)' : ''}</label>
-        <div class="quill-wrap"><div id="quill-seg"></div></div>
-        <div style="display:flex;gap:.5rem;align-items:center;margin-top:.5rem;flex-wrap:wrap">
-          <button class="btn btn-teal" onclick="saveSegContent(${segId})">💾 Save Content</button>
-          <button class="btn btn-ghost btn-sm" onclick="triggerFileUpload('image')">🖼️ Upload Image</button>
-          <button class="btn btn-ghost btn-sm" onclick="insertPDF(${segId})">📎 Upload PDF</button>
-          <button class="btn btn-ghost btn-sm" onclick="insertYouTube()">▶️ YouTube</button>
-          <button class="btn btn-ghost btn-sm" onclick="triggerFileUpload('any')">📁 Upload File</button>
-          <button class="btn btn-ghost btn-sm" onclick="insertDivider()">— Divider</button>
-          <span id="save-status" style="color:var(--green);font-size:.8rem;margin-left:auto"></span>
-        </div>
-        <p style="color:var(--mute);font-size:.75rem;margin-top:.5rem">Tip: Shift+Enter = new line · Enter = new paragraph · Ctrl+B = bold · Ctrl+I = italic · Ctrl+K = link</p>
-      </div>
-      <div style="border-top:1px solid rgba(255,255,255,0.05);margin-top:1.25rem;padding-top:1.25rem">
-        <label style="font-size:.8rem;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:.75rem">💬 Conversation Bubble (optional — shows as a role-play example)</label>
-        <div class="ed-field"><label>🗣️ Customer Quote</label>
-          <textarea class="ed-input" id="ed-seg-cq" rows="2" placeholder="What the customer might say..." onchange="updateSegment(${segId},{customer_quote:this.value})" style="resize:vertical;min-height:60px">${esc(seg.customer_quote||'')}</textarea>
-        </div>
-        <div class="ed-field"><label>💪 Rep Response</label>
-          <textarea class="ed-input" id="ed-seg-rr" rows="2" placeholder="How to respond..." onchange="updateSegment(${segId},{rep_response:this.value})" style="resize:vertical;min-height:60px">${esc(seg.rep_response||'')}</textarea>
-        </div>
-        <div class="ed-field"><label>💡 Pro Tip</label>
-          <textarea class="ed-input" id="ed-seg-tip" rows="2" placeholder="Pro tip for the rep..." onchange="updateSegment(${segId},{tip:this.value})" style="resize:vertical;min-height:60px">${esc(seg.tip||'')}</textarea>
-        </div>
-      </div>
-    </div>`;
-
-  quillEditor = new Quill('#quill-seg', {
-    theme:'snow',
-    placeholder:'Start writing your training content...\n\nTip: Use headers to organize sections, bold for key terms, and lists for steps.',
-    modules:{
-      toolbar: {
-        container: [
-          [{ 'header': [1, 2, 3, false] }],
-          [{ 'size': ['small', false, 'large', 'huge'] }],
-          ['bold', 'italic', 'underline', 'strike'],
-          [{ 'color': [] }, { 'background': [] }],
-          [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-          [{ 'indent': '-1' }, { 'indent': '+1' }],
-          [{ 'align': [] }],
-          ['blockquote', 'code-block'],
-          ['link', 'image', 'video'],
-          [{ 'script': 'sub' }, { 'script': 'super' }],
-          ['clean']
-        ],
-        handlers: {
-          'image': function() { triggerFileUpload('image'); }
-        }
-      },
-      keyboard: {
-        bindings: {
-          // Shift+Enter inserts a line break (Quill default handles this, but ensure it's explicit)
-          linebreak: {
-            key: 13,
-            shiftKey: true,
-            handler: function(range) {
-              this.quill.insertText(range.index, '\n');
-              this.quill.setSelection(range.index + 1);
-              return false;
-            }
-          }
-        }
-      }
-    }
-  });
-  quillEditor.root.innerHTML = seg.content_html || '';
-
-  // Auto-save after 2 seconds of inactivity
-  let autoSaveTimer = null;
-  const statusEl = document.getElementById('save-status');
-  quillEditor.on('text-change', function() {
-    if (statusEl) statusEl.textContent = '● Unsaved changes';
-    if (statusEl) statusEl.style.color = 'var(--gold)';
-    clearTimeout(autoSaveTimer);
-    autoSaveTimer = setTimeout(async () => {
-      const html = quillEditor.root.innerHTML;
-      const content = html === '<p><br></p>' ? '' : html;
-      try {
-        await api('POST', {action:'update_segment', id: segId, content_html: content});
-        const s = data.segments.find(x => x.id == segId);
-        if (s) s.content_html = content;
-        if (statusEl) { statusEl.textContent = '✓ Auto-saved'; statusEl.style.color = 'var(--green)'; }
-      } catch(e) {
-        if (statusEl) { statusEl.textContent = '✕ Save failed'; statusEl.style.color = 'var(--red)'; }
-      }
-    }, 2000);
-  });
-
-  // Enable drag-drop and paste uploads
-  setupEditorDragDrop();
-}
-
-function closeSegEditor() {
-  document.getElementById('seg-editor').innerHTML = '';
-  document.querySelectorAll('.seg-item').forEach(el => el.classList.remove('editing'));
-  quillEditor = null;
-}
-
-async function saveSegContent(segId) {
-  if (!quillEditor) return;
-  const html = quillEditor.root.innerHTML;
-  const content = html === '<p><br></p>' ? '' : html;
-  await updateSegment(segId, {content_html: content});
-  const statusEl = document.getElementById('save-status');
-  if (statusEl) { statusEl.textContent = '✓ Saved'; statusEl.style.color = 'var(--green)'; }
-}
-
-function insertPDF(segId) {
-  triggerFileUpload('pdf');
-}
-
-function insertDivider() {
-  if (!quillEditor) return;
-  const range = quillEditor.getSelection(true);
-  quillEditor.insertText(range.index, '\n───────────────────\n');
-  quillEditor.setSelection(range.index + 22);
-}
-
-function insertYouTube() {
-  if (!quillEditor) return;
-  const url = prompt('Paste a YouTube URL or video ID:\n\nExamples:\nhttps://www.youtube.com/watch?v=dQw4w9WgXcQ\nhttps://youtu.be/dQw4w9WgXcQ\ndQw4w9WgXcQ');
-  if (!url) return;
-
-  // Extract video ID from various YouTube URL formats
-  let videoId = url.trim();
-  const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
-    /^([a-zA-Z0-9_-]{11})$/
-  ];
-  for (const p of patterns) {
-    const m = videoId.match(p);
-    if (m) { videoId = m[1]; break; }
-  }
-
-  if (!videoId || videoId.length !== 11) {
-    toast('Could not find a valid YouTube video ID', true);
-    return;
-  }
-
-  const embedUrl = 'https://www.youtube.com/embed/' + videoId;
-  const range = quillEditor.getSelection(true);
-  quillEditor.insertEmbed(range.index, 'video', embedUrl);
-  quillEditor.setSelection(range.index + 1);
-  toast('YouTube video embedded');
-}
-
-// ─── FILE UPLOAD SYSTEM ───
-function triggerFileUpload(type) {
-  const input = document.createElement('input');
-  input.type = 'file';
-  if (type === 'image') input.accept = 'image/*';
-  else if (type === 'pdf') input.accept = '.pdf,application/pdf';
-  else input.accept = 'image/*,.pdf,application/pdf,video/mp4,video/webm';
-  
-  input.onchange = async () => {
-    if (!input.files[0]) return;
-    await uploadAndInsert(input.files[0]);
-  };
-  input.click();
-}
-
-async function uploadAndInsert(file) {
-  if (!quillEditor) return;
-  const statusEl = document.getElementById('save-status');
-  if (statusEl) { statusEl.textContent = '⏳ Uploading ' + file.name + '...'; statusEl.style.color = 'var(--gold)'; }
-
-  const formData = new FormData();
-  formData.append('file', file);
-
-  try {
-    const res = await fetch('/become/api/upload.php', { method: 'POST', body: formData });
-    const data = await res.json();
-
-    if (!data.success) {
-      toast(data.error || 'Upload failed', true);
-      if (statusEl) { statusEl.textContent = '✕ Upload failed'; statusEl.style.color = 'var(--red)'; }
-      return;
-    }
-
-    const range = quillEditor.getSelection(true);
-
-    if (data.type === 'image') {
-      quillEditor.insertEmbed(range.index, 'image', data.url);
-      quillEditor.setSelection(range.index + 1);
-    } else if (data.type === 'pdf') {
-      quillEditor.insertText(range.index, '\n');
-      quillEditor.insertText(range.index + 1, '📄 ' + (data.filename || 'Download PDF'), { link: data.url });
-      quillEditor.insertText(range.index + 1 + data.filename.length + 3, '\n');
-    } else if (data.type === 'video') {
-      quillEditor.insertEmbed(range.index, 'video', data.url);
-      quillEditor.setSelection(range.index + 1);
-    }
-
-    if (statusEl) { statusEl.textContent = '✓ Uploaded'; statusEl.style.color = 'var(--green)'; }
-    toast('File uploaded');
-  } catch(e) {
-    toast('Upload error: ' + e.message, true);
-    if (statusEl) { statusEl.textContent = '✕ Upload failed'; statusEl.style.color = 'var(--red)'; }
-  }
-}
-
-// Drag-and-drop onto Quill editor
-function setupEditorDragDrop() {
-  if (!quillEditor) return;
-  const editorEl = quillEditor.root;
-
-  editorEl.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    editorEl.style.outline = '2px dashed var(--teal)';
-    editorEl.style.outlineOffset = '-4px';
-  });
-
-  editorEl.addEventListener('dragleave', () => {
-    editorEl.style.outline = '';
-    editorEl.style.outlineOffset = '';
-  });
-
-  editorEl.addEventListener('drop', async (e) => {
-    e.preventDefault();
-    editorEl.style.outline = '';
-    editorEl.style.outlineOffset = '';
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      for (let i = 0; i < files.length; i++) {
-        await uploadAndInsert(files[i]);
-      }
-    }
-  });
-
-  // Also handle paste (screenshots)
-  editorEl.addEventListener('paste', async (e) => {
-    const items = e.clipboardData?.items;
-    if (!items) return;
-    for (let i = 0; i < items.length; i++) {
-      if (items[i].type.startsWith('image/')) {
-        e.preventDefault();
-        const file = items[i].getAsFile();
-        if (file) await uploadAndInsert(file);
-        return;
-      }
-    }
-  });
-}
-
-// ─── PROGRESSION FLOW BOARD ───
-function renderFlow() {
-  const board = document.getElementById('flowBoard');
-  if (!board) return;
-
-  const openMods = [];
-  const groups = {};
-  data.modules.forEach(m => {
-    const rule = m.unlock_rule;
-    if (rule && rule.kind === 'open') { openMods.push(m); }
-    else {
-      const lvl = rule && rule.kind === 'level' ? rule.value : 0;
-      if (!groups[lvl]) groups[lvl] = [];
-      groups[lvl].push(m);
-    }
-  });
-  openMods.sort((a,b) => (a.module_order||0) - (b.module_order||0));
-  Object.values(groups).forEach(arr => arr.sort((a,b) => (a.module_order||0) - (b.module_order||0)));
-
-  const thresholds = data.thresholds || [];
-  const usedLevels = Object.keys(groups).map(Number);
-  const maxLvl = Math.max(3, ...usedLevels);
-  const colors = ['var(--teal)','var(--green)','var(--gold)','var(--orange)','var(--teal)','var(--green)'];
-
-  let html = '';
-  html += levelSection('open', '📚 Open to All', 'Always accessible', 'var(--dim)', openMods);
-  const th0 = thresholds.find(t => t.level == 0);
-  html += levelSection(0, (th0?th0.badge_icon:'👶')+' Level 0 — '+(th0?th0.title:'Newbie'), 'Starting point', 'var(--teal)', groups[0]||[]);
-  for (let lvl = 1; lvl <= maxLvl; lvl++) {
-    const th = thresholds.find(t => t.level == lvl);
-    const mods = groups[lvl] || [];
-    if (!mods.length && lvl > Math.max(3, ...usedLevels)) continue;
-    const color = colors[lvl % colors.length];
-    const title = th ? th.badge_icon+' Level '+lvl+' — '+th.title : 'Level '+lvl;
-    const sub = th ? th.xp_required+' XP' : '';
-    html += levelSection(lvl, title, sub, color, mods);
-  }
-  board.innerHTML = html;
-}
-
-function levelSection(lvl, title, subtitle, color, mods) {
-  const isOpen = lvl === 'open';
-  const expanded = mods.length > 0 || lvl === 0 || lvl === 1 || isOpen ? ' flow-open' : '';
-  const dropLvl = isOpen ? 'open' : lvl;
-  const totalSegs = data.segments.filter(s => mods.some(m => m.id == s.module_id)).length;
-
-  // Group mods into stages by module_order
-  const stages = {};
-  mods.forEach(m => {
-    const stage = m.module_order || 1;
-    if (!stages[stage]) stages[stage] = [];
-    stages[stage].push(m);
-  });
-  const stageNums = Object.keys(stages).map(Number).sort((a,b) => a-b);
-
-  let bodyHtml = '';
-  stageNums.forEach((sn, si) => {
-    const row = stages[sn];
-    if (si > 0) bodyHtml += '<div class="flow-arrow-down">↓</div>';
-    bodyHtml += '<div class="flow-stage" data-stage="'+sn+'" data-level="'+dropLvl+'" ondragover="stageDragOver(event)" ondragleave="stageDragLeave(event)" ondrop="stageDrop(event,\''+dropLvl+'\','+sn+')">';
-    bodyHtml += '<div class="flow-stage-hdr"><span class="flow-stage-num">Stage '+sn+'</span>';
-    if (row.length > 1) bodyHtml += '<span class="flow-stage-hint">Complete all</span>';
-    bodyHtml += '</div>';
-    bodyHtml += '<div class="flow-stage-cards">';
-    row.forEach(m => { bodyHtml += modCard(m); });
-    bodyHtml += '</div></div>';
-  });
-
-  return '<div class="flow-section'+expanded+'" data-flow-lvl="'+dropLvl+'">' +
-    '<div class="flow-hdr" data-toggle="flow-section">' +
-      '<span class="flow-arrow">▸</span>' +
-      '<div style="flex:1"><div style="font-weight:700;font-size:1rem;color:'+color+'">'+title+'</div>' +
-      '<div style="font-size:.75rem;color:var(--dim)">'+subtitle+'</div></div>' +
-      '<div style="display:flex;align-items:center;gap:.5rem">' +
-        '<span style="font-size:.8rem;color:var(--dim);font-weight:600">'+mods.length+' mod'+(mods.length!==1?'s':'')+'</span>' +
-        (totalSegs ? '<span style="font-size:.68rem;padding:2px 7px;border-radius:10px;background:rgba(255,255,255,0.06);color:var(--dim)">'+totalSegs+' segs</span>' : '') +
-        '<button class="btn btn-sm btn-ghost" data-add-stage="'+dropLvl+'" style="font-size:.7rem;padding:.15rem .4rem">+ Stage</button>' +
-      '</div>' +
-    '</div>' +
-    '<div class="flow-body">' +
-      '<div class="flow-level-drop" data-drop-level="'+dropLvl+'" ondragover="levelDragOver(event)" ondragleave="levelDragLeave(event)" ondrop="levelDrop(event,\''+dropLvl+'\')">' +
-        (bodyHtml || '<div class="flow-empty">Drag modules here or click + Stage</div>') +
-      '</div>' +
-    '</div></div>';
-}
-
-function modCard(m) {
-  const folder = data.folders.find(f => f.id == m.folder_id);
-  const ficon = folder ? (folder.icon||'📁') : '';
-  const fname = folder ? folder.title : '';
-  const segs = data.segments.filter(s => s.module_id == m.id).length;
-  return '<div class="flow-mod" draggable="true" data-mod-id="'+m.id+'" ondragstart="modDragStart(event,'+m.id+')" ondragend="modDragEnd(event)">' +
-    '<span class="flow-mod-handle">⠿</span>' +
-    '<div class="flow-mod-info" data-edit-mod="'+m.id+'">' +
-      '<div class="flow-mod-title">'+(m.icon||'📄')+' '+esc(m.title)+'</div>' +
-      '<div class="flow-mod-meta">'+ficon+' '+esc(fname)+' · '+segs+' seg'+(segs!==1?'s':'')+'</div>' +
-    '</div>' +
-  '</div>';
-}
-
-// ─── Drag & Drop ───
-let dragModId = null;
-
-function modDragStart(e, modId) {
-  dragModId = modId;
-  e.dataTransfer.effectAllowed = 'move';
-  e.target.closest('.flow-mod').classList.add('dragging');
-}
-function modDragEnd(e) {
-  document.querySelectorAll('.dragging,.drag-over,.stage-drop-over,.level-drop-over').forEach(el => {
-    el.classList.remove('dragging','drag-over','stage-drop-over','level-drop-over');
-  });
-  dragModId = null;
-}
-
-// Drop on a stage = move module to that stage (same level, same stage number)
-function stageDragOver(e) { e.preventDefault(); e.currentTarget.classList.add('stage-drop-over'); }
-function stageDragLeave(e) { e.currentTarget.classList.remove('stage-drop-over'); }
-async function stageDrop(e, level, stageNum) {
-  e.preventDefault(); e.stopPropagation();
-  e.currentTarget.classList.remove('stage-drop-over');
-  if (!dragModId) return;
-  const mod = data.modules.find(m => m.id == dragModId);
-  if (!mod) return;
-  let unlock;
-  if (level === 'open') unlock = {kind:'open'};
-  else if (parseInt(level) > 0) unlock = {kind:'level', value:parseInt(level)};
-  else unlock = null;
-  await api('POST', {action:'update_module', id:dragModId, unlock_rule:unlock, module_order:stageNum});
-  mod.unlock_rule = unlock;
-  mod.module_order = stageNum;
-  dragModId = null;
-  renderFlow(); renderTree();
-  toast('Moved to Stage '+stageNum);
-}
-
-// Drop on level (not on a specific stage) = append as new stage
-function levelDragOver(e) { e.preventDefault(); e.currentTarget.classList.add('level-drop-over'); }
-function levelDragLeave(e) { e.currentTarget.classList.remove('level-drop-over'); }
-async function levelDrop(e, level) {
-  e.preventDefault();
-  e.currentTarget.classList.remove('level-drop-over');
-  if (!dragModId) return;
-  // If dropped directly on a stage, that handler fires instead
-  if (e.target.closest('.flow-stage')) return;
-  const mod = data.modules.find(m => m.id == dragModId);
-  if (!mod) return;
-  let unlock;
-  if (level === 'open') unlock = {kind:'open'};
-  else if (parseInt(level) > 0) unlock = {kind:'level', value:parseInt(level)};
-  else unlock = null;
-  // Find max stage in this level and add 1
-  const levelMods = data.modules.filter(m => {
-    const r = m.unlock_rule;
-    if (level === 'open') return r && r.kind === 'open';
-    return (r && r.kind === 'level' ? r.value : (r ? -1 : 0)) == parseInt(level);
-  });
-  const maxStage = levelMods.length ? Math.max(...levelMods.map(m => m.module_order||1)) : 0;
-  await api('POST', {action:'update_module', id:dragModId, unlock_rule:unlock, module_order:maxStage+1});
-  mod.unlock_rule = unlock;
-  mod.module_order = maxStage + 1;
-  dragModId = null;
-  renderFlow(); renderTree();
-  toast('Added as new stage');
-}
-
-async function addModuleFromFlow() {
-  const title = prompt('Module title:');
-  if (!title) return;
-  if (!data.folders.length) { toast('Create a folder first in Content tab'); return; }
-  const names = data.folders.map((f,i) => (i+1) + '. ' + (f.icon||'📁') + ' ' + f.title).join('\n');
-  const pick = prompt('Which folder?\n' + names);
-  let folderId = data.folders[0].id;
-  if (pick) {
-    const idx = parseInt(pick) - 1;
-    if (data.folders[idx]) folderId = data.folders[idx].id;
-  }
-  await api('POST', {action:'add_module', folder_id:folderId, title:title});
-  await loadData();
-  renderTree(); renderFlow();
-  toast('Module created');
-}
-
-// ─── CRUD OPERATIONS ───
-async function addFolder() {
-  const title = prompt('Folder name:');
-  if (!title) return;
-  await api('POST', {action:'add_folder', title});
-  await loadAll();
-  toast('Folder created');
-}
-
-async function editFolder(id) {
-  // Legacy — redirects to new editor
-  openFolderEditor(id);
-}
-
-function openFolderEditor(id) {
-  const f = data.folders.find(x => x.id == id);
-  if (!f) return;
-  selectedModId = null;
-  const rule = f.unlock_rule;
-  const curLvl = rule && rule.kind === 'level' ? rule.value : 0;
-  const levelOpts = [0,1,2,3,4,5,6,7].map(l => `<option value="${l}" ${curLvl==l?'selected':''}>${l===0?'Open to all levels':'Level '+l+' — '+(data.thresholds.find(t=>t.level==l)||{title:'?'}).title}</option>`).join('');
-  const typeOpts = ['core','sidequest'].map(t => `<option value="${t}" ${(f.folder_type||'core')===t?'selected':''}>${t==='core'?'📚 Core Training':'🗺️ Side Quest'}</option>`).join('');
-
-  const area = document.getElementById('editorArea');
-  area.innerHTML = `
-    <div class="editor">
-      <h3 style="font-family:var(--hf);font-size:1.2rem;margin-bottom:1.25rem">📁 Folder Settings: ${esc(f.title)}</h3>
-      <div class="ed-field"><label>Folder Title</label>
-        <input class="ed-input" value="${esc(f.title)}" onchange="updateFolder(${id},{title:this.value})">
-      </div>
-      <div class="ed-row">
-        <div class="ed-field"><label>Icon</label><input class="ed-input" value="${f.icon||'📁'}" style="max-width:80px" onchange="updateFolder(${id},{icon:this.value})"></div>
-        <div class="ed-field"><label>Folder Type</label>
-          <select class="ed-input" onchange="updateFolder(${id},{folder_type:this.value})">${typeOpts}</select>
-        </div>
-      </div>
-      <div class="ed-field"><label>🔓 Access Level — Who can see this folder?</label>
-        <select class="ed-input" onchange="setFolderUnlock(${id}, parseInt(this.value))">${levelOpts}</select>
-        <p style="color:var(--mute);font-size:.75rem;margin-top:.3rem">"Open to all" = visible from day one. Level-based = folder is locked until the rep reaches that level. Reps can still see the folder name (greyed out) but can't access content inside.</p>
-      </div>
-      <div class="ed-field"><label>XP Reward (for completing all modules in this folder)</label>
-        <input class="ed-input" type="number" value="${f.xp_reward||200}" onchange="updateFolder(${id},{xp_reward:parseInt(this.value)})">
-      </div>
-      <div class="ed-field"><label>Description</label>
-        <input class="ed-input" value="${esc(f.description||'')}" placeholder="What's in this folder?" onchange="updateFolder(${id},{description:this.value})">
-      </div>
-
-      <div style="border-top:1px solid rgba(255,255,255,0.05);margin-top:1.5rem;padding-top:1.5rem">
-        <h4 style="font-size:.85rem;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;margin-bottom:1rem">📋 Module Unlock Flow</h4>
-        <p style="color:var(--mute);font-size:.8rem;margin-bottom:1rem">Set which level each module requires. Modules set to "Sequential" require the previous module to be completed first.</p>
-        <div id="folder-flow-${id}">${renderFolderFlow(id)}</div>
-      </div>
-    </div>`;
-}
-
-function renderFolderFlow(folderId) {
-  const mods = data.modules.filter(m => m.folder_id == folderId).sort((a,b) => a.module_order - b.module_order);
-  if (!mods.length) return '<p style="color:var(--mute);font-size:.85rem">No modules yet. Add one from the tree.</p>';
-  return mods.map((m, i) => {
-    const rule = m.unlock_rule;
-    const lvl = rule && rule.kind === 'level' ? rule.value : 0;
-    const levelOpts = [0,1,2,3,4,5,6,7].map(l => `<option value="${l}" ${lvl==l?'selected':''}>${l===0?'Sequential':(data.thresholds.find(t=>t.level==l)||{title:'L'+l}).title+' (L'+l+')'}</option>`).join('');
-    return `<div style="display:flex;align-items:center;gap:.75rem;padding:.5rem .75rem;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:8px;margin-bottom:.35rem">
-      <span style="color:var(--mute);font-size:.8rem;width:24px;text-align:center;font-weight:700">${i+1}</span>
-      <span style="font-size:1rem">${m.icon||'📄'}</span>
-      <span style="flex:1;font-weight:600;font-size:.88rem">${esc(m.title)}</span>
-      <select class="ed-input" style="width:auto;font-size:.8rem;padding:.3rem .5rem" onchange="setModuleUnlock(${m.id}, this.value)">${levelOpts}</select>
-    </div>`;
-  }).join('');
-}
-
-async function setModuleUnlock(modId, level) {
-  let unlock;
-  if (level === 'open') unlock = {kind:'open'};
-  else if (parseInt(level) > 0) unlock = {kind:'level', value:parseInt(level)};
-  else unlock = null;
-  await api('POST', {action:'update_module', id:modId, unlock_rule: unlock});
-  const m = data.modules.find(x => x.id == modId);
-  if (m) m.unlock_rule = unlock;
-  renderTree();
-  renderFlow();
-  toast('Unlock rule updated');
-}
-
-async function setFolderUnlock(folderId, level) {
-  const unlock = level > 0 ? {kind:'level', value:level} : null;
-  await api('POST', {action:'update_folder', id:folderId, unlock_rule: unlock});
-  const f = data.folders.find(x => x.id == folderId);
-  if (f) f.unlock_rule = unlock;
-  renderTree();
-  toast('Folder access updated');
-}
-
-async function updateFolder(id, updates) {
-  await api('POST', {action:'update_folder', id, ...updates});
-  await loadAll();
-  toast('Saved');
-}
-
-async function deleteFolder(id) {
-  if (!confirm('Delete this folder and all its modules/segments?')) return;
-  await api('POST', {action:'delete_folder', id});
-  selectedModId = null;
-  await loadAll();
-  document.getElementById('editorArea').innerHTML = '<div class="editor"><div class="editor-empty"><div class="icon">📝</div><h3>Select a module to edit</h3></div></div>';
-  toast('Folder deleted');
-}
-
-async function addModule(folderId) {
-  const title = prompt('Module name:');
-  if (!title) return;
-  await api('POST', {action:'add_module', folder_id:folderId, title});
-  await loadAll();
-  toast('Module created');
-}
-
-async function updateModule(id, updates) {
-  await api('POST', {action:'update_module', id, ...updates});
-  await loadAll();
-  toast('Saved');
-}
-
-async function addSegment(modId) {
-  const title = prompt('Segment title:');
-  if (!title) return;
-  await api('POST', {action:'add_segment', module_id:modId, title});
-  await loadAll();
-  toast('Segment created');
-}
-
-async function updateSegment(id, updates) {
-  await api('POST', {action:'update_segment', id, ...updates});
-  // Update local data without full reload
-  const seg = data.segments.find(s => s.id == id);
-  if (seg) Object.assign(seg, updates);
-  // Refresh seg list if title changed
-  if (updates.title) await loadAll();
-  toast('Saved');
-}
-
-async function deleteSegment(id) {
-  if (!confirm('Delete this segment?')) return;
-  await api('POST', {action:'delete_segment', id});
-  closeSegEditor();
-  await loadAll();
-  toast('Segment deleted');
-}
-
-// ─── USERS ───
-function renderUsers() {
-  const el = document.getElementById('usersList');
-  if (!data.users || data.users.length === 0) {
-    el.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--mute)">No users yet</div>';
-    return;
-  }
-  el.innerHTML = data.users.map(u => {
-    const initials = ((u.first_name||'')[0]||'') + ((u.last_name||'')[0]||'') || u.username[0].toUpperCase();
-    const roleCls = u.role === 'admin' ? 'admin' : u.role === 'leader' ? 'leader' : 'rep';
-    return `<div class="user-row">
-      <div class="user-avatar">${esc(initials)}</div>
-      <div class="user-name">${esc(u.first_name||'')} ${esc(u.last_name||'')}<small>@${esc(u.username)}</small></div>
-      <span class="user-role user-role--${roleCls}">${u.role}</span>
-      <select class="ed-input" style="width:auto;font-size:.8rem;padding:.3rem .5rem" onchange="updateUser(${u.id},{role:this.value})" ${u.role==='admin'?'disabled':''}>
-        <option value="rep" ${u.role==='rep'?'selected':''}>Rep</option>
-        <option value="trainer" ${u.role==='trainer'?'selected':''}>Trainer</option>
-        <option value="leader" ${u.role==='leader'?'selected':''}>Leader</option>
-        <option value="admin" ${u.role==='admin'?'selected':''}>Admin</option>
-      </select>
-      <select class="ed-input" style="width:auto;font-size:.8rem;padding:.3rem .5rem" onchange="setUserLevel(${u.id},parseInt(this.value))" title="Set access level">
-        ${[0,1,2,3,4,5,6,7].map(l => `<option value="${l}">Lvl ${l}</option>`).join('')}
-      </select>
-      <div style="display:flex;gap:.25rem">
-        <button class="btn btn-sm btn-ghost" onclick="resetPw(${u.id},'${esc(u.username)}')">🔑</button>
-        ${u.role!=='admin'?`<button class="btn btn-sm btn-red" onclick="deleteUser(${u.id},'${esc(u.username)}')">✕</button>`:''}
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function showAddUser() { document.getElementById('addUserForm').style.display = 'block'; }
-
-async function createUser() {
-  const startLevel = parseInt(document.getElementById('nu-level').value) || 0;
-  const d = {
-    action:'add_user',
-    username: document.getElementById('nu-user').value.trim(),
-    password: document.getElementById('nu-pass').value,
-    first_name: document.getElementById('nu-first').value.trim(),
-    last_name: document.getElementById('nu-last').value.trim(),
-    role: document.getElementById('nu-role').value
-  };
-  if (!d.username || !d.password) return toast('Username and password required', true);
-  const result = await api('POST', d);
-
-  // Set starting level if higher than 1
-  if (startLevel > 1 && result.id) {
-    // Find the XP needed for that level from thresholds
-    const th = data.thresholds.find(t => t.level == startLevel);
-    const xp = th ? th.xp_required : 0;
-    // Update user_progress directly via a custom API call
-    await fetch(API, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({action:'set_user_level', user_id: result.id, level: startLevel, xp: xp})
-    });
-  }
-
-  document.getElementById('addUserForm').style.display = 'none';
-  ['nu-user','nu-pass','nu-first','nu-last'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('nu-level').value = '0';
-  await loadAll();
-  toast('User created' + (startLevel > 1 ? ' at Level ' + startLevel : ''));
-}
-
-async function updateUser(id, updates) {
-  await api('POST', {action:'update_user', id, ...updates});
-  await loadAll();
-  toast('Updated');
-}
-
-async function resetPw(id, username) {
-  const pw = prompt(`New password for @${username}:`);
-  if (!pw) return;
-  await api('POST', {action:'reset_password', id, password:pw});
-  toast('Password reset');
-}
-
-async function deleteUser(id, username) {
-  if (!confirm(`Delete @${username}? This cannot be undone.`)) return;
-  await api('POST', {action:'delete_user', id});
-  await loadAll();
-  toast('User deleted');
-}
-
-async function setUserLevel(userId, level) {
-  const th = data.thresholds.find(t => t.level == level);
-  const xp = th ? th.xp_required : 0;
-  await api('POST', {action:'set_user_level', user_id: userId, level, xp});
-  toast('Level set to ' + level);
-}
-
-// ─── DRAG AND DROP: Module reorder in tree ───
-// dragModId already declared in flow board section
-
-function dragModStart(e, modId) {
-  dragModId = modId;
-  e.dataTransfer.effectAllowed = 'move';
-  e.dataTransfer.setData('text/plain', modId);
-  setTimeout(() => e.target.classList.add('dragging'), 0);
-}
-
-function dragModOver(e) {
-  e.preventDefault();
-  e.dataTransfer.dropEffect = 'move';
-  const target = e.target.closest('.tree-mod');
-  if (target) target.classList.add('drag-over');
-}
-
-async function dropMod(e, folderId, targetOrder) {
-  e.preventDefault();
-  document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-  if (!dragModId) return;
-  // Update the module order
-  await api('POST', {action:'update_module', id: dragModId, module_order: targetOrder});
-  dragModId = null;
-  await loadAll();
-  toast('Reordered');
-}
-
-
-// ─── STARTING LEVEL: Auto-suggest based on role ───
-function suggestStartLevel(role) {
-  const levelSelect = document.getElementById('nu-level');
-  if (!levelSelect) return;
-  const suggestions = { rep: '0', trainer: '3', leader: '4', admin: '7' };
-  levelSelect.value = suggestions[role] || '1';
-}
-
-// ─── PASS-OFFS ───
-async function loadPassoffs() {
-  try {
-    const res = await fetch('/become/api/index.php?route=passoffs');
-    const items = await res.json();
-    const el = document.getElementById('passoffsList');
-    const badge = document.getElementById('passoff-count');
-
-    if (!items || !Array.isArray(items) || items.length === 0) {
-      if (el) el.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--mute)">🎉 No pending pass-offs</div>';
-      if (badge) badge.style.display = 'none';
-      return;
-    }
-
-    if (badge) { badge.style.display = 'inline'; badge.textContent = items.length; }
-
-    if (el) el.innerHTML = items.map(p => `
-      <div style="display:flex;align-items:center;gap:1rem;padding:1rem;border-bottom:1px solid rgba(255,255,255,0.04)">
-        <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--orange));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0;box-shadow:0 0 20px rgba(255,183,3,0.4);animation:glow 2s ease infinite">
-          ${esc((p.first_name||'')[0]||'')}${esc((p.last_name||'')[0]||'')}
-        </div>
-        <div style="flex:1">
-          <div style="font-weight:700;font-size:.95rem">${esc(p.first_name||'')} ${esc(p.last_name||'')} <span style="color:var(--dim);font-weight:400;font-size:.85rem">@${esc(p.username)}</span></div>
-          <div style="font-size:.88rem;color:var(--dim);margin-top:.15rem">${esc(p.mod_title)} → <strong style="color:var(--gold)">${esc(p.seg_title)}</strong></div>
-          <div style="font-size:.75rem;color:var(--mute);margin-top:.15rem">Requested ${timeAgo(p.requested_at)}</div>
-        </div>
-        <button class="btn btn-green" onclick="approvePassoff(${p.id},this)" style="font-size:1.05rem;padding:.7rem 1.8rem;box-shadow:0 0 20px rgba(6,214,160,0.3)">✓ Pass</button>
-      </div>
-    `).join('');
-  } catch(e) { console.error('Passoff load error:', e); }
-}
-
-async function approvePassoff(requestId, btn) {
-  btn.disabled = true;
-  btn.textContent = '⏳ Approving...';
-  try {
-    const res = await fetch('/become/api/index.php?route=passoff/' + requestId + '/approve', {
-      method:'POST', headers:{'Content-Type':'application/json'}
-    });
-    const data = await res.json();
-    if (data.success) {
-      btn.parentElement.style.opacity = '.3';
-      btn.textContent = '✓ Passed!';
-      btn.style.background = 'var(--teal)';
-      toast('Pass-off approved! Segment completed for rep.');
-      setTimeout(() => loadPassoffs(), 1500);
-    } else {
-      btn.textContent = '✕ Error';
-      btn.disabled = false;
-      toast(data.error || 'Approval failed', true);
-    }
-  } catch(e) {
-    btn.textContent = '✕ Error';
-    btn.disabled = false;
-  }
-}
-
-function timeAgo(dateStr) {
-  const now = new Date();
-  const then = new Date(dateStr);
-  const mins = Math.floor((now - then) / 60000);
-  if (mins < 1) return 'just now';
-  if (mins < 60) return mins + ' min ago';
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return hrs + 'h ago';
-  const days = Math.floor(hrs / 24);
-  return days + 'd ago';
-}
-
-// Auto-refresh passoffs every 30 seconds
-setInterval(loadPassoffs, 30000);
-
-// ─── UI HELPERS ───
-function switchPanel(name, btn) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.mgr-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('panel-' + name).classList.add('active');
-  btn.classList.add('active');
-}
-
-function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-
-function toast(msg, isErr) {
-  const t = document.getElementById('toast');
-  t.textContent = (isErr ? '✕ ' : '✓ ') + msg;
-  t.className = 'toast show ' + (isErr ? 'toast-err' : 'toast-ok');
-  clearTimeout(t._to);
-  t._to = setTimeout(() => t.classList.remove('show'), 2500);
-}
-
-// ─── INIT — All event delegation (Cloudflare-safe, no onclick) ───
-document.addEventListener('click', function(e) {
-  // Tab switching
-  var tab = e.target.closest('[data-panel]');
-  if (tab) {
-    var name = tab.dataset.panel;
-    document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
-    document.querySelectorAll('.mgr-tab').forEach(function(t) { t.classList.remove('active'); });
-    document.getElementById('panel-' + name).classList.add('active');
-    tab.classList.add('active');
-    return;
-  }
-
-  // Button actions
-  var actionBtn = e.target.closest('[data-action]');
-  if (actionBtn) {
-    var action = actionBtn.dataset.action;
-    if (action === 'addFolder') addFolder();
-    else if (action === 'addModuleFromFlow') addModuleFromFlow();
-    else if (action === 'loadPassoffs') loadPassoffs();
-    else if (action === 'showAddUser') showAddUser();
-    else if (action === 'createUser') createUser();
-    else if (action === 'cancelAddUser') document.getElementById('addUserForm').style.display = 'none';
-    return;
-  }
-
-  // Flow section toggle
-  var flowHdr = e.target.closest('[data-toggle="flow-section"]');
-  if (flowHdr) {
-    flowHdr.parentElement.classList.toggle('flow-open');
-    return;
-  }
-
-  // Add stage button
-  var addStageBtn = e.target.closest('[data-add-stage]');
-  if (addStageBtn) {
-    e.stopPropagation();
-    var lvl = addStageBtn.dataset.addStage;
-    var levelMods = data.modules.filter(function(m) {
-      var r = m.unlock_rule;
-      if (lvl === 'open') return r && r.kind === 'open';
-      return (r && r.kind === 'level' ? r.value : (r ? -1 : 0)) == parseInt(lvl);
-    });
-    var maxStage = levelMods.length ? Math.max.apply(null, levelMods.map(function(m) { return m.module_order || 1; })) : 0;
-    var newStage = maxStage + 1;
-    var title = prompt('Module title for new Stage ' + newStage + ':');
-    if (!title) return;
-    if (!data.folders.length) { toast('Create a folder first'); return; }
-    var folderId = data.folders[0].id;
-    var unlock = lvl === 'open' ? {kind:'open'} : (parseInt(lvl) > 0 ? {kind:'level', value:parseInt(lvl)} : null);
-    api('POST', {action:'add_module', folder_id:folderId, title:title}).then(function(res) {
-      if (res && res.id) {
-        api('POST', {action:'update_module', id:res.id, unlock_rule:unlock, module_order:newStage}).then(function() {
-          loadAll();
-          toast('Stage ' + newStage + ' added');
-        });
-      }
-    });
-    return;
-  }
-
-  // Flow card click-to-edit
-  var editDiv = e.target.closest('[data-edit-mod]');
-  if (editDiv) {
-    var modId = parseInt(editDiv.dataset.editMod);
-    document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
-    document.querySelectorAll('.mgr-tab').forEach(function(t) { t.classList.remove('active'); });
-    document.getElementById('panel-content').classList.add('active');
-    document.querySelector('.mgr-tab').classList.add('active');
-    openModuleEditor(modId);
-    return;
-  }
+<!-- ─── INCENTIVE SIDEBAR (slide-in) ─── -->
+<div class="incentive-tab" id="incentiveTab" onclick="document.getElementById('incentiveSidebar').classList.add('open')">
+  <span>⚡ 30% OFF</span>
+</div>
+<div class="incentive-sidebar" id="incentiveSidebar">
+  <button class="incentive-sidebar__close" onclick="this.parentElement.classList.remove('open')">✕</button>
+  <div class="incentive-sidebar__badge">⚡ TIME-SENSITIVE</div>
+  <h3>Federal Incentives END 2027</h3>
+  <p>Start your project now to get <strong>30%+ off</strong> any solar or battery system through the Federal Investment Tax Credit.</p>
+  <div class="incentive-sidebar__countdown">
+    <div class="incentive-sidebar__stat"><span id="incentiveDays">--</span><small>days left</small></div>
+  </div>
+  <a href="quote.html" class="incentive-sidebar__cta">Check My Savings →</a>
+  <p class="incentive-sidebar__fine">Limited time. Subject to federal policy changes.</p>
+</div>
+
+<!-- ─── STICKY BOTTOM CTA BAR (Rec #6) ─── -->
+<div class="sticky-cta" id="stickyCta">
+  <div class="sticky-cta__inner">
+    <span class="sticky-cta__text">⚡ Ready to save?</span>
+    <a href="quote.html" class="sticky-cta__btn">Get Your Free Quote</a>
+    <a href="tel:7608607862" class="sticky-cta__phone">📞 (760) 860-7862</a>
+  </div>
+</div>
+
+<!-- ─── SCRIPTS ─── -->
+<script src="cms.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════════
+// 1. ENHANCED NAVIGATION — shrink on scroll, body lock, 
+//    animated hamburger, focus trap, accessibility
+// ═══════════════════════════════════════════════════════════
+const nav = document.getElementById('mainNav');
+const navToggle = document.getElementById('navToggle');
+const navLinks = document.getElementById('navLinks');
+const navOverlay = document.getElementById('navOverlay');
+
+// Shrink + scrolled state
+let lastScroll = 0;
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  nav.classList.toggle('scrolled', y > 40);
+  nav.classList.toggle('shrink', y > 120);
+  lastScroll = y;
+}, { passive: true });
+
+// Mobile nav open/close with body scroll lock
+function openNav() {
+  navLinks.classList.add('open');
+  navOverlay.classList.add('open');
+  navToggle.classList.add('active');
+  navToggle.setAttribute('aria-expanded', 'true');
+  navToggle.setAttribute('aria-label', 'Close menu');
+  document.body.classList.add('nav-open');
+  navOverlay.setAttribute('aria-hidden', 'false');
+  // Focus first link
+  const firstLink = navLinks.querySelector('a');
+  if (firstLink) firstLink.focus();
+}
+function closeNav() {
+  navLinks.classList.remove('open');
+  navOverlay.classList.remove('open');
+  navToggle.classList.remove('active');
+  navToggle.setAttribute('aria-expanded', 'false');
+  navToggle.setAttribute('aria-label', 'Open menu');
+  document.body.classList.remove('nav-open');
+  navOverlay.setAttribute('aria-hidden', 'true');
+  navToggle.focus();
+}
+
+navToggle.addEventListener('click', () => {
+  navLinks.classList.contains('open') ? closeNav() : openNav();
+});
+navOverlay.addEventListener('click', closeNav);
+navLinks.querySelectorAll('a').forEach(link => link.addEventListener('click', closeNav));
+
+// Focus trap in mobile nav
+navLinks.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') { closeNav(); return; }
+  if (e.key !== 'Tab') return;
+  const focusable = navLinks.querySelectorAll('a:not([style*="display:none"])');
+  const first = focusable[0], last = focusable[focusable.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
 });
 
-loadAll();
+// ═══════════════════════════════════════════════════════════
+// UTM CAPTURE — store in sessionStorage for form submission
+// ═══════════════════════════════════════════════════════════
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'].forEach(k => {
+    const v = params.get(k);
+    if (v) sessionStorage.setItem(k, v);
+  });
+  // Also store referring page
+  if (document.referrer && !document.referrer.includes(window.location.hostname)) {
+    sessionStorage.setItem('referrer', document.referrer);
+  }
+})();
+
+// Customer options accordion (all screen sizes)
+const accordionBtn = document.getElementById('accordionTrigger');
+const cardGrid = document.getElementById('customer-options');
+let closedText = 'Start Your Process';
+let openText = 'What option best describes how we can help you?';
+if (accordionBtn) {
+  accordionBtn.addEventListener('click', function() {
+    const isOpen = cardGrid.classList.toggle('open');
+    this.classList.toggle('expanded', isOpen);
+    this.textContent = isOpen ? openText : closedText;
+  });
+}
+
+// Sticky CTA bar — show after scrolling past hero
+const stickyCta = document.getElementById('stickyCta');
+const heroSection = document.querySelector('.hero');
+const stickyObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    stickyCta.classList.toggle('visible', !entry.isIntersecting);
+  });
+}, { threshold: 0 });
+stickyObserver.observe(heroSection);
+
+// Animated counting numbers
+function animateNumber(element, target) {
+  const duration = 2000;
+  const startTime = performance.now();
+  const numericTarget = parseFloat(target.replace(/[$,%,]/g, ''));
+  const hasPercent = target.includes('%');
+  const hasDollar = target.includes('$');
+
+  function update(currentTime) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+    const current = numericTarget * easeOutQuart;
+    let display = Math.round(current).toLocaleString();
+    if (hasDollar) display = '$' + display;
+    if (hasPercent) display = Math.round(current) + '%';
+    element.textContent = display;
+    element.classList.add('counting');
+    if (progress < 1) { requestAnimationFrame(update); }
+    else { element.classList.remove('counting'); }
+  }
+  requestAnimationFrame(update);
+}
+
+const statsObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting && !entry.target.dataset.animated) {
+      animateNumber(entry.target, entry.target.dataset.target);
+      entry.target.dataset.animated = 'true';
+    }
+  });
+}, { threshold: 0.5 });
+
+// Install Map — Interactive Leaflet with Zoho-powered pins
+function renderInstallMap() {
+  const mapEl = document.getElementById('installMapLeaflet');
+  if (!mapEl) return;
+  
+  const script = document.createElement('script');
+  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';
+  script.onload = () => {
+    // Try Zoho-powered endpoint first, fallback to hardcoded
+    fetch('map-pins.php')
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && data.pins) {
+          initLeafletMap(data.pins);
+          // Update count
+          const countEl = document.querySelector('#install-map .text-center p');
+          if (countEl) countEl.textContent = data.count + '+ installations · Click and zoom to explore';
+        } else {
+          initLeafletMap(FALLBACK_PINS);
+        }
+      })
+      .catch(() => initLeafletMap(FALLBACK_PINS));
+  };
+  document.head.appendChild(script);
+}
+
+// Hardcoded fallback pins (from your client list CSV)
+const FALLBACK_PINS=[[33.0375,-117.2864],[33.1244,-117.0914],[33.2051,-117.2474],[33.1535,-117.3497],[32.9583,-117.0382],[33.9314,-116.9758],[33.1142,-117.0917],[33.1385,-117.163],[33.1985,-117.2412],[32.5804,-117.109],[33.0351,-117.2917],[33.1388,-117.1655],[33.1589,-117.3542],[33.2024,-117.2401],[33.1587,-117.3511],[33.1418,-117.1603],[33.7462,-117.8691],[32.7185,-117.1626],[33.1604,-117.3556],[33.1553,-117.3453],[33.0406,-117.2918],[33.4983,-117.1532],[33.1615,-117.3551],[33.1576,-117.3512],[33.2056,-117.2408],[33.1618,-117.3508],[33.1443,-117.163],[33.1582,-117.3505],[33.1905,-117.3745],[33.1439,-117.169],[33.1417,-117.1626],[33.0416,-117.2885],[33.1542,-117.3489],[33.1445,-117.1617],[33.1632,-117.3528],[33.1603,-117.3508],[33.1599,-117.3528],[33.1526,-117.3489],[32.8398,-117.2804],[33.0367,-117.2919],[32.7211,-117.1629],[33.1595,-117.3568],[33.1997,-117.2437],[32.7211,-117.1619],[33.1619,-117.3458],[33.0369,-117.2899],[33.1603,-117.3518],[33.1635,-117.35],[32.7128,-117.1655],[33.1943,-117.38],[32.7216,-117.1598],[33.1548,-117.3508],[33.1421,-117.1637],[32.7187,-117.1603],[33.1615,-117.3508],[33.1587,-117.3474],[33.1581,-117.3514],[33.1622,-117.3528],[33.1522,-117.3562],[33.1614,-117.3472],[33.1586,-117.3515],[33.1987,-117.2413],[32.7206,-117.1602],[33.161,-117.3536],[33.0215,-117.2816],[33.1561,-117.3477],[32.7209,-117.1657],[33.2004,-117.374],[32.7115,-117.1569],[33.0374,-117.2946],[33.1563,-117.3543],[33.1603,-117.3503],[33.1636,-117.3534],[33.16,-117.35],[33.1574,-117.3524],[32.7907,-116.9579],[33.1527,-117.3494],[33.197,-117.3841],[33.1538,-117.3529],[32.7912,-116.969],[33.1579,-117.3541],[32.718,-117.1657],[33.0356,-117.2976],[33.1638,-117.3545],[33.1523,-117.3463],[33.1556,-117.3467],[33.1602,-117.3564],[33.1579,-117.3523],[33.156,-117.3494],[33.1525,-117.3519],[33.1606,-117.3562],[33.153,-117.3456],[32.7194,-117.1576],[32.7214,-117.1574],[32.719,-117.165],[33.1959,-117.3743],[33.1199,-117.0906],[33.1472,-117.1709],[32.8362,-116.98],[33.0318,-117.2977],[33.038,-117.2872],[33.1473,-117.163],[33.0216,-117.2696],[32.6497,-117.0724],[32.837,-116.9731],[32.8539,-117.2844],[33.1936,-117.3914],[32.6471,-117.0398],[32.7213,-117.1512],[33.1232,-117.0867],[32.7938,-116.9529],[32.9576,-117.0411],[32.7485,-116.9909],[32.6774,-117.096],[33.2072,-117.3916],[33.1607,-117.3517],[32.84,-117.2647],[33.126,-117.0912],[33.1981,-117.3916],[32.9627,-117.0361],[33.0382,-117.2818],[32.9656,-117.0381],[33.1545,-117.1579],[32.8426,-116.9693],[32.8323,-117.2665],[32.6585,-117.0328],[32.8351,-116.9651],[33.1261,-117.089],[33.2108,-117.2342],[32.8447,-116.9844],[32.7073,-117.1698],[32.7486,-117.006],[32.6514,-117.0388],[33.1433,-117.1727],[32.6608,-117.028],[33.044,-117.2928],[32.7777,-117.0128],[32.8356,-117.284],[32.8483,-116.9686],[32.7878,-116.9678],[33.0343,-117.2822],[32.8328,-117.2784],[33.1939,-117.2445],[32.8421,-117.2743],[33.2044,-117.3811],[32.8311,-116.9635],[32.8411,-117.278],[33.1572,-117.3473],[32.6331,-117.088],[32.854,-117.2846],[32.9556,-117.0264],[32.8286,-116.9775],[32.834,-117.2803],[33.1896,-117.3867],[32.6509,-117.0903],[33.1496,-117.1734],[33.1961,-117.2547],[32.6408,-117.092],[32.9511,-117.032],[32.9576,-117.0295],[32.9521,-117.0276],[32.672,-117.1095],[32.6845,-117.0931],[32.8301,-116.9626],[32.6643,-117.0291],[33.1953,-117.2371],[33.201,-117.38],[32.6783,-117.0918],[32.9579,-117.0373],[32.7584,-117.0243],[33.1484,-117.1562],[32.7782,-117.0349],[32.789,-116.9592],[33.2032,-117.378],[33.1432,-117.1686],[33.0178,-117.2817],[33.2041,-117.3745],[32.6432,-117.0956],[32.8058,-116.9626],[32.675,-117.1081],[32.841,-116.9632],[32.6723,-117.0916],[33.1946,-117.233],[32.8458,-117.2813],[32.7142,-117.1555],[32.8474,-116.9759],[33.1463,-117.3469],[33.0428,-117.2967],[32.6707,-117.0878],[32.6435,-117.0927],[32.641,-117.0916],[32.7882,-116.9647],[33.193,-117.2546],[32.7695,-117.0264],[32.6297,-117.0752],[32.973,-117.0348],[33.1667,-117.3621],[32.6778,-117.094],[32.7692,-117.0271],[32.6382,-117.0906],[33.1212,-117.0972],[33.1931,-117.3881]];
+
+function initLeafletMap(pins) {
+  const map = L.map('installMapLeaflet', { scrollWheelZoom: false }).setView([32.95, -117.15], 10);
+  
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '',
+    maxZoom: 19
+  }).addTo(map);
+  
+  const waveIcon = L.divIcon({
+    className: 'wave-pin',
+    html: '<svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="#22A8B3" stroke="#38BEC9" stroke-width="1.5" opacity="0.85"/></svg>',
+    iconSize: [14, 14],
+    iconAnchor: [7, 7]
+  });
+  const waveIconOrange = L.divIcon({
+    className: 'wave-pin',
+    html: '<svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="#FB9B47" stroke="#FCD34D" stroke-width="1.5" opacity="0.85"/></svg>',
+    iconSize: [14, 14],
+    iconAnchor: [7, 7]
+  });
+  
+  pins.forEach((p, i) => {
+    const icon = i % 3 === 0 ? waveIconOrange : waveIcon;
+    L.marker([p[0], p[1]], { icon }).addTo(map);
+  });
+
+  map.on('click', () => map.scrollWheelZoom.enable());
+  map.on('mouseout', () => map.scrollWheelZoom.disable());
+}
+
+// ═══════════════════════════════════════════════════════════
+// 4. CMS-DRIVEN COMPARISON TABLE
+// ═══════════════════════════════════════════════════════════
+function renderComparison(data) {
+  const c = data.comparison || {};
+  const title = c.title || 'California Utilities vs. Going Solar';
+  const subtitle = c.subtitle || 'Utility rates have increased 40%+ in three years.';
+  const colBad = c.col_utility || 'Stay with Utility';
+  const colGood = c.col_solar || 'Go Solar';
+  const rows = c.rows || [
+    { label: 'Monthly Cost', utility: '~$250+ (rising)', solar: '~$150 (locked)' },
+    { label: 'Annual Rate Increase', utility: '~8–10%/yr', solar: '0%' },
+    { label: '10-Year Cost', utility: '~$38,000+', solar: '~$18,000' },
+    { label: 'Own Your Power', utility: '✗', solar: '✓' },
+    { label: 'Home Value Increase', utility: '✗', solar: '+$15–25K' },
+  ];
+  
+  document.getElementById('comparison-title').textContent = strip(title);
+  document.getElementById('comparison-subtitle').textContent = strip(subtitle);
+  
+  let html = `<div class="comparison-table">
+    <div class="comparison-table__header">
+      <div></div>
+      <div class="comparison-table__col comparison-table__col--bad">${strip(colBad)}</div>
+      <div class="comparison-table__col comparison-table__col--good">${strip(colGood)}</div>
+    </div>`;
+  
+  rows.forEach(row => {
+    html += `<div class="comparison-table__row">
+      <div class="comparison-table__label">${strip(row.label)}</div>
+      <div class="comparison-table__val comparison-table__val--bad">${strip(row.utility)}</div>
+      <div class="comparison-table__val comparison-table__val--good">${strip(row.solar)}</div>
+    </div>`;
+  });
+  
+  html += '</div>';
+  document.getElementById('cms-comparison').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════
+// 2. INSTAGRAM FEED — lazy loaded, cached server-side
+// ═══════════════════════════════════════════════════════════
+function loadInstagramFeed() {
+  const grid = document.getElementById('igGrid');
+  const igObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        igObserver.disconnect();
+        fetch('instagram.php')
+          .then(r => r.json())
+          .then(data => {
+            if (!data.success || !data.posts || data.posts.length === 0) {
+              grid.innerHTML = '<p style="text-align:center;color:var(--slate);grid-column:1/-1;">Follow us on Instagram @energy.best.ca</p>';
+              return;
+            }
+            grid.innerHTML = data.posts.map(post => {
+              if (post.placeholder || !post.media_url) {
+                return `<a href="${post.permalink}" target="_blank" rel="noopener" class="ig-item ig-item--placeholder">
+                  <div class="ig-item__icon">📸</div>
+                </a>`;
+              }
+              // Handle VIDEO posts
+              if (post.media_type === 'VIDEO') {
+                return `<a href="${post.permalink}" target="_blank" rel="noopener" class="ig-item ig-item--video">
+                  <video src="${post.media_url}" muted playsinline loop preload="metadata" onmouseenter="this.play()" onmouseleave="this.pause()"></video>
+                  <div class="ig-item__play">▶</div>
+                  <div class="ig-item__overlay"><p>${post.caption || ''}</p></div>
+                </a>`;
+              }
+              return `<a href="${post.permalink}" target="_blank" rel="noopener" class="ig-item">
+                <img src="${post.media_url}" alt="${post.caption || 'Instagram post'}" loading="lazy" />
+                <div class="ig-item__overlay"><p>${post.caption || ''}</p></div>
+              </a>`;
+            }).join('');
+          })
+          .catch(() => {
+            grid.innerHTML = '<p style="text-align:center;color:var(--slate);grid-column:1/-1;">Follow us <a href="https://instagram.com/energy.best.ca" target="_blank" style="color:var(--teal);">@energy.best.ca</a></p>';
+          });
+      }
+    });
+  }, { rootMargin: '200px' });
+  igObserver.observe(grid);
+}
+
+// ═══════════════════════════════════════════════════════════
+// 5. GOOGLE REVIEWS — live from Places API, cached server-side
+// ═══════════════════════════════════════════════════════════
+function loadGoogleReviews() {
+  fetch('reviews.php')
+    .then(r => r.json())
+    .then(data => {
+      if (!data.success) return;
+      // Update trust bar with live rating
+      const trustRating = document.querySelector('.trust-bar__item--rating');
+      if (trustRating) {
+        trustRating.textContent = '★ ' + data.rating.toFixed(1) + ' Google Rating (' + data.total_reviews + ' Reviews)';
+      }
+      // Update testimonials header rating if present
+      const ratingEls = document.querySelectorAll('.testimonials__rating .rating-text');
+      ratingEls.forEach(el => {
+        el.innerHTML = '<strong>' + data.rating.toFixed(1) + '</strong> Average Rating · ' + data.total_reviews + ' Reviews';
+      });
+    })
+    .catch(() => {}); // Fail silently — trust bar has static fallback
+}
+
+// ═══════════════════════════════════════════════════════════
+// LOAD CMS + RENDER ALL
+// ═══════════════════════════════════════════════════════════
+CMS.load().then(() => {
+  // Hero text — strip() removes Quill <p> wrappers for plain-text fields
+  if (CMS.data.home) {
+    if (CMS.data.home.hero_eyebrow) document.querySelector('.hero__text .eyebrow').textContent = strip(CMS.data.home.hero_eyebrow);
+    if (CMS.data.home.hero_title_part1) document.getElementById('home-title-part1').textContent = strip(CMS.data.home.hero_title_part1);
+    if (CMS.data.home.hero_title_part2) document.getElementById('home-title-part2').textContent = strip(CMS.data.home.hero_title_part2);
+    if (CMS.data.home.hero_subtitle) document.getElementById('home-subtitle').textContent = strip(CMS.data.home.hero_subtitle);
+    if (CMS.data.home.about_text) document.getElementById('about-text').textContent = strip(CMS.data.home.about_text);
+    if (CMS.data.home.referral_text) document.getElementById('referral-text').textContent = strip(CMS.data.home.referral_text);
+    if (CMS.data.home.accordion_btn_closed) { closedText = strip(CMS.data.home.accordion_btn_closed); accordionBtn.textContent = closedText; }
+    if (CMS.data.home.accordion_btn_open) { openText = strip(CMS.data.home.accordion_btn_open); }
+  }
+
+  // Stats with animation
+  const statsGrid = document.getElementById('cms-stats');
+  const s = CMS.data.stats;
+  statsGrid.innerHTML = `
+    <div><div class="stat__number" data-target="${strip(s.savings)}">${strip(s.savings)}</div><div class="stat__label">${strip(s.savings_label)}</div></div>
+    <div><div class="stat__number" data-target="${strip(s.hours)}">${strip(s.hours)}</div><div class="stat__label">${strip(s.hours_label)}</div></div>
+    <div><div class="stat__number" data-target="${strip(s.installations)}">${strip(s.installations)}</div><div class="stat__label">${strip(s.installations_label)}</div></div>
+    <div><div class="stat__number" data-target="${strip(s.customers)}">${strip(s.customers)}</div><div class="stat__label">${strip(s.customers_label)}</div></div>
+  `;
+  document.querySelectorAll('.stat__number').forEach(el => statsObserver.observe(el));
+
+  // Gallery carousel
+  const galleryEl = document.getElementById('cms-gallery');
+  const galleryHTML = CMS.data.gallery.map(g => {
+    if (g.url) {
+      return `<div style="flex:0 0 400px; height:300px; border-radius:var(--radius); overflow:hidden;">
+                <img src="${g.url}" alt="${g.caption}" style="width:100%;height:100%;object-fit:cover;" loading="lazy" />
+              </div>`;
+    }
+    return `<div style="flex:0 0 400px; height:300px; border-radius:var(--radius); background:var(--gray-100); display:flex; align-items:center; justify-content:center; color:var(--slate);">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+            </div>`;
+  }).join('');
+  galleryEl.innerHTML = galleryHTML + galleryHTML;
+
+  // Rebate, Testimonials, FAQ
+  CMS.renderRebate('cms-rebate');
+  CMS.renderTestimonialsGlobal('cms-testimonials', 6);
+  CMS.renderFaq('cms-faq');
+  
+  // Comparison table (CMS-driven)
+  renderComparison(CMS.data);
+  
+  // Install map
+  renderInstallMap();
+  
+  // Instagram feed (lazy loaded)
+  loadInstagramFeed();
+  
+  // Google Reviews (async update)
+  loadGoogleReviews();
+  
+  // Incentive sidebar countdown
+  const endDate = new Date('2027-12-31T23:59:59');
+  const daysLeft = Math.max(0, Math.ceil((endDate - new Date()) / (1000*60*60*24)));
+  const daysEl = document.getElementById('incentiveDays');
+  if (daysEl) daysEl.textContent = daysLeft;
+});
+
+// ─── Newsletter Popup ───
+(function() {
+  const popup = document.getElementById('newsletterPopup');
+  const closeBtn = document.getElementById('newsletterClose');
+  const form = document.getElementById('newsletterForm');
+  if (!popup) return;
+  
+  const dismissed = sessionStorage.getItem('nl_dismissed');
+  if (dismissed) return;
+  
+  setTimeout(() => { popup.classList.add('visible'); }, 8000);
+  
+  closeBtn.addEventListener('click', () => {
+    popup.classList.remove('visible');
+    sessionStorage.setItem('nl_dismissed', '1');
+  });
+  popup.addEventListener('click', (e) => {
+    if (e.target === popup) { popup.classList.remove('visible'); sessionStorage.setItem('nl_dismissed', '1'); }
+  });
+  
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = form.querySelector('button');
+    btn.textContent = 'Subscribing...';
+    btn.disabled = true;
+    
+    // Collect UTM data
+    const utmData = {};
+    ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','referrer'].forEach(k => {
+      const v = sessionStorage.getItem(k);
+      if (v) utmData[k] = v;
+    });
+    
+    try {
+      await fetch('zoho.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'newsletter',
+          source_form: 'NewsletterPopup',
+          first_name: document.getElementById('nlFirstName').value,
+          email: document.getElementById('nlEmail').value,
+          ...utmData
+        })
+      });
+    } catch(err) {}
+    
+    form.style.display = 'none';
+    document.getElementById('nlSuccess').style.display = 'block';
+    sessionStorage.setItem('nl_dismissed', '1');
+    setTimeout(() => { popup.classList.remove('visible'); }, 3000);
+  });
+})();
 </script>
 </body>
 </html>

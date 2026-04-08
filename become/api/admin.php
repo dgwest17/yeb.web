@@ -58,6 +58,16 @@ try {
 
     switch ($action) {
         // ── FOLDERS ──
+        case 'add_level':
+            $lvl = (int)($input['level'] ?? 0);
+            $title = $input['title'] ?? 'New Level';
+            $xp = (int)($input['xp_required'] ?? 0);
+            $icon = $input['badge_icon'] ?? '⭐';
+            $s = $db->prepare("INSERT INTO level_thresholds (level, xp_required, title, badge_icon) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE title=VALUES(title), xp_required=VALUES(xp_required), badge_icon=VALUES(badge_icon)");
+            $s->execute([$lvl, $xp, $title, $icon]);
+            echo json_encode(['success'=>true, 'level'=>$lvl]);
+            break;
+
         case 'add_folder':
             $s = $db->prepare("SELECT COALESCE(MAX(folder_order),0)+1 n FROM folders");
             $s->execute(); $order = (int)$s->fetch()['n'];

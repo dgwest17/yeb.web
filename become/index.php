@@ -66,17 +66,27 @@ unset($m);
 ksort($lvlGroups);
 
 // Compute locked state: stage-based within each level
-// Same module_order = same stage (parallel, all must complete)
-// Higher module_order = later stage (locked until previous stage done)
+// Past levels (below user level) = ALL unlocked (user has earned access)
+// Current level = sequential by stage
+// Future levels = ALL locked
 foreach ($lvlGroups as $lvl => &$mods) {
     $levelLocked = $lvl > $userLevel;
+    $isPastLevel = $lvl < $userLevel;
+    
     if ($levelLocked) {
         foreach ($mods as &$m) { $m['_locked'] = true; }
         unset($m);
         continue;
     }
+    
+    if ($isPastLevel) {
+        // Past levels: everything is unlocked regardless of stage
+        foreach ($mods as &$m) { $m['_locked'] = false; }
+        unset($m);
+        continue;
+    }
 
-    // Group by stage (module_order)
+    // Current level: sequential by stage
     $stages = [];
     foreach ($mods as &$m) {
         $stage = (int)($m['module_order'] ?? 1);

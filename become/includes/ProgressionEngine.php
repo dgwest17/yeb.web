@@ -192,26 +192,17 @@ class ProgressionEngine {
         // Open modules are always accessible
         if ($r && ($r['kind'] ?? '') === 'open') return true;
         
-        // Check level requirement first
-        if ($r && ($r['kind'] ?? '') === 'level') {
-            if ($lvl < (int)($r['value'] ?? 0)) return false;
-        }
+        // Determine module's level
+        $modLevel = ($r && ($r['kind'] ?? '') === 'level') ? (int)($r['value'] ?? 0) : 0;
         
-        // Check prerequisites (JSON array of module IDs that must ALL be completed)
-        $prereqs = json_decode($m['prerequisites'] ?? 'null', true);
-        if (is_array($prereqs) && count($prereqs) > 0) {
-            foreach ($prereqs as $reqId) {
-                if (!in_array((int)$reqId, $compMods)) return false;
-            }
-            return true; // all prerequisites met
-        }
+        // Future level = locked
+        if ($modLevel > $lvl) return false;
         
-        // No prerequisites set — fall back to sequential (previous module must be done)
-        if (!$r) return $prevDone;
-        if (($r['kind'] ?? '') === 'previousModule') return $prevDone;
-        if (($r['kind'] ?? '') === 'level') return $prevDone; // level met (checked above), now check sequence
+        // Past level = fully unlocked (user has earned this level)
+        if ($modLevel < $lvl) return true;
         
-        return $this->evalRule($r, $lvl, $days) && $prevDone;
+        // Current level = sequential by stage (prevDone check)
+        return $prevDone;
     }
 
     private function checkSegmentUnlock($seg, $lvl, $days, $prevDone, $mu) {

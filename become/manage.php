@@ -199,6 +199,9 @@ select.ed-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
 .flow-mod-info{flex:1;min-width:0;cursor:pointer}
 .flow-mod-title{font-weight:600;font-size:.7rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .flow-mod-meta{font-size:.58rem;color:var(--dim)}
+.flow-mod-arrows{display:flex;flex-direction:column;gap:1px;flex-shrink:0}
+.flow-mod-arr{background:none;border:1px solid rgba(255,255,255,0.06);color:var(--dim);font-size:.5rem;line-height:1;padding:2px 4px;cursor:pointer;border-radius:3px;transition:all .12s}
+.flow-mod-arr:hover{background:var(--teal);color:#fff;border-color:var(--teal)}
 </style>
 </head>
 <body>
@@ -688,7 +691,8 @@ function openSegEditor(segId) {
           ['clean']
         ],
         handlers: {
-          'image': function() { triggerFileUpload('image'); }
+          'image': function() { triggerFileUpload('image'); },
+          'video': function() { insertYouTube(); }
         }
       },
       keyboard: {
@@ -990,16 +994,36 @@ function modCard(m) {
   const segs = data.segments.filter(s => s.module_id == m.id).length;
   const stg = m.module_order || 1;
   return '<div class="flow-mod" draggable="true" data-mod-id="'+m.id+'" data-mod-stage="'+stg+'">' +
-    '<span class="flow-mod-handle">⠿</span>' +
+    '<div class="flow-mod-arrows">' +
+      '<button class="flow-mod-arr" data-move-mod="'+m.id+'" data-move-dir="up" title="Move to earlier stage">▲</button>' +
+      '<button class="flow-mod-arr" data-move-mod="'+m.id+'" data-move-dir="down" title="Move to later stage">▼</button>' +
+    '</div>' +
     '<div class="flow-mod-info" data-edit-mod="'+m.id+'">' +
       '<div class="flow-mod-title">'+(m.icon||'📄')+' '+esc(m.title)+'</div>' +
-      '<div class="flow-mod-meta">'+ficon+' '+esc(fname)+' · '+segs+' seg'+(segs!==1?'s':'')+'</div>' +
+      '<div class="flow-mod-meta">'+ficon+' '+esc(fname)+' · S'+stg+' · '+segs+' seg'+(segs!==1?'s':'')+'</div>' +
     '</div>' +
   '</div>';
 }
 
 // ─── Drag & Drop — fully delegated ───
 let dragModId = null;
+
+async function moveModStage(modId, dir) {
+  const mod = data.modules.find(m => m.id == modId);
+  if (!mod) return;
+  const curStage = mod.module_order || 1;
+  let newStage;
+  if (dir === 'up') {
+    newStage = Math.max(1, curStage - 1);
+  } else {
+    newStage = curStage + 1;
+  }
+  if (newStage === curStage) return;
+  await api('POST', {action:'update_module', id:modId, module_order:newStage});
+  mod.module_order = newStage;
+  renderFlow();
+  toast((dir==='up'?'↑':'↓') + ' Stage ' + newStage);
+}
 
 // Drag start/end via delegation
 document.addEventListener('dragstart', function(e) {
@@ -1542,6 +1566,16 @@ document.addEventListener('click', function(e) {
       document.querySelectorAll('.flow-nav-btn').forEach(function(b) { b.classList.remove('active'); });
       navBtn.classList.add('active');
     }
+    return;
+  }
+
+  // Move module between stages (up/down arrows)
+  var moveBtn = e.target.closest('[data-move-mod]');
+  if (moveBtn) {
+    e.stopPropagation();
+    var modId = parseInt(moveBtn.dataset.moveMod);
+    var dir = moveBtn.dataset.moveDir;
+    moveModStage(modId, dir);
     return;
   }
 

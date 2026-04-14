@@ -766,13 +766,13 @@ function insertDivider() {
 
 function insertYouTube() {
   if (!quillEditor) return;
-  const url = prompt('Paste a YouTube URL or video ID:\n\nExamples:\nhttps://www.youtube.com/watch?v=dQw4w9WgXcQ\nhttps://youtu.be/dQw4w9WgXcQ\ndQw4w9WgXcQ');
+  const url = prompt('Paste a YouTube URL (videos or Shorts):\n\nAll formats work:\nhttps://youtube.com/watch?v=...\nhttps://youtu.be/...\nhttps://youtube.com/shorts/...\nOr just the video ID');
   if (!url) return;
 
   // Extract video ID from various YouTube URL formats
   let videoId = url.trim();
   const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+    /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
     /^([a-zA-Z0-9_-]{11})$/
   ];
   for (const p of patterns) {

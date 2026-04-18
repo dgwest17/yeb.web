@@ -1193,6 +1193,10 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
         <div class="pm-label">Closing Rep Name</div>
         <input class="pm-input" id="pm-rep" placeholder="David West" value="David West">
       </div>
+      <div class="pm-field" style="grid-column:1/-1">
+        <div class="pm-label">Installing Company</div>
+        <input class="pm-input" id="pm-company" placeholder="Kinhome Solar" value="Kinhome Solar">
+      </div>
     </div>
 
     <!-- Numbers from presentation (read-only display) -->
@@ -1249,12 +1253,16 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
 
     <!-- Generated link -->
     <div id="pm-link-row" style="display:none;margin-bottom:1rem">
-      <div style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:0.4rem">Proposal Link</div>
-      <div style="display:flex;gap:0.5rem;align-items:center">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem">
+        <div style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold)">Proposal Link</div>
+        <div id="pm-shorten-status" style="font-size:0.62rem;color:var(--dim)"></div>
+      </div>
+      <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.4rem">
         <input class="pm-input" id="pm-link" readonly style="font-size:0.68rem;flex:1;cursor:text">
         <button class="pm-btn-secondary" onclick="copyProposalFromModal()">Copy</button>
         <a id="pm-link-open" href="#" target="_blank" class="pm-btn-secondary" style="text-decoration:none">Open ↗</a>
       </div>
+      <button id="pm-shorten-btn" class="pm-btn-secondary" onclick="shortenProposalUrl()" style="font-size:0.75rem;width:100%;text-align:center">🔗 Shorten URL with TinyURL</button>
     </div>
 
     <div style="display:flex;gap:0.6rem;flex-wrap:wrap">
@@ -3168,18 +3176,25 @@ function generateFromPresentation() {
   const solar   = document.getElementById('inp-solar')?.value         || '0';
   const skwh    = document.getElementById('inp-solar-kwh')?.value     || '6402';
   const vpp     = document.getElementById('inp-vpp-rate')?.value      || '0.0299';
-  // Use term from modal selector (user may override)
   const term    = document.getElementById('pm-term')?.value           || '25';
   const battery = document.getElementById('pm-battery')?.value        || 'None';
+  const rep     = document.getElementById('pm-rep')?.value            || 'David West';
+  const company = document.getElementById('pm-company')?.value        || 'Kinhome Solar';
 
-  const rep     = document.getElementById('pm-rep')?.value           || 'David West';
-
-  const secs = ['overview','bill','grid','numbers','included','why','comparison','timeline','contact']
-    .filter(s => { const el = document.getElementById('pmc-'+s); return !el || el.checked; })
-    .join(',');
+  const ALL_SECS = ['overview','bill','grid','numbers','included','why','comparison','timeline','contact'];
+  const unchecked = ALL_SECS.filter(s => {
+    const el = document.getElementById('pmc-'+s);
+    return el && !el.checked;
+  });
+  // Only include sections param if something is unchecked
+  const secs = unchecked.length === 0 ? null
+    : ALL_SECS.filter(s => { const el = document.getElementById('pmc-'+s); return !el || el.checked; }).join(',');
 
   const base = location.href.replace(/\/[^/]*$/, '/') + 'propose.html';
-  const url  = base + '?' + new URLSearchParams({ name, utility, bill, kwh, solar, skwh, vpp, term, battery, rep, slides: secs, ts: Date.now() }).toString();
+  const p = { n:name, u:utility, b:bill, k:kwh, s:solar, sk:skwh,
+              v:vpp, t:term, bat:battery, r:rep, co:company, ts:Date.now() };
+  if (secs) p.sl = secs;
+  const url = base + '?' + new URLSearchParams(p).toString();
 
   const linkRow  = document.getElementById('pm-link-row');
   const linkInp  = document.getElementById('pm-link');
@@ -3209,6 +3224,39 @@ function copyProposalFromModal() {
       setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, 2000);
     })
     .catch(() => { inp.select(); document.execCommand('copy'); });
+}
+
+async function shortenProposalUrl() {
+  const inp    = document.getElementById('pm-link');
+  const btn    = document.getElementById('pm-shorten-btn');
+  const status = document.getElementById('pm-shorten-status');
+  const open   = document.getElementById('pm-link-open');
+  if (!inp || !inp.value) return;
+
+  const longUrl = inp.value;
+  btn.textContent = '⏳ Shortening…';
+  btn.disabled = true;
+  if (status) status.textContent = '';
+
+  try {
+    const res  = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`);
+    const short = await res.text();
+    if (short && short.startsWith('https://')) {
+      inp.value = short;
+      if (open) open.href = short;
+      if (status) { status.textContent = '✓ Shortened'; status.style.color = 'var(--green-l)'; }
+      btn.textContent = '✓ Done — Copy above';
+      btn.style.color = 'var(--green-l)';
+      // Auto-copy
+      navigator.clipboard.writeText(short).catch(()=>{});
+    } else {
+      throw new Error('Bad response');
+    }
+  } catch(e) {
+    if (status) { status.textContent = 'Could not shorten — copy the full URL'; status.style.color = 'var(--rage-l)'; }
+    btn.textContent = '🔗 Shorten URL with TinyURL';
+    btn.disabled = false;
+  }
 }
 
 document.getElementById('proposal-modal')?.addEventListener('click', function(e) {

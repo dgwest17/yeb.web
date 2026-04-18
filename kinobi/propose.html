@@ -267,7 +267,7 @@ footer a{color:var(--gold);text-decoration:none}
   </div>
 
   <nav>
-    <div class="nav-logo" id="p-company-nav">Kinhome Solar</div>
+    <div class="nav-logo" id="p-company-nav">Kinhome</div>
     <ul class="nav-links">
       <li><a href="#overview">Overview</a></li>
       <li><a href="#bill">Your Bill</a></li>
@@ -498,7 +498,7 @@ footer a{color:var(--gold);text-decoration:none}
     <p class="section-sub">I built this proposal personally. I'm here to answer any question, walk through any number, or get your site survey scheduled.</p>
     <div class="contact-card">
       <div class="contact-name" id="contact-rep-name">David West</div>
-      <div style="font-size:0.85rem;color:var(--dim);margin-bottom:1rem" id="p-company-contact">Kinhome Solar</div>
+      <div style="font-size:0.85rem;color:var(--dim);margin-bottom:1rem" id="p-company-contact">Kinhome</div>
       <div style="display:flex;flex-direction:column;gap:0.6rem;align-items:center">
         <a href="tel:3039419131" style="color:var(--gold);text-decoration:none;font-size:1.05rem;font-weight:500">📞 303.941.9131</a>
         <a href="mailto:dwest@yourenergybest.com" style="color:var(--gold);text-decoration:none;font-size:0.88rem">✉️ dwest@yourenergybest.com</a>
@@ -508,7 +508,7 @@ footer a{color:var(--gold);text-decoration:none}
   </section>
 
   <footer>
-    Prepared by <a href="https://yourenergybest.com" id="p-company-footer">Kinhome Solar</a> for <span id="footer-name"></span> ·
+    Prepared by <a href="https://yourenergybest.com" id="p-company-footer">Kinhome</a> for <span id="footer-name"></span> ·
     <span id="footer-date"></span><br>
     * Utility rate projections are estimates. Actual rates may vary. Solar savings calculated from your specific system design.
   </footer>
@@ -526,6 +526,7 @@ if(_raw){
 }
 function pd(short, long, fb=''){
   if(_d[short]!==undefined) return String(_d[short]);
+  const vs = params.get(short); if(vs!==null) return vs;
   return p(long, fb);
 }
 
@@ -540,7 +541,7 @@ const DATA={
   term:    parseInt(pd('t','term','25')),
   battery: pd('bat','battery',''),
   rep:     pd('r','rep','David West'),
-  company: pd('co','company','Kinhome Solar'),
+  company: pd('co','company','Kinhome'),
   created: parseInt(pd('ts','ts','0')),
   slides:  pd('sl','slides','overview,bill,grid,numbers,included,why,comparison,timeline,contact').split(','),
 };

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Your Solar Proposal — Kinhome Solar</title>
+<title id="page-title">Your Solar Proposal</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
@@ -498,7 +498,7 @@ footer a{color:var(--gold);text-decoration:none}
     <p class="section-sub">I built this proposal personally. I'm here to answer any question, walk through any number, or get your site survey scheduled.</p>
     <div class="contact-card">
       <div class="contact-name" id="contact-rep-name">David West</div>
-      <div style="font-size:0.85rem;color:var(--dim);margin-bottom:1rem" id="p-company-contact">Kinhome Solar · Your Energy Best</div>
+      <div style="font-size:0.85rem;color:var(--dim);margin-bottom:1rem" id="p-company-contact">Kinhome Solar</div>
       <div style="display:flex;flex-direction:column;gap:0.6rem;align-items:center">
         <a href="tel:3039419131" style="color:var(--gold);text-decoration:none;font-size:1.05rem;font-weight:500">📞 303.941.9131</a>
         <a href="mailto:dwest@yourenergybest.com" style="color:var(--gold);text-decoration:none;font-size:0.88rem">✉️ dwest@yourenergybest.com</a>
@@ -674,8 +674,10 @@ function init(){
   set('hero-rep', DATA.rep);
   set('contact-rep-name', DATA.rep);
   set('p-company-nav', DATA.company);
-  set('p-company-contact', DATA.company + ' · Your Energy Best');
+  set('p-company-contact', DATA.company);
   set('p-company-footer', DATA.company);
+  // Page title
+  document.title = 'Your Solar Proposal — ' + DATA.company;
 
   // Names & labels
   ['hero-name','banner-name','nav-name','footer-name'].forEach(id=>set(id,DATA.name));

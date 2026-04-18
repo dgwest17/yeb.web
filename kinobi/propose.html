@@ -267,7 +267,7 @@ footer a{color:var(--gold);text-decoration:none}
   </div>
 
   <nav>
-    <div class="nav-logo">Kinhome Solar</div>
+    <div class="nav-logo" id="p-company-nav">Kinhome Solar</div>
     <ul class="nav-links">
       <li><a href="#overview">Overview</a></li>
       <li><a href="#bill">Your Bill</a></li>
@@ -498,7 +498,7 @@ footer a{color:var(--gold);text-decoration:none}
     <p class="section-sub">I built this proposal personally. I'm here to answer any question, walk through any number, or get your site survey scheduled.</p>
     <div class="contact-card">
       <div class="contact-name" id="contact-rep-name">David West</div>
-      <div style="font-size:0.85rem;color:var(--dim);margin-bottom:1rem">Kinhome Solar · Your Energy Best</div>
+      <div style="font-size:0.85rem;color:var(--dim);margin-bottom:1rem" id="p-company-contact">Kinhome Solar · Your Energy Best</div>
       <div style="display:flex;flex-direction:column;gap:0.6rem;align-items:center">
         <a href="tel:3039419131" style="color:var(--gold);text-decoration:none;font-size:1.05rem;font-weight:500">📞 303.941.9131</a>
         <a href="mailto:dwest@yourenergybest.com" style="color:var(--gold);text-decoration:none;font-size:0.88rem">✉️ dwest@yourenergybest.com</a>
@@ -508,7 +508,7 @@ footer a{color:var(--gold);text-decoration:none}
   </section>
 
   <footer>
-    Prepared by <a href="https://yourenergybest.com">Kinhome Solar</a> for <span id="footer-name"></span> ·
+    Prepared by <a href="https://yourenergybest.com" id="p-company-footer">Kinhome Solar</a> for <span id="footer-name"></span> ·
     <span id="footer-date"></span><br>
     * Utility rate projections are estimates. Actual rates may vary. Solar savings calculated from your specific system design.
   </footer>
@@ -517,19 +517,32 @@ footer a{color:var(--gold);text-decoration:none}
 <script>
 const params = new URLSearchParams(location.search);
 function p(key,fb=''){const v=params.get(key);return v!==null?v:fb}
+
+// Decode compact base64 payload if present, fall back to individual params
+let _d = {};
+const _raw = params.get('d');
+if(_raw){
+  try{ _d = JSON.parse(decodeURIComponent(escape(atob(_raw)))); }catch(e){ console.warn('decode error',e); }
+}
+function pd(short, long, fb=''){
+  if(_d[short]!==undefined) return String(_d[short]);
+  return p(long, fb);
+}
+
 const DATA={
-  name:    p('name','Your Family'),
-  utility: p('utility','SDG&E'),
-  bill:    parseFloat(p('bill','134')),
-  kwh:     parseFloat(p('kwh','3540')),
-  solar:   parseFloat(p('solar','0')),
-  solarKwh:parseFloat(p('skwh','6402')),
-  vppRate: parseFloat(p('vpp','0.0299')),
-  term:    parseInt(p('term','25')),
-  battery: p('battery',''),
-  rep:     p('rep','David West'),
-  created: parseInt(p('ts','0')),
-  slides:  p('slides','overview,bill,grid,numbers,included,why,comparison,timeline,contact').split(','),
+  name:    pd('n','name','Your Family'),
+  utility: pd('u','utility','SDG&E'),
+  bill:    parseFloat(pd('b','bill','134')),
+  kwh:     parseFloat(pd('k','kwh','3540')),
+  solar:   parseFloat(pd('s','solar','0')),
+  solarKwh:parseFloat(pd('sk','skwh','6402')),
+  vppRate: parseFloat(pd('v','vpp','0.0299')),
+  term:    parseInt(pd('t','term','25')),
+  battery: pd('bat','battery',''),
+  rep:     pd('r','rep','David West'),
+  company: pd('co','company','Kinhome Solar'),
+  created: parseInt(pd('ts','ts','0')),
+  slides:  pd('sl','slides','overview,bill,grid,numbers,included,why,comparison,timeline,contact').split(','),
 };
 const THIRTY_DAYS=30*24*60*60*1000;
 const now=Date.now();
@@ -657,9 +670,12 @@ function setPropMode(mode){
 function init(){
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
 
-  // Rep name
+  // Rep + Company name
   set('hero-rep', DATA.rep);
   set('contact-rep-name', DATA.rep);
+  set('p-company-nav', DATA.company);
+  set('p-company-contact', DATA.company + ' · Your Energy Best');
+  set('p-company-footer', DATA.company);
 
   // Names & labels
   ['hero-name','banner-name','nav-name','footer-name'].forEach(id=>set(id,DATA.name));

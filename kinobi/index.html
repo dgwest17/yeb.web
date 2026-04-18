@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kinhome Solar Presentation</title>
+<title>Kinhome Presentation</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
@@ -1195,7 +1195,7 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
       </div>
       <div class="pm-field" style="grid-column:1/-1">
         <div class="pm-label">Installing Company</div>
-        <input class="pm-input" id="pm-company" placeholder="Kinhome Solar" value="Kinhome Solar">
+        <input class="pm-input" id="pm-company" placeholder="Kinhome" value="Kinhome">
       </div>
     </div>
 
@@ -1309,7 +1309,7 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
 <!-- ══ TITLE SLIDE ══ -->
 <div class="slide slide-gold active" id="slide-title">
   <div class="title-slide-inner">
-    <span class="eyebrow" style="letter-spacing:0.25em">Kinhome Solar</span>
+    <span class="eyebrow" style="letter-spacing:0.25em">Kinhome</span>
     <div class="accent-line gold" style="margin:0 auto"></div>
     <h1 class="display xl" style="line-height:0.95;text-align:center">YOUR ENERGY<br><span style="color:var(--gold)">FUTURE</span></h1>
     <p style="font-size:0.9rem;color:var(--muted);text-align:center;max-width:400px;line-height:1.7">A personalized solar analysis prepared for</p>
@@ -1921,7 +1921,7 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
             <span style="font-size:1.5rem">☀️</span>
             <div>
               <div style="font-size:0.65rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:rgba(39,174,96,0.7);margin-bottom:2px">Virtual Power Plant</div>
-              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--green-l);letter-spacing:0.04em">Kinhome Solar</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--green-l);letter-spacing:0.04em">Kinhome</div>
             </div>
           </div>
           <ul class="summ-list" id="vpp-list">
@@ -3179,7 +3179,7 @@ function generateFromPresentation() {
   const term    = document.getElementById('pm-term')?.value           || '25';
   const battery = document.getElementById('pm-battery')?.value        || 'None';
   const rep     = document.getElementById('pm-rep')?.value            || 'David West';
-  const company = document.getElementById('pm-company')?.value        || 'Kinhome Solar';
+  const company = document.getElementById('pm-company')?.value        || 'Kinhome';
 
   const ALL_SECS = ['overview','bill','grid','numbers','included','why','comparison','timeline','contact'];
   const unchecked = ALL_SECS.filter(s => {

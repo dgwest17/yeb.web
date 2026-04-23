@@ -869,9 +869,32 @@ function setMode(t){
   document.getElementById('m-'+t).classList.add('active');
   buildInputTable();buildChosenSel();
 }
-function toggleSec(el){el.classList.toggle('on')}
-function toggleAll(on){document.querySelectorAll('.stog').forEach(function(el){el.classList[on?'add':'remove']('on')})}
-function activeSecs(){var s=new Set();document.querySelectorAll('.stog.on').forEach(function(el){s.add(el.dataset.sec)});return s}
+function toggleSec(el){
+  el.classList.toggle('on');
+  applySectionVisibility();
+}
+function toggleAll(on){
+  document.querySelectorAll('.stog').forEach(function(el){el.classList[on?'add':'remove']('on')});
+  applySectionVisibility();
+}
+function activeSecs(){
+  var s=new Set();
+  document.querySelectorAll('.stog.on').forEach(function(el){s.add(el.dataset.sec)});
+  return s;
+}
+function applySectionVisibility(){
+  var tbl=document.getElementById('cmp-tbl');
+  if(!tbl||!tbl.innerHTML.trim())return;
+  var secs=activeSecs();
+  tbl.querySelectorAll('tr').forEach(function(row){
+    var sec=row.dataset.sec;
+    if(!sec)return;
+    var show=secs.has(sec);
+    row.style.display=show?'':'none';
+    // Also animate
+    if(show){row.style.opacity='0';setTimeout(function(){row.style.transition='opacity 0.3s ease';row.style.opacity='1'},10)}
+  });
+}
 
 function buildInputTable(){
   var cols=MODE_COLS[modeType];
@@ -972,14 +995,14 @@ function buildComparison(){
   function row(label,vals,renderFn,sec,higher){
     if(!secs.has(sec))return'';
     var wi=higher!=null?findWinner(vals,higher):-1;
-    var r='<tr class="dr"><td class="rl">'+label+'</td>';
+    var r='<tr class="dr" data-sec="'+sec+'"><td class="rl">'+label+'</td>';
     vals.forEach(function(v,i){
       var isW=i===wi;
       r+='<td class="'+(isW?'win-cell':'')+'" style="background:'+cols[i].bcol+';border-left:2px solid '+cols[i].bord+'">'+renderFn(v,i,isW)+'</td>';
     });
     return r+'</tr>';
   }
-  function secH(sec){return secs.has(sec)?'<tr class="sh"><td colspan="'+(data.length+1)+'">'+SEC_LABELS[sec]+'</td></tr>':''}
+  function secH(sec){return secs.has(sec)?'<tr class="sh" data-sec="'+sec+'"><td colspan="'+(data.length+1)+'">'+SEC_LABELS[sec]+'</td></tr>':''}
 
   html+=secH('company');
   html+=row('Company',data.map(function(d){return d.name}),function(v){return txt(v)},'company',null);
@@ -1015,8 +1038,8 @@ function buildComparison(){
   var scores=data.map(function(d){return calcScore(d)});
   var maxS=Math.max.apply(null,scores.filter(Boolean));
   if(secs.has('score')){
-    html+='<tr class="sh"><td colspan="'+(data.length+1)+'">'+SEC_LABELS.score+'</td></tr>';
-    var sr='<tr class="dr"><td class="rl">Composite Score</td>';
+    html+='<tr class="sh" data-sec="score"><td colspan="'+(data.length+1)+'">'+SEC_LABELS.score+'</td></tr>';
+    var sr='<tr class="dr" data-sec="score"><td class="rl">Composite Score</td>';
     scores.forEach(function(s,i){
       var isMax=s&&s===maxS;
       sr+='<td style="background:'+cols[i].bcol+';border-left:2px solid '+cols[i].bord+';padding:0.9rem">'

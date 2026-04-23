@@ -12,7 +12,7 @@
   --deep-space:#050818;
   --nebula-1:#0d1535;
   --nebula-2:#110a2a;
-  --panel:rgba(8,15,40,0.85);
+  --panel:rgba(6,12,32,0.92);
   --panel2:rgba(5,10,28,0.92);
 
   --aurora-gold:#f0b429;
@@ -26,9 +26,9 @@
   --aurora-pink:#ff4d8f;
 
   --star-white:rgba(255,255,255,0.85);
-  --text:#e8eaf6;
-  --muted:#8892b0;
-  --dim:#3d4a6e;
+  --text:#ffffff;
+  --muted:#c8d0e8;
+  --dim:#6a7a9e;
 
   --r:8px;
   --r-lg:14px;
@@ -111,7 +111,7 @@ header{
   filter:drop-shadow(0 0 30px rgba(0,229,255,0.25));
   margin-bottom:0.5rem;
 }
-.hero-sub{font-size:0.82rem;color:var(--muted);letter-spacing:0.08em;font-weight:300}
+.hero-sub{font-size:0.82rem;color:#c8d4ee;letter-spacing:0.08em;font-weight:400}
 
 /* ─── COSMIC CARD ─── */
 .card{
@@ -137,7 +137,7 @@ header{
 .card-ey{
   font-family:'Orbitron',monospace;font-size:0.52rem;letter-spacing:0.26em;
   text-transform:uppercase;color:var(--aurora-cyan);margin-bottom:0.35rem;
-  opacity:0.7;
+  opacity:1;
 }
 .card-ti{
   font-family:'Orbitron',monospace;font-size:0.9rem;letter-spacing:0.1em;
@@ -157,7 +157,7 @@ header{
 .mpill{
   border:none;
   background:transparent;
-  color:var(--muted);
+  color:#a0aec8;
   padding:0.42rem 1.15rem;
   border-radius:100px;
   font-family:'Orbitron',monospace;font-size:0.62rem;font-weight:600;
@@ -181,8 +181,8 @@ header{
   border-radius:100px;
   padding:0.32rem 0.9rem 0.32rem 0.6rem;
   cursor:pointer;transition:all 0.22s;
-  font-family:'Exo 2',sans-serif;font-size:0.7rem;font-weight:500;
-  color:var(--muted);user-select:none;white-space:nowrap;
+  font-family:'Exo 2',sans-serif;font-size:0.7rem;font-weight:600;
+  color:#a8b8d8;user-select:none;white-space:nowrap;
   letter-spacing:0.04em;
 }
 .stog:hover{border-color:rgba(0,229,255,0.2);color:rgba(200,220,255,0.8)}
@@ -260,9 +260,9 @@ header{
 
 /* ─── COSMIC INPUTS ─── */
 .fi{
-  background:rgba(0,10,40,0.7);
-  border:1px solid rgba(255,255,255,0.08);
-  color:var(--text);
+  background:rgba(0,10,40,0.8);
+  border:1px solid rgba(255,255,255,0.14);
+  color:#ffffff;
   padding:0.52rem 0.8rem;
   border-radius:var(--r);
   font-family:'JetBrains Mono',monospace;
@@ -358,23 +358,23 @@ header{
 
 /* Column header */
 .cmp .ch td{
-  background:rgba(2,8,25,0.95);
+  background:rgba(2,8,32,0.98);
   padding:1.25rem 1rem;
-  border-bottom:1px solid rgba(0,229,255,0.1);
+  border-bottom:1px solid rgba(0,229,255,0.18);
   text-align:center;
 }
 .cmp .ch td:first-child{text-align:left;width:200px;min-width:155px}
-.chn{font-family:'Orbitron',monospace;font-size:1rem;letter-spacing:0.08em;line-height:1;margin-bottom:0.15rem}
+.chn{font-family:'Orbitron',monospace;font-size:1.05rem;letter-spacing:0.08em;line-height:1;margin-bottom:0.15rem;color:#fff;text-shadow:0 0 20px currentColor}
 .chtag{font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;opacity:0.5;font-family:'Exo 2',sans-serif}
 
 /* Section headers */
 .cmp .sh td{
   padding:0.6rem 1rem;
   font-family:'Orbitron',monospace;font-size:0.52rem;letter-spacing:0.22em;text-transform:uppercase;
-  background:rgba(0,229,255,0.04);
-  border-top:1px solid rgba(0,229,255,0.1);
-  border-bottom:1px solid rgba(0,229,255,0.06);
-  color:rgba(0,229,255,0.6);
+  background:rgba(0,229,255,0.07);
+  border-top:1px solid rgba(0,229,255,0.18);
+  border-bottom:1px solid rgba(0,229,255,0.1);
+  color:rgba(0,229,255,0.95);
 }
 
 /* Data rows */
@@ -387,14 +387,14 @@ header{
 .cmp .dr:hover td{filter:brightness(1.06)}
 .cmp .dr td:first-child{text-align:left}
 .rl{
-  font-family:'Exo 2',sans-serif;font-size:0.69rem;color:var(--muted);font-weight:500;
-  border-right:1px solid rgba(255,255,255,0.04);padding-right:1rem!important;
+  font-family:'Exo 2',sans-serif;font-size:0.76rem;color:var(--text);font-weight:600;
+  border-right:1px solid rgba(255,255,255,0.08);padding-right:1rem!important;
 }
 
 /* Value types */
-.vbig{font-family:'Orbitron',monospace;font-size:1.15rem;letter-spacing:0.04em;line-height:1;font-weight:600}
-.vmono{font-family:'JetBrains Mono',monospace;font-size:0.82rem}
-.vdim{color:var(--dim);font-style:italic;font-size:0.68rem;font-family:'Exo 2',sans-serif}
+.vbig{font-family:'Orbitron',monospace;font-size:1.15rem;letter-spacing:0.04em;line-height:1;font-weight:700;color:#fff}
+.vmono{font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:#e8f0ff;font-weight:500}
+.vdim{color:#5a6a8e;font-style:italic;font-size:0.7rem;font-family:'Exo 2',sans-serif}
 .vsuf{font-size:0.58rem;color:var(--dim);margin-left:3px;font-family:'Exo 2',sans-serif;font-weight:300}
 .stars-out{letter-spacing:2px;font-size:1rem}
 
@@ -510,6 +510,7 @@ header{
       <div class="stog on" data-sec="battery"    onclick="toggleSec(this)"><div class="orb"></div>Battery</div>
       <div class="stog on" data-sec="financials" onclick="toggleSec(this)"><div class="orb"></div>Financials</div>
       <div class="stog on" data-sec="savings"    onclick="toggleSec(this)"><div class="orb"></div>Savings</div>
+      <div class="stog on" data-sec="rep"        onclick="toggleSec(this)"><div class="orb"></div>Your Rep</div>
       <div class="stog on" data-sec="score"      onclick="toggleSec(this)"><div class="orb"></div>Overall Score</div>
     </div>
   </div>
@@ -520,6 +521,35 @@ header{
       <div class="card-ey">Data Entry</div>
       <div class="card-ti">Enter the Numbers</div>
     </div>
+    <!-- Rep name global input -->
+    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.1rem;padding:0.85rem 1rem;background:rgba(0,229,255,0.04);border:1px solid rgba(0,229,255,0.12);border-radius:var(--r-lg);flex-wrap:wrap">
+      <div style="font-family:Orbitron,monospace;font-size:0.58rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--aurora-cyan);white-space:nowrap">Your Rep Name</div>
+      <input id="global-rep-name" type="text" class="fi" placeholder="David West" value="David West" style="max-width:220px;flex:1;min-width:140px">
+      <div style="font-size:0.7rem;color:var(--muted);font-weight:300;flex:2;min-width:200px">This name appears in the <strong style="color:var(--aurora-cyan)">Your Rep</strong> row — showing clients they get <em>you</em> with every quote from us.</div>
+    </div>
+
+    <!-- UTILITY CALCULATOR -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:0.75rem;padding:1rem;background:rgba(231,76,60,0.05);border:1px solid rgba(231,76,60,0.15);border-radius:12px;margin-bottom:1.1rem">
+      <div style="grid-column:1/-1;font-family:Orbitron,monospace;font-size:0.56rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(231,76,60,0.85);margin-bottom:0.35rem">⚡ Utility Cost Model — Auto-calculates savings</div>
+      <div style="display:flex;flex-direction:column;gap:0.35rem">
+        <label style="font-size:0.62rem;color:#b8c8e8;font-weight:600;font-family:Exo 2,sans-serif;letter-spacing:0.08em">Current Monthly Bill ($)</label>
+        <input id="uc-bill" type="number" class="fi" placeholder="187" style="border-left:2px solid rgba(231,76,60,0.5)!important" oninput="autoCalcSavings()">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0.35rem">
+        <label style="font-size:0.62rem;color:#b8c8e8;font-weight:600;font-family:Exo 2,sans-serif;letter-spacing:0.08em">Annual Rate Increase (%)</label>
+        <select id="uc-rate" class="fi" style="border-left:2px solid rgba(231,76,60,0.5)!important" onchange="autoCalcSavings()">
+          <option value="0.04">4% — Inflation</option>
+          <option value="0.06">6% — Conservative</option>
+          <option value="0.09" selected>9% — SDG&E Historical</option>
+          <option value="0.12">12% — Worst Case</option>
+        </select>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0.35rem">
+        <label style="font-size:0.62rem;color:#b8c8e8;font-weight:600;font-family:Exo 2,sans-serif;letter-spacing:0.08em">25yr Utility Cost (auto)</label>
+        <div id="uc-25yr" class="fi" style="background:rgba(231,76,60,0.08);border-color:rgba(231,76,60,0.3);color:#E74C3C;font-family:Orbitron,monospace;font-size:0.9rem;font-weight:700;display:flex;align-items:center">—</div>
+      </div>
+    </div>
+
     <div class="tbl-scroll">
       <table class="itbl"><thead id="tbl-head"></thead><tbody id="tbl-body"></tbody></table>
     </div>
@@ -527,6 +557,19 @@ header{
     <div class="fwrap">
       <div class="flbl">Client Decision (optional)</div>
       <select class="fi-sel" id="chosen-sel"><option value="">— Not decided yet —</option></select>
+    </div>
+    <div style="margin-top:1.25rem;padding:0.85rem 1rem;background:rgba(240,180,41,0.05);border:1px solid rgba(240,180,41,0.15);border-radius:var(--r-lg);display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+      <div>
+        <div style="font-family:Orbitron,monospace;font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--aurora-gold);margin-bottom:0.2rem">Utility Rate Assumption</div>
+        <div style="font-size:0.72rem;color:#b0bcd8;font-weight:300">Annual increase used to calculate 25yr utility cost & savings</div>
+      </div>
+      <select id="calc-util-rate" class="fi" style="max-width:220px;flex:1;min-width:140px;border-left:2px solid rgba(240,180,41,0.4)!important">
+        <option value="0.00">0% — Frozen</option>
+        <option value="0.04">4% — Inflation</option>
+        <option value="0.06">6% — Conservative</option>
+        <option value="0.09" selected>9% — SDG&E Historical</option>
+        <option value="0.12">12% — Worst Case</option>
+      </select>
     </div>
     <div class="cta-row">
       <button class="btn-go" onclick="buildComparison()">⚡ GENERATE COMPARISON</button>
@@ -672,7 +715,7 @@ header{
     t++;
 
     // Clear
-    ctx.fillStyle = 'rgba(2,4,20,0.18)';
+    ctx.fillStyle = 'rgba(2,4,20,0.22)';
     ctx.fillRect(0,0,W,H);
 
     var cx = W * coreGlow.x;
@@ -821,8 +864,8 @@ header{
 
 <script>
 var modeType='them';
-var SOLAR_OPTS=['PPA','Lease','Loan','Cash','PACE','Other'];
-var SEC_LABELS={company:'🏢  Company',reviews:'⭐  Reviews',system:'⚡  System Size',option:'☀️  Solar Option',production:'📊  Production',panel_war:'🛡  Panel Warranty',inv_war:'🔌  Inverter Warranty',battery:'🔋  Battery',financials:'💰  Financials',savings:'📈  Savings',score:'🏆  Overall Score'};
+var SOLAR_OPTS=['Cash Purchase','Participate Prepaid Upfront','Propel Energy Service Agreement','PPA','Participate Financed'];
+var SEC_LABELS={company:'🏢  Company',reviews:'⭐  Reviews',system:'⚡  System Size',option:'☀️  Solar Option',production:'📊  Production',panel_war:'🛡  Panel Warranty',inv_war:'🔌  Inverter Warranty',battery:'🔋  Battery',financials:'💰  Financials',savings:'📈  Savings',rep:'👤  Your Rep',score:'🏆  Overall Score'};
 var MODE_COLS={
   them: [
     {id:'a',label:'Competitor',    cls:'th-a',bcol:'rgba(240,180,41,0.07)',  bord:'rgba(240,180,41,0.2)',   ncol:'var(--aurora-gold)'},
@@ -860,8 +903,127 @@ var FIELDS=[
   ['escalator','Yearly Escalator / Interest','financials','num2',false],
   ['post_bill','Post-Solar Est. Payment','financials','num0',false],
   ['yr1_save','Year 1 Savings','savings','num0',true],
-  ['yr25_save','Year 25 Savings','savings','num0',true]
+  ['yr25_save','Year 25 Savings','savings','num0',true],
+  ['rep_included','Rep Included','rep','checkmark',true],
+  ['util_rate','Util Rate Increase (%/yr)','savings','num2',null]
 ];
+// Separate array for utility calculator (global inputs, not per-column)
+var DUMMY_FIELD_END=true
+];
+
+
+// ── SOLAR OPTION INTELLIGENCE ──
+var PROPEL_NAME = 'Propel Energy Service Agreement';
+
+function onSolarOptChange(col, sel) {
+  if(sel.value === PROPEL_NAME) {
+    // Propel: always 25yr, always Enphase
+    var termEl = document.getElementById('i-'+col+'-term');
+    var invWarEl = document.getElementById('i-'+col+'-inv_war');
+    var batEl = document.getElementById('i-'+col+'-bat_type');
+    if(termEl){ termEl.value='25'; termEl.style.color='var(--aurora-cyan)'; termEl.title='Propel is always 25 years'; }
+    if(invWarEl){ invWarEl.value='25'; invWarEl.style.color='var(--aurora-cyan)'; }
+    if(batEl){ batEl.value='Enphase IQ Battery'; batEl.style.color='var(--aurora-cyan)'; }
+    // Flash effect
+    sel.style.borderColor='rgba(0,229,255,0.6)';
+    sel.style.color='var(--aurora-cyan)';
+    setTimeout(function(){sel.style.borderColor='';sel.style.color='';},2000);
+  }
+  autoCalcSavings();
+}
+
+// ── UTILITY COST CALCULATOR ──
+function calcUtil25(bill, rate) {
+  if(!bill || !rate) return 0;
+  var total = 0;
+  for(var y=1;y<=25;y++) total += bill * Math.pow(1+rate, y-1) * 12;
+  return Math.round(total);
+}
+
+function autoCalcSavings() {
+  var bill = parseFloat(document.getElementById('uc-bill').value) || 0;
+  var rate = parseFloat(document.getElementById('uc-rate').value) || 0.09;
+  var util25 = calcUtil25(bill, rate);
+
+  // Update display
+  var u25el = document.getElementById('uc-25yr');
+  if(u25el) u25el.textContent = util25 ? '$' + util25.toLocaleString() : '—';
+
+  if(!bill) return;
+
+  // Auto-fill util_bill for all columns
+  var cols = MODE_COLS[modeType];
+  cols.forEach(function(c) {
+    var billEl = document.getElementById('i-'+c.id+'-util_bill');
+    if(billEl && !billEl.value) billEl.value = bill;
+  });
+
+  // Auto-calculate yr1 and yr25 savings per column
+  cols.forEach(function(c) {
+    var solarMo = parseFloat(document.getElementById('i-'+c.id+'-solar_mo')?.value) || 0;
+    var optEl = document.getElementById('i-'+c.id+'-solar_opt');
+    var opt = optEl ? optEl.value : '';
+    var termEl = document.getElementById('i-'+c.id+'-term');
+    var term = parseInt(termEl?.value) || 25;
+    var escEl = document.getElementById('i-'+c.id+'-escalator');
+    var esc = parseFloat(escEl?.value) / 100 || 0;
+
+    if(!solarMo) return; // skip if no solar payment
+
+    // Year 1 savings = (utility bill - solar payment) * 12
+    var yr1Util = bill * 12;
+    var yr1Solar = solarMo * 12;
+    var yr1Save = Math.round(yr1Util - yr1Solar);
+
+    // 25yr savings = cumulative utility costs - cumulative solar costs
+    var solarCumul = 0;
+    for(var y=1;y<=25;y++) {
+      if(opt === 'Cash Purchase' || opt === 'Participate Prepaid Upfront') {
+        // No monthly payment
+        solarCumul = 0;
+      } else {
+        var moPayment = y <= term ? solarMo * Math.pow(1+esc, y-1) : 0;
+        solarCumul += moPayment * 12;
+      }
+    }
+    var yr25Save = Math.round(util25 - solarCumul);
+
+    var yr1El = document.getElementById('i-'+c.id+'-yr1_save');
+    var yr25El = document.getElementById('i-'+c.id+'-yr25_save');
+    if(yr1El && !yr1El.dataset.manual) { yr1El.value = yr1Save; yr1El.style.color='var(--aurora-green)'; }
+    if(yr25El && !yr25El.dataset.manual) { yr25El.value = yr25Save; yr25El.style.color='var(--aurora-green)'; }
+  });
+}
+
+// Mark manual edits so auto-calc doesn't overwrite
+function markManual(el){ el.dataset.manual='1'; el.style.color=''; }
+
+function updateChkStyle(inp){
+  var wrap=inp.closest('label');
+  var box=wrap.querySelector('.chk-box');
+  var lbl=wrap.querySelector('.chk-label');
+  if(inp.checked){
+    wrap.style.borderColor='rgba(0,255,136,0.4)';
+    wrap.style.background='rgba(0,255,136,0.07)';
+    wrap.style.boxShadow='0 0 14px rgba(0,255,136,0.12)';
+    box.style.background='var(--aurora-green)';
+    box.style.borderColor='var(--aurora-green)';
+    box.style.boxShadow='0 0 10px rgba(0,255,136,0.5)';
+    box.innerHTML='<span style="color:#000;font-weight:900;font-size:0.85rem">✓</span>';
+    lbl.style.color='var(--aurora-green)';
+    lbl.textContent='Included';
+  } else {
+    wrap.style.borderColor='rgba(255,255,255,0.09)';
+    wrap.style.background='rgba(0,10,40,0.6)';
+    wrap.style.boxShadow='none';
+    box.style.background='rgba(0,10,40,0.5)';
+    box.style.borderColor='rgba(255,255,255,0.15)';
+    box.style.boxShadow='none';
+    box.innerHTML='';
+    lbl.style.color='var(--muted)';
+    lbl.textContent='Not included';
+  }
+}
 
 function setMode(t){
   modeType=t;
@@ -911,6 +1073,8 @@ function buildInputTable(){
     body+='</tr>';
   });
   document.getElementById('tbl-body').innerHTML=body;
+  // Apply initial checkmark styling
+  document.querySelectorAll('.chk-native').forEach(function(inp){updateChkStyle(inp)});
   // wire stars
   document.querySelectorAll('.star-sel').forEach(function(wrap){
     var stars=wrap.querySelectorAll('.s');
@@ -927,11 +1091,21 @@ function makeInput(c,id,type){
   var cls='fi fi-'+c.id;
   var defName=(id==='company')?(modeType.startsWith('me')?c.label:(c.id==='k'?'Kinhome':'')):'';
   if(type==='stars'){return '<div class="star-sel" id="'+fid+'" data-val="0"><span class="s">★</span><span class="s">★</span><span class="s">★</span><span class="s">★</span><span class="s">★</span></div>'}
-  if(type==='select-opt'){var opts=SOLAR_OPTS.map(function(o){return'<option>'+o+'</option>'}).join('');return'<select class="'+cls+'" id="'+fid+'"><option value="">—</option>'+opts+'</select>'}
+  if(type==='select-opt'){var opts=SOLAR_OPTS.map(function(o){return'<option>'+o+'</option>'}).join('');return'<select class="'+cls+'" id="'+fid+'" onchange="onSolarOptChange(\''+c.id+'\',this)"><option value="">— select —</option>'+opts+'</select>'}
+  if(type==='checkmark'){
+    var isK=c.id==='k'||(modeType.startsWith('me'));
+    var checked=isK?'checked':'';
+    var glowClr=isK?'var(--aurora-green)':'var(--aurora-gold)';
+    return '<label class="chk-wrap fi-'+c.id+'" id="'+fid+'-wrap" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;cursor:pointer;padding:0.55rem;border-radius:var(--r);background:rgba(0,10,40,0.6);border:1px solid rgba(255,255,255,0.09);transition:all 0.2s">'
+      +'<input type="checkbox" id="'+fid+'" '+checked+' class="chk-native" style="display:none" onchange="updateChkStyle(this)">'
+      +'<span class="chk-box" style="width:26px;height:26px;border-radius:5px;border:1.5px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;transition:all 0.2s;font-size:1rem;background:rgba(0,10,40,0.5);flex-shrink:0"></span>'
+      +'<span class="chk-label" style="font-family:Exo 2,sans-serif;font-size:0.72rem;color:var(--muted)">Included</span>'
+      +'</label>';
+  }
   var itype=type==='text'?'text':'number';
   var step=type==='num1'?'step="0.1"':type==='num2'?'step="0.01"':'';
   var dv=defName?'value="'+defName+'"':'';
-  return'<input id="'+fid+'" type="'+itype+'" '+step+' class="'+cls+'" '+dv+' placeholder="">';
+  var extraAttr=(id==='yr1_save'||id==='yr25_save')?" oninput=\"markManual(this)\"":(id==='solar_mo'||id==='escalator'||id==='term')?' oninput="autoCalcSavings()"':'';  return'<input id="'+fid+'" type="'+itype+'" '+step+' class="'+cls+'" '+dv+extraAttr+' placeholder="">';
 }
 
 function buildChosenSel(){
@@ -941,7 +1115,7 @@ function buildChosenSel(){
   document.getElementById('chosen-sel').innerHTML=html;
 }
 
-function gv(col,id){var el=document.getElementById('i-'+col+'-'+id);if(!el)return'';if(el.classList.contains('star-sel'))return el.dataset.val||'0';return el.value?el.value.trim():''}
+function gv(col,id){var el=document.getElementById('i-'+col+'-'+id);if(!el)return'';if(el.classList.contains('star-sel'))return el.dataset.val||'0';if(el.type==='checkbox')return el.checked?'yes':'no';return el.value?el.value.trim():''}
 function gn(col,id){return parseFloat(gv(col,id))||0}
 
 function renderStars(n){var num=parseInt(n)||0;if(!num)return'<span class="vdim">—</span>';return'<span class="stars-out" style="color:var(--aurora-gold);text-shadow:0 0 8px rgba(240,180,41,0.5)">'+'★'.repeat(num)+'☆'.repeat(5-num)+'</span>'}
@@ -976,19 +1150,69 @@ function buildComparison(){
   var cols=MODE_COLS[modeType];
   var data=cols.map(function(c){return{
     col:c.id,name:gv(c.id,'company')||c.label,reviews:gn(c.id,'reviews'),kw:gn(c.id,'kw'),
-    solar_opt:gv(c.id,'solar_opt'),prod:gn(c.id,'prod'),panel_war:gn(c.id,'panel_war'),inv_war:gn(c.id,'inv_war'),
+    solar_opt:gv(c.id,'solar_opt')||'',prod:gn(c.id,'prod'),panel_war:gn(c.id,'panel_war'),inv_war:gn(c.id,'inv_war'),
     bat_type:gv(c.id,'bat_type'),bat_size:gn(c.id,'bat_size'),bat_war:gn(c.id,'bat_war'),
     util_bill:gn(c.id,'util_bill'),solar_mo:gn(c.id,'solar_mo'),term:gn(c.id,'term'),
     escalator:gn(c.id,'escalator'),post_bill:gn(c.id,'post_bill'),
-    yr1_save:gn(c.id,'yr1_save'),yr25_save:gn(c.id,'yr25_save')
+    yr1_save:gn(c.id,'yr1_save'),yr25_save:gn(c.id,'yr25_save'),
+    _yr1_manual:gn(c.id,'yr1_save')>0,
+    _yr25_manual:gn(c.id,'yr25_save')>0,
+    util25:0,
+    rep_included:gv(c.id,'rep_included')
   }});
+  var repName=document.getElementById('global-rep-name').value||'David West';
+
+  // ── AUTO-CALCULATE financials from model ──
+  var utilRate=parseFloat(document.getElementById('calc-util-rate').value)||0.09;
+  data.forEach(function(d){
+    var bill=d.util_bill;
+    var solar=d.solar_mo;
+    var esc=d.escalator/100; // e.g. 2.99 -> 0.0299
+    var term=d.term||25;
+
+    // 25yr utility cost (compound, monthly bill * 12 each year)
+    if(bill>0&&!d._util25_set){
+      var util25=0;
+      for(var y=1;y<=25;y++){util25+=bill*Math.pow(1+utilRate,y-1)*12;}
+      d.util25=Math.round(util25);
+    }
+
+    // Year 1 savings: (utility bill - solar payment - post_bill) * 12
+    if(bill>0&&solar>=0&&!d._yr1_manual){
+      var yr1=(bill-(solar||0)-(d.post_bill||0))*12;
+      if(yr1>0&&!d.yr1_save){d.yr1_save=Math.round(yr1);}
+    }
+
+    // Year 25 savings vs utility: util25 - total solar paid - total post-solar bills
+    if(d.util25&&solar>=0&&!d._yr25_manual){
+      var totalSolarPaid=0;
+      for(var y=1;y<=term;y++){totalSolarPaid+=(solar||0)*Math.pow(1+(esc||0),y-1)*12;}
+      var totalPostBills=(d.post_bill||0)*25*12;
+      var yr25=d.util25-totalSolarPaid-totalPostBills;
+      if(yr25>0&&!d.yr25_save){d.yr25_save=Math.round(yr25);}
+    }
+  });
 
   var html='';
   // Header row
-  html+='<tr class="ch"><td></td>';
+  var util25Display = '';
+  var ucBill = parseFloat(document.getElementById('uc-bill').value)||0;
+  var ucRate = parseFloat(document.getElementById('uc-rate').value)||0.09;
+  if(ucBill){
+    var u25=0;for(var y=1;y<=25;y++)u25+=ucBill*Math.pow(1+ucRate,y-1)*12;
+    util25Display='<div style="font-size:0.6rem;color:rgba(231,76,60,0.8);font-family:Exo 2,sans-serif;margin-top:0.3rem;letter-spacing:0.04em">vs <span style='font-weight:700'>$'+Math.round(u25).toLocaleString()+'</span> utility over 25 yrs</div>';
+  }
+
+  html+='<tr class="ch"><td><div style="font-family:Orbitron,monospace;font-size:0.6rem;letter-spacing:0.12em;color:rgba(0,229,255,0.6)">METRIC</div></td>';
   data.forEach(function(d,i){
     var c=cols[i];
-    html+='<td style="background:'+c.bcol+';border-bottom:2px solid '+c.bord+';border-left:2px solid '+c.bord+'"><div class="chn" style="color:'+c.ncol+'">'+d.name+'</div></td>';
+    var isPropel=d.solar_opt===PROPEL_NAME;
+    html+='<td style="background:'+c.bcol+';border-bottom:2px solid '+c.bord+';border-left:2px solid '+c.bord+'">'
+      +'<div class="chn" style="color:'+c.ncol+'">'+d.name+'</div>'
+      +(d.solar_opt?'<div style="font-size:0.58rem;color:'+c.ncol+';opacity:0.7;font-family:Exo 2,sans-serif;margin-top:0.2rem;letter-spacing:0.04em">'+d.solar_opt+'</div>':'')
+      +(isPropel?'<div style="font-size:0.55rem;color:var(--aurora-cyan);margin-top:0.15rem;opacity:0.8">⟳ 25yr · Enphase</div>':'')
+      +util25Display
+      +'</td>';
   });
   html+='</tr>';
 
@@ -1030,9 +1254,42 @@ function buildComparison(){
   html+=row('Solar Term',data.map(function(d){return d.term}),function(v,i,w){return big(v,'','yrs',w)},'financials',false);
   html+=row('Yearly Escalator / Interest',data.map(function(d){return d.escalator}),function(v,i,w){return pct(v,w)},'financials',false);
   html+=row('Post-Solar Est. Payment',data.map(function(d){return d.post_bill}),function(v,i,w){return money(v,w)},'financials',false);
+  // 25yr utility cost calculated row
+  html+='<tr class="dr" data-sec="financials"><td class="rl" style="color:#f0b429">25yr Utility Cost (est.)</td>';
+  data.forEach(function(d,i){
+    var c=cols[i];
+    var v=d.util25;
+    html+='<td style="background:'+c.bcol+';border-left:2px solid '+c.bord+';text-align:center">'
+      +(v?'<span class="vbig" style="color:var(--aurora-pink)">$'+v.toLocaleString()+'</span>':'<span class="vdim">Enter bill above</span>')
+      +'</td>';
+  });
+  html+='</tr>';
   html+=secH('savings');
   html+=row('Year 1 Savings',data.map(function(d){return d.yr1_save}),function(v,i,w){return savingsRender(v,w)},'savings',true);
   html+=row('Year 25 Savings',data.map(function(d){return d.yr25_save}),function(v,i,w){return savingsRender(v,w)},'savings',true);
+
+  // Rep section
+  if(secs.has('rep')){
+    html+='<tr class="sh" data-sec="rep"><td colspan="'+(data.length+1)+'">'+SEC_LABELS.rep+'</td></tr>';
+    // Rep name row
+    var repRow='<tr class="dr" data-sec="rep"><td class="rl">Closing Rep</td>';
+    data.forEach(function(d,i){
+      var inc=d.rep_included==='yes';
+      var c=cols[i];
+      if(inc){
+        repRow+='<td style="background:'+c.bcol+';border-left:2px solid '+c.bord+';text-align:center;padding:0.9rem 0.7rem">'
+          +'<div style="font-family:Orbitron,monospace;font-size:0.78rem;color:var(--aurora-green);font-weight:700;letter-spacing:0.04em;text-shadow:0 0 10px rgba(0,255,136,0.4)">'+repName+'</div>'
+          +'<div style="font-size:0.6rem;color:var(--aurora-green);opacity:0.7;margin-top:0.2rem;font-family:Exo 2,sans-serif">✓ Your dedicated rep</div>'
+          +'</td>';
+      } else {
+        repRow+='<td style="background:'+c.bcol+';border-left:2px solid '+c.bord+';text-align:center;padding:0.9rem 0.7rem">'
+          +'<div style="font-family:Exo 2,sans-serif;font-size:0.72rem;color:var(--dim);font-style:italic">No assigned rep</div>'
+          +'</td>';
+      }
+    });
+    repRow+='</tr>';
+    html+=repRow;
+  }
 
   // Score
   var scores=data.map(function(d){return calcScore(d)});

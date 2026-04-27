@@ -888,34 +888,34 @@ var MODE_COLS={
   ]
 };
 var FIELDS=[
-  ['company','Company','company','text',null],
-  ['reviews','Reviews','reviews','stars',true],
-  ['kw','System Size (kW)','system','num1',true],
-  ['solar_opt','Solar Option','option','select-opt',null],
-  ['prod','Annual Production (kWh)','production','num0',true],
-  ['panel_war','Panel Warranty (Yrs)','panel_war','num0',true],
-  ['inv_war','Inverter Warranty (Yrs)','inv_war','num0',true],
-  ['bat_type','Battery Type','battery','text',null],
-  ['bat_size','Battery Size (kWh)','battery','num1',true],
-  ['bat_war','Battery Warranty (Yrs)','battery','num0',true],
-  // UTILITY COSTS
-  ['util_bill','Current Monthly Bill','util_costs','num0',false],
-  ['util_yr_cost','Annual Utility Cost (auto)','util_costs','calc',false],
-  ['post_bill','Post-Solar Est. Utility Bill','util_costs','num0',false],
+  ['company',   'Company',                          'company',    'text',     null],
+  ['reviews',   'Reviews',                          'reviews',    'stars',    true],
+  ['kw',        'System Size (kW)',                 'system',     'num1',     true],
+  ['solar_opt', 'Solar Option',                     'option',     'sel-opt',  null],
+  ['prod',      'Annual Production (kWh)',           'production', 'num0',     true],
+  ['panel_war', 'Panel Warranty (Yrs)',              'panel_war',  'num0',     true],
+  ['inv_war',   'Inverter Warranty (Yrs)',           'inv_war',    'num0',     true],
+  ['bat_type',  'Battery Type',                     'battery',    'text',     null],
+  ['bat_size',  'Battery Size (kWh)',               'battery',    'num1',     true],
+  ['bat_war',   'Battery Warranty (Yrs)',            'battery',    'num0',     true],
+  // UTILITY COSTS — util_bill auto-filled from calculator (display), post_bill editable
+  ['util_bill', 'Current Monthly Bill',             'util_costs', 'display',  false],
+  ['util_yr_cost','Annual Utility Cost',            'util_costs', 'display',  false],
+  ['post_bill', 'Post-Solar Est. Utility Bill',     'util_costs', 'num0',     false],
   // SOLAR INVESTMENT
-  ['sys_cost','System Investment','solar_inv','num0',false],
-  ['prepaid_disc','Prepaid / Propel Discount','solar_inv','num0',false],
-  ['net_invest','Net Investment (Homeowner)','solar_inv','calc',false],
-  ['interest','Interest Rate (%)','solar_inv','pct-select',false],
-  ['term','Solar Term (Yrs)','solar_inv','term-select',false],
-  ['ppa_esc','Annual Escalator','solar_inv','ppa-esc-select',false],
-  ['solar_mo','Monthly Solar Payment (auto)','solar_inv','calc',false],
-  ['kwh_rate','Effective $/kWh Rate (auto)','solar_inv','calc',false],
+  ['sys_cost',     'System Investment ($)',          'solar_inv',  'num0',     false],
+  ['prepaid_disc', 'Prepaid / Propel Discount ($)', 'solar_inv',  'num0',     false],
+  ['net_invest',   'Net Investment (Homeowner)',     'solar_inv',  'display',  false],
+  ['interest',     'Interest Rate',                 'solar_inv',  'sel-int',  false],
+  ['term',         'Solar Term',                    'solar_inv',  'sel-term', false],
+  ['ppa_esc',      'Annual Escalator',              'solar_inv',  'sel-esc',  false],
+  ['solar_mo',     'Monthly Solar Payment',         'solar_inv',  'display',  false],
+  ['kwh_rate',     'Effective $/kWh Rate',          'solar_inv',  'display',  false],
   // SAVINGS
-  ['yr1_save','Year 1 Savings (auto)','savings','calc',false],
-  ['yr25_save','Year 25 Savings (auto)','savings','calc',false],
-  ['roi','ROI Break-Even','savings','calc',false],
-  ['rep_included','Rep Included','rep','checkmark',true]
+  ['yr1_save',  'Year 1 Savings',                   'savings',    'display',  false],
+  ['yr25_save', 'Year 25 Savings',                  'savings',    'display',  false],
+  ['roi',       'ROI Break-Even',                   'savings',    'display',  false],
+  ['rep_included','Rep Included',                   'rep',        'checkmark',true]
 ];
 
 
@@ -961,26 +961,21 @@ function calcROI(netInvest, bill, postBill, solarMo, rate, esc, term, opt) {
   return null;
 }
 
-function gfv(col,id){var el=document.getElementById('i-'+col+'-'+id);return el?el.value:''}
-function gfn(col,id){return parseFloat(gfv(col,id))||0}
+function gfv(col,id){var el=document.getElementById('i-'+col+'-'+id);if(!el)return'';if(el.classList&&el.classList.contains('fi-display'))return el.dataset.val||'';return el.value||'';}
+function gfn(col,id){var el=document.getElementById('i-'+col+'-'+id);if(!el)return 0;var v=el.classList&&el.classList.contains('fi-display')?el.dataset.val:el.value;return parseFloat(v)||0;}
 function setCalc(col,id,txt,color){
   var el=document.getElementById('i-'+col+'-'+id);
   if(!el) return;
+  el.style.color=color||'rgba(0,229,255,0.85)';
   if(el.classList.contains('fi-calc')||el.tagName==='DIV'){
     el.textContent=txt;
-    el.style.color=color||'rgba(0,229,255,0.85)';
   } else if(el.classList.contains('fi-locked')){
-    // Write value into the locked input so it's clearly readable
-    if(el.tagName==='INPUT'){el.value=txt;el.style.color=color||'var(--aurora-cyan)';}
-    else if(el.tagName==='SELECT'){el.style.color=color||'var(--aurora-cyan)';}
-    else {el.textContent=txt;el.style.color=color||'var(--aurora-cyan)';}
+    if(el.tagName==='INPUT'){ el.value=txt; }
+    else if(el.tagName==='SELECT'){ /* keep dropdown selection */ }
+    else { el.textContent=txt; }
   } else if(el.classList.contains('fi-na')){
-    if(el.tagName==='INPUT') el.placeholder='N/A';
+    if(el.tagName==='INPUT'){ el.placeholder='N/A'; el.value=''; }
   }
-}
-function setLocked(col,id,val){
-  var el=document.getElementById('i-'+col+'-'+id);
-  if(el&&el.tagName==='INPUT'){el.value=val;}
 }
 
 function onSolarOptChange(col, sel) {
@@ -1006,18 +1001,26 @@ function onSolarOptChange(col, sel) {
   recalcCol(col);
 }
 
+function numEl(id){ var e=document.getElementById(id); if(!e)return 0; return parseFloat(e.value)||parseFloat(e.textContent)||0; }
+
 function recalcCol(col) {
-  var opt     = gfv(col,'solar_opt');
-  var sysCost = gfn(col,'sys_cost');
-  var prepDisc= gfn(col,'prepaid_disc');
-  var interest= gfn(col,'interest');
-  var termV   = gfv(col,'term');
-  var term    = parseFloat(termV)||25;
-  var ppaEsc  = gfn(col,'ppa_esc');
-  var bill    = gfn(col,'util_bill') || (parseFloat(document.getElementById('uc-bill').value)||0);
-  var postBill= gfn(col,'post_bill');
-  var prod    = gfn(col,'prod');
-  var rate    = parseFloat(document.getElementById('uc-rate')?document.getElementById('uc-rate').value:0.09)||0.09;
+  var opt      = gfv(col,'solar_opt');
+  var sysCost  = numEl('i-'+col+'-sys_cost');
+  var prepDisc = numEl('i-'+col+'-prepaid_disc');
+  var interest = numEl('i-'+col+'-interest');
+  var termEl   = document.getElementById('i-'+col+'-term');
+  var term     = termEl ? (parseFloat(termEl.value)||25) : 25;
+  var ppaEscEl = document.getElementById('i-'+col+'-ppa_esc');
+  var ppaEsc   = ppaEscEl ? (parseFloat(ppaEscEl.value)||0) : 0;
+  // Bill always from global calculator
+  var bill     = parseFloat(document.getElementById('uc-bill')?document.getElementById('uc-bill').value:0)||0;
+  var postBill = numEl('i-'+col+'-post_bill');
+  var prod     = numEl('i-'+col+'-prod');
+  var rate     = parseFloat(document.getElementById('uc-rate')?document.getElementById('uc-rate').value:0)||0.09;
+
+  // Auto-populate util_bill display from global bill
+  var ubEl=document.getElementById('i-'+col+'-util_bill');
+  if(ubEl&&bill){ ubEl.value=bill; }
 
   var fedCredit=0, netInvest=0, solarMo=0, kwhrRate=0;
   var yr1Save=0, yr25Save=0, roi=null;
@@ -1025,12 +1028,14 @@ function recalcCol(col) {
   // ── FIELD STATE MANAGER ──
   // For each input field: 'edit' = user types, 'locked' = auto-value shown clearly, 'na' = not applicable
   // [sys_cost, prepaid_disc, interest, term, ppa_esc, solar_mo]
+  // FIELD STATES per option: edit | locked | na
+  // [sys_cost, prepaid_disc, interest, term, ppa_esc, solar_mo]
   var FIELD_STATES = {
-    'Cash Purchase':                    ['edit',  'na',     'na',    'na',     'na',    'locked'],
-    'Participate Prepaid Upfront':      ['edit',  'locked', 'na',    'na',     'na',    'locked'],
-    'Propel Energy Service Agreement':  ['na',    'edit',   'edit',  'locked', 'na',    'locked'],
-    'PPA':                              ['na',    'na',     'na',    'locked', 'edit',  'edit'  ],
-    'Participate Financed':             ['edit',  'na',     'edit',  'edit',   'na',    'locked'],
+    'Cash Purchase':                   ['edit','na',    'na',   'na',    'na',   'locked'],
+    'Participate Prepaid Upfront':     ['edit','locked','na',   'na',    'na',   'locked'],
+    'Propel Energy Service Agreement': ['edit','edit',  'edit', 'locked','na',   'locked'],
+    'PPA':                             ['na',  'na',    'na',   'locked','edit', 'edit'  ],
+    'Participate Financed':            ['edit','na',    'edit', 'edit',  'na',   'locked'],
   };
   var states = FIELD_STATES[opt] || ['edit','edit','edit','edit','edit','edit'];
   var fids   = ['sys_cost','prepaid_disc','interest','term','ppa_esc','solar_mo'];
@@ -1039,133 +1044,129 @@ function recalcCol(col) {
     var el = document.getElementById('i-'+col+'-'+fid);
     if(!el) return;
     var state = states[idx];
-    // Reset all state classes
     el.classList.remove('fi-locked','fi-na');
-    el.disabled = false;
-    el.style.pointerEvents = '';
+    el.removeAttribute('disabled');
+    el.style.pointerEvents='';
+    el.style.color='';
+    el.style.borderColor='';
+    el.style.background='';
 
-    if(state === 'edit'){
-      // Fully editable — normal style
-    } else if(state === 'locked'){
-      // Auto-generated — visible, clear, not editable
+    if(state==='locked'){
       el.classList.add('fi-locked');
-      el.disabled = true;
-      el.style.pointerEvents = 'none';
-    } else if(state === 'na'){
-      // Not applicable for this option
+      el.setAttribute('disabled','');
+      el.style.pointerEvents='none';
+    } else if(state==='na'){
       el.classList.add('fi-na');
-      el.disabled = true;
-      el.style.pointerEvents = 'none';
-      // Show N/A text in the field
-      if(el.tagName==='INPUT') el.value='';
+      el.setAttribute('disabled','');
+      el.style.pointerEvents='none';
+      if(el.tagName==='INPUT'){el.value='';el.placeholder='N/A';}
       if(el.tagName==='SELECT') el.selectedIndex=0;
+    } else {
+      // edit — make sure placeholder is meaningful
+      if(el.tagName==='INPUT' && el.placeholder==='N/A') el.placeholder='';
     }
   });
 
   if(opt===CASH_NAME){
     netInvest=sysCost; fedCredit=0; solarMo=0;
+    kwhrRate=prod&&postBill?(postBill*12/prod):0;
     yr1Save=Math.round((bill-postBill)*12);
     var u25=utilCumul(bill,rate,25);
     yr25Save=Math.round(u25-postBill*25*12);
     roi=calcROI(netInvest,bill,postBill,0,rate,0,25,opt);
-    setCalc(col,'net_invest',netInvest?'$'+Math.round(netInvest).toLocaleString():'Enter system cost','#fff');
-    setCalc(col,'solar_mo','$0 — Paid in Full','var(--aurora-green)');
-    setCalc(col,'kwh_rate',prod&&postBill?'$'+(postBill*12/prod).toFixed(3)+'/kWh (remaining)':'—','var(--muted)');
 
   } else if(opt===PREPAID_NAME){
     fedCredit=Math.round(sysCost*0.30);
     netInvest=Math.max(0,sysCost-fedCredit);
-    solarMo=0;
+    solarMo=0; kwhrRate=0;
     yr1Save=Math.round((bill-postBill)*12);
     var u25=utilCumul(bill,rate,25);
     yr25Save=Math.round(u25-postBill*25*12);
     roi=calcROI(netInvest,bill,postBill,0,rate,0,25,opt);
-    // Write 30% auto-value into the locked prepaid_disc input
-    setCalc(col,'prepaid_disc', sysCost?'$'+fedCredit.toLocaleString()+' (30%)':'Enter system cost', 'var(--aurora-green)');
-    setCalc(col,'net_invest',netInvest?'$'+Math.round(netInvest).toLocaleString():'Enter system cost','#fff');
-    setCalc(col,'solar_mo','$0 — Prepaid','var(--aurora-green)');
-    setCalc(col,'kwh_rate','—','var(--muted)');
+    // Show 30% in the prepaid_disc field
+    var pdEl=document.getElementById('i-'+col+'-prepaid_disc');
+    if(pdEl&&pdEl.tagName==='INPUT'){pdEl.value=fedCredit||'';pdEl.style.color='var(--aurora-green)';}
 
   } else if(opt===PROPEL_NAME){
     netInvest=Math.max(0,sysCost-prepDisc);
     fedCredit=0;
-    solarMo=interest ? amortMonthly(netInvest,interest,25) : 0;
+    solarMo=interest?amortMonthly(netInvest,interest,25):0;
+    kwhrRate=prod&&solarMo?(solarMo*12/prod):0;
     yr1Save=Math.round((bill-solarMo-postBill)*12);
-    var solarPaid=0;for(var y=1;y<=25;y++)solarPaid+=solarMo*12;
+    var solarPaid25=0;for(var y=1;y<=25;y++)solarPaid25+=solarMo*12;
     var u25=utilCumul(bill,rate,25);
-    yr25Save=Math.round(u25-solarPaid-postBill*25*12);
+    yr25Save=Math.round(u25-solarPaid25-postBill*25*12);
     roi='Day 1';
-    setCalc(col,'net_invest',netInvest?'$'+Math.round(netInvest).toLocaleString():'Enter system cost + rebate','#fff');
-    // Lock term display = 25
-    setCalc(col,'term','25 years','var(--aurora-cyan)');
-    // Lock solar_mo = auto-calculated
-    setCalc(col,'solar_mo',solarMo?'$'+Math.round(solarMo)+'/mo':'Select interest rate','var(--aurora-cyan)');
-    setCalc(col,'kwh_rate',prod&&solarMo?'$'+(solarMo*12/prod).toFixed(3)+'/kWh':'—','var(--muted)');
 
   } else if(opt===PPA_NAME){
-    netInvest=0; fedCredit=0; sysCost=0;
+    netInvest=0; fedCredit=0;
     solarMo=gfn(col,'solar_mo');
-    var moKwh=prod/12;
-    kwhrRate=(moKwh&&solarMo)?solarMo/moKwh:0;
+    kwhrRate=prod&&solarMo?solarMo/(prod/12):0;
     yr1Save=Math.round((bill-postBill-solarMo)*12);
-    var solarPaid=0; var escR=ppaEsc/100;
-    for(var y=1;y<=25;y++) solarPaid+=solarMo*Math.pow(1+escR,y-1)*12;
+    var solarPaid25=0; var escR=ppaEsc/100;
+    for(var y=1;y<=25;y++) solarPaid25+=solarMo*Math.pow(1+escR,y-1)*12;
     var u25=utilCumul(bill,rate,25);
-    yr25Save=Math.round(u25-solarPaid-postBill*25*12);
+    yr25Save=Math.round(u25-solarPaid25-postBill*25*12);
     roi='Day 1';
-    setCalc(col,'net_invest','$0 Down','var(--aurora-green)');
-    // Lock term = 25 years
-    setCalc(col,'term','25 years','var(--aurora-cyan)');
-    // kwh rate auto from monthly payment / production
-    setCalc(col,'kwh_rate',kwhrRate?'$'+kwhrRate.toFixed(3)+'/kWh':'Enter monthly payment first','var(--aurora-cyan)');
 
   } else if(opt===FINANCED_NAME){
-    fedCredit=0; netInvest=sysCost;
+    fedCredit=0; netInvest=sysCost; kwhrRate=0;
     solarMo=(netInvest&&interest&&term)?amortMonthly(netInvest,interest,term):0;
     yr1Save=Math.round((bill-solarMo-postBill)*12);
-    var solarPaid=0;for(var y=1;y<=term;y++)solarPaid+=solarMo*12;
+    var solarPaid25=0;for(var y=1;y<=term;y++)solarPaid25+=solarMo*12;
     var u25=utilCumul(bill,rate,25);
-    yr25Save=Math.round(u25-solarPaid-postBill*25*12);
+    yr25Save=Math.round(u25-solarPaid25-postBill*25*12);
     roi='Day 1';
-    setCalc(col,'net_invest',netInvest?'$'+Math.round(netInvest).toLocaleString():'Enter net amount above','#fff');
-    // Lock solar_mo to auto-calculated amortization
-    setCalc(col,'solar_mo',solarMo?'$'+Math.round(solarMo)+'/mo':'Enter net + interest + term','var(--aurora-cyan)');
-    setCalc(col,'kwh_rate','—','var(--muted)');
   }
 
-  // ── REMOVE fed_credit row entirely — handled in prepaid_disc display ──
-  setCalc(col,'fed_credit','','rgba(0,0,0,0)'); // hidden
-
-  // Common updates
-  setCalc(col,'util_yr_cost',bill?'$'+(bill*12).toLocaleString()+'/yr':'—','rgba(231,76,60,0.9)');
-  setCalc(col,'yr1_save',yr1Save>0?'+$'+yr1Save.toLocaleString():yr1Save===0?'$0':'—',yr1Save>0?'var(--aurora-green)':'var(--muted)');
-  setCalc(col,'yr25_save',yr25Save>0?'+$'+yr25Save.toLocaleString():'—',yr25Save>0?'var(--aurora-green)':'var(--muted)');
+  // Common updates — pass numVal so gfn can read them
+  setDisplay(col,'util_yr_cost',bill?'$'+(bill*12).toLocaleString()+'/yr':'—','rgba(231,76,60,0.9)',bill*12);
+  setDisplay(col,'util_bill',bill?'$'+bill.toLocaleString()+'/mo':'—','var(--aurora-pink)',bill);
+  setDisplay(col,'net_invest',netInvest?'$'+Math.round(netInvest).toLocaleString():'—','#fff',netInvest);
+  // solar_mo: for PPA use the input directly; for others update the -disp div
+  var solarMoDispEl=document.getElementById('i-'+col+'-solar_mo-disp');
+  if(solarMoDispEl){
+    solarMoDispEl.textContent=solarMo?'$'+Math.round(solarMo)+'/mo':'—';
+    solarMoDispEl.style.color=solarMo?'var(--aurora-cyan)':'rgba(255,255,255,0.25)';
+    solarMoDispEl.dataset.val=solarMo||0;
+  } else {
+    setDisplay(col,'solar_mo',solarMo?'$'+Math.round(solarMo)+'/mo':'—','var(--aurora-cyan)',solarMo);
+  }
+  setDisplay(col,'kwh_rate',kwhrRate?'$'+kwhrRate.toFixed(3)+'/kWh':solarMo&&prod?'$'+(solarMo*12/prod).toFixed(3)+'/kWh':'—','var(--aurora-cyan)');
+  setDisplay(col,'yr1_save',yr1Save>0?'+$'+yr1Save.toLocaleString():yr1Save<0?'-$'+Math.abs(yr1Save).toLocaleString():'$0',yr1Save>0?'var(--aurora-green)':yr1Save<0?'var(--aurora-pink)':'var(--muted)',yr1Save);
+  setDisplay(col,'yr25_save',yr25Save>0?'+$'+yr25Save.toLocaleString():'$0',yr25Save>0?'var(--aurora-green)':'var(--muted)',yr25Save);
   if(roi==='Day 1'){
-    setCalc(col,'roi','⚡ Day 1','var(--aurora-green)');
+    setDisplay(col,'roi','⚡ Day 1','var(--aurora-green)');
   } else if(typeof roi==='number'&&!isNaN(roi)){
     var roiYrs=Math.floor(roi); var roiMos=Math.round((roi-roiYrs)*12);
-    setCalc(col,'roi',roiYrs+'yr '+(roiMos?roiMos+'mo':''),'var(--aurora-cyan)');
+    setDisplay(col,'roi',roiYrs+' yr '+(roiMos?roiMos+' mo':''),'var(--aurora-cyan)');
   } else {
-    setCalc(col,'roi',opt?'N/A for '+opt:'Select option','rgba(255,255,255,0.25)');
+    setDisplay(col,'roi',opt?'Select interest / term':'Select Solar Option','rgba(255,255,255,0.22)');
   }
 }
 
 // Global utility calculator triggers
-function autoCalcSavings(){
+function syncUtilBill(){
   var bill=parseFloat(document.getElementById('uc-bill').value)||0;
   var rate=parseFloat(document.getElementById('uc-rate').value)||0.09;
   var util25=0;
   for(var y=1;y<=25;y++) util25+=bill*Math.pow(1+rate,y-1)*12;
   var u25el=document.getElementById('uc-25yr');
   if(u25el) u25el.textContent=util25?'$'+Math.round(util25).toLocaleString():'—';
-  // Push bill into empty util_bill fields and recalc all
+  // Push bill into util_bill display elements (locked) in all columns
   MODE_COLS[modeType].forEach(function(c){
     var el=document.getElementById('i-'+c.id+'-util_bill');
-    if(el&&!el.value&&bill) el.value=bill;
-    recalcCol(c.id);
+    if(el){
+      el.textContent=bill?'$'+bill.toLocaleString()+'/mo':'Enter bill above';
+      el.style.color=bill?'var(--aurora-pink)':'rgba(255,255,255,0.25)';
+      el.dataset.val=bill||0;
+    }
   });
 }
-function markManual(el){}
+function autoCalcSavings(){
+  syncUtilBill();
+  MODE_COLS[modeType].forEach(function(c){ recalcCol(c.id); });
+}
 
 function updateChkStyle(inp){
   var wrap=inp.closest('label');
@@ -1244,6 +1245,8 @@ function buildInputTable(){
   document.getElementById('tbl-body').innerHTML=body;
   // Apply initial checkmark styling
   document.querySelectorAll('.chk-native').forEach(function(inp){updateChkStyle(inp)});
+  // Sync utility bill from global calculator
+  syncUtilBill();
   // wire stars
   document.querySelectorAll('.star-sel').forEach(function(wrap){
     var stars=wrap.querySelectorAll('.s');
@@ -1258,23 +1261,84 @@ function buildInputTable(){
 function makeInput(c,id,type){
   var fid='i-'+c.id+'-'+id;
   var cls='fi fi-'+c.id;
-  var defName=(id==='company')?(modeType.startsWith('me')?c.label:(c.id==='k'?'Kinhome':'')):'';
-  if(type==='stars'){return '<div class="star-sel" id="'+fid+'" data-val="0"><span class="s">★</span><span class="s">★</span><span class="s">★</span><span class="s">★</span><span class="s">★</span></div>'}
-  if(type==='select-opt'){var opts=SOLAR_OPTS.map(function(o){return'<option>'+o+'</option>'}).join('');return'<select class="'+cls+'" id="'+fid+'" onchange="onSolarOptChange(\''+c.id+'\',this)"><option value="">— select —</option>'+opts+'</select>'}
+  var col=c.id;
+  var cb='recalcCol(\''+col+'\')';
+
+  // Stars rating
+  if(type==='stars'){
+    return '<div class="star-sel" id="'+fid+'" data-val="0">'
+      +'<span class="s">★</span><span class="s">★</span><span class="s">★</span><span class="s">★</span><span class="s">★</span></div>';
+  }
+  // Solar option select
+  if(type==='sel-opt'){
+    var opts=SOLAR_OPTS.map(function(o){return'<option value="'+o+'">'+o+'</option>'}).join('');
+    return '<select class="'+cls+'" id="'+fid+'" onchange="onSolarOptChange(\''+col+'\',this)">'
+      +'<option value="">— select option —</option>'+opts+'</select>';
+  }
+  // Interest rate dropdown (Propel only)
+  if(type==='sel-int'){
+    return '<select class="'+cls+'" id="'+fid+'" onchange="'+cb+'">'
+      +'<option value="">— N/A —</option>'
+      +'<option value="7.79">7.79%</option>'
+      +'<option value="8.79">8.79%</option>'
+      +'<option value="9.79">9.79%</option>'
+      +'</select>';
+  }
+  // Solar term dropdown (Financed only)
+  if(type==='sel-term'){
+    return '<select class="'+cls+'" id="'+fid+'" onchange="'+cb+'">'
+      +'<option value="">— N/A —</option>'
+      +'<option value="8">8 Years</option>'
+      +'<option value="12">12 Years</option>'
+      +'<option value="15">15 Years</option>'
+      +'<option value="20">20 Years</option>'
+      +'<option value="25">25 Years</option>'
+      +'</select>';
+  }
+  // PPA escalator dropdown
+  if(type==='sel-esc'){
+    return '<select class="'+cls+'" id="'+fid+'" onchange="'+cb+'">'
+      +'<option value="">— N/A —</option>'
+      +'<option value="0">0.00% — Fixed</option>'
+      +'<option value="0.9">0.90%</option>'
+      +'<option value="1.9">1.90%</option>'
+      +'<option value="2.9">2.90%</option>'
+      +'<option value="3.5">3.50%</option>'
+      +'<option value="3.59">3.59%</option>'
+      +'</select>';
+  }
+  // Solar monthly payment — editable for PPA, display for others
+  if(type==='solar-mo'){
+    return '<div style="position:relative">'
+      +'<input type="number" class="'+cls+' fi-na" id="'+fid+'" oninput="'+cb+'" placeholder="$0/mo" style="width:100%">'
+      +'<div class="fi-display fi-na" id="'+fid+'-disp" style="display:none">—</div>'
+      +'</div>';
+  }
+  // Auto-display (calculated, read-only)
+  if(type==='display'){
+    return '<div class="fi-display fi-na" id="'+fid+'">—</div>';
+  }
+  // Checkmark
   if(type==='checkmark'){
-    var isK=c.id==='k'||(modeType.startsWith('me'));
+    var isK=c.id==='k'||modeType.startsWith('me');
     var checked=isK?'checked':'';
-    var glowClr=isK?'var(--aurora-green)':'var(--aurora-gold)';
-    return '<label class="chk-wrap fi-'+c.id+'" id="'+fid+'-wrap" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;cursor:pointer;padding:0.55rem;border-radius:var(--r);background:rgba(0,10,40,0.6);border:1px solid rgba(255,255,255,0.09);transition:all 0.2s">'
+    return '<label class="chk-wrap fi-'+c.id+'" id="'+fid+'-wrap" '
+      +'style="display:flex;align-items:center;justify-content:center;gap:0.5rem;cursor:pointer;'
+      +'padding:0.55rem;border-radius:var(--r);background:rgba(0,10,40,0.6);'
+      +'border:1px solid rgba(255,255,255,0.09);transition:all 0.2s">'
       +'<input type="checkbox" id="'+fid+'" '+checked+' class="chk-native" style="display:none" onchange="updateChkStyle(this)">'
-      +'<span class="chk-box" style="width:26px;height:26px;border-radius:5px;border:1.5px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;transition:all 0.2s;font-size:1rem;background:rgba(0,10,40,0.5);flex-shrink:0"></span>'
+      +'<span class="chk-box" style="width:26px;height:26px;border-radius:5px;border:1.5px solid rgba(255,255,255,0.15);'
+      +'display:flex;align-items:center;justify-content:center;transition:all 0.2s;font-size:1rem;'
+      +'background:rgba(0,10,40,0.5);flex-shrink:0"></span>'
       +'<span class="chk-label" style="font-family:Exo 2,sans-serif;font-size:0.72rem;color:var(--muted)">Included</span>'
       +'</label>';
   }
+  // Regular number/text input
   var itype=type==='text'?'text':'number';
   var step=type==='num1'?'step="0.1"':type==='num2'?'step="0.01"':'';
+  var defName=(id==='company')?(modeType.startsWith('me')?c.label:(c.id==='k'?'Kinhome':'')):'';
   var dv=defName?'value="'+defName+'"':'';
-  var extraAttr=(id==='yr1_save'||id==='yr25_save')?" oninput=\"markManual(this)\"":(id==='solar_mo'||id==='escalator'||id==='term')?' oninput="autoCalcSavings()"':'';  return'<input id="'+fid+'" type="'+itype+'" '+step+' class="'+cls+'" '+dv+extraAttr+' placeholder="">';
+  return '<input id="'+fid+'" type="'+itype+'" '+step+' class="'+cls+'" '+dv+' oninput="'+cb+'" placeholder="">';
 }
 
 function buildChosenSel(){
@@ -1284,7 +1348,7 @@ function buildChosenSel(){
   document.getElementById('chosen-sel').innerHTML=html;
 }
 
-function gv(col,id){var el=document.getElementById('i-'+col+'-'+id);if(!el)return'';if(el.classList.contains('star-sel'))return el.dataset.val||'0';if(el.type==='checkbox')return el.checked?'yes':'no';return el.value?el.value.trim():''}
+function gv(col,id){var el=document.getElementById('i-'+col+'-'+id);if(!el)return'';if(el.classList.contains('star-sel'))return el.dataset.val||'0';if(el.type==='checkbox')return el.checked?'yes':'no';if(el.classList.contains('fi-display')||el.tagName==='DIV')return el.dataset.val||'';return el.value?el.value.trim():'';}
 function gn(col,id){return parseFloat(gv(col,id))||0}
 
 function renderStars(n){var num=parseInt(n)||0;if(!num)return'<span class="vdim">—</span>';return'<span class="stars-out" style="color:var(--aurora-gold);text-shadow:0 0 8px rgba(240,180,41,0.5)">'+'★'.repeat(num)+'☆'.repeat(5-num)+'</span>'}

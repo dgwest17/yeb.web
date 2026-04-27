@@ -508,7 +508,8 @@ header{
       <div class="stog on" data-sec="panel_war"  onclick="toggleSec(this)"><div class="orb"></div>Panel Warranty</div>
       <div class="stog on" data-sec="inv_war"    onclick="toggleSec(this)"><div class="orb"></div>Inverter Warranty</div>
       <div class="stog on" data-sec="battery"    onclick="toggleSec(this)"><div class="orb"></div>Battery</div>
-      <div class="stog on" data-sec="financials" onclick="toggleSec(this)"><div class="orb"></div>Financials</div>
+      <div class="stog on" data-sec="util_costs"  onclick="toggleSec(this)"><div class="orb"></div>Utility Costs</div>
+      <div class="stog on" data-sec="solar_inv"   onclick="toggleSec(this)"><div class="orb"></div>Solar Investment</div>
       <div class="stog on" data-sec="savings"    onclick="toggleSec(this)"><div class="orb"></div>Savings</div>
       <div class="stog on" data-sec="rep"        onclick="toggleSec(this)"><div class="orb"></div>Your Rep</div>
       <div class="stog on" data-sec="score"      onclick="toggleSec(this)"><div class="orb"></div>Overall Score</div>
@@ -865,7 +866,7 @@ header{
 <script>
 var modeType='them';
 var SOLAR_OPTS=['Cash Purchase','Participate Prepaid Upfront','Propel Energy Service Agreement','PPA','Participate Financed'];
-var SEC_LABELS={company:'🏢  Company',reviews:'⭐  Reviews',system:'⚡  System Size',option:'☀️  Solar Option',production:'📊  Production',panel_war:'🛡  Panel Warranty',inv_war:'🔌  Inverter Warranty',battery:'🔋  Battery',financials:'💰  Financials',savings:'📈  Savings',rep:'👤  Your Rep',score:'🏆  Overall Score'};
+var SEC_LABELS={company:'🏢  Company',reviews:'⭐  Reviews',system:'⚡  System Size',option:'☀️  Solar Option',production:'📊  Production',panel_war:'🛡  Panel Warranty',inv_war:'🔌  Inverter Warranty',battery:'🔋  Battery',util_costs:'⚡  Utility Costs',solar_inv:'💎  Solar Investment',savings:'📈  Savings & ROI',rep:'👤  Your Rep',score:'🏆  Overall Score'};
 var MODE_COLS={
   them: [
     {id:'a',label:'Competitor',    cls:'th-a',bcol:'rgba(240,180,41,0.07)',  bord:'rgba(240,180,41,0.2)',   ncol:'var(--aurora-gold)'},
@@ -897,103 +898,274 @@ var FIELDS=[
   ['bat_type','Battery Type','battery','text',null],
   ['bat_size','Battery Size (kWh)','battery','num1',true],
   ['bat_war','Battery Warranty (Yrs)','battery','num0',true],
-  ['util_bill','Current Utility Payment','financials','num0',false],
-  ['solar_mo','Monthly Solar Payment','financials','num0',false],
-  ['term','Solar Term (Yrs)','financials','num0',false],
-  ['escalator','Yearly Escalator / Interest','financials','num2',false],
-  ['post_bill','Post-Solar Est. Payment','financials','num0',false],
-  ['yr1_save','Year 1 Savings','savings','num0',true],
-  ['yr25_save','Year 25 Savings','savings','num0',true],
-  ['rep_included','Rep Included','rep','checkmark',true],
+  // UTILITY COSTS
+  ['util_bill','Current Monthly Bill','util_costs','num0',false],
+  ['util_yr_cost','Annual Utility Cost (auto)','util_costs','calc',false],
+  ['post_bill','Post-Solar Est. Utility Bill','util_costs','num0',false],
+  // SOLAR INVESTMENT
+  ['sys_cost','System Investment','solar_inv','num0',false],
+  ['prepaid_disc','Prepaid / Propel Discount','solar_inv','num0',false],
+  ['net_invest','Net Investment (Homeowner)','solar_inv','calc',false],
+  ['interest','Interest Rate (%)','solar_inv','pct-select',false],
+  ['term','Solar Term (Yrs)','solar_inv','term-select',false],
+  ['ppa_esc','Annual Escalator','solar_inv','ppa-esc-select',false],
+  ['solar_mo','Monthly Solar Payment (auto)','solar_inv','calc',false],
+  ['kwh_rate','Effective $/kWh Rate (auto)','solar_inv','calc',false],
+  // SAVINGS
+  ['yr1_save','Year 1 Savings (auto)','savings','calc',false],
+  ['yr25_save','Year 25 Savings (auto)','savings','calc',false],
+  ['roi','ROI Break-Even','savings','calc',false],
   ['rep_included','Rep Included','rep','checkmark',true]
 ];
 
 
 // ── SOLAR OPTION INTELLIGENCE ──
-var PROPEL_NAME = 'Propel Energy Service Agreement';
+var PROPEL_NAME  = 'Propel Energy Service Agreement';
+var CASH_NAME    = 'Cash Purchase';
+var PREPAID_NAME = 'Participate Prepaid Upfront';
+var PPA_NAME     = 'PPA';
+var FINANCED_NAME= 'Participate Financed';
+
+// Amortization formula: monthly payment for given principal, annual rate %, years
+function amortMonthly(principal, annualRatePct, years) {
+  if(!principal || !years) return 0;
+  var r = annualRatePct / 100 / 12;
+  var n = years * 12;
+  if(r === 0) return principal / n;
+  return principal * (r * Math.pow(1+r,n)) / (Math.pow(1+r,n) - 1);
+}
+
+// Cumulative utility bills over N years at compound rate
+function utilCumul(bill, rate, years) {
+  var t=0;
+  for(var y=1;y<=years;y++) t+=bill*Math.pow(1+rate,y-1)*12;
+  return t;
+}
+
+// ROI break-even: first year cumulative savings exceed net investment
+function calcROI(netInvest, bill, postBill, solarMo, rate, esc, term, opt) {
+  if(!netInvest) return null;
+  var cumSave=0;
+  for(var y=1;y<=40;y++){
+    // Annual utility avoided = utility bill * growth
+    var utilAvoided = bill*Math.pow(1+rate,y-1)*12;
+    // Annual remaining utility bill (post-solar)
+    var postBillY = (postBill||0)*12;
+    // Annual solar cost
+    var solarCost=0;
+    if(opt===CASH_NAME||opt===PREPAID_NAME){solarCost=0;}
+    else if(y<=term){solarCost=solarMo*Math.pow(1+(esc/100),y-1)*12;}
+    cumSave += (utilAvoided - postBillY - solarCost);
+    if(cumSave >= netInvest) return y + (cumSave-netInvest)/(utilAvoided-postBillY-solarCost+0.001)*-1+1;
+  }
+  return null;
+}
+
+function gfv(col,id){var el=document.getElementById('i-'+col+'-'+id);return el?el.value:''}
+function gfn(col,id){return parseFloat(gfv(col,id))||0}
+function setCalc(col,id,txt,color){
+  var el=document.getElementById('i-'+col+'-'+id);
+  if(!el) return;
+  if(el.classList.contains('fi-calc')||el.tagName==='DIV'){
+    el.textContent=txt;
+    el.style.color=color||'rgba(0,229,255,0.85)';
+  } else if(el.classList.contains('fi-locked')){
+    // Write value into the locked input so it's clearly readable
+    if(el.tagName==='INPUT'){el.value=txt;el.style.color=color||'var(--aurora-cyan)';}
+    else if(el.tagName==='SELECT'){el.style.color=color||'var(--aurora-cyan)';}
+    else {el.textContent=txt;el.style.color=color||'var(--aurora-cyan)';}
+  } else if(el.classList.contains('fi-na')){
+    if(el.tagName==='INPUT') el.placeholder='N/A';
+  }
+}
+function setLocked(col,id,val){
+  var el=document.getElementById('i-'+col+'-'+id);
+  if(el&&el.tagName==='INPUT'){el.value=val;}
+}
 
 function onSolarOptChange(col, sel) {
-  if(sel.value === PROPEL_NAME) {
-    // Propel: always 25yr, always Enphase
-    var termEl = document.getElementById('i-'+col+'-term');
-    var invWarEl = document.getElementById('i-'+col+'-inv_war');
-    var batEl = document.getElementById('i-'+col+'-bat_type');
-    if(termEl){ termEl.value='25'; termEl.style.color='var(--aurora-cyan)'; termEl.title='Propel is always 25 years'; }
-    if(invWarEl){ invWarEl.value='25'; invWarEl.style.color='var(--aurora-cyan)'; }
-    if(batEl){ batEl.value='Enphase IQ Battery'; batEl.style.color='var(--aurora-cyan)'; }
-    // Flash effect
-    sel.style.borderColor='rgba(0,229,255,0.6)';
-    sel.style.color='var(--aurora-cyan)';
-    setTimeout(function(){sel.style.borderColor='';sel.style.color='';},2000);
+  var opt=sel.value;
+  // Propel: lock term=25, set Enphase
+  if(opt===PROPEL_NAME){
+    var termEl=document.getElementById('i-'+col+'-term');
+    if(termEl){for(var i=0;i<termEl.options.length;i++){if(termEl.options[i].value==='25'){termEl.selectedIndex=i;break;}}}
+    var batEl=document.getElementById('i-'+col+'-bat_type');
+    if(batEl){batEl.value='Enphase IQ Battery';batEl.style.color='var(--aurora-cyan)';}
+    var invWarEl=document.getElementById('i-'+col+'-inv_war');
+    if(invWarEl){invWarEl.value='25';invWarEl.style.color='var(--aurora-cyan)';}
   }
-  autoCalcSavings();
-}
-
-// ── UTILITY COST CALCULATOR ──
-function calcUtil25(bill, rate) {
-  if(!bill || !rate) return 0;
-  var total = 0;
-  for(var y=1;y<=25;y++) total += bill * Math.pow(1+rate, y-1) * 12;
-  return Math.round(total);
-}
-
-function autoCalcSavings() {
-  var bill = parseFloat(document.getElementById('uc-bill').value) || 0;
-  var rate = parseFloat(document.getElementById('uc-rate').value) || 0.09;
-  var util25 = calcUtil25(bill, rate);
-
-  // Update display
-  var u25el = document.getElementById('uc-25yr');
-  if(u25el) u25el.textContent = util25 ? '$' + util25.toLocaleString() : '—';
-
-  if(!bill) return;
-
-  // Auto-fill util_bill for all columns
-  var cols = MODE_COLS[modeType];
-  cols.forEach(function(c) {
-    var billEl = document.getElementById('i-'+c.id+'-util_bill');
-    if(billEl && !billEl.value) billEl.value = bill;
-  });
-
-  // Auto-calculate yr1 and yr25 savings per column
-  cols.forEach(function(c) {
-    var solarMo = parseFloat(document.getElementById('i-'+c.id+'-solar_mo')?.value) || 0;
-    var optEl = document.getElementById('i-'+c.id+'-solar_opt');
-    var opt = optEl ? optEl.value : '';
-    var termEl = document.getElementById('i-'+c.id+'-term');
-    var term = parseInt(termEl?.value) || 25;
-    var escEl = document.getElementById('i-'+c.id+'-escalator');
-    var esc = parseFloat(escEl?.value) / 100 || 0;
-
-    if(!solarMo) return; // skip if no solar payment
-
-    // Year 1 savings = (utility bill - solar payment) * 12
-    var yr1Util = bill * 12;
-    var yr1Solar = solarMo * 12;
-    var yr1Save = Math.round(yr1Util - yr1Solar);
-
-    // 25yr savings = cumulative utility costs - cumulative solar costs
-    var solarCumul = 0;
-    for(var y=1;y<=25;y++) {
-      if(opt === 'Cash Purchase' || opt === 'Participate Prepaid Upfront') {
-        // No monthly payment
-        solarCumul = 0;
-      } else {
-        var moPayment = y <= term ? solarMo * Math.pow(1+esc, y-1) : 0;
-        solarCumul += moPayment * 12;
-      }
+  // PPA/Propel/Financed: sys_cost = $0 display
+  var sysCostEl=document.getElementById('i-'+col+'-sys_cost');
+  if(sysCostEl){
+    if(opt===PPA_NAME||opt===PROPEL_NAME||opt===FINANCED_NAME){
+      sysCostEl.placeholder='$0 — '+opt;
+    } else {
+      sysCostEl.placeholder='';
     }
-    var yr25Save = Math.round(util25 - solarCumul);
-
-    var yr1El = document.getElementById('i-'+c.id+'-yr1_save');
-    var yr25El = document.getElementById('i-'+c.id+'-yr25_save');
-    if(yr1El && !yr1El.dataset.manual) { yr1El.value = yr1Save; yr1El.style.color='var(--aurora-green)'; }
-    if(yr25El && !yr25El.dataset.manual) { yr25El.value = yr25Save; yr25El.style.color='var(--aurora-green)'; }
-  });
+  }
+  recalcCol(col);
 }
 
-// Mark manual edits so auto-calc doesn't overwrite
-function markManual(el){ el.dataset.manual='1'; el.style.color=''; }
+function recalcCol(col) {
+  var opt     = gfv(col,'solar_opt');
+  var sysCost = gfn(col,'sys_cost');
+  var prepDisc= gfn(col,'prepaid_disc');
+  var interest= gfn(col,'interest');
+  var termV   = gfv(col,'term');
+  var term    = parseFloat(termV)||25;
+  var ppaEsc  = gfn(col,'ppa_esc');
+  var bill    = gfn(col,'util_bill') || (parseFloat(document.getElementById('uc-bill').value)||0);
+  var postBill= gfn(col,'post_bill');
+  var prod    = gfn(col,'prod');
+  var rate    = parseFloat(document.getElementById('uc-rate')?document.getElementById('uc-rate').value:0.09)||0.09;
+
+  var fedCredit=0, netInvest=0, solarMo=0, kwhrRate=0;
+  var yr1Save=0, yr25Save=0, roi=null;
+
+  // ── FIELD STATE MANAGER ──
+  // For each input field: 'edit' = user types, 'locked' = auto-value shown clearly, 'na' = not applicable
+  // [sys_cost, prepaid_disc, interest, term, ppa_esc, solar_mo]
+  var FIELD_STATES = {
+    'Cash Purchase':                    ['edit',  'na',     'na',    'na',     'na',    'locked'],
+    'Participate Prepaid Upfront':      ['edit',  'locked', 'na',    'na',     'na',    'locked'],
+    'Propel Energy Service Agreement':  ['na',    'edit',   'edit',  'locked', 'na',    'locked'],
+    'PPA':                              ['na',    'na',     'na',    'locked', 'edit',  'edit'  ],
+    'Participate Financed':             ['edit',  'na',     'edit',  'edit',   'na',    'locked'],
+  };
+  var states = FIELD_STATES[opt] || ['edit','edit','edit','edit','edit','edit'];
+  var fids   = ['sys_cost','prepaid_disc','interest','term','ppa_esc','solar_mo'];
+
+  fids.forEach(function(fid, idx){
+    var el = document.getElementById('i-'+col+'-'+fid);
+    if(!el) return;
+    var state = states[idx];
+    // Reset all state classes
+    el.classList.remove('fi-locked','fi-na');
+    el.disabled = false;
+    el.style.pointerEvents = '';
+
+    if(state === 'edit'){
+      // Fully editable — normal style
+    } else if(state === 'locked'){
+      // Auto-generated — visible, clear, not editable
+      el.classList.add('fi-locked');
+      el.disabled = true;
+      el.style.pointerEvents = 'none';
+    } else if(state === 'na'){
+      // Not applicable for this option
+      el.classList.add('fi-na');
+      el.disabled = true;
+      el.style.pointerEvents = 'none';
+      // Show N/A text in the field
+      if(el.tagName==='INPUT') el.value='';
+      if(el.tagName==='SELECT') el.selectedIndex=0;
+    }
+  });
+
+  if(opt===CASH_NAME){
+    netInvest=sysCost; fedCredit=0; solarMo=0;
+    yr1Save=Math.round((bill-postBill)*12);
+    var u25=utilCumul(bill,rate,25);
+    yr25Save=Math.round(u25-postBill*25*12);
+    roi=calcROI(netInvest,bill,postBill,0,rate,0,25,opt);
+    setCalc(col,'net_invest',netInvest?'$'+Math.round(netInvest).toLocaleString():'Enter system cost','#fff');
+    setCalc(col,'solar_mo','$0 — Paid in Full','var(--aurora-green)');
+    setCalc(col,'kwh_rate',prod&&postBill?'$'+(postBill*12/prod).toFixed(3)+'/kWh (remaining)':'—','var(--muted)');
+
+  } else if(opt===PREPAID_NAME){
+    fedCredit=Math.round(sysCost*0.30);
+    netInvest=Math.max(0,sysCost-fedCredit);
+    solarMo=0;
+    yr1Save=Math.round((bill-postBill)*12);
+    var u25=utilCumul(bill,rate,25);
+    yr25Save=Math.round(u25-postBill*25*12);
+    roi=calcROI(netInvest,bill,postBill,0,rate,0,25,opt);
+    // Write 30% auto-value into the locked prepaid_disc input
+    setCalc(col,'prepaid_disc', sysCost?'$'+fedCredit.toLocaleString()+' (30%)':'Enter system cost', 'var(--aurora-green)');
+    setCalc(col,'net_invest',netInvest?'$'+Math.round(netInvest).toLocaleString():'Enter system cost','#fff');
+    setCalc(col,'solar_mo','$0 — Prepaid','var(--aurora-green)');
+    setCalc(col,'kwh_rate','—','var(--muted)');
+
+  } else if(opt===PROPEL_NAME){
+    netInvest=Math.max(0,sysCost-prepDisc);
+    fedCredit=0;
+    solarMo=interest ? amortMonthly(netInvest,interest,25) : 0;
+    yr1Save=Math.round((bill-solarMo-postBill)*12);
+    var solarPaid=0;for(var y=1;y<=25;y++)solarPaid+=solarMo*12;
+    var u25=utilCumul(bill,rate,25);
+    yr25Save=Math.round(u25-solarPaid-postBill*25*12);
+    roi='Day 1';
+    setCalc(col,'net_invest',netInvest?'$'+Math.round(netInvest).toLocaleString():'Enter system cost + rebate','#fff');
+    // Lock term display = 25
+    setCalc(col,'term','25 years','var(--aurora-cyan)');
+    // Lock solar_mo = auto-calculated
+    setCalc(col,'solar_mo',solarMo?'$'+Math.round(solarMo)+'/mo':'Select interest rate','var(--aurora-cyan)');
+    setCalc(col,'kwh_rate',prod&&solarMo?'$'+(solarMo*12/prod).toFixed(3)+'/kWh':'—','var(--muted)');
+
+  } else if(opt===PPA_NAME){
+    netInvest=0; fedCredit=0; sysCost=0;
+    solarMo=gfn(col,'solar_mo');
+    var moKwh=prod/12;
+    kwhrRate=(moKwh&&solarMo)?solarMo/moKwh:0;
+    yr1Save=Math.round((bill-postBill-solarMo)*12);
+    var solarPaid=0; var escR=ppaEsc/100;
+    for(var y=1;y<=25;y++) solarPaid+=solarMo*Math.pow(1+escR,y-1)*12;
+    var u25=utilCumul(bill,rate,25);
+    yr25Save=Math.round(u25-solarPaid-postBill*25*12);
+    roi='Day 1';
+    setCalc(col,'net_invest','$0 Down','var(--aurora-green)');
+    // Lock term = 25 years
+    setCalc(col,'term','25 years','var(--aurora-cyan)');
+    // kwh rate auto from monthly payment / production
+    setCalc(col,'kwh_rate',kwhrRate?'$'+kwhrRate.toFixed(3)+'/kWh':'Enter monthly payment first','var(--aurora-cyan)');
+
+  } else if(opt===FINANCED_NAME){
+    fedCredit=0; netInvest=sysCost;
+    solarMo=(netInvest&&interest&&term)?amortMonthly(netInvest,interest,term):0;
+    yr1Save=Math.round((bill-solarMo-postBill)*12);
+    var solarPaid=0;for(var y=1;y<=term;y++)solarPaid+=solarMo*12;
+    var u25=utilCumul(bill,rate,25);
+    yr25Save=Math.round(u25-solarPaid-postBill*25*12);
+    roi='Day 1';
+    setCalc(col,'net_invest',netInvest?'$'+Math.round(netInvest).toLocaleString():'Enter net amount above','#fff');
+    // Lock solar_mo to auto-calculated amortization
+    setCalc(col,'solar_mo',solarMo?'$'+Math.round(solarMo)+'/mo':'Enter net + interest + term','var(--aurora-cyan)');
+    setCalc(col,'kwh_rate','—','var(--muted)');
+  }
+
+  // ── REMOVE fed_credit row entirely — handled in prepaid_disc display ──
+  setCalc(col,'fed_credit','','rgba(0,0,0,0)'); // hidden
+
+  // Common updates
+  setCalc(col,'util_yr_cost',bill?'$'+(bill*12).toLocaleString()+'/yr':'—','rgba(231,76,60,0.9)');
+  setCalc(col,'yr1_save',yr1Save>0?'+$'+yr1Save.toLocaleString():yr1Save===0?'$0':'—',yr1Save>0?'var(--aurora-green)':'var(--muted)');
+  setCalc(col,'yr25_save',yr25Save>0?'+$'+yr25Save.toLocaleString():'—',yr25Save>0?'var(--aurora-green)':'var(--muted)');
+  if(roi==='Day 1'){
+    setCalc(col,'roi','⚡ Day 1','var(--aurora-green)');
+  } else if(typeof roi==='number'&&!isNaN(roi)){
+    var roiYrs=Math.floor(roi); var roiMos=Math.round((roi-roiYrs)*12);
+    setCalc(col,'roi',roiYrs+'yr '+(roiMos?roiMos+'mo':''),'var(--aurora-cyan)');
+  } else {
+    setCalc(col,'roi',opt?'N/A for '+opt:'Select option','rgba(255,255,255,0.25)');
+  }
+}
+
+// Global utility calculator triggers
+function autoCalcSavings(){
+  var bill=parseFloat(document.getElementById('uc-bill').value)||0;
+  var rate=parseFloat(document.getElementById('uc-rate').value)||0.09;
+  var util25=0;
+  for(var y=1;y<=25;y++) util25+=bill*Math.pow(1+rate,y-1)*12;
+  var u25el=document.getElementById('uc-25yr');
+  if(u25el) u25el.textContent=util25?'$'+Math.round(util25).toLocaleString():'—';
+  // Push bill into empty util_bill fields and recalc all
+  MODE_COLS[modeType].forEach(function(c){
+    var el=document.getElementById('i-'+c.id+'-util_bill');
+    if(el&&!el.value&&bill) el.value=bill;
+    recalcCol(c.id);
+  });
+}
+function markManual(el){}
 
 function updateChkStyle(inp){
   var wrap=inp.closest('label');
@@ -1145,50 +1317,26 @@ function calcScore(d){
 function buildComparison(){
   var secs=activeSecs();
   var cols=MODE_COLS[modeType];
+  // Trigger all column recalculations first so calc displays are populated
+  cols.forEach(function(c){ recalcCol(c.id); });
+
   var data=cols.map(function(c){return{
-    col:c.id,name:gv(c.id,'company')||c.label,reviews:gn(c.id,'reviews'),kw:gn(c.id,'kw'),
-    solar_opt:gv(c.id,'solar_opt')||'',prod:gn(c.id,'prod'),panel_war:gn(c.id,'panel_war'),inv_war:gn(c.id,'inv_war'),
-    bat_type:gv(c.id,'bat_type'),bat_size:gn(c.id,'bat_size'),bat_war:gn(c.id,'bat_war'),
-    util_bill:gn(c.id,'util_bill'),solar_mo:gn(c.id,'solar_mo'),term:gn(c.id,'term'),
-    escalator:gn(c.id,'escalator'),post_bill:gn(c.id,'post_bill'),
-    yr1_save:gn(c.id,'yr1_save'),yr25_save:gn(c.id,'yr25_save'),
-    _yr1_manual:gn(c.id,'yr1_save')>0,
-    _yr25_manual:gn(c.id,'yr25_save')>0,
-    util25:0,
+    col:c.id,
+    name:    gv(c.id,'company')||c.label,
+    reviews: gn(c.id,'reviews'),
+    kw:      gn(c.id,'kw'),
+    solar_opt:gv(c.id,'solar_opt')||'',
+    prod:    gn(c.id,'prod'),
+    panel_war:gn(c.id,'panel_war'),
+    inv_war: gn(c.id,'inv_war'),
+    bat_type:gv(c.id,'bat_type'),
+    bat_size:gn(c.id,'bat_size'),
+    bat_war: gn(c.id,'bat_war'),
+    util_bill:gn(c.id,'util_bill')||(parseFloat(document.getElementById('uc-bill').value)||0),
+    post_bill:gn(c.id,'post_bill'),
     rep_included:gv(c.id,'rep_included')
   }});
   var repName=document.getElementById('global-rep-name').value||'David West';
-
-  // ── AUTO-CALCULATE financials from model ──
-  var utilRate=parseFloat(document.getElementById('uc-rate')?document.getElementById('uc-rate').value:0.09)||0.09;
-  data.forEach(function(d){
-    var bill=d.util_bill;
-    var solar=d.solar_mo;
-    var esc=d.escalator/100; // e.g. 2.99 -> 0.0299
-    var term=d.term||25;
-
-    // 25yr utility cost (compound, monthly bill * 12 each year)
-    if(bill>0&&!d._util25_set){
-      var util25=0;
-      for(var y=1;y<=25;y++){util25+=bill*Math.pow(1+utilRate,y-1)*12;}
-      d.util25=Math.round(util25);
-    }
-
-    // Year 1 savings: (utility bill - solar payment - post_bill) * 12
-    if(bill>0&&solar>=0&&!d._yr1_manual){
-      var yr1=(bill-(solar||0)-(d.post_bill||0))*12;
-      if(yr1>0&&!d.yr1_save){d.yr1_save=Math.round(yr1);}
-    }
-
-    // Year 25 savings vs utility: util25 - total solar paid - total post-solar bills
-    if(d.util25&&solar>=0&&!d._yr25_manual){
-      var totalSolarPaid=0;
-      for(var y=1;y<=term;y++){totalSolarPaid+=(solar||0)*Math.pow(1+(esc||0),y-1)*12;}
-      var totalPostBills=(d.post_bill||0)*25*12;
-      var yr25=d.util25-totalSolarPaid-totalPostBills;
-      if(yr25>0&&!d.yr25_save){d.yr25_save=Math.round(yr25);}
-    }
-  });
 
   var html='';
   // Header row
@@ -1245,25 +1393,105 @@ function buildComparison(){
   html+=row('Battery Type',data.map(function(d){return d.bat_type}),function(v){return txt(v)},'battery',null);
   html+=row('Battery Size',data.map(function(d){return d.bat_size}),function(v,i,w){return big(v,'','kWh',w)},'battery',true);
   html+=row('Battery Warranty',data.map(function(d){return d.bat_war}),function(v,i,w){return big(v,'','yrs',w)},'battery',true);
-  html+=secH('financials');
-  html+=row('Current Utility Payment',data.map(function(d){return d.util_bill}),function(v,i,w){return money(v,false)},'financials',null);
-  html+=row('Monthly Solar Payment',data.map(function(d){return d.solar_mo}),function(v,i,w){return money(v,w)},'financials',false);
-  html+=row('Solar Term',data.map(function(d){return d.term}),function(v,i,w){return big(v,'','yrs',w)},'financials',false);
-  html+=row('Yearly Escalator / Interest',data.map(function(d){return d.escalator}),function(v,i,w){return pct(v,w)},'financials',false);
-  html+=row('Post-Solar Est. Payment',data.map(function(d){return d.post_bill}),function(v,i,w){return money(v,w)},'financials',false);
-  // 25yr utility cost calculated row
-  html+='<tr class="dr" data-sec="financials"><td class="rl" style="color:#f0b429">25yr Utility Cost (est.)</td>';
-  data.forEach(function(d,i){
-    var c=cols[i];
-    var v=d.util25;
-    html+='<td style="background:'+c.bcol+';border-left:2px solid '+c.bord+';text-align:center">'
-      +(v?'<span class="vbig" style="color:var(--aurora-pink)">$'+v.toLocaleString()+'</span>':'<span class="vdim">Enter bill above</span>')
-      +'</td>';
-  });
-  html+='</tr>';
-  html+=secH('savings');
-  html+=row('Year 1 Savings',data.map(function(d){return d.yr1_save}),function(v,i,w){return savingsRender(v,w)},'savings',true);
-  html+=row('Year 25 Savings',data.map(function(d){return d.yr25_save}),function(v,i,w){return savingsRender(v,w)},'savings',true);
+  // ── UTILITY COSTS SECTION ──
+  if(secs.has('util_costs')){
+    html+='<tr class="sh" data-sec="util_costs"><td colspan="'+(data.length+1)+'">'+SEC_LABELS.util_costs+'</td></tr>';
+    var ucBillGlobal=parseFloat(document.getElementById('uc-bill').value)||0;
+    var ucRateGlobal=parseFloat(document.getElementById('uc-rate').value)||0.09;
+    var util25Global=0;
+    if(ucBillGlobal){for(var y=1;y<=25;y++) util25Global+=ucBillGlobal*Math.pow(1+ucRateGlobal,y-1)*12;}
+
+    // Current monthly bill — read from per-col input or global
+    var utilBillRow='<tr class="dr" data-sec="util_costs"><td class="rl">Current Monthly Bill</td>';
+    data.forEach(function(d,i){
+      var c=cols[i]; var v=d.util_bill||ucBillGlobal;
+      utilBillRow+='<td style="background:'+c.bcol+';border-left:2px solid '+c.bord+';text-align:center">'
+        +(v?'<span class="vbig" style="color:var(--aurora-pink)">$'+v.toLocaleString()+'</span><span class="vsuf">/mo</span>':'<span class="vdim">—</span>')+'</td>';
+    });
+    html+=utilBillRow+'</tr>';
+
+    // Annual utility cost
+    var annRow='<tr class="dr" data-sec="util_costs"><td class="rl">Annual Utility Cost</td>';
+    data.forEach(function(d,i){
+      var c=cols[i]; var b=d.util_bill||ucBillGlobal; var v=b?b*12:0;
+      annRow+='<td style="background:'+c.bcol+';border-left:2px solid '+c.bord+';text-align:center">'
+        +(v?'<span class="vbig" style="color:var(--aurora-pink)">$'+Math.round(v).toLocaleString()+'</span><span class="vsuf">/yr</span>':'<span class="vdim">—</span>')+'</td>';
+    });
+    html+=annRow+'</tr>';
+
+    // 25yr utility cumulative
+    var u25Row='<tr class="dr" data-sec="util_costs"><td class="rl" style="color:var(--aurora-pink)">25yr Utility Cost (projected)</td>';
+    data.forEach(function(d,i){
+      var c=cols[i]; var b=d.util_bill||ucBillGlobal;
+      var v=0; if(b) for(var y=1;y<=25;y++) v+=b*Math.pow(1+ucRateGlobal,y-1)*12;
+      u25Row+='<td style="background:'+c.bcol+';border-left:2px solid '+c.bord+';text-align:center">'
+        +(v?'<span class="vbig" style="color:var(--aurora-pink);font-size:1.3rem">$'+Math.round(v).toLocaleString()+'</span>':'<span class="vdim">Enter bill ↑</span>')+'</td>';
+    });
+    html+=u25Row+'</tr>';
+
+    // Post-solar estimated utility bill
+    var postRow='<tr class="dr" data-sec="util_costs"><td class="rl">Post-Solar Est. Utility Bill</td>';
+    data.forEach(function(d,i){
+      var c=cols[i];
+      postRow+='<td style="background:'+c.bcol+';border-left:2px solid '+c.bord+';text-align:center">'
+        +(d.post_bill?'<span class="vbig" style="color:var(--aurora-gold)">$'+d.post_bill.toLocaleString()+'</span><span class="vsuf">/mo</span>':'<span class="vdim">—</span>')+'</td>';
+    });
+    html+=postRow+'</tr>';
+  }
+
+  // ── SOLAR INVESTMENT SECTION ──
+  if(secs.has('solar_inv')){
+    html+='<tr class="sh" data-sec="solar_inv"><td colspan="'+(data.length+1)+'">'+SEC_LABELS.solar_inv+'</td></tr>';
+
+    function invCalcRow(label, fieldId, sec, styleOverride){
+      var r='<tr class="dr" data-sec="'+sec+'"><td class="rl"'+(styleOverride?' style="'+styleOverride+'"':'')+'>'+label+'</td>';
+      data.forEach(function(d,i){
+        var c=cols[i];
+        var el=document.getElementById('i-'+c.id+'-'+fieldId);
+        var content=el?el.outerHTML:'<span class="vdim">—</span>';
+        r+='<td style="background:'+c.bcol+';border-left:2px solid '+c.bord+';padding:0.5rem 0.6rem">'+content+'</td>';
+      });
+      return r+'</tr>';
+    }
+
+    html+=invCalcRow('System Investment','sys_cost','solar_inv');
+    html+=invCalcRow('Prepaid Discount (30% auto) / Propel Rebate (manual)','prepaid_disc','solar_inv','color:var(--aurora-green)');
+    html+=invCalcRow('Net Investment (Homeowner)','net_invest','solar_inv','color:#fff;font-weight:700');
+    html+=invCalcRow('Interest Rate','interest','solar_inv');
+    html+=invCalcRow('Solar Term','term','solar_inv');
+    html+=invCalcRow('Annual Escalator','ppa_esc','solar_inv');
+    html+=invCalcRow('Monthly Solar Payment','solar_mo','solar_inv','color:var(--aurora-cyan)');
+    html+=invCalcRow('Effective $/kWh Rate','kwh_rate','solar_inv');
+  }
+
+  // ── SAVINGS & ROI SECTION ──
+  if(secs.has('savings')){
+    html+='<tr class="sh" data-sec="savings"><td colspan="'+(data.length+1)+'">'+SEC_LABELS.savings+'</td></tr>';
+    html+=invCalcRow('Year 1 Savings','yr1_save','savings','color:var(--aurora-green)');
+    html+=invCalcRow('Year 25 Savings','yr25_save','savings','color:var(--aurora-green)');
+
+    // ROI row with special rendering
+    var roiRow='<tr class="dr" data-sec="savings"><td class="rl" style="color:var(--aurora-gold);font-weight:700">ROI Break-Even</td>';
+    data.forEach(function(d,i){
+      var c=cols[i];
+      var el=document.getElementById('i-'+c.id+'-roi');
+      var content=el?el.outerHTML:'<span class="vdim">—</span>';
+      roiRow+='<td style="background:'+c.bcol+';border-left:2px solid '+c.bord+';padding:0.5rem 0.6rem">'+content+'</td>';
+    });
+    html+=roiRow+'</tr>';
+  }
+
+  // define invCalcRow in outer scope for savings section above
+  function invCalcRow(label, fieldId, sec, styleOverride){
+    var r='<tr class="dr" data-sec="'+sec+'"><td class="rl"'+(styleOverride?' style="'+styleOverride+'"':'')+'>'+label+'</td>';
+    data.forEach(function(d,i){
+      var c=cols[i];
+      var el=document.getElementById('i-'+c.id+'-'+fieldId);
+      var content=el?el.outerHTML:'<span class="vdim">—</span>';
+      r+='<td style="background:'+c.bcol+';border-left:2px solid '+c.bord+';padding:0.5rem 0.6rem">'+content+'</td>';
+    });
+    return r+'</tr>';
+  }
 
   // Rep section
   if(secs.has('rep')){

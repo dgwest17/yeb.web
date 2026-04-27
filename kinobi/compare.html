@@ -1452,7 +1452,7 @@ function buildComparison(){
     });
     return r+'</tr>';
   }
-  function secH(sec){return secs.has(sec)?'<tr class="sh" data-sec="'+sec+'"><td colspan="'+(data.length+1)+'">'+SEC_LABELS[sec]+'</td></tr>':''}
+  function secH(sec){return secs.has(sec)?'<tr class="sh acc-hdr" data-sec="'+sec+'" onclick="toggleAccSection(this)"><td colspan="'+(data.length+1)+'"><span class="acc-arrow">▼</span> '+SEC_LABELS[sec]+'</td></tr>':''}
 
   html+=secH('company');
   html+=row('Company',data.map(function(d){return d.name}),function(v){return txt(v)},'company',null);
@@ -1548,31 +1548,12 @@ function buildComparison(){
   // ── SAVINGS & ROI SECTION ──
   if(secs.has('savings')){
     html+='<tr class="sh acc-hdr" data-sec="savings" onclick="toggleAccSection(this)"><td colspan="'+(data.length+1)+'"><span class="acc-arrow">▼</span> '+SEC_LABELS.savings+'</td></tr>';
-    html+=invCalcRow('Year 1 Savings','yr1_save','savings','color:var(--aurora-green)');
-    html+=invCalcRow('Year 25 Savings','yr25_save','savings','color:var(--aurora-green)');
-
-    // ROI row with special rendering
-    var roiRow='<tr class="dr" data-sec="savings"><td class="rl" style="color:var(--aurora-gold);font-weight:700">ROI Break-Even</td>';
-    data.forEach(function(d,i){
-      var c=cols[i];
-      var el=document.getElementById('i-'+c.id+'-roi');
-      var content=el?el.outerHTML:'<span class="vdim">—</span>';
-      roiRow+='<td style="background:'+c.bcol+';border-left:2px solid '+c.bord+';padding:0.5rem 0.6rem">'+content+'</td>';
-    });
-    html+=roiRow+'</tr>';
+    html+=calcRow('Year 1 Savings',  'yr1_save','savings','var(--aurora-green)');
+    html+=calcRow('Year 25 Savings', 'yr25_save','savings','var(--aurora-green)');
+    html+=calcRow('ROI Break-Even',  'roi',     'savings','var(--aurora-gold)');
   }
 
-  // define invCalcRow in outer scope for savings section above
-  function invCalcRow(label, fieldId, sec, styleOverride){
-    var r='<tr class="dr" data-sec="'+sec+'"><td class="rl"'+(styleOverride?' style="'+styleOverride+'"':'')+'>'+label+'</td>';
-    data.forEach(function(d,i){
-      var c=cols[i];
-      var el=document.getElementById('i-'+c.id+'-'+fieldId);
-      var content=el?el.outerHTML:'<span class="vdim">—</span>';
-      r+='<td style="background:'+c.bcol+';border-left:2px solid '+c.bord+';padding:0.5rem 0.6rem">'+content+'</td>';
-    });
-    return r+'</tr>';
-  }
+  // calcRow is defined above and used throughout
 
   // Rep section
   if(secs.has('rep')){

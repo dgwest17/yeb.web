@@ -1083,9 +1083,13 @@ function recalcCol(col) {
     var u25=utilCumul(bill,rate,25);
     yr25Save=Math.round(u25-postBill*25*12);
     roi=calcROI(netInvest,bill,postBill,0,rate,0,25,opt);
-    // Show 30% in the prepaid_disc field
+    // Show 30% in the prepaid_disc field — write value AND store in data-val
     var pdEl=document.getElementById('i-'+col+'-prepaid_disc');
-    if(pdEl&&pdEl.tagName==='INPUT'){pdEl.value=fedCredit||'';pdEl.style.color='var(--aurora-green)';}
+    if(pdEl&&pdEl.tagName==='INPUT'){
+      pdEl.value=fedCredit||'';
+      pdEl.dataset.val=fedCredit||0;
+      pdEl.style.color='var(--aurora-green)';
+    }
 
   } else if(opt===PROPEL_NAME){
     netInvest=Math.max(0,sysCost-prepDisc);
@@ -1200,6 +1204,19 @@ function setMode(t){
   document.querySelectorAll('.mpill').forEach(function(p){p.classList.remove('active')});
   document.getElementById('m-'+t).classList.add('active');
   buildInputTable();buildChosenSel();
+}
+
+function toggleAccSection(hdr){
+  hdr.classList.toggle('collapsed');
+  var sec=hdr.dataset.sec;
+  var tbl=document.getElementById('cmp-tbl');
+  if(!tbl) return;
+  var rows=tbl.querySelectorAll('tr.dr[data-sec="'+sec+'"]');
+  var collapsed=hdr.classList.contains('collapsed');
+  rows.forEach(function(row){
+    if(collapsed) row.classList.add('hidden');
+    else row.classList.remove('hidden');
+  });
 }
 function toggleSec(el){
   el.classList.toggle('on');
@@ -1459,7 +1476,7 @@ function buildComparison(){
   html+=row('Battery Warranty',data.map(function(d){return d.bat_war}),function(v,i,w){return big(v,'','yrs',w)},'battery',true);
   // ── UTILITY COSTS SECTION ──
   if(secs.has('util_costs')){
-    html+='<tr class="sh" data-sec="util_costs"><td colspan="'+(data.length+1)+'">'+SEC_LABELS.util_costs+'</td></tr>';
+    html+='<tr class="sh acc-hdr" data-sec="util_costs" onclick="toggleAccSection(this)"><td colspan="'+(data.length+1)+'"><span class="acc-arrow">▼</span> '+SEC_LABELS.util_costs+'</td></tr>';
     var ucBillGlobal=parseFloat(document.getElementById('uc-bill').value)||0;
     var ucRateGlobal=parseFloat(document.getElementById('uc-rate').value)||0.09;
     var util25Global=0;
@@ -1505,7 +1522,7 @@ function buildComparison(){
 
   // ── SOLAR INVESTMENT SECTION ──
   if(secs.has('solar_inv')){
-    html+='<tr class="sh" data-sec="solar_inv"><td colspan="'+(data.length+1)+'">'+SEC_LABELS.solar_inv+'</td></tr>';
+    html+='<tr class="sh acc-hdr" data-sec="solar_inv" onclick="toggleAccSection(this)"><td colspan="'+(data.length+1)+'"><span class="acc-arrow">▼</span> '+SEC_LABELS.solar_inv+'</td></tr>';
 
     function invCalcRow(label, fieldId, sec, styleOverride){
       var r='<tr class="dr" data-sec="'+sec+'"><td class="rl"'+(styleOverride?' style="'+styleOverride+'"':'')+'>'+label+'</td>';
@@ -1530,7 +1547,7 @@ function buildComparison(){
 
   // ── SAVINGS & ROI SECTION ──
   if(secs.has('savings')){
-    html+='<tr class="sh" data-sec="savings"><td colspan="'+(data.length+1)+'">'+SEC_LABELS.savings+'</td></tr>';
+    html+='<tr class="sh acc-hdr" data-sec="savings" onclick="toggleAccSection(this)"><td colspan="'+(data.length+1)+'"><span class="acc-arrow">▼</span> '+SEC_LABELS.savings+'</td></tr>';
     html+=invCalcRow('Year 1 Savings','yr1_save','savings','color:var(--aurora-green)');
     html+=invCalcRow('Year 25 Savings','yr25_save','savings','color:var(--aurora-green)');
 
@@ -1559,7 +1576,7 @@ function buildComparison(){
 
   // Rep section
   if(secs.has('rep')){
-    html+='<tr class="sh" data-sec="rep"><td colspan="'+(data.length+1)+'">'+SEC_LABELS.rep+'</td></tr>';
+    html+='<tr class="sh acc-hdr" data-sec="rep" onclick="toggleAccSection(this)"><td colspan="'+(data.length+1)+'"><span class="acc-arrow">▼</span> '+SEC_LABELS.rep+'</td></tr>';
     // Rep name row
     var repRow='<tr class="dr" data-sec="rep"><td class="rl">Closing Rep</td>';
     data.forEach(function(d,i){
@@ -1584,7 +1601,7 @@ function buildComparison(){
   var scores=data.map(function(d){return calcScore(d)});
   var maxS=Math.max.apply(null,scores.filter(Boolean));
   if(secs.has('score')){
-    html+='<tr class="sh" data-sec="score"><td colspan="'+(data.length+1)+'">'+SEC_LABELS.score+'</td></tr>';
+    html+='<tr class="sh acc-hdr" data-sec="score" onclick="toggleAccSection(this)"><td colspan="'+(data.length+1)+'"><span class="acc-arrow">▼</span> '+SEC_LABELS.score+'</td></tr>';
     var sr='<tr class="dr" data-sec="score"><td class="rl">Composite Score</td>';
     scores.forEach(function(s,i){
       var isMax=s&&s===maxS;

@@ -318,6 +318,8 @@ const API = '/become/api/admin.php';
 let data = { folders:[], modules:[], segments:[], users:[], thresholds:[] };
 let selectedModId = null;
 let quillEditor = null;
+let quillAutoSaveTimer = null;
+let currentEditSegId = null;
 
 // ─── API Helper ───
 async function api(method, params) {
@@ -337,6 +339,14 @@ async function api(method, params) {
 async function loadAll() {
   const d = await api('GET', {action:'all'});
   data = d;
+  // Normalize stage gaps on first load
+  var lvlSet = {};
+  data.modules.forEach(function(m) {
+    var r = m.unlock_rule;
+    var k = (r && r.kind === 'open') ? 'open' : (r && r.kind === 'level' ? r.value : 0);
+    lvlSet[k] = true;
+  });
+  for (var k in lvlSet) { await normalizeStages(k); }
   renderTree();
   renderUsers();
   renderFlow();
@@ -615,6 +625,10 @@ function setCorrectAnswer(segId, qi, oi) {
 }
 
 function openSegEditor(segId) {
+  // Cancel any pending auto-save from previous segment
+  if (quillAutoSaveTimer) { clearTimeout(quillAutoSaveTimer); quillAutoSaveTimer = null; }
+  currentEditSegId = segId;
+  
   document.querySelectorAll('.seg-item').forEach(el => el.classList.remove('editing'));
   const si = document.getElementById('si-' + segId);
   if (si) si.classList.add('editing');
@@ -691,8 +705,7 @@ function openSegEditor(segId) {
           ['clean']
         ],
         handlers: {
-          'image': function() { triggerFileUpload('image'); },
-          'video': function() { insertYouTube(); }
+          'image': function() { triggerFileUpload('image'); }
         }
       },
       keyboard: {
@@ -711,25 +724,31 @@ function openSegEditor(segId) {
       }
     }
   });
+  
+  // Override video toolbar button to use our YouTube parser
+  var toolbar = quillEditor.getModule('toolbar');
+  toolbar.addHandler('video', insertYouTube);
+  
   quillEditor.root.innerHTML = seg.content_html || '';
 
   // Auto-save after 2 seconds of inactivity
-  let autoSaveTimer = null;
   const statusEl = document.getElementById('save-status');
   quillEditor.on('text-change', function() {
     if (statusEl) statusEl.textContent = '● Unsaved changes';
     if (statusEl) statusEl.style.color = 'var(--gold)';
-    clearTimeout(autoSaveTimer);
-    autoSaveTimer = setTimeout(async () => {
+    if (quillAutoSaveTimer) clearTimeout(quillAutoSaveTimer);
+    const saveSegId = currentEditSegId; // capture current ID at time of change
+    quillAutoSaveTimer = setTimeout(async () => {
+      if (!quillEditor || currentEditSegId !== saveSegId) return; // segment changed, don't save
       const html = quillEditor.root.innerHTML;
       const content = html === '<p><br></p>' ? '' : html;
       try {
-        await api('POST', {action:'update_segment', id: segId, content_html: content});
-        const s = data.segments.find(x => x.id == segId);
+        await api('POST', {action:'update_segment', id: saveSegId, content_html: content});
+        const s = data.segments.find(x => x.id == saveSegId);
         if (s) s.content_html = content;
-        if (statusEl) { statusEl.textContent = '✓ Auto-saved'; statusEl.style.color = 'var(--green)'; }
+        if (statusEl && currentEditSegId === saveSegId) { statusEl.textContent = '✓ Auto-saved'; statusEl.style.color = 'var(--green)'; }
       } catch(e) {
-        if (statusEl) { statusEl.textContent = '✕ Save failed'; statusEl.style.color = 'var(--red)'; }
+        if (statusEl && currentEditSegId === saveSegId) { statusEl.textContent = '✕ Save failed'; statusEl.style.color = 'var(--red)'; }
       }
     }, 2000);
   });
@@ -739,6 +758,8 @@ function openSegEditor(segId) {
 }
 
 function closeSegEditor() {
+  if (quillAutoSaveTimer) { clearTimeout(quillAutoSaveTimer); quillAutoSaveTimer = null; }
+  currentEditSegId = null;
   document.getElementById('seg-editor').innerHTML = '';
   document.querySelectorAll('.seg-item').forEach(el => el.classList.remove('editing'));
   quillEditor = null;
@@ -1005,6 +1026,48 @@ function modCard(m) {
   '</div>';
 }
 
+// Normalize stages: renumber so they're always 1, 2, 3... with no gaps
+async function normalizeStages(level) {
+  var levelMods = data.modules.filter(function(m) {
+    var r = m.unlock_rule;
+    if (level === 'open') return r && r.kind === 'open';
+    var ml = (r && r.kind === 'level') ? r.value : ((r && r.kind === 'open') ? -99 : 0);
+    return ml == parseInt(level);
+  });
+  
+  // Get unique stage numbers, sorted
+  var stageNums = [];
+  levelMods.forEach(function(m) {
+    var s = m.module_order || 1;
+    if (stageNums.indexOf(s) === -1) stageNums.push(s);
+  });
+  stageNums.sort(function(a,b) { return a - b; });
+  
+  // Check if already normalized (1, 2, 3...)
+  var needsNorm = false;
+  for (var i = 0; i < stageNums.length; i++) {
+    if (stageNums[i] !== i + 1) { needsNorm = true; break; }
+  }
+  if (!needsNorm) return;
+  
+  // Build renumber map: oldStage -> newStage
+  var remap = {};
+  stageNums.forEach(function(old, idx) { remap[old] = idx + 1; });
+  
+  // Update each module
+  var updates = [];
+  levelMods.forEach(function(m) {
+    var oldStage = m.module_order || 1;
+    var newStage = remap[oldStage];
+    if (newStage !== oldStage) {
+      updates.push(api('POST', {action:'update_module', id:m.id, module_order:newStage}));
+      m.module_order = newStage;
+    }
+  });
+  
+  if (updates.length) await Promise.all(updates);
+}
+
 // ─── Drag & Drop — fully delegated ───
 let dragModId = null;
 
@@ -1021,6 +1084,10 @@ async function moveModStage(modId, dir) {
   if (newStage === curStage) return;
   await api('POST', {action:'update_module', id:modId, module_order:newStage});
   mod.module_order = newStage;
+  // Get the level to normalize
+  var rule = mod.unlock_rule;
+  var lvl = rule && rule.kind === 'open' ? 'open' : (rule && rule.kind === 'level' ? rule.value : 0);
+  await normalizeStages(lvl);
   renderFlow();
   toast((dir==='up'?'↑':'↓') + ' Stage ' + newStage);
 }
@@ -1090,6 +1157,7 @@ document.addEventListener('drop', async function(e) {
     mod.unlock_rule = unlock;
     mod.module_order = stageNum;
     toast('→ Stage ' + stageNum);
+    await normalizeStages(level);
   } else if (levelDrop) {
     // Dropped on level area (not on a stage) — new stage at end
     var level = levelDrop.dataset.dropLevel;
@@ -1107,6 +1175,7 @@ document.addEventListener('drop', async function(e) {
     mod.unlock_rule = unlock;
     mod.module_order = maxStage + 1;
     toast('→ New stage ' + (maxStage+1));
+    await normalizeStages(level);
   }
 
   dragModId = null;

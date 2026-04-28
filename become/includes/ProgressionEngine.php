@@ -286,7 +286,6 @@ class ProgressionEngine {
      * each segment is worth 50 XP. Module/folder bonuses are removed — all XP comes from segments.
      */
     public function calculateSegmentXp($moduleId) {
-        // Get the module's unlock rule to determine its level
         $s = $this->db->prepare("SELECT unlock_rule FROM modules WHERE id=?");
         $s->execute([$moduleId]);
         $mod = $s->fetch();
@@ -308,33 +307,30 @@ class ProgressionEngine {
             if ((int)$t['level'] === $modLevel + 1) $nextXp = (int)$t['xp_required'];
         }
 
-        // If no next level, use a default range
         if ($nextXp === null) $nextXp = $currentXp + 500;
         $levelRange = $nextXp - $currentXp;
         if ($levelRange <= 0) $levelRange = 150;
 
-        // Count total segments in all modules at this level
-        $s = $this->db->prepare("SELECT m.id FROM modules m WHERE m.is_active=1");
+        // Count total segments across ALL modules at this level
+        // Modules with null unlock_rule = level 0, modules with level rule = that level
+        $s = $this->db->prepare("SELECT id, unlock_rule FROM modules WHERE is_active=1");
         $s->execute();
         $allMods = $s->fetchAll();
 
         $totalSegs = 0;
         foreach ($allMods as $m) {
-            $s = $this->db->prepare("SELECT unlock_rule FROM modules WHERE id=?");
-            $s->execute([$m['id']]);
-            $mr = $s->fetch();
-            $r = json_decode($mr['unlock_rule'] ?? 'null', true);
+            $r = json_decode($m['unlock_rule'] ?? 'null', true);
+            if ($r && ($r['kind'] ?? '') === 'open') continue;
             $ml = ($r && ($r['kind'] ?? '') === 'level') ? (int)$r['value'] : 0;
-            if ($r && ($r['kind'] ?? '') === 'open') continue; // skip open modules
             if ($ml === $modLevel) {
-                $s = $this->db->prepare("SELECT COUNT(*) c FROM segments WHERE module_id=? AND is_active=1");
-                $s->execute([$m['id']]);
-                $totalSegs += (int)$s->fetch()['c'];
+                $s2 = $this->db->prepare("SELECT COUNT(*) c FROM segments WHERE module_id=? AND is_active=1");
+                $s2->execute([$m['id']]);
+                $totalSegs += (int)$s2->fetch()['c'];
             }
         }
 
         if ($totalSegs <= 0) return 10;
-        return max(1, (int)round($levelRange / $totalSegs));
+        return max(1, (int)floor($levelRange / $totalSegs));
     }
 
     public function completeSegment($userId, $segmentId) {
@@ -398,12 +394,35 @@ class ProgressionEngine {
             $s->execute([$xp, $userId]);
 
             $progress = $this->getUserProgress($userId);
-            $newLvl = $this->computeLevel((int)$progress['xp']);
+            $xpLevel = $this->computeLevel((int)$progress['xp']);
             $oldLvl = (int)$progress['level'];
-            if ($newLvl > $oldLvl) {
-                $s = $this->db->prepare("UPDATE user_progress SET level=? WHERE user_id=?");
-                $s->execute([$newLvl, $userId]);
-                $events[] = ['type'=>'level_up','from'=>$oldLvl,'to'=>$newLvl];
+            
+            // Level up requires BOTH enough XP AND all modules in current level completed
+            $newLvl = $oldLvl;
+            if ($xpLevel > $oldLvl) {
+                // Check if all modules in the current level are done
+                $s = $this->db->prepare("SELECT id, unlock_rule FROM modules WHERE is_active=1");
+                $s->execute();
+                $allMods = $s->fetchAll();
+                $compModIds = $this->getCompletedModuleIds($userId);
+                
+                $currentLevelDone = true;
+                foreach ($allMods as $mod) {
+                    $rule = json_decode($mod['unlock_rule'] ?? 'null', true);
+                    if ($rule && ($rule['kind'] ?? '') === 'open') continue; // skip open modules
+                    $modLvl = ($rule && ($rule['kind'] ?? '') === 'level') ? (int)$rule['value'] : 0;
+                    if ($modLvl === $oldLvl && !in_array((int)$mod['id'], $compModIds)) {
+                        $currentLevelDone = false;
+                        break;
+                    }
+                }
+                
+                if ($currentLevelDone) {
+                    $newLvl = $xpLevel;
+                    $s = $this->db->prepare("UPDATE user_progress SET level=? WHERE user_id=?");
+                    $s->execute([$newLvl, $userId]);
+                    $events[] = ['type'=>'level_up','from'=>$oldLvl,'to'=>$newLvl];
+                }
             }
 
             // 5) Log

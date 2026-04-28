@@ -142,31 +142,38 @@ foreach ($lvlGroups as $mods) {
 <link rel="stylesheet" href="/become/portal.css">
 <style>
 /* ═══ SCROLL REVEAL ═══ */
-.reveal{opacity:0;transform:translateY(50px);transition:opacity .7s ease,transform .7s ease}
+.reveal{opacity:0;transform:translateY(40px);transition:opacity .6s ease,transform .6s ease}
 .reveal.visible{opacity:1;transform:translateY(0)}
-.reveal-left{opacity:0;transform:translateX(-40px);transition:opacity .6s ease,transform .6s ease}
+.reveal-left{opacity:0;transform:translateX(-30px);transition:opacity .5s ease,transform .5s ease}
 .reveal-left.visible{opacity:1;transform:translateX(0)}
-.reveal-right{opacity:0;transform:translateX(40px);transition:opacity .6s ease,transform .6s ease}
+.reveal-right{opacity:0;transform:translateX(30px);transition:opacity .5s ease,transform .5s ease}
 .reveal-right.visible{opacity:1;transform:translateX(0)}
-.reveal-scale{opacity:0;transform:scale(.85);transition:opacity .5s ease,transform .5s ease}
+.reveal-scale{opacity:0;transform:scale(.88);transition:opacity .4s ease,transform .4s ease}
 .reveal-scale.visible{opacity:1;transform:scale(1)}
 
 /* ═══ LAYOUT ═══ */
 .sk{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:0 1rem 6rem}
 
-/* Library button */
-.lib-btn{position:fixed;top:1rem;left:1rem;z-index:50;background:rgba(34,168,179,.15);border:1px solid rgba(34,168,179,.3);color:var(--teal);padding:.75rem 1.25rem;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;font-family:var(--bf);backdrop-filter:blur(12px);display:flex;align-items:center;gap:.5rem;transition:all .2s;box-shadow:0 4px 16px rgba(34,168,179,.15)}
-.lib-btn:hover{background:rgba(34,168,179,.25);transform:translateY(-2px);box-shadow:0 6px 24px rgba(34,168,179,.25)}
+/* Top bar */
+.top-bar{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:.6rem 1rem;background:rgba(10,10,15,.92);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.04)}
 
-/* Header */
-.sk-hdr{text-align:center;padding:3rem 0 2rem;position:relative}
+/* Training Library button — LEFT */
+.lib-btn{background:var(--teal);color:#fff;padding:.7rem 1.4rem;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;font-family:var(--bf);display:flex;align-items:center;gap:.5rem;transition:all .2s;border:none;box-shadow:0 3px 16px rgba(34,168,179,.3)}
+.lib-btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(34,168,179,.4)}
+
+/* Resources button — RIGHT */
+.res-btn{background:rgba(255,183,3,.15);border:1px solid rgba(255,183,3,.3);color:var(--gold);padding:.6rem 1rem;border-radius:12px;font-weight:700;font-size:.88rem;cursor:pointer;font-family:var(--bf);display:flex;align-items:center;gap:.4rem;transition:all .2s;box-shadow:0 2px 10px rgba(255,183,3,.1)}
+.res-btn:hover{background:rgba(255,183,3,.25);transform:translateY(-1px)}
+
+/* Header — push down for fixed top bar */
+.sk-hdr{text-align:center;padding:4rem 0 1.5rem;position:relative}
 .sk-hdr h1{font-family:var(--hf);font-size:1.5rem;background:linear-gradient(135deg,var(--teal),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.3rem}
 .sk-badge{display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .75rem;border-radius:16px;font-size:.82rem;font-weight:600}
 .sk-xp{max-width:280px;margin:.75rem auto 0}
-.sk-xp-bar{height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden}
-.sk-xp-fill{height:100%;border-radius:3px;transition:width .8s}
+.sk-xp-bar{height:8px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden}
+.sk-xp-fill{height:100%;border-radius:4px;transition:width .8s}
 .sk-xp-txt{font-size:.72rem;color:var(--dim);text-align:center;margin-top:.25rem}
-.sk-nav{display:flex;justify-content:center;gap:.75rem;margin-top:.75rem}
+.sk-nav{display:flex;justify-content:center;gap:.75rem;margin-top:.6rem}
 .sk-nav a{color:var(--dim);font-size:.8rem;text-decoration:none}
 .sk-nav a:hover{color:var(--teal)}
 
@@ -249,23 +256,43 @@ foreach ($lvlGroups as $mods) {
 .scroll-btn{position:fixed;bottom:1.5rem;right:1.5rem;z-index:30;background:var(--teal);color:#fff;border:none;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:1rem;cursor:pointer;box-shadow:0 4px 16px rgba(34,168,179,.35);transition:transform .2s}
 .scroll-btn:hover{transform:translateY(-2px)}
 
+/* Resources panel */
+.res-panel{position:fixed;inset:0;z-index:51;background:rgba(10,10,15,.97);backdrop-filter:blur(12px);overflow-y:auto;padding:1.5rem;transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1)}
+.res-panel.open{transform:translateX(0)}
+
 @media(max-width:500px){
     .sk{padding:0 .5rem 4rem}
-    .node__card{padding:.6rem .7rem}
+    .node__card{padding:.55rem .65rem}
     .node__title{font-size:.88rem}
-    .gate__badge{padding:.5rem 1.1rem;font-size:.88rem}
-    .lib-btn{top:.75rem;left:.75rem;padding:.65rem 1rem;font-size:.95rem}
-    .branch-group{grid-template-columns:1fr;padding:.4rem}
-    .sk-hdr h1{font-size:1.3rem}
-    .scroll-btn{width:40px;height:40px;bottom:1rem;right:1rem}
-    .node{margin-bottom:1rem}
-    .node__dot{width:30px;height:30px;font-size:.85rem}
+    .node__sub{font-size:.72rem}
+    .gate__badge{padding:.45rem 1rem;font-size:.85rem}
+    .lib-btn{font-size:.9rem;padding:.6rem 1rem}
+    .res-btn{font-size:.78rem;padding:.5rem .8rem}
+    .top-bar{padding:.5rem .65rem}
+    .branch-group{grid-template-columns:1fr;padding:.3rem}
+    .sk-hdr h1{font-size:1.25rem}
+    .sk-hdr{padding:3.5rem 0 1rem}
+    .scroll-btn{width:42px;height:42px;bottom:.75rem;right:.75rem;font-size:.9rem}
+    .node{margin-bottom:.85rem}
+    .node__dot{width:30px;height:30px;font-size:.85rem;margin-left:-15px}
+    .path{padding-left:30px}
+    .path::before{left:14px}
+    .gate{margin:1.5rem 0 1rem -30px}
+    .level-group{margin-bottom:.25rem}
+    .lib-grid{grid-template-columns:1fr}
+    .lib-card{padding:.75rem}
 }
 </style>
 </head>
 <body>
 
-<button class="lib-btn" id="libBtn">📚 Library</button>
+<!-- TOP BAR: Training Library (left) + Resources (right) -->
+<div class="top-bar">
+    <button class="lib-btn" id="libBtn">📚 Training Library</button>
+    <?php if ($openMods): ?>
+    <button class="res-btn" id="resBtn">📎 Resources</button>
+    <?php endif; ?>
+</div>
 
 <!-- LIBRARY OVERLAY -->
 <div class="lib" id="libPanel">
@@ -421,20 +448,35 @@ endforeach; ?>
 </div><!-- .level-group -->
 <?php endforeach;?>
 
-<?php if($openMods):?>
-<div class="gate reveal-scale" style="margin-top:2rem">
-    <div class="gate__badge" style="background:rgba(255,255,255,.03);border-color:var(--mute);color:var(--dim)">📚 Always Available</div>
-</div>
-<?php foreach($openMods as $i=>$m):$iD=$m['_done'];$dir=$i%2===0?'reveal-left':'reveal-right';?>
-<div class="node <?= $iD?'node--done':'node--now' ?> <?= $dir ?>">
-    <div class="node__dot" style="border-color:var(--dim)"><?= $iD?'✅':($m['icon']?:'📄') ?></div>
-    <a class="node__card" href="/become/module.php?id=<?= $m['id'] ?>"><div class="node__title"><?= htmlspecialchars($m['title']) ?></div><div class="node__sub"><?= $m['_f']?htmlspecialchars($m['_f']['icon'].' '.$m['_f']['title']):'' ?> · Reference</div></a>
-</div>
-<?php endforeach;endif;?>
-
 </div><!-- .path -->
 </div><!-- .sk -->
 </div><!-- .portal -->
+
+<!-- RESOURCES PANEL (Open to All modules) -->
+<?php if ($openMods): ?>
+<div class="res-panel" id="resPanel">
+    <button class="lib__close" id="resClose" style="z-index:52">✕</button>
+    <div class="lib__inner">
+        <h2 class="lib__title">📎 Resources</h2>
+        <p style="color:var(--dim);font-size:.85rem;margin-bottom:1rem">Always available — reference these anytime.</p>
+        <div style="display:flex;flex-direction:column;gap:.5rem">
+        <?php foreach ($openMods as $m):
+            $iD = $m['_done'];
+            $f = $m['_f'];
+        ?>
+        <a href="/become/module.php?id=<?= $m['id'] ?>" style="display:flex;align-items:center;gap:.65rem;padding:.65rem .85rem;background:var(--card);border:1px solid var(--bdr);border-radius:10px;text-decoration:none;color:var(--txt);transition:all .15s">
+            <span style="font-size:1.2rem"><?= $m['icon'] ?: '📄' ?></span>
+            <div>
+                <div style="font-weight:600;font-size:.88rem"><?= htmlspecialchars($m['title']) ?></div>
+                <div style="font-size:.72rem;color:var(--dim)"><?= $f ? htmlspecialchars($f['icon'].' '.$f['title']) : '' ?></div>
+            </div>
+            <?php if ($iD): ?><span style="margin-left:auto">✅</span><?php endif; ?>
+        </a>
+        <?php endforeach; ?>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
 
 <button class="scroll-btn" id="scrollBtn">📍</button>
 
@@ -522,6 +564,18 @@ document.addEventListener('click', function(e) {
     }
     if (e.target.closest('#libClose')) {
         document.getElementById('libPanel').classList.remove('open');
+        return;
+    }
+
+    // Resources toggle
+    if (e.target.closest('#resBtn')) {
+        var rp = document.getElementById('resPanel');
+        if (rp) rp.classList.toggle('open');
+        return;
+    }
+    if (e.target.closest('#resClose')) {
+        var rp = document.getElementById('resPanel');
+        if (rp) rp.classList.remove('open');
         return;
     }
 

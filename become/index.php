@@ -256,6 +256,28 @@ foreach ($lvlGroups as $mods) {
 .scroll-btn{position:fixed;bottom:1.5rem;right:1.5rem;z-index:30;background:var(--teal);color:#fff;border:none;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:1rem;cursor:pointer;box-shadow:0 4px 16px rgba(34,168,179,.35);transition:transform .2s}
 .scroll-btn:hover{transform:translateY(-2px)}
 
+/* Search */
+.search-wrap{flex:1;max-width:280px;position:relative}
+.search-input{width:100%;padding:.45rem .75rem .45rem 2rem;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:var(--txt);font-size:.82rem;font-family:var(--bf);outline:none;transition:all .2s}
+.search-input:focus{border-color:var(--teal);background:rgba(34,168,179,.06);box-shadow:0 0 0 3px rgba(34,168,179,.1)}
+.search-input::placeholder{color:var(--mute)}
+.search-icon{position:absolute;left:.6rem;top:50%;transform:translateY(-50%);font-size:.75rem;color:var(--mute);pointer-events:none}
+.search-clear{position:absolute;right:.5rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--mute);cursor:pointer;font-size:.9rem;padding:0;line-height:1;display:none}
+.search-input:not(:placeholder-shown) ~ .search-clear{display:block}
+
+.search-results{position:fixed;top:56px;left:0;right:0;bottom:0;z-index:45;background:rgba(10,10,15,.97);backdrop-filter:blur(12px);overflow-y:auto;padding:1rem;display:none}
+.search-results.open{display:block}
+.search-results-inner{max-width:600px;margin:0 auto}
+.search-count{font-size:.78rem;color:var(--dim);margin-bottom:.75rem}
+.search-result{display:block;background:var(--card);border:1px solid var(--bdr);border-radius:10px;padding:.75rem 1rem;margin-bottom:.5rem;text-decoration:none;color:var(--txt);transition:all .2s}
+.search-result:hover{border-color:var(--bdr-a);background:var(--card-h);transform:translateX(3px)}
+.search-result--locked{opacity:.4;cursor:default}
+.search-result__title{font-weight:700;font-size:.88rem;margin-bottom:.15rem}
+.search-result__path{font-size:.7rem;color:var(--dim);margin-bottom:.3rem}
+.search-result__snippet{font-size:.8rem;color:var(--txt);line-height:1.5;opacity:.8}
+.search-result__snippet mark{background:rgba(34,168,179,.25);color:var(--txt);padding:1px 3px;border-radius:3px}
+.search-result__lock{font-size:.7rem;color:var(--gold);margin-top:.25rem}
+
 /* Resources panel */
 .res-panel{position:fixed;inset:0;z-index:51;background:rgba(10,10,15,.97);backdrop-filter:blur(12px);overflow-y:auto;padding:1.5rem;transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1)}
 .res-panel.open{transform:translateX(0)}
@@ -281,17 +303,32 @@ foreach ($lvlGroups as $mods) {
     .level-group{margin-bottom:.25rem}
     .lib-grid{grid-template-columns:1fr}
     .lib-card{padding:.75rem}
+    .search-wrap{max-width:none;order:3;flex-basis:100%;margin-top:.35rem}
+    .top-bar{flex-wrap:wrap}
 }
 </style>
 </head>
 <body>
 
-<!-- TOP BAR: Training Library (left) + Resources (right) -->
+<!-- TOP BAR: Training Library (left) + Search + Resources (right) -->
 <div class="top-bar">
     <button class="lib-btn" id="libBtn">📚 Training Library</button>
+    <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="search-input" id="searchInput" type="text" placeholder="Search training..." autocomplete="off">
+        <button class="search-clear" id="searchClear">✕</button>
+    </div>
     <?php if ($openMods): ?>
     <button class="res-btn" id="resBtn">📎 Resources</button>
     <?php endif; ?>
+</div>
+
+<!-- SEARCH RESULTS OVERLAY -->
+<div class="search-results" id="searchResults">
+    <div class="search-results-inner">
+        <div class="search-count" id="searchCount"></div>
+        <div id="searchList"></div>
+    </div>
 </div>
 
 <!-- LIBRARY OVERLAY -->
@@ -585,7 +622,89 @@ document.addEventListener('click', function(e) {
         card.classList.toggle('expanded');
         return;
     }
+
+    // Search clear
+    if (e.target.closest('#searchClear')) {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('searchResults').classList.remove('open');
+        return;
+    }
 });
+
+// Search — debounced input
+var searchTimer = null;
+var searchInput = document.getElementById('searchInput');
+if (searchInput) {
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimer);
+        var q = this.value.trim();
+        if (q.length < 2) {
+            document.getElementById('searchResults').classList.remove('open');
+            return;
+        }
+        searchTimer = setTimeout(function() { doSearch(q); }, 350);
+    });
+    // Close search on Escape
+    searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            this.value = '';
+            document.getElementById('searchResults').classList.remove('open');
+            this.blur();
+        }
+    });
+}
+
+async function doSearch(query) {
+    try {
+        var res = await fetch('/become/api/index.php?route=search&q=' + encodeURIComponent(query));
+        var data = await res.json();
+        var panel = document.getElementById('searchResults');
+        var list = document.getElementById('searchList');
+        var count = document.getElementById('searchCount');
+
+        if (!data.results || data.results.length === 0) {
+            count.textContent = 'No results for "' + query + '"';
+            list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--mute)">No matches found. Try different keywords.</div>';
+            panel.classList.add('open');
+            return;
+        }
+
+        count.textContent = data.count + ' result' + (data.count !== 1 ? 's' : '') + ' for "' + query + '"';
+
+        var html = '';
+        data.results.forEach(function(r) {
+            var snippet = r.snippet || '';
+            // Highlight the query in the snippet
+            if (snippet && query) {
+                var re = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+                snippet = snippet.replace(re, '<mark>$1</mark>');
+            }
+
+            if (r.locked) {
+                html += '<div class="search-result search-result--locked">';
+            } else {
+                html += '<a class="search-result" href="/become/module.php?id=' + r.mod_id + '#seg-' + r.seg_id + '">';
+            }
+            html += '<div class="search-result__title">' + (r.mod_icon || '📄') + ' ' + escHtml(r.seg_title) + '</div>';
+            html += '<div class="search-result__path">' + (r.folder_icon || '📁') + ' ' + escHtml(r.folder_title) + ' → ' + escHtml(r.mod_title) + '</div>';
+            if (snippet) html += '<div class="search-result__snippet">' + snippet + '</div>';
+            if (r.locked) html += '<div class="search-result__lock">🔒 Locked — unlocks at Level ' + r.lock_level + '</div>';
+            html += r.locked ? '</div>' : '</a>';
+        });
+
+        list.innerHTML = html;
+        panel.classList.add('open');
+    } catch(err) {
+        console.error('Search error:', err);
+    }
+}
+
+function escHtml(s) {
+    if (!s) return '';
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+}
 </script>
 </body>
 </html>

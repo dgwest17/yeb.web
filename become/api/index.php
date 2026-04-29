@@ -179,6 +179,74 @@ try {
         exit;
     }
 
+    // ── Search: GET ?route=search&q=... ──
+    if ($route === 'search' && $method === 'GET') {
+        $q = trim($_GET['q'] ?? '');
+        if (strlen($q) < 2) {
+            echo json_encode(['results' => [], 'query' => $q]);
+            exit;
+        }
+
+        $db = Database::getInstance();
+        $like = '%' . $q . '%';
+
+        // Search segments: title and content_html
+        $s = $db->prepare("
+            SELECT s.id AS seg_id, s.title AS seg_title, s.content_html,
+                   s.customer_quote, s.rep_response, s.tip,
+                   m.id AS mod_id, m.title AS mod_title, m.icon AS mod_icon,
+                   m.unlock_rule, m.module_order,
+                   f.id AS folder_id, f.title AS folder_title, f.icon AS folder_icon
+            FROM segments s
+            JOIN modules m ON s.module_id = m.id
+            JOIN folders f ON m.folder_id = f.id
+            WHERE s.is_active = 1 AND m.is_active = 1
+              AND (s.title LIKE ? OR s.content_html LIKE ? OR s.customer_quote LIKE ? OR s.rep_response LIKE ? OR s.tip LIKE ? OR m.title LIKE ?)
+            ORDER BY m.module_order, s.segment_order
+            LIMIT 50
+        ");
+        $s->execute([$like, $like, $like, $like, $like, $like]);
+        $rows = $s->fetchAll();
+
+        // Get user level for lock status
+        $userLevel = (int)$engine->getUserStats($userId)['level'];
+
+        $results = [];
+        foreach ($rows as $r) {
+            $rule = json_decode($r['unlock_rule'] ?? 'null', true);
+            $modLevel = ($rule && ($rule['kind'] ?? '') === 'level') ? (int)$rule['value'] : 0;
+            $isOpen = $rule && ($rule['kind'] ?? '') === 'open';
+            $locked = !$isOpen && $modLevel > $userLevel;
+
+            // Extract snippet around match
+            $plainText = strip_tags($r['content_html'] ?? '');
+            $allText = $plainText . ' ' . ($r['customer_quote'] ?? '') . ' ' . ($r['rep_response'] ?? '') . ' ' . ($r['tip'] ?? '');
+            $pos = stripos($allText, $q);
+            $snippet = '';
+            if ($pos !== false) {
+                $start = max(0, $pos - 60);
+                $end = min(strlen($allText), $pos + strlen($q) + 60);
+                $snippet = ($start > 0 ? '...' : '') . substr($allText, $start, $end - $start) . ($end < strlen($allText) ? '...' : '');
+            }
+
+            $results[] = [
+                'seg_id'       => (int)$r['seg_id'],
+                'seg_title'    => $r['seg_title'],
+                'mod_id'       => (int)$r['mod_id'],
+                'mod_title'    => $r['mod_title'],
+                'mod_icon'     => $r['mod_icon'] ?? '📄',
+                'folder_title' => $r['folder_title'],
+                'folder_icon'  => $r['folder_icon'] ?? '📁',
+                'snippet'      => $snippet,
+                'locked'       => $locked,
+                'lock_level'   => $locked ? $modLevel : null,
+            ];
+        }
+
+        echo json_encode(['results' => $results, 'query' => $q, 'count' => count($results)]);
+        exit;
+    }
+
     http_response_code(404);
     echo json_encode(['error' => 'Unknown route: ' . $route]);
 

@@ -294,13 +294,12 @@ footer a{color:var(--gold);text-decoration:none}
   <!-- 1. OVERVIEW -->
   <section class="section" id="overview" data-sec="overview">
     <span class="eyebrow">Your Current Situation</span>
-    <h2 class="section-title">What You're <span style="color:var(--rage-l)">Paying Now</span></h2>
+    <h2 class="section-title">THE COST OF <span style="color:var(--rage-l)">DOING NOTHING</span></h2>
     <div class="stats-strip">
       <div class="stat-block"><span class="stat-val red" id="ov-bill">$134</span><span class="stat-lbl">Monthly Bill</span></div>
       <div class="stat-block"><span class="stat-val red" id="ov-kwh">$0.45</span><span class="stat-lbl">Current $/kWh</span></div>
       <div class="stat-block"><span class="stat-val gold" id="ov-rate">9%</span><span class="stat-lbl">Rate Assumption</span></div>
-      <div class="stat-block"><span class="stat-val red" id="ov-total">$88K</span><span class="stat-lbl" id="ov-total-lbl">25yr Utility Cost</span></div>
-      <div class="stat-block"><span class="stat-val green" id="ov-offset">81%</span><span class="stat-lbl">Production Offset</span></div>
+      <div class="stat-block"><span class="stat-val red" id="ov-total" style="font-size:1.3rem">$88,000</span><span class="stat-lbl" id="ov-total-lbl">25yr Utility Cost</span></div>
       <div class="stat-block"><span class="stat-val gold" id="ov-usage">—</span><span class="stat-lbl">Annual Usage</span></div>
     </div>
   </section>
@@ -369,10 +368,17 @@ footer a{color:var(--gold);text-decoration:none}
   <section class="section" id="why" data-sec="why">
     <span class="eyebrow">Why Work With Me</span>
     <h2 class="section-title">I DON'T SELL SOLAR. <span style="color:var(--gold)">I PROTECT FAMILIES.</span></h2>
-    <div style="display:flex;flex-direction:column;gap:1rem;margin-bottom:2rem">
-      <div class="why-bullet"><span class="why-star">★</span><div><strong>Local San Diego expert</strong> — I live here, I know the rates, I know the permits, I know the utility games. This is my community too.</div></div>
-      <div class="why-bullet"><span class="why-star">★</span><div><strong>Post-install support for life</strong> — I'm not a door-knocker who disappears. My number doesn't change. Call me in year 10.</div></div>
-      <div class="why-bullet"><span class="why-star">★</span><div><strong>My mission is to make this industry truly sustainable</strong> — the better experience I give, the more people you tell about it, and the quicker we can get there together.</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start">
+      <div style="display:flex;flex-direction:column;gap:0.85rem">
+        <div class="why-bullet"><span class="why-star">★</span><div><strong>Local San Diego expert</strong> — I live here, I know the rates, I know the permits, I know the utility games. This is my community too.</div></div>
+        <div class="why-bullet"><span class="why-star">★</span><div><strong>Post-install support for life</strong> — I'm not a door-knocker who disappears. My number doesn't change. Call me in year 10.</div></div>
+        <div class="why-bullet"><span class="why-star">★</span><div><strong>My mission is to make this industry truly sustainable</strong> — the better experience I give, the more people you tell about it, and the quicker we can get there together.</div></div>
+      </div>
+      <!-- Instagram feed column -->
+      <div>
+        <div style="font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:0.75rem;opacity:0.8">📸 @energy.best.ca</div>
+        <div id="prop-ig-feed" style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;border-radius:8px;overflow:hidden"></div>
+      </div>
     </div>
   </section>
 
@@ -542,6 +548,7 @@ const DATA={
   battery: pd('bat','battery',''),
   rep:     pd('r','rep','David West'),
   company: pd('co','company','Kinhome'),
+  solar_plan: pd('plan','solar_plan',''),  // PPA | Propel | Participate
   created: parseInt(pd('ts','ts','0')),
   slides:  pd('sl','slides','overview,bill,grid,numbers,included,why,comparison,timeline,contact').split(','),
 };
@@ -602,7 +609,7 @@ function recalc(){
 
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
   set('ov-rate',   (rate*100).toFixed(0)+'%');
-  set('ov-total',  fmt(utilCumul30[T-1]));
+  set('ov-total',  '$'+Math.round(utilCumul30[T-1]).toLocaleString());
   set('n-util-total', fmt(utilCumul30[T-1]));
   set('n-util-end', '$'+Math.round(utilMo30[T-1])+'/mo');
   set('n-breakeven', be?'Yr '+be:(solCumul30?T+'+':'—'));
@@ -753,6 +760,121 @@ function init(){
   document.getElementById('loading-screen').style.display='none';
   document.getElementById('main-content').style.display='block';
 }
+
+
+  // ── INSTAGRAM FEED (propose.html) ──
+  function loadPropIG(){
+    var grid=document.getElementById('prop-ig-feed');
+    if(!grid) return;
+    var token=DATA.ig_token||'';
+    function placeholders(){
+      grid.innerHTML='';
+      var icons=['☀️','🔋','⚡','🏠','💡','🌱'];
+      icons.forEach(function(ic){
+        var d=document.createElement('div');
+        d.className='prop-ig-post';
+        d.innerHTML='<span class="prop-ig-placeholder">'+ic+'</span>';
+        grid.appendChild(d);
+      });
+    }
+    if(!token){placeholders();return;}
+    fetch('https://graph.instagram.com/me/media?fields=id,media_url,permalink,media_type&limit=6&access_token='+token)
+      .then(function(r){return r.json()})
+      .then(function(data){
+        if(!data.data){placeholders();return;}
+        grid.innerHTML='';
+        var posts=data.data.filter(function(p){return p.media_type!=='VIDEO'}).slice(0,6);
+        posts.forEach(function(p){
+          var d=document.createElement('div');
+          d.className='prop-ig-post';
+          d.innerHTML='<a href="'+p.permalink+'" target="_blank" style="display:block;width:100%;height:100%">'
+            +'<img src="'+p.media_url+'" loading="lazy" style="width:100%;height:100%;object-fit:cover"></a>';
+          grid.appendChild(d);
+        });
+        while(grid.children.length<6){
+          var d=document.createElement('div');
+          d.className='prop-ig-post';
+          d.innerHTML='<span class="prop-ig-placeholder">☀️</span>';
+          grid.appendChild(d);
+        }
+      }).catch(placeholders);
+  }
+
+  // ── SOLAR PLAN BENEFITS ──
+  var PLAN_BENEFITS = {
+    'PPA': {
+      name: 'Power Purchase Agreement',
+      items: [
+        ['End date','option to buy or continue → flexibility at year 25 (or earlier buyout options after year 5)'],
+        ['Use power comfortably','no rationing → predictable monthly cost makes usage stress-free'],
+        ['Blackout protection','battery keeps you on → backup power included (if battery installed)'],
+        ['Predictable power','fixed or low escalator rate → protection from SDG&E rate spikes'],
+        ['No maintenance responsibility','fully covered → provider owns, monitors, and repairs system'],
+        ['Day 1 savings','costs less immediately → typically lower than current utility bill'],
+        ['Transferable','easy home sale → agreement moves to next homeowner seamlessly']
+      ]
+    },
+    'Propel': {
+      name: 'Energy Service Agreement — Propel',
+      items: [
+        ['End date','solar term ends, power is free → long-term path to $0 energy cost'],
+        ['No prepayment penalty','pay the system off as fast as you want'],
+        ['Use power comfortably','no rationing → system designed for full lifestyle usage'],
+        ['Blackout protection','battery keeps you on → built-in resilience and outage security'],
+        ['Predictable power','rate locked in → no escalators or surprise increases'],
+        ['Control','you own your energy outcome → structured path toward ownership benefits'],
+        ['Full-service coverage','no maintenance headaches → monitoring, repairs, and performance handled'],
+        ['Day 1 savings','costs less immediately → instant reduction vs SDG&E'],
+        ['Stronger long-term economics','optimized total savings → designed to outperform standard PPAs']
+      ]
+    },
+    'Participate': {
+      name: 'Energy Service Agreement — Participate',
+      items: [
+        ['End date','solar term ends, power is free → long-term path to $0 energy cost'],
+        ['Use power comfortably','no rationing → system designed for full lifestyle usage'],
+        ['Blackout protection','battery keeps you on → built-in resilience and outage security'],
+        ['Predictable power','rate locked in → no escalators or surprise increases'],
+        ['Control','you own your energy → clear path to ownership and full savings'],
+        ['Day 1 savings','costs less immediately → instant reduction vs SDG&E'],
+        ['Home value boost','solar adds 3–4%+ to property value → asset that pays you back']
+      ]
+    }
+  };
+
+  function loadSolarBenefits(){
+    var plan=DATA.solar_plan;
+    var planData=PLAN_BENEFITS[plan];
+    var nameEl=document.getElementById('solar-plan-name');
+    var listEl=document.getElementById('solar-benefits-list');
+    if(!listEl) return;
+    if(!planData){
+      // Default VPP benefits
+      if(nameEl) nameEl.textContent='Virtual Power Plant';
+      listEl.innerHTML=[
+        ['Get your power',''],
+        ['Monthly billing',''],
+        ['End date','solar term ends, power is free'],
+        ['Use power comfortably','no rationing'],
+        ['Blackout protection','battery keeps you on'],
+        ['Predictable power','rate locked in'],
+        ['Control','you own your energy'],
+        ['Day 1 Savings','costs less immediately']
+      ].map(function(b){
+        return '<div class="compare-item"><span class="check">✓</span><span>'
+          +(b[1]?'<strong>'+b[0]+'</strong> — '+b[1]:b[0])+'</span></div>';
+      }).join('');
+      return;
+    }
+    if(nameEl) nameEl.textContent=planData.name;
+    listEl.innerHTML=planData.items.map(function(b){
+      return '<div class="compare-item"><span class="check">✓</span><span>'
+        +'<strong>'+b[0]+'</strong>'+(b[1]?' — '+b[1]:'')+'</span></div>';
+    }).join('');
+  }
+
+  loadPropIG();
+  loadSolarBenefits();
 
 function toggleDemand(item){
   item.classList.toggle('open');

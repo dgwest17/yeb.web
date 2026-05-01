@@ -11,6 +11,10 @@
 :root{--gold:#C8A84B;--gold-l:#E8C96A;--deep:#050E18;--navy:#0D1F30;--rage-l:#E74C3C;--green-l:#2ECC71;--text:#fff;--muted:#e0dbd0;--dim:#aaa89a;--border:rgba(200,168,75,0.22)}
 html{scroll-behavior:smooth}
 body{font-family:'DM Sans',sans-serif;background:var(--deep);color:var(--text);min-height:100vh}
+/* All page content above canvas */
+nav,#loading-screen,#expired-screen,#main-content,.expiry-banner{position:relative;z-index:2}
+footer{position:relative;z-index:2}
+.section{position:relative;z-index:2}
 .fullscreen-msg{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.25rem;text-align:center;padding:2rem}
 .fullscreen-msg h1{font-family:'Bebas Neue',sans-serif;font-size:3rem;color:var(--gold);letter-spacing:0.05em}
 .fullscreen-msg p{font-size:0.95rem;color:var(--muted);max-width:420px;line-height:1.7}
@@ -242,7 +246,8 @@ footer a{color:var(--gold);text-decoration:none}
 </head>
 <body>
 
-<div id="loading-screen" class="fullscreen-msg">
+<!-- ══ AMBIENT CANVAS BACKGROUND ══ -->
+<canvas id="solar-canvas" style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.85"></canvas> class="fullscreen-msg">
   <div style="font-size:2.5rem">☀️</div>
   <h1>Your Proposal</h1>
   <p>Loading your personalized energy analysis…</p>
@@ -894,6 +899,393 @@ if(DATA.created&&elapsed>THIRTY_DAYS){
     document.getElementById('main-content').style.display='block';
   }
 }
+</script>
+<!-- ══ SOLAR CANVAS ENGINE ══ -->
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var C = document.getElementById('solar-canvas');
+  if(!C) return;
+  var ctx = C.getContext('2d');
+  if(!ctx) return;
+
+  // roundRect polyfill for older browsers
+  if(!ctx.roundRect){
+    ctx.roundRect = function(x,y,w,h,r){
+      ctx.beginPath();
+      ctx.moveTo(x+r,y);
+      ctx.lineTo(x+w-r,y);
+      ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+      ctx.lineTo(x+w,y+h-r);
+      ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+      ctx.lineTo(x+r,y+h);
+      ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+      ctx.lineTo(x,y+r);
+      ctx.quadraticCurveTo(x,y,x+r,y);
+      ctx.closePath();
+    };
+  }
+  var W, H, t = 0;
+  var dpr = Math.min(window.devicePixelRatio||1, 2);
+
+  function resize(){
+    W = C.width  = window.innerWidth  * dpr;
+    H = C.height = window.innerHeight * dpr;
+    C.style.width  = window.innerWidth  + 'px';
+    C.style.height = window.innerHeight + 'px';
+    ctx.scale(dpr, dpr);
+  }
+  resize();
+  window.addEventListener('resize', function(){ ctx.setTransform(1,0,0,1,0,0); resize(); });
+
+  var W2 = function(){ return window.innerWidth; };
+  var H2 = function(){ return window.innerHeight; };
+
+  // ── STARS ──
+  var stars = [];
+  for(var i=0;i<180;i++) stars.push({
+    x:Math.random(), y:Math.random(),
+    r:Math.random()*1.2+0.2,
+    a:Math.random()*0.5+0.1,
+    twink:Math.random()*0.03+0.005,
+    phase:Math.random()*Math.PI*2
+  });
+
+  // ── SUN ── (top-right ambient)
+  var sun = { cx:0.82, cy:0.12, r:55 };
+
+  // ── EARTH ── (bottom-left)
+  var earth = { cx:0.12, cy:0.88, r:48 };
+
+  // ── BATTERY ── (center-right area)
+  var battery = { cx:0.78, cy:0.55, w:36, h:64 };
+
+  // ── SOLAR PARTICLES (sun → battery flow) ──
+  var particles = [];
+  function spawnParticle(){
+    if(particles.length > 80) return;
+    var sx = sun.cx * W2(), sy = sun.cy * H2();
+    var angle = Math.random() * Math.PI * 2;
+    var speed = Math.random() * 0.8 + 0.4;
+    particles.push({
+      x: sx + (Math.random()-0.5)*sun.r*0.8,
+      y: sy + (Math.random()-0.5)*sun.r*0.8,
+      vx: Math.cos(angle)*speed,
+      vy: Math.sin(angle)*speed,
+      life: 1.0,
+      decay: Math.random()*0.006+0.003,
+      r: Math.random()*2.5+0.8,
+      hue: Math.random()*30+35, // gold-yellow range
+      heading: false // will home toward battery
+    });
+  }
+
+  // ── ENERGY FLOW DOTS (battery → earth energy exchange) ──
+  var flowDots = [];
+  function spawnFlow(){
+    if(flowDots.length > 30) return;
+    var bx = battery.cx * W2(), by = battery.cy * H2();
+    var ex = earth.cx * W2(), ey = earth.cy * H2();
+    var t2 = Math.random();
+    flowDots.push({
+      progress: 0,
+      speed: Math.random()*0.004+0.002,
+      sx:bx, sy:by, ex:ex, ey:ey,
+      r: Math.random()*1.8+0.6,
+      hue: 140 + Math.random()*40 // green range
+    });
+  }
+
+  // ── AURORA BANDS (behind earth) ──
+  var aurorae = [];
+  for(var i=0;i<4;i++) aurorae.push({
+    phase: Math.random()*Math.PI*2,
+    speed: Math.random()*0.008+0.004,
+    hue: [180,140,200,160][i],
+    alpha: 0.06 + Math.random()*0.04
+  });
+
+  // ── NEBULA WISPS ──
+  var wisps = [];
+  for(var i=0;i<5;i++) wisps.push({
+    x:Math.random(), y:Math.random(),
+    rx:0.15+Math.random()*0.2, ry:0.1+Math.random()*0.12,
+    hue:[220,260,200,240,180][i],
+    alpha:0.025+Math.random()*0.02,
+    rot:Math.random()*Math.PI*2,
+    rotSpeed:(Math.random()-0.5)*0.001
+  });
+
+  function drawSun(w, h){
+    var cx = sun.cx*w, cy = sun.cy*h, r = sun.r;
+    var pulse = 1 + 0.06*Math.sin(t*0.025);
+
+    // Outer corona rings
+    for(var ring=4; ring>0; ring--){
+      var rg = ctx.createRadialGradient(cx,cy,r*0.5, cx,cy, r*ring*pulse);
+      rg.addColorStop(0, 'rgba(255,220,60,0.06)');
+      rg.addColorStop(1, 'transparent');
+      ctx.fillStyle = rg;
+      ctx.beginPath(); ctx.arc(cx,cy,r*ring*pulse,0,Math.PI*2); ctx.fill();
+    }
+    // Sun disc
+    var sg = ctx.createRadialGradient(cx-r*0.25,cy-r*0.25,0, cx,cy,r*pulse);
+    sg.addColorStop(0,   'rgba(255,255,200,0.85)');
+    sg.addColorStop(0.3, 'rgba(255,200,50,0.75)');
+    sg.addColorStop(0.7, 'rgba(240,140,20,0.45)');
+    sg.addColorStop(1,   'transparent');
+    ctx.fillStyle = sg;
+    ctx.beginPath(); ctx.arc(cx,cy,r*pulse,0,Math.PI*2); ctx.fill();
+
+    // Solar flare spikes
+    for(var s=0;s<8;s++){
+      var a = (s/8)*Math.PI*2 + t*0.008;
+      var len = r*(1.4+0.3*Math.sin(t*0.04+s));
+      ctx.strokeStyle = 'rgba(255,200,50,0.12)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(cx + Math.cos(a)*r*0.9, cy + Math.sin(a)*r*0.9);
+      ctx.lineTo(cx + Math.cos(a)*len, cy + Math.sin(a)*len);
+      ctx.stroke();
+    }
+  }
+
+  function drawEarth(w, h){
+    var cx = earth.cx*w, cy = earth.cy*h, r = earth.r;
+
+    // Atmosphere glow
+    var ag = ctx.createRadialGradient(cx,cy,r*0.85, cx,cy,r*1.6);
+    ag.addColorStop(0, 'rgba(80,160,255,0.2)');
+    ag.addColorStop(0.5,'rgba(40,120,220,0.08)');
+    ag.addColorStop(1,  'transparent');
+    ctx.fillStyle = ag;
+    ctx.beginPath(); ctx.arc(cx,cy,r*1.6,0,Math.PI*2); ctx.fill();
+
+    // Earth disc
+    var eg = ctx.createRadialGradient(cx-r*0.2,cy-r*0.2,0, cx,cy,r);
+    eg.addColorStop(0,   'rgba(50,120,220,0.85)');
+    eg.addColorStop(0.4, 'rgba(30,90,180,0.75)');
+    eg.addColorStop(0.75,'rgba(20,100,60,0.6)');
+    eg.addColorStop(1,   'rgba(10,60,30,0.4)');
+    ctx.fillStyle = eg;
+    ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
+
+    // Continent shapes (procedural green blobs)
+    ctx.save(); ctx.clip(); // clip to earth circle first
+    ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.clip();
+    var rot = t*0.003;
+    [ {dx:-0.2,dy:-0.15,rr:0.5,rs:0.55},
+      {dx:0.2, dy:0.1, rr:0.45,rs:0.38},
+      {dx:-0.1,dy:0.3, rr:0.35,rs:0.5 } ].forEach(function(blob){
+      var bx=cx+Math.cos(rot+blob.dx*3)*r*0.55, by=cy+Math.sin(rot+blob.dy*3)*r*0.45;
+      ctx.fillStyle='rgba(30,120,60,0.55)';
+      ctx.beginPath();
+      ctx.ellipse(bx,by,r*blob.rr,r*blob.rs,rot,0,Math.PI*2);
+      ctx.fill();
+    });
+    ctx.restore();
+
+    // Aurora shimmer arcs
+    aurorae.forEach(function(au){
+      au.phase += au.speed;
+      for(var arc=0;arc<3;arc++){
+        var aStart = au.phase + arc*0.8;
+        var aEnd   = aStart + 0.9 + 0.4*Math.sin(au.phase*1.3);
+        var aR = r*(1.02+arc*0.04+0.02*Math.sin(au.phase*2));
+        ctx.strokeStyle = 'hsla('+au.hue+',80%,65%,'+(au.alpha*(1-arc*0.25))+')';
+        ctx.lineWidth = 3-arc;
+        ctx.beginPath();
+        ctx.arc(cx,cy,aR,aStart,aEnd);
+        ctx.stroke();
+      }
+    });
+
+    // Specular highlight
+    var spec = ctx.createRadialGradient(cx-r*0.3,cy-r*0.3,0,cx-r*0.2,cy-r*0.2,r*0.55);
+    spec.addColorStop(0,'rgba(180,210,255,0.3)');
+    spec.addColorStop(1,'transparent');
+    ctx.fillStyle=spec;
+    ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
+  }
+
+  function drawBattery(w, h){
+    var cx=battery.cx*w, cy=battery.cy*h;
+    var bw=battery.w, bh=battery.h;
+    var charge = 0.65 + 0.25*Math.sin(t*0.02); // animated charge level
+
+    // Battery glow
+    var bglow = ctx.createRadialGradient(cx,cy,0,cx,cy,bh*0.9);
+    bglow.addColorStop(0,'rgba(46,204,113,0.12)');
+    bglow.addColorStop(1,'transparent');
+    ctx.fillStyle=bglow;
+    ctx.beginPath(); ctx.arc(cx,cy,bh*0.9,0,Math.PI*2); ctx.fill();
+
+    // Battery body
+    ctx.strokeStyle='rgba(46,204,113,0.5)';
+    ctx.lineWidth=2;
+    ctx.fillStyle='rgba(5,14,24,0.85)';
+    ctx.beginPath();
+    ctx.roundRect(cx-bw/2, cy-bh/2, bw, bh, 4);
+    ctx.fill(); ctx.stroke();
+
+    // Terminal nub
+    ctx.fillStyle='rgba(46,204,113,0.4)';
+    ctx.beginPath();
+    ctx.roundRect(cx-bw*0.25, cy-bh/2-6, bw*0.5, 7, 2);
+    ctx.fill();
+
+    // Charge fill
+    var fillH = bh * 0.88 * charge;
+    var fg = ctx.createLinearGradient(cx, cy+bh/2-fillH, cx, cy+bh/2);
+    fg.addColorStop(0,   'rgba(46,204,113,0.9)');
+    fg.addColorStop(0.5, 'rgba(100,220,140,0.7)');
+    fg.addColorStop(1,   'rgba(30,180,90,0.5)');
+    ctx.fillStyle=fg;
+    ctx.save();
+    ctx.beginPath(); ctx.roundRect(cx-bw/2+3, cy-bh/2+3, bw-6, bh-6, 3); ctx.clip();
+    ctx.fillRect(cx-bw/2+3, cy+bh/2-fillH, bw-6, fillH);
+    ctx.restore();
+
+    // Bolt symbol
+    var pulse2 = 0.5+0.5*Math.sin(t*0.04);
+    ctx.fillStyle='rgba(46,204,113,'+(0.6+0.4*pulse2)+')';
+    ctx.font='bold 14px sans-serif';
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillText('⚡', cx, cy);
+
+    // Pulsing ring
+    var pRing = (t*0.04)%(Math.PI*2);
+    ctx.strokeStyle='rgba(46,204,113,'+(0.3*Math.cos(pRing)*Math.cos(pRing))+')';
+    ctx.lineWidth=1.5;
+    ctx.beginPath();
+    ctx.arc(cx,cy, bh*0.55*(1+0.3*((pRing%(Math.PI*2))/(Math.PI*2))), 0, Math.PI*2);
+    ctx.stroke();
+  }
+
+  function drawParticles(w, h){
+    var bx=battery.cx*w, by=battery.cy*h;
+
+    if(Math.random()<0.15) spawnParticle();
+
+    particles = particles.filter(function(p){ return p.life>0; });
+    particles.forEach(function(p){
+      // After some life, home toward battery
+      if(p.life < 0.7 && !p.heading){ p.heading=true; }
+      if(p.heading){
+        var dx=bx-p.x, dy=by-p.y, dist=Math.sqrt(dx*dx+dy*dy)+0.001;
+        p.vx += dx/dist*0.08;
+        p.vy += dy/dist*0.08;
+        var spd=Math.sqrt(p.vx*p.vx+p.vy*p.vy);
+        if(spd>3){p.vx=p.vx/spd*3;p.vy=p.vy/spd*3;}
+      }
+      p.x+=p.vx; p.y+=p.vy;
+      p.life-=p.decay;
+
+      // Draw as glowing dot
+      var pg=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*3);
+      pg.addColorStop(0,'hsla('+p.hue+',90%,75%,'+p.life+')');
+      pg.addColorStop(1,'transparent');
+      ctx.fillStyle=pg;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r*3,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='hsla('+p.hue+',100%,92%,'+Math.min(1,p.life*1.5)+')';
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+    });
+  }
+
+  function drawFlowDots(w, h){
+    if(Math.random()<0.08) spawnFlow();
+    flowDots = flowDots.filter(function(d){ return d.progress<1; });
+    flowDots.forEach(function(d){
+      d.progress+=d.speed;
+      var px=d.sx+(d.ex-d.sx)*d.progress;
+      var py=d.sy+(d.ey-d.sy)*d.progress + Math.sin(d.progress*Math.PI)*-60;
+      var alpha=(1-Math.abs(d.progress-0.5)*2)*0.8;
+      var dg=ctx.createRadialGradient(px,py,0,px,py,d.r*4);
+      dg.addColorStop(0,'hsla('+d.hue+',80%,65%,'+alpha+')');
+      dg.addColorStop(1,'transparent');
+      ctx.fillStyle=dg;
+      ctx.beginPath(); ctx.arc(px,py,d.r*4,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='hsla('+d.hue+',90%,85%,'+alpha*1.2+')';
+      ctx.beginPath(); ctx.arc(px,py,d.r,0,Math.PI*2); ctx.fill();
+    });
+  }
+
+  function drawWisps(w, h){
+    wisps.forEach(function(wsp){
+      wsp.rot+=wsp.rotSpeed;
+      ctx.save();
+      ctx.translate(wsp.x*w, wsp.y*h);
+      ctx.rotate(wsp.rot);
+      var wg=ctx.createRadialGradient(0,0,0,0,0,wsp.rx*w);
+      wg.addColorStop(0,'hsla('+wsp.hue+',60%,50%,'+(wsp.alpha*1.5)+')');
+      wg.addColorStop(1,'transparent');
+      ctx.scale(1, wsp.ry/wsp.rx);
+      ctx.fillStyle=wg;
+      ctx.beginPath(); ctx.arc(0,0,wsp.rx*w,0,Math.PI*2); ctx.fill();
+      ctx.restore();
+    });
+  }
+
+  function drawStars(w, h){
+    stars.forEach(function(s){
+      var twink=0.5+0.5*Math.sin(t*s.twink+s.phase);
+      ctx.globalAlpha=s.a*twink;
+      ctx.fillStyle='#fff';
+      ctx.beginPath(); ctx.arc(s.x*w, s.y*h, s.r, 0, Math.PI*2); ctx.fill();
+    });
+    ctx.globalAlpha=1;
+  }
+
+  // Connection line sun → battery
+  function drawEnergyLine(w, h){
+    var sx=sun.cx*w, sy=sun.cy*h;
+    var bx=battery.cx*w, by=battery.cy*h;
+    var alpha=0.06+0.04*Math.sin(t*0.03);
+    var lg=ctx.createLinearGradient(sx,sy,bx,by);
+    lg.addColorStop(0,'rgba(255,200,50,'+alpha*2+')');
+    lg.addColorStop(0.5,'rgba(255,220,100,'+alpha+')');
+    lg.addColorStop(1,'rgba(46,204,113,'+alpha*2+')');
+    ctx.strokeStyle=lg;
+    ctx.lineWidth=1;
+    ctx.setLineDash([4,8]);
+    ctx.lineDashOffset=-t*0.5;
+    ctx.beginPath();
+    ctx.moveTo(sx,sy);
+    // Gentle arc
+    var mx=(sx+bx)/2, my=(sy+by)/2-80;
+    ctx.quadraticCurveTo(mx,my,bx,by);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  function frame(){
+    t++;
+    var w=window.innerWidth, h=window.innerHeight;
+    ctx.clearRect(0,0,w,h);
+
+    // Nebula wisps
+    drawWisps(w,h);
+    // Stars
+    drawStars(w,h);
+    // Energy connection line
+    drawEnergyLine(w,h);
+    // Celestial bodies
+    drawSun(w,h);
+    drawEarth(w,h);
+    drawBattery(w,h);
+    // Particles & flow
+    drawParticles(w,h);
+    drawFlowDots(w,h);
+
+    requestAnimationFrame(frame);
+  }
+
+  // Wait for page to be visible before starting (save CPU on hidden tabs)
+  document.addEventListener('visibilitychange', function(){
+    if(!document.hidden) requestAnimationFrame(frame);
+  });
+  requestAnimationFrame(frame);
+}); // end DOMContentLoaded
 </script>
 </body>
 </html>

@@ -270,13 +270,34 @@
 // ═══════════════════════════════════════════════════════════
 
 // ─── NAV ───
-window.addEventListener('scroll', () => { document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 40); }, { passive: true });
-const navToggle = document.getElementById('navToggle');
-const navLinks = document.getElementById('navLinks');
+window.addEventListener('scroll', () => {
+  document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 40);
+}, { passive: true });
+
+const navToggle  = document.getElementById('navToggle');
+const navLinks   = document.getElementById('navLinks');
 const navOverlay = document.getElementById('navOverlay');
-navToggle.addEventListener('click', () => { navLinks.classList.toggle('open'); navOverlay.classList.toggle('open'); });
-navOverlay.addEventListener('click', () => { navLinks.classList.remove('open'); navOverlay.classList.remove('open'); });
-navLinks.querySelectorAll('a').forEach(l => l.addEventListener('click', () => { navLinks.classList.remove('open'); navOverlay.classList.remove('open'); }));
+
+function openMenu() {
+  navLinks.classList.add('open');
+  navOverlay.classList.add('open');
+  navToggle.classList.add('open');
+  navToggle.setAttribute('aria-expanded', 'true');
+  navToggle.setAttribute('aria-label', 'Close menu');
+}
+function closeMenu() {
+  navLinks.classList.remove('open');
+  navOverlay.classList.remove('open');
+  navToggle.classList.remove('open');
+  navToggle.setAttribute('aria-expanded', 'false');
+  navToggle.setAttribute('aria-label', 'Open menu');
+}
+
+navToggle.addEventListener('click', () => {
+  navLinks.classList.contains('open') ? closeMenu() : openMenu();
+});
+navOverlay.addEventListener('click', closeMenu);
+navLinks.querySelectorAll('a').forEach(l => l.addEventListener('click', closeMenu));
 
 // ─── UTM CAPTURE ───
 (function() {
@@ -290,58 +311,51 @@ navLinks.querySelectorAll('a').forEach(l => l.addEventListener('click', () => { 
 })();
 
 // ─── STATE ───
-let selectedOption = null;
+let selectedOption  = null;
 let opportunityType = null;
-let currentStep = 0;
+let currentStep     = 0;
 
 // ─── STEP 0: Option Card Selection ───
 const optionMap = { 'new': 'New to Solar', 'existing': 'Already Have Solar', 'proposal': 'Ready for Proposal', 'financing': '$0 Down Financing' };
-const oppMap = { 'new': 'No Solar Yet', 'existing': 'Solar Owner – Audit / Review', 'proposal': 'No Solar - Bid Searching', 'financing': 'No Solar Yet' };
+const oppMap    = { 'new': 'No Solar Yet', 'existing': 'Solar Owner – Audit / Review', 'proposal': 'No Solar - Bid Searching', 'financing': 'No Solar Yet' };
 
 document.querySelectorAll('.option-card').forEach(card => {
   card.addEventListener('click', function() {
     document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
     this.classList.add('selected');
-    selectedOption = this.dataset.option;
+    selectedOption  = this.dataset.option;
     opportunityType = this.dataset.opp;
-    // Auto-advance to wizard after short delay
     setTimeout(() => goToStep(1), 300);
   });
 });
 
 // Pre-select from URL parameter
-const urlParams = new URLSearchParams(window.location.search);
-const preselect = urlParams.get('option');
+const urlParams  = new URLSearchParams(window.location.search);
+const preselect  = urlParams.get('option');
 if (preselect && optionMap[preselect]) {
   const targetOption = optionMap[preselect];
-  const targetOpp = oppMap[preselect];
+  const targetOpp    = oppMap[preselect];
   document.querySelectorAll('.option-card').forEach(card => {
     if (card.dataset.option === targetOption) {
       card.classList.add('selected');
-      selectedOption = targetOption;
+      selectedOption  = targetOption;
       opportunityType = targetOpp;
     }
   });
-  // Auto-advance
   setTimeout(() => goToStep(1), 400);
 }
 
 // ─── WIZARD NAVIGATION ───
 function goToStep(step) {
   currentStep = step;
-  
-  // Hide step 0
+
   document.getElementById('step0').style.display = step === 0 ? 'block' : 'none';
-  
-  // Show/hide wizard container
   document.getElementById('wizardContainer').style.display = step > 0 ? 'block' : 'none';
-  
-  // Show correct step
+
   for (let i = 1; i <= 4; i++) {
     document.getElementById('step' + i).classList.toggle('active', i === step);
   }
-  
-  // Update progress bar
+
   document.querySelectorAll('.wizard-progress__step').forEach(el => {
     const s = parseInt(el.dataset.step);
     el.classList.toggle('active', s === step);
@@ -351,11 +365,9 @@ function goToStep(step) {
     const s = parseInt(el.dataset.step);
     el.classList.toggle('done', s < step);
   });
-  
-  // Scroll to form area
+
   document.querySelector('.quote-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  
-  // Focus first input
+
   const activeStep = document.getElementById('step' + step);
   if (activeStep) {
     const input = activeStep.querySelector('input');
@@ -363,20 +375,20 @@ function goToStep(step) {
   }
 }
 
-// Validation helpers
+// ─── VALIDATION ───
 function validateZip() {
   const zip = document.getElementById('wZip').value.trim();
   if (!/^\d{5}$/.test(zip)) { document.getElementById('wZip').style.borderColor = '#ef4444'; return false; }
   document.getElementById('wZip').style.borderColor = ''; return true;
 }
 function validateNameEmail() {
-  const name = document.getElementById('wName').value.trim();
+  const name  = document.getElementById('wName').value.trim();
   const email = document.getElementById('wEmail').value.trim();
-  let valid = true;
-  if (!name) { document.getElementById('wName').style.borderColor = '#ef4444'; valid = false; }
-  else document.getElementById('wName').style.borderColor = '';
+  let valid   = true;
+  if (!name)  { document.getElementById('wName').style.borderColor  = '#ef4444'; valid = false; }
+  else          document.getElementById('wName').style.borderColor  = '';
   if (!email || !email.includes('@')) { document.getElementById('wEmail').style.borderColor = '#ef4444'; valid = false; }
-  else document.getElementById('wEmail').style.borderColor = '';
+  else          document.getElementById('wEmail').style.borderColor = '';
   return valid;
 }
 function validatePhone() {
@@ -385,7 +397,7 @@ function validatePhone() {
   document.getElementById('wPhone').style.borderColor = ''; return true;
 }
 
-// Next/Back buttons
+// ─── NEXT / BACK BUTTONS ───
 document.getElementById('nextBtn1').addEventListener('click', () => { if (validateZip()) goToStep(2); });
 document.getElementById('nextBtn2').addEventListener('click', () => goToStep(3));
 document.getElementById('nextBtn3').addEventListener('click', () => { if (validateNameEmail()) goToStep(4); });
@@ -394,87 +406,83 @@ document.getElementById('backBtn2').addEventListener('click', () => goToStep(1))
 document.getElementById('backBtn3').addEventListener('click', () => goToStep(2));
 document.getElementById('backBtn4').addEventListener('click', () => goToStep(3));
 
-// Enter key advances
-document.getElementById('wZip').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); if (validateZip()) goToStep(2); }});
-document.getElementById('wEmail').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); if (validateNameEmail()) goToStep(4); }});
-document.getElementById('wPhone').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); document.getElementById('submitBtn').click(); }});
+// ─── ENTER KEY ADVANCES ───
+document.getElementById('wZip').addEventListener('keydown',   e => { if (e.key === 'Enter') { e.preventDefault(); if (validateZip()) goToStep(2); }});
+document.getElementById('wEmail').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); if (validateNameEmail()) goToStep(4); }});
+document.getElementById('wPhone').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); document.getElementById('submitBtn').click(); }});
 
 // ─── BILL SLIDER ───
-const slider = document.getElementById('wBillSlider');
+const slider       = document.getElementById('wBillSlider');
 const sliderDisplay = document.getElementById('sliderDisplay');
 slider.addEventListener('input', function() {
   sliderDisplay.textContent = this.value;
   const pct = (this.value / this.max) * 100;
   this.style.background = `linear-gradient(to right, var(--teal) ${pct}%, var(--gray-200) ${pct}%)`;
 });
-// Initialize slider background
 slider.dispatchEvent(new Event('input'));
 
 // ─── FORM SUBMISSION ───
 document.getElementById('submitBtn').addEventListener('click', async function() {
   if (!validatePhone()) return;
-  
-  const btn = this;
+
+  const btn      = this;
   const errorMsg = document.getElementById('errorMsg');
   errorMsg.style.display = 'none';
-  btn.disabled = true;
+  btn.disabled    = true;
   btn.textContent = 'Submitting...';
-  
-  // Collect UTM data
+
   const utmFields = {};
   ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','referrer'].forEach(k => {
     const v = sessionStorage.getItem(k); if (v) utmFields[k] = v;
   });
-  
+
   const payload = {
-    action: 'lead',
-    source_form: 'QuoteWizard',
-    customer_option: selectedOption,
+    action:           'lead',
+    source_form:      'QuoteWizard',
+    customer_option:  selectedOption,
     opportunity_type: opportunityType,
-    name: document.getElementById('wName').value.trim(),
-    email: document.getElementById('wEmail').value.trim(),
-    phone: document.getElementById('wPhone').value.trim(),
-    zip: document.getElementById('wZip').value.trim(),
-    monthly_bill: document.getElementById('wBillSlider').value,
+    name:             document.getElementById('wName').value.trim(),
+    email:            document.getElementById('wEmail').value.trim(),
+    phone:            document.getElementById('wPhone').value.trim(),
+    zip:              document.getElementById('wZip').value.trim(),
+    monthly_bill:     document.getElementById('wBillSlider').value,
     ...utmFields
   };
-  
+
   try {
     const response = await fetch('zoho.php', {
-      method: 'POST',
+      method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body:    JSON.stringify(payload)
     });
     const result = await response.json();
-    
+
     if (result.success) {
-      // Hide wizard, show success + Calendly
       document.getElementById('wizardContainer').style.display = 'none';
       document.getElementById('step0').style.display = 'none';
       const success = document.getElementById('wizardSuccess');
       success.classList.add('active');
-      
-      // Embed Calendly inline
+
       if (typeof Calendly !== 'undefined') {
         Calendly.initInlineWidget({
-          url: 'https://calendly.com/yourenergybest?hide_gdpr_banner=1',
+          url:           'https://calendly.com/yourenergybest?hide_gdpr_banner=1',
           parentElement: document.getElementById('calendlyEmbed'),
           prefill: {
-            name: document.getElementById('wName').value.trim(),
+            name:  document.getElementById('wName').value.trim(),
             email: document.getElementById('wEmail').value.trim(),
           }
         });
       }
-      
+
       success.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } else {
       throw new Error(result.error || 'Submission failed');
     }
   } catch (error) {
-    errorMsg.textContent = 'Something went wrong. Please try again or call us at (760) 860-7862.';
+    errorMsg.textContent   = 'Something went wrong. Please try again or call us at (760) 860-7862.';
     errorMsg.style.display = 'block';
-    btn.disabled = false;
-    btn.textContent = 'Get In Touch';
+    btn.disabled            = false;
+    btn.textContent         = 'Get In Touch';
     errorMsg.scrollIntoView({ behavior: 'smooth' });
   }
 });
@@ -484,9 +492,10 @@ document.getElementById('submitBtn').addEventListener('click', async function() 
 <script>
 CMS.load().then(() => {
   if (CMS.data.quote) {
-    if (CMS.data.quote.hero_eyebrow) document.getElementById('quote-eyebrow').textContent = CMS.data.quote.hero_eyebrow;
-    if (CMS.data.quote.hero_title) document.getElementById('quote-title').textContent = CMS.data.quote.hero_title;
-    if (CMS.data.quote.hero_subtitle) document.getElementById('quote-subtitle').textContent = CMS.data.quote.hero_subtitle;
+    // FIX: use innerHTML (not textContent) so CMS values containing HTML tags render correctly
+    if (CMS.data.quote.hero_eyebrow)  document.getElementById('quote-eyebrow').innerHTML  = CMS.data.quote.hero_eyebrow;
+    if (CMS.data.quote.hero_title)    document.getElementById('quote-title').innerHTML    = CMS.data.quote.hero_title;
+    if (CMS.data.quote.hero_subtitle) document.getElementById('quote-subtitle').innerHTML = CMS.data.quote.hero_subtitle;
   }
   CMS.renderRebate('quote-rebate-section');
   CMS.renderTestimonialsGlobal('quote-testimonials', 6);

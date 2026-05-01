@@ -878,27 +878,28 @@ function init(){
     }).join('');
   }
 
-  loadPropIG();
-  loadSolarBenefits();
+loadPropIG();
+loadSolarBenefits();
 
 function toggleDemand(item){
   item.classList.toggle('open');
 }
 
-// Run after all functions defined
-if(DATA.created&&elapsed>THIRTY_DAYS){
-  document.getElementById('loading-screen').style.display='none';
-  document.getElementById('expired-screen').style.display='flex';
-}else{
-  try {
-    init();
-  } catch(e) {
-    console.error('Proposal init error:', e);
-    // Fail open — show the page even if something broke
+// Run after DOM is ready so getElementById works
+document.addEventListener('DOMContentLoaded', function(){
+  if(DATA.created&&elapsed>THIRTY_DAYS){
     document.getElementById('loading-screen').style.display='none';
-    document.getElementById('main-content').style.display='block';
+    document.getElementById('expired-screen').style.display='flex';
+  } else {
+    try {
+      init();
+    } catch(e) {
+      console.error('Proposal init error:', e);
+      document.getElementById('loading-screen').style.display='none';
+      document.getElementById('main-content').style.display='block';
+    }
   }
-}
+});
 </script>
 <!-- ══ SOLAR CANVAS ENGINE ══ -->
 <script>
@@ -962,17 +963,17 @@ document.addEventListener('DOMContentLoaded', function(){
   // ── SOLAR PARTICLES (sun → battery flow) ──
   var particles = [];
   function spawnParticle(){
-    if(particles.length > 80) return;
+    if(particles.length > 40) return;
     var sx = sun.cx * W2(), sy = sun.cy * H2();
     var angle = Math.random() * Math.PI * 2;
-    var speed = Math.random() * 0.8 + 0.4;
+    var speed = Math.random() * 0.18 + 0.06;
     particles.push({
       x: sx + (Math.random()-0.5)*sun.r*0.8,
       y: sy + (Math.random()-0.5)*sun.r*0.8,
       vx: Math.cos(angle)*speed,
       vy: Math.sin(angle)*speed,
       life: 1.0,
-      decay: Math.random()*0.006+0.003,
+      decay: Math.random()*0.0015+0.0008,
       r: Math.random()*2.5+0.8,
       hue: Math.random()*30+35, // gold-yellow range
       heading: false // will home toward battery
@@ -988,7 +989,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var t2 = Math.random();
     flowDots.push({
       progress: 0,
-      speed: Math.random()*0.004+0.002,
+      speed: Math.random()*0.0008+0.0004,
       sx:bx, sy:by, ex:ex, ey:ey,
       r: Math.random()*1.8+0.6,
       hue: 140 + Math.random()*40 // green range
@@ -1165,18 +1166,18 @@ document.addEventListener('DOMContentLoaded', function(){
   function drawParticles(w, h){
     var bx=battery.cx*w, by=battery.cy*h;
 
-    if(Math.random()<0.15) spawnParticle();
+    if(Math.random()<0.03) spawnParticle();
 
     particles = particles.filter(function(p){ return p.life>0; });
     particles.forEach(function(p){
       // After some life, home toward battery
-      if(p.life < 0.7 && !p.heading){ p.heading=true; }
+      if(p.life < 0.4 && !p.heading){ p.heading=true; }
       if(p.heading){
         var dx=bx-p.x, dy=by-p.y, dist=Math.sqrt(dx*dx+dy*dy)+0.001;
-        p.vx += dx/dist*0.08;
-        p.vy += dy/dist*0.08;
+        p.vx += dx/dist*0.012;
+        p.vy += dy/dist*0.012;
         var spd=Math.sqrt(p.vx*p.vx+p.vy*p.vy);
-        if(spd>3){p.vx=p.vx/spd*3;p.vy=p.vy/spd*3;}
+        if(spd>0.8){p.vx=p.vx/spd*0.8;p.vy=p.vy/spd*0.8;}
       }
       p.x+=p.vx; p.y+=p.vy;
       p.life-=p.decay;
@@ -1193,7 +1194,7 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 
   function drawFlowDots(w, h){
-    if(Math.random()<0.08) spawnFlow();
+    if(Math.random()<0.015) spawnFlow();
     flowDots = flowDots.filter(function(d){ return d.progress<1; });
     flowDots.forEach(function(d){
       d.progress+=d.speed;
@@ -1248,7 +1249,7 @@ document.addEventListener('DOMContentLoaded', function(){
     ctx.strokeStyle=lg;
     ctx.lineWidth=1;
     ctx.setLineDash([4,8]);
-    ctx.lineDashOffset=-t*0.5;
+    ctx.lineDashOffset=-t*0.08;
     ctx.beginPath();
     ctx.moveTo(sx,sy);
     // Gentle arc

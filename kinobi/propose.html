@@ -885,21 +885,55 @@ function toggleDemand(item){
   item.classList.toggle('open');
 }
 
-// Run after DOM is ready so getElementById works
-document.addEventListener('DOMContentLoaded', function(){
-  if(DATA.created&&elapsed>THIRTY_DAYS){
-    document.getElementById('loading-screen').style.display='none';
-    document.getElementById('expired-screen').style.display='flex';
-  } else {
-    try {
-      init();
-    } catch(e) {
-      console.error('Proposal init error:', e);
+// Run after DOM is ready
+if(params.get('debug')!=='1'){
+  document.addEventListener('DOMContentLoaded', function(){
+    if(DATA.created&&elapsed>THIRTY_DAYS){
       document.getElementById('loading-screen').style.display='none';
-      document.getElementById('main-content').style.display='block';
+      document.getElementById('expired-screen').style.display='flex';
+    } else {
+      try {
+        init();
+      } catch(e) {
+        console.error('Proposal init error:', e);
+        document.getElementById('loading-screen').style.display='none';
+        document.getElementById('main-content').style.display='block';
+      }
     }
-  }
-});
+  });
+}
+
+// Debug mode panel
+if(params.get('debug')==='1'){
+  var _dbg=document.createElement('div');
+  _dbg.style.cssText='position:fixed;bottom:0;left:0;right:0;z-index:9999;background:rgba(0,0,0,0.95);color:#0f0;font-family:monospace;font-size:11px;padding:8px 12px;max-height:40vh;overflow-y:auto;border-top:2px solid #0f0';
+  _dbg.innerHTML='<b style="color:#ff0">⚡ PROPOSE DEBUG</b>';
+  function dlog(m,c){var d=document.createElement('div');d.style.color=c||'#0f0';d.textContent=new Date().toISOString().slice(11,23)+' '+m;_dbg.appendChild(d);_dbg.scrollTop=99999;console.log(m);}
+  document.addEventListener('DOMContentLoaded',function(){
+    document.body.appendChild(_dbg);
+    dlog('DOM ready');
+    dlog('DATA: name='+DATA.name+' bill='+DATA.bill+' solar='+DATA.solar+' term='+DATA.term);
+    dlog('created='+DATA.created+' elapsed='+Math.round(elapsed/86400000)+'d expired='+(elapsed>THIRTY_DAYS));
+    var ls=document.getElementById('loading-screen');
+    var mc=document.getElementById('main-content');
+    dlog('loading-screen exists='+(!!ls)+' display='+(ls?ls.style.display:'N/A'));
+    dlog('main-content exists='+(!!mc)+' display='+(mc?mc.style.display:'N/A'));
+    dlog('Chart.js loaded='+(typeof Chart!=='undefined'));
+    dlog('Calling init()...');
+    try{
+      init();
+      dlog('init() OK ✓','#0ff');
+      dlog('loading-screen now='+ls.style.display);
+      dlog('main-content now='+mc.style.display);
+    }catch(e){
+      dlog('init() THREW: '+e.message,'#f44');
+      dlog(e.stack.split('\n').slice(0,4).join(' | '),'#f88');
+      dlog('Force-showing page...','#ff0');
+      if(ls)ls.style.display='none';
+      if(mc)mc.style.display='block';
+    }
+  });
+}
 </script>
 <!-- ══ SOLAR CANVAS ENGINE ══ -->
 <script>

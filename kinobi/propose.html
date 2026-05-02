@@ -247,7 +247,9 @@ footer a{color:var(--gold);text-decoration:none}
 <body>
 
 <!-- ══ AMBIENT CANVAS BACKGROUND ══ -->
-<canvas id="solar-canvas" style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.85"></canvas> class="fullscreen-msg">
+<canvas id="solar-canvas" style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.85"></canvas>
+
+<div id="loading-screen" class="fullscreen-msg">
   <div style="font-size:2.5rem">☀️</div>
   <h1>Your Proposal</h1>
   <p>Loading your personalized energy analysis…</p>
@@ -470,16 +472,18 @@ footer a{color:var(--gold);text-decoration:none}
         <div class="compare-item missing"><span class="x-mark">✕</span><span>No control — captive customer</span></div>
         <div class="compare-item missing"><span class="x-mark">✕</span><span>Costs more every single month</span></div>
       </div>
-      <div class="compare-col solar-col">
-        <div class="compare-col-title" style="color:var(--green-l)">Virtual Power Plant</div>
-        <div class="compare-item"><span class="check">✓</span><span>Get your power</span></div>
-        <div class="compare-item"><span class="check">✓</span><span>Monthly billing</span></div>
-        <div class="compare-item"><span class="check">✓</span><span><strong>End date</strong> — solar term ends, power is free</span></div>
-        <div class="compare-item"><span class="check">✓</span><span><strong>Use power comfortably</strong> — no rationing</span></div>
-        <div class="compare-item"><span class="check">✓</span><span><strong>Blackout protection</strong> — battery keeps you on</span></div>
-        <div class="compare-item"><span class="check">✓</span><span><strong>Predictable power</strong> — rate locked in</span></div>
-        <div class="compare-item"><span class="check">✓</span><span><strong>Control</strong> — you own your energy</span></div>
-        <div class="compare-item"><span class="check">✓</span><span><strong>Day 1 Savings</strong> — costs less immediately</span></div>
+      <div class="compare-col solar-col" id="solar-benefits-col">
+        <div class="compare-col-title" style="color:var(--green-l)" id="solar-plan-name">Virtual Power Plant</div>
+        <div id="solar-benefits-list">
+          <div class="compare-item"><span class="check">✓</span><span>Get your power</span></div>
+          <div class="compare-item"><span class="check">✓</span><span>Monthly billing</span></div>
+          <div class="compare-item"><span class="check">✓</span><span><strong>End date</strong> — solar term ends, power is free</span></div>
+          <div class="compare-item"><span class="check">✓</span><span><strong>Use power comfortably</strong> — no rationing</span></div>
+          <div class="compare-item"><span class="check">✓</span><span><strong>Blackout protection</strong> — battery keeps you on</span></div>
+          <div class="compare-item"><span class="check">✓</span><span><strong>Predictable power</strong> — rate locked in</span></div>
+          <div class="compare-item"><span class="check">✓</span><span><strong>Control</strong> — you own your energy</span></div>
+          <div class="compare-item"><span class="check">✓</span><span><strong>Day 1 Savings</strong> — costs less immediately</span></div>
+        </div>
       </div>
     </div>
   </section>

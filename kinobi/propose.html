@@ -247,7 +247,7 @@ footer a{color:var(--gold);text-decoration:none}
 <body>
 
 <!-- ══ AMBIENT CANVAS BACKGROUND ══ -->
-<canvas id="solar-canvas" style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.85"></canvas>
+<canvas id="solar-canvas" style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.45"></canvas>
 
 <div id="loading-screen" class="fullscreen-msg">
   <div style="font-size:2.5rem">☀️</div>
@@ -1147,62 +1147,280 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 
   function drawBattery(w, h){
-    var cx=battery.cx*w, cy=battery.cy*h;
-    var bw=battery.w, bh=battery.h;
-    var charge = 0.65 + 0.25*Math.sin(t*0.02); // animated charge level
+    var hx = battery.cx * w;
+    var hy = battery.cy * h;
+    var sc = Math.min(w, h) * 0.13;
 
-    // Battery glow
-    var bglow = ctx.createRadialGradient(cx,cy,0,cx,cy,bh*0.9);
-    bglow.addColorStop(0,'rgba(46,204,113,0.12)');
-    bglow.addColorStop(1,'transparent');
-    ctx.fillStyle=bglow;
-    ctx.beginPath(); ctx.arc(cx,cy,bh*0.9,0,Math.PI*2); ctx.fill();
+    // Ground line Y — everything sits on this
+    var groundY = sc * 0.55;
 
-    // Battery body
-    ctx.strokeStyle='rgba(46,204,113,0.5)';
-    ctx.lineWidth=2;
-    ctx.fillStyle='rgba(5,14,24,0.85)';
+    var charge = 0.55 + 0.35 * Math.sin(t * 0.018);
+
+    ctx.save();
+    ctx.translate(hx, hy);
+
+    // ── AMBIENT GLOW ──
+    var hglow = ctx.createRadialGradient(0, 0, 0, 0, 0, sc * 2.4);
+    hglow.addColorStop(0, 'rgba(46,204,113,0.06)');
+    hglow.addColorStop(1, 'transparent');
+    ctx.fillStyle = hglow;
+    ctx.beginPath(); ctx.arc(0, 0, sc * 2.4, 0, Math.PI*2); ctx.fill();
+
+    // ── GROUND ──
+    var gg = ctx.createLinearGradient(0, groundY, 0, groundY + sc*0.18);
+    gg.addColorStop(0, 'rgba(20,60,30,0.55)');
+    gg.addColorStop(1, 'transparent');
+    ctx.fillStyle = gg;
     ctx.beginPath();
-    ctx.roundRect(cx-bw/2, cy-bh/2, bw, bh, 4);
-    ctx.fill(); ctx.stroke();
-
-    // Terminal nub
-    ctx.fillStyle='rgba(46,204,113,0.4)';
-    ctx.beginPath();
-    ctx.roundRect(cx-bw*0.25, cy-bh/2-6, bw*0.5, 7, 2);
+    ctx.ellipse(0, groundY + sc*0.08, sc*2.0, sc*0.18, 0, 0, Math.PI*2);
     ctx.fill();
 
+    // ═══════════════════════════════════════
+    // MODERN HOME — flat/shed roof, clean geometry
+    // Left: lower garage wing. Right: taller main volume.
+    // All bottoms land exactly at groundY.
+    // ═══════════════════════════════════════
+
+    // ── LEFT GARAGE WING ──
+    var gW = sc * 0.9, gH = sc * 0.68;
+    var gLeft = -sc * 1.5, gRight = gLeft + gW;
+    var gTop = groundY - gH, gBot = groundY;
+
+    // Body
+    var gg2 = ctx.createLinearGradient(gLeft, gTop, gLeft, gBot);
+    gg2.addColorStop(0, 'rgba(30,50,78,0.95)');
+    gg2.addColorStop(1, 'rgba(22,38,58,0.95)');
+    ctx.fillStyle = gg2;
+    ctx.strokeStyle = 'rgba(55,90,140,0.45)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(gLeft, gBot);
+    ctx.lineTo(gLeft, gTop + sc*0.06); ctx.quadraticCurveTo(gLeft, gTop, gLeft + sc*0.06, gTop);
+    ctx.lineTo(gRight - sc*0.06, gTop); ctx.quadraticCurveTo(gRight, gTop, gRight, gTop + sc*0.06);
+    ctx.lineTo(gRight, gBot);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+
+    // Flat roof overhang — modern shed style
+    ctx.fillStyle = 'rgba(18,32,52,0.98)';
+    ctx.strokeStyle = 'rgba(40,75,130,0.5)';
+    ctx.lineWidth = 1.2;
+    ctx.fillRect(gLeft - sc*0.05, gTop - sc*0.06, gW + sc*0.1, sc*0.07);
+    ctx.strokeRect(gLeft - sc*0.05, gTop - sc*0.06, gW + sc*0.1, sc*0.07);
+
+    // Garage door — flush modern panel style
+    var gdL = gLeft + gW*0.12, gdR = gLeft + gW*0.88;
+    var gdT = gTop + gH*0.18, gdB = groundY;
+    ctx.fillStyle = 'rgba(20,35,56,0.8)';
+    ctx.strokeStyle = 'rgba(50,85,140,0.4)';
+    ctx.lineWidth = 0.8;
+    ctx.fillRect(gdL, gdT, gdR - gdL, gdB - gdT);
+    ctx.strokeRect(gdL, gdT, gdR - gdL, gdB - gdT);
+    // Horizontal grooves (modern sectional door)
+    ctx.strokeStyle = 'rgba(60,100,160,0.25)';
+    ctx.lineWidth = 0.6;
+    for(var gi = 1; gi < 4; gi++){
+      var lineY = gdT + (gdB - gdT) * gi/4;
+      ctx.beginPath(); ctx.moveTo(gdL, lineY); ctx.lineTo(gdR, lineY); ctx.stroke();
+    }
+    // Door handle bar
+    ctx.fillStyle = 'rgba(80,130,200,0.4)';
+    ctx.fillRect(gdL + (gdR-gdL)*0.35, gdB - sc*0.04, (gdR-gdL)*0.3, sc*0.018);
+
+    // ── MAIN HOUSE VOLUME (taller, right side) ──
+    var mW = sc * 1.1, mH = sc * 1.05;
+    var mLeft = gRight - sc*0.02; // slight overlap for connected look
+    var mRight = mLeft + mW;
+    var mTop = groundY - mH, mBot = groundY;
+
+    var mg = ctx.createLinearGradient(mLeft, mTop, mLeft, mBot);
+    mg.addColorStop(0, 'rgba(28,48,76,0.95)');
+    mg.addColorStop(1, 'rgba(20,36,58,0.95)');
+    ctx.fillStyle = mg;
+    ctx.strokeStyle = 'rgba(55,95,148,0.5)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(mLeft, mBot);
+    ctx.lineTo(mLeft, mTop + sc*0.06); ctx.quadraticCurveTo(mLeft, mTop, mLeft + sc*0.06, mTop);
+    ctx.lineTo(mRight - sc*0.06, mTop); ctx.quadraticCurveTo(mRight, mTop, mRight, mTop + sc*0.06);
+    ctx.lineTo(mRight, mBot);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+
+    // ── FLAT ROOF with parapet ──
+    // Main roof slab
+    ctx.fillStyle = 'rgba(16,28,46,0.98)';
+    ctx.strokeStyle = 'rgba(45,80,135,0.55)';
+    ctx.lineWidth = 1.2;
+    ctx.fillRect(mLeft - sc*0.06, mTop - sc*0.07, mW + sc*0.12, sc*0.08);
+    ctx.strokeRect(mLeft - sc*0.06, mTop - sc*0.07, mW + sc*0.12, sc*0.08);
+    // Parapet detail
+    ctx.fillStyle = 'rgba(22,40,64,0.9)';
+    ctx.fillRect(mLeft - sc*0.06, mTop - sc*0.14, mW + sc*0.12, sc*0.08);
+
+    // ── SOLAR PANELS — sleek flush-mounted on flat roof ──
+    var shimmer = 0.08 + 0.06*Math.sin(t*0.022);
+    var panels = [
+      {x: mLeft + mW*0.08, w: mW*0.32},
+      {x: mLeft + mW*0.45, w: mW*0.32},
+    ];
+    panels.forEach(function(pn){
+      var pY = mTop - sc*0.12;
+      var pH = sc*0.065;
+      // Panel body — deep dark blue
+      var pGrad = ctx.createLinearGradient(pn.x, pY, pn.x, pY + pH);
+      pGrad.addColorStop(0, 'rgba(14,28,58,0.98)');
+      pGrad.addColorStop(1, 'rgba(18,35,70,0.95)');
+      ctx.fillStyle = pGrad;
+      ctx.strokeStyle = 'rgba(40,80,160,0.5)';
+      ctx.lineWidth = 0.7;
+      ctx.fillRect(pn.x, pY, pn.w, pH);
+      ctx.strokeRect(pn.x, pY, pn.w, pH);
+      // Cell grid — fine lines
+      ctx.strokeStyle = 'rgba(50,100,200,0.2)';
+      ctx.lineWidth = 0.35;
+      var cols = 5, rows = 2;
+      for(var ci=1;ci<cols;ci++){
+        ctx.beginPath();
+        ctx.moveTo(pn.x + pn.w*ci/cols, pY);
+        ctx.lineTo(pn.x + pn.w*ci/cols, pY+pH);
+        ctx.stroke();
+      }
+      for(var ri=1;ri<rows;ri++){
+        ctx.beginPath();
+        ctx.moveTo(pn.x, pY + pH*ri/rows);
+        ctx.lineTo(pn.x+pn.w, pY + pH*ri/rows);
+        ctx.stroke();
+      }
+      // Gloss shimmer
+      var sg = ctx.createLinearGradient(pn.x, pY, pn.x+pn.w*0.5, pY+pH);
+      sg.addColorStop(0, 'rgba(80,140,255,'+shimmer+')');
+      sg.addColorStop(1, 'transparent');
+      ctx.fillStyle = sg;
+      ctx.fillRect(pn.x, pY, pn.w, pH);
+      // Blue tint overlay
+      ctx.fillStyle = 'rgba(40,90,200,'+shimmer*0.6+')';
+      ctx.fillRect(pn.x, pY, pn.w, pH);
+    });
+
+    // ── WINDOWS — floor-to-ceiling modern glazing ──
+    var winGlow = 0.28 + 0.1*Math.sin(t*0.016);
+    var mCx = (mLeft + mRight)/2;
+    [
+      {x: mLeft + mW*0.09, y: mTop + mH*0.14, w: mW*0.28, h: mH*0.42, type:'wide'},
+      {x: mLeft + mW*0.56, y: mTop + mH*0.14, w: mW*0.14, h: mH*0.42, type:'narrow'},
+      {x: mLeft + mW*0.75, y: mTop + mH*0.14, w: mW*0.14, h: mH*0.42, type:'narrow'},
+    ].forEach(function(win){
+      // Warm ambient glow behind window
+      var wg = ctx.createRadialGradient(win.x+win.w/2, win.y+win.h/2, 0, win.x+win.w/2, win.y+win.h/2, win.w*1.1);
+      wg.addColorStop(0, 'rgba(255,210,90,'+(winGlow*0.45)+')');
+      wg.addColorStop(1, 'transparent');
+      ctx.fillStyle = wg;
+      ctx.beginPath(); ctx.arc(win.x+win.w/2, win.y+win.h/2, win.w*1.3, 0, Math.PI*2); ctx.fill();
+
+      // Glass pane
+      var glassG = ctx.createLinearGradient(win.x, win.y, win.x+win.w, win.y+win.h);
+      glassG.addColorStop(0, 'rgba(200,180,80,'+(winGlow*0.5)+')');
+      glassG.addColorStop(0.4, 'rgba(255,220,100,'+(winGlow*0.65)+')');
+      glassG.addColorStop(1, 'rgba(180,150,60,'+(winGlow*0.3)+')');
+      ctx.fillStyle = glassG;
+      ctx.strokeStyle = 'rgba(80,130,200,0.35)';
+      ctx.lineWidth = 0.7;
+      ctx.beginPath(); ctx.roundRect(win.x, win.y, win.w, win.h, 1); ctx.fill(); ctx.stroke();
+
+      // Vertical frame dividers
+      if(win.type==='wide'){
+        ctx.strokeStyle = 'rgba(40,80,160,0.3)';
+        ctx.lineWidth = 0.5;
+        ctx.beginPath();
+        ctx.moveTo(win.x + win.w/3, win.y); ctx.lineTo(win.x + win.w/3, win.y+win.h);
+        ctx.moveTo(win.x + win.w*2/3, win.y); ctx.lineTo(win.x + win.w*2/3, win.y+win.h);
+        ctx.stroke();
+      }
+      // Glare streak
+      ctx.fillStyle = 'rgba(255,255,255,'+(0.06+0.03*Math.sin(t*0.015))+')';
+      ctx.beginPath(); ctx.roundRect(win.x+win.w*0.06, win.y+win.h*0.06, win.w*0.12, win.h*0.75, 1); ctx.fill();
+    });
+
+    // ── FRONT DOOR — flush pivot door ──
+    var doorX = mLeft + mW*0.38, doorW = mW*0.2, doorH = mH*0.38;
+    var doorY = mBot - doorH;
+    ctx.fillStyle = 'rgba(14,26,44,0.95)';
+    ctx.strokeStyle = 'rgba(60,100,160,0.45)';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath(); ctx.roundRect(doorX, doorY, doorW, doorH, 2); ctx.fill(); ctx.stroke();
+    // Door sidelight panel
+    ctx.fillStyle = 'rgba(200,180,80,'+(winGlow*0.35)+')';
+    ctx.beginPath(); ctx.roundRect(doorX+doorW*0.1, doorY+doorH*0.12, doorW*0.8, doorH*0.3, 1); ctx.fill();
+    // Handle
+    ctx.fillStyle = 'rgba(200,168,75,0.9)';
+    ctx.fillRect(doorX + doorW*0.72, doorY + doorH*0.44, doorW*0.06, doorH*0.18);
+
+    // ── BATTERY on left wall of main volume ──
+    var bx = mLeft - sc*0.02;
+    var bY = groundY - mH*0.55;
+    var bW = sc*0.17, bH = sc*0.4;
+
+    // Mounting shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.15)';
+    ctx.beginPath(); ctx.roundRect(bx - bW/2 - sc*0.025, bY - bH/2 - sc*0.02, bW + sc*0.05, bH + sc*0.04, 4); ctx.fill();
+
+    // Battery glow
+    var bg = ctx.createRadialGradient(bx, bY, 0, bx, bY, bH);
+    bg.addColorStop(0, 'rgba(46,204,113,'+(0.18+0.08*Math.sin(t*0.025))+')');
+    bg.addColorStop(1, 'transparent');
+    ctx.fillStyle = bg; ctx.beginPath(); ctx.arc(bx, bY, bH, 0, Math.PI*2); ctx.fill();
+
+    // Battery body
+    ctx.fillStyle = 'rgba(8,18,34,0.96)';
+    ctx.strokeStyle = 'rgba(46,204,113,0.75)';
+    ctx.lineWidth = 1.3;
+    ctx.beginPath(); ctx.roundRect(bx-bW/2, bY-bH/2, bW, bH, 4); ctx.fill(); ctx.stroke();
+
+    // Terminal nub
+    ctx.fillStyle = 'rgba(46,204,113,0.55)';
+    ctx.beginPath(); ctx.roundRect(bx-bW*0.22, bY-bH/2-sc*0.038, bW*0.44, sc*0.04, 2); ctx.fill();
+
     // Charge fill
-    var fillH = bh * 0.88 * charge;
-    var fg = ctx.createLinearGradient(cx, cy+bh/2-fillH, cx, cy+bh/2);
-    fg.addColorStop(0,   'rgba(46,204,113,0.9)');
-    fg.addColorStop(0.5, 'rgba(100,220,140,0.7)');
-    fg.addColorStop(1,   'rgba(30,180,90,0.5)');
-    ctx.fillStyle=fg;
+    var fH = bH * 0.82 * charge;
+    var fcg = ctx.createLinearGradient(bx, bY+bH/2-fH, bx, bY+bH/2);
+    fcg.addColorStop(0,'rgba(46,204,113,0.95)'); fcg.addColorStop(1,'rgba(20,140,65,0.6)');
+    ctx.fillStyle = fcg;
     ctx.save();
-    ctx.beginPath(); ctx.roundRect(cx-bw/2+3, cy-bh/2+3, bw-6, bh-6, 3); ctx.clip();
-    ctx.fillRect(cx-bw/2+3, cy+bh/2-fillH, bw-6, fillH);
+    ctx.beginPath(); ctx.roundRect(bx-bW/2+sc*0.012, bY-bH/2+sc*0.012, bW-sc*0.024, bH-sc*0.024, 3); ctx.clip();
+    ctx.fillRect(bx-bW/2+sc*0.012, bY+bH/2-fH, bW-sc*0.024, fH);
     ctx.restore();
 
-    // Bolt symbol
-    var pulse2 = 0.5+0.5*Math.sin(t*0.04);
-    ctx.fillStyle='rgba(46,204,113,'+(0.6+0.4*pulse2)+')';
-    ctx.font='bold 14px sans-serif';
-    ctx.textAlign='center';
-    ctx.textBaseline='middle';
-    ctx.fillText('⚡', cx, cy);
+    // Bolt icon
+    ctx.fillStyle = 'rgba(46,204,113,'+(0.65+0.3*Math.sin(t*0.035))+')';
+    ctx.font = 'bold '+(sc*0.16)+'px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('⚡', bx, bY);
+
+    // Connecting conduit to wall
+    ctx.strokeStyle = 'rgba(46,204,113,0.25)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([2,3]);
+    ctx.lineDashOffset = -t * 0.05;
+    ctx.beginPath();
+    ctx.moveTo(bx + bW/2, bY);
+    ctx.lineTo(mLeft, bY);
+    ctx.stroke();
+    ctx.setLineDash([]);
 
     // Pulsing ring
-    var pRing = (t*0.04)%(Math.PI*2);
-    ctx.strokeStyle='rgba(46,204,113,'+(0.3*Math.cos(pRing)*Math.cos(pRing))+')';
-    ctx.lineWidth=1.5;
+    var pA = (t*0.025) % (Math.PI*2);
+    ctx.strokeStyle = 'rgba(46,204,113,'+(0.2*Math.pow(Math.cos(pA),2))+')';
+    ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.arc(cx,cy, bh*0.55*(1+0.3*((pRing%(Math.PI*2))/(Math.PI*2))), 0, Math.PI*2);
+    ctx.arc(bx, bY, bH*(0.55 + 0.2*(pA/(Math.PI*2))), 0, Math.PI*2);
     ctx.stroke();
+
+    ctx.restore();
   }
 
   function drawParticles(w, h){
-    var bx=battery.cx*w, by=battery.cy*h;
+    // Target = battery position on house wall (left of battery.cx, slightly above center)
+    var bx = battery.cx*w - w*0.04;
+    var by = battery.cy*h - h*0.02;
 
     if(Math.random()<0.03) spawnParticle();
 

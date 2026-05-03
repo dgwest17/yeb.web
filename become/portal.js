@@ -410,6 +410,21 @@ document.addEventListener('click', function(e) {
         return;
     }
 
+    // Edit button (leader) — title
+    var titleEdit = e.target.closest('[data-action="title-edit"]');
+    if (titleEdit) {
+        toggleTitleEdit(titleEdit);
+        return;
+    }
+
+    // Edit button (leader) — segment
+    var segEdit = e.target.closest('[data-action="seg-edit"]');
+    if (segEdit) {
+        var segEditId = segEdit.getAttribute('data-seg-id');
+        if (segEditId && typeof startEdit === 'function') startEdit(parseInt(segEditId));
+        return;
+    }
+
     // Folder toggle (works with both onclick and data-toggle attribute)
     var folderHdr = e.target.closest('.folder-hdr') || e.target.closest('[data-toggle="folder"]');
     if (folderHdr) {

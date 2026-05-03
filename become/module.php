@@ -123,6 +123,12 @@ $stats = $engine->getUserStats($userId);
                     <div class="seg-rich"><?= $seg['content_html'] ?></div>
                 <?php endif; ?>
 
+                <?php if (($seg['segment_type'] ?? 'lesson') === 'passoff' && !$seg['content_html']): ?>
+                    <div class="seg-rich" style="color:var(--dim);font-style:italic;padding:1rem">
+                        🎯 This is a leader pass-off segment. Review the material above, then request a pass-off when you're ready.
+                    </div>
+                <?php endif; ?>
+
                 <?php if (($seg['segment_type'] ?? 'lesson') === 'quiz' && $seg['customer_quote']): ?>
                     <?php
                     // Render quiz

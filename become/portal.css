@@ -300,15 +300,14 @@ body::before{
 }
 .btn-continue:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(34,168,179,0.3)}
 
-/* Inline continue button (appears after completing a segment) */
-.btn-continue-inline{
-    display:block;width:100%;text-align:center;padding:.85rem;margin-top:.5rem;
-    background:linear-gradient(135deg,var(--teal),#1a8a93);color:#fff;
-    border:none;border-radius:var(--rs);font-size:.95rem;font-weight:700;
-    cursor:pointer;font-family:var(--bf);transition:transform .2s,box-shadow .2s;
-    text-decoration:none;
-}
-.btn-continue-inline:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(34,168,179,0.3)}
+/* Next steps card */
+.next-steps-card{margin-top:.5rem;background:rgba(34,168,179,.05);border:1px solid rgba(34,168,179,.15);border-radius:var(--rs);padding:.6rem;animation:slideUp .3s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.next-steps-title{font-size:.75rem;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.4rem}
+.next-step-item{display:block;padding:.5rem .6rem;border-radius:6px;font-size:.85rem;text-decoration:none;color:var(--txt);transition:background .15s;cursor:pointer;border:1px solid transparent;margin-bottom:.2rem}
+.next-step-item:hover{background:rgba(34,168,179,.08);border-color:rgba(34,168,179,.15)}
+.next-step--locked{opacity:.4;cursor:default;color:var(--dim)}
+.next-step--locked:hover{background:none;border-color:transparent}
 
 /* ─── PASSOFF BADGE ─── */
 .seg--passoff{border-left:3px solid var(--gold)}

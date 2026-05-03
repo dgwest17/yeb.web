@@ -775,7 +775,6 @@ function init(){
   function loadPropIG(){
     var grid=document.getElementById('prop-ig-feed');
     if(!grid) return;
-    var token=DATA.ig_token||'';
     function placeholders(){
       grid.innerHTML='';
       var icons=['☀️','🔋','⚡','🏠','💡','🌱'];
@@ -786,27 +785,41 @@ function init(){
         grid.appendChild(d);
       });
     }
-    if(!token){placeholders();return;}
-    fetch('https://graph.instagram.com/me/media?fields=id,media_url,permalink,media_type&limit=6&access_token='+token)
-      .then(function(r){return r.json()})
-      .then(function(data){
-        if(!data.data){placeholders();return;}
-        grid.innerHTML='';
-        var posts=data.data.filter(function(p){return p.media_type!=='VIDEO'}).slice(0,6);
-        posts.forEach(function(p){
-          var d=document.createElement('div');
-          d.className='prop-ig-post';
-          d.innerHTML='<a href="'+p.permalink+'" target="_blank" style="display:block;width:100%;height:100%">'
-            +'<img src="'+p.media_url+'" loading="lazy" style="width:100%;height:100%;object-fit:cover"></a>';
-          grid.appendChild(d);
-        });
-        while(grid.children.length<6){
-          var d=document.createElement('div');
-          d.className='prop-ig-post';
-          d.innerHTML='<span class="prop-ig-placeholder">☀️</span>';
-          grid.appendChild(d);
-        }
-      }).catch(placeholders);
+    function doLoad(token){
+      if(!token){placeholders();return;}
+      fetch('https://graph.instagram.com/me/media?fields=id,media_url,permalink,media_type&limit=6&access_token='+token)
+        .then(function(r){return r.json()})
+        .then(function(data){
+          if(!data.data){placeholders();return;}
+          grid.innerHTML='';
+          var posts=data.data.filter(function(p){return p.media_type!=='VIDEO'}).slice(0,6);
+          posts.forEach(function(p){
+            var d=document.createElement('div');
+            d.className='prop-ig-post';
+            d.innerHTML='<a href="'+p.permalink+'" target="_blank" style="display:block;width:100%;height:100%">'
+              +'<img src="'+p.media_url+'" loading="lazy" style="width:100%;height:100%;object-fit:cover"></a>';
+            grid.appendChild(d);
+          });
+          while(grid.children.length<6){
+            var d=document.createElement('div');
+            d.className='prop-ig-post';
+            d.innerHTML='<span class="prop-ig-placeholder">☀️</span>';
+            grid.appendChild(d);
+          }
+        }).catch(placeholders);
+    }
+    // 1. Check localStorage (set by Kinobi admin panel)
+    var cachedToken = localStorage.getItem('ig_token')||'';
+    if(cachedToken){ doLoad(cachedToken); return; }
+    // 2. Fetch from server-side token file
+    fetch('/.instagram_token')
+      .then(function(r){ return r.ok ? r.text() : ''; })
+      .then(function(txt){
+        var token = txt ? txt.trim() : '';
+        if(token) localStorage.setItem('ig_token', token); // cache it
+        doLoad(token);
+      })
+      .catch(function(){ doLoad(''); });
   }
 
   // ── SOLAR PLAN BENEFITS ──

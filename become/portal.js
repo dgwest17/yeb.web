@@ -38,42 +38,59 @@ async function completeSeg(segId, btn) {
                 if (ev.type === 'level_up') setTimeout(function(){ levelUpModal(ev); }, 1200);
             });
 
-            // Unlock next locked segment
+            // Show next steps card
+            var allSegs = document.querySelectorAll('.seg');
+            var currentIdx = -1;
+            allSegs.forEach(function(s, i) { if (s.id === 'seg-' + segId) currentIdx = i; });
+
+            // Collect remaining segments (both locked and unlocked)
+            var remaining = [];
+            for (var i = currentIdx + 1; i < allSegs.length && remaining.length < 4; i++) {
+                var s = allSegs[i];
+                var sid = s.getAttribute('data-seg') || s.id.replace('seg-', '');
+                var title = s.querySelector('.seg-title');
+                var isDone = s.classList.contains('seg--done');
+                if (!isDone) {
+                    remaining.push({
+                        id: sid,
+                        title: title ? title.textContent : 'Segment ' + sid,
+                        locked: s.classList.contains('seg--locked'),
+                        el: s
+                    });
+                }
+            }
+
+            // Unlock the immediate next segment(s) at the same stage
             var nxt = document.querySelector('.seg--locked');
             if (nxt) {
                 nxt.classList.remove('seg--locked');
                 nxt.classList.add('seg--active', 'seg--unlock');
                 var ni = nxt.querySelector('.seg-ico');
                 if (ni) ni.textContent = (nxt.querySelector('[data-action="check-quiz"]')) ? '📝' : '📄';
-                var lm = nxt.querySelector('.seg-locked-msg');
-                if (lm) {
-                    // Replace locked message with the segment body (need to reload for full content)
-                    lm.textContent = '';
-                }
-
-                // Add Mark Complete button to newly unlocked segment if it doesn't have one
-                var nxtActions = nxt.querySelector('.seg-actions');
-                var nxtId = nxt.getAttribute('data-seg') || nxt.id.replace('seg-', '');
-                if (!nxtActions) {
-                    var actDiv = document.createElement('div');
-                    actDiv.className = 'seg-actions';
-                    actDiv.innerHTML = '<button class="btn-complete" data-action="complete" data-seg-id="' + nxtId + '">✓ Mark Complete</button>';
-                    nxt.appendChild(actDiv);
-                }
-
-                // Show Continue button on completed segment pointing to next
-                btn.parentElement.innerHTML = '<div class="seg-done-badge">✅ Completed</div>' +
-                    '<button class="btn-continue-inline" data-scroll-to="seg-' + nxtId + '">Continue → Next Segment</button>';
-            } else {
-                // No more segments — check if module is complete
-                var isModuleComplete = !document.querySelector('.seg--active, .seg--locked');
-                if (isModuleComplete && typeof MOD_ID !== 'undefined') {
-                    btn.parentElement.innerHTML = '<div class="seg-done-badge">✅ Completed</div>' +
-                        '<a href="/become/" class="btn-continue-inline">🎉 Module Complete — Back to Dashboard</a>';
-                } else {
-                    btn.parentElement.innerHTML = '<div class="seg-done-badge">✅ Completed</div>';
-                }
             }
+
+            // Build the next-steps card
+            var nextHtml = '<div class="seg-done-badge">✅ Completed</div>';
+            if (remaining.length > 0) {
+                nextHtml += '<div class="next-steps-card">';
+                nextHtml += '<div class="next-steps-title">Up Next</div>';
+                remaining.forEach(function(r) {
+                    if (r.locked) {
+                        nextHtml += '<div class="next-step-item next-step--locked">🔒 ' + r.title + '</div>';
+                    } else {
+                        nextHtml += '<a class="next-step-item" href="#seg-' + r.id + '" data-scroll-seg="' + r.id + '">' +
+                            '📄 ' + r.title + ' <span style="color:var(--teal);font-size:.75rem">→</span></a>';
+                    }
+                });
+                nextHtml += '</div>';
+            } else {
+                // Module complete
+                nextHtml += '<div class="next-steps-card">';
+                nextHtml += '<div class="next-steps-title">🎉 Module Complete!</div>';
+                nextHtml += '<a class="next-step-item" href="/become/" style="color:var(--teal);font-weight:700">← Back to Dashboard</a>';
+                nextHtml += '</div>';
+            }
+            btn.parentElement.innerHTML = nextHtml;
 
             updateProg();
             confetti();
@@ -342,18 +359,17 @@ function toggleTitleEdit(btn) {
 
 // ── EVENT DELEGATION — Cloudflare-safe button handling ──
 document.addEventListener('click', function(e) {
-    // Continue inline button (scroll to next segment)
-    var continueBtn = e.target.closest('.btn-continue-inline');
-    if (continueBtn) {
-        var targetId = continueBtn.getAttribute('data-scroll-to');
-        if (targetId) {
-            var target = document.getElementById(targetId);
-            if (target) {
-                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                target.style.transition = 'box-shadow .3s';
-                target.style.boxShadow = '0 0 30px rgba(34,168,179,0.4)';
-                setTimeout(function() { target.style.boxShadow = ''; }, 2000);
-            }
+    // Next step item — scroll to segment
+    var nextStep = e.target.closest('[data-scroll-seg]');
+    if (nextStep) {
+        e.preventDefault();
+        var segId = nextStep.dataset.scrollSeg;
+        var target = document.getElementById('seg-' + segId);
+        if (target) {
+            target.scrollIntoView({behavior:'smooth', block:'center'});
+            target.style.transition = 'box-shadow .3s';
+            target.style.boxShadow = '0 0 25px rgba(34,168,179,0.35)';
+            setTimeout(function() { target.style.boxShadow = ''; }, 2000);
         }
         return;
     }
@@ -384,6 +400,13 @@ document.addEventListener('click', function(e) {
         if (segCard && segCard.dataset.seg) {
             completeSeg(parseInt(segCard.dataset.seg), btn);
         }
+        return;
+    }
+
+    // Folder gallery card — click to expand/collapse module list
+    var galFolder = e.target.closest('.gal-folder');
+    if (galFolder && !e.target.closest('.gal-mod') && !e.target.closest('a')) {
+        galFolder.classList.toggle('gal-folder--expanded');
         return;
     }
 

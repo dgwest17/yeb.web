@@ -79,7 +79,7 @@ $stats = $engine->getUserStats($userId);
         <div class="mod-hdr-top">
             <h1 class="mod-page-title" data-mod="<?= $modId ?>"><?= htmlspecialchars($mod['title']) ?></h1>
             <?php if ($isLeader): ?>
-                <button class="edit-btn" onclick="toggleTitleEdit(this)" title="Edit title">✏️</button>
+                <button class="edit-btn" data-action="title-edit" title="Edit title">✏️</button>
             <?php endif; ?>
         </div>
         <?php if ($mod['description']): ?>
@@ -188,7 +188,7 @@ $stats = $engine->getUserStats($userId);
                 <?php endforeach; ?>
 
                 <?php if ($isLeader): ?>
-                    <button class="edit-btn edit-btn--seg" onclick="startEdit(<?= $sid ?>)">✏️ Edit</button>
+                    <button class="edit-btn edit-btn--seg" data-action="seg-edit" data-seg-id="<?= $sid ?>">✏️ Edit</button>
                 <?php endif; ?>
             </div>
 
@@ -228,25 +228,31 @@ $stats = $engine->getUserStats($userId);
 
     <!-- CONTINUE BUTTON -->
     <?php
-    // Find the next uncompleted, unlocked segment or module
-    $nextSeg = null;
     $allDone = ($done >= $total && $total > 0);
-    foreach ($segs as $i => $seg) {
-        if (!$seg['done']) {
-            $prevDone = ($i === 0) ? true : $segs[$i-1]['done'];
-            if ($prevDone) { $nextSeg = $seg; break; }
+    $nextAction = null;
+    $nextSeg = null;
+    
+    if ($allDone) {
+        // Module complete — find the next module in the progression
+        $nextAction = $engine->resolveNextAction($userId);
+    } else {
+        // Find next uncompleted segment within this module
+        foreach ($segs as $i => $seg) {
+            if (!$seg['done']) {
+                $nextSeg = $seg;
+                break;
+            }
         }
     }
-    $nextAction = $engine->resolveNextAction($userId);
     ?>
-    <?php if ($allDone && $nextAction && $nextAction['type'] === 'segment'): ?>
+    <?php if ($allDone && $nextAction && $nextAction['type'] === 'segment' && (int)$nextAction['module_id'] !== $modId): ?>
         <a href="/become/module.php?id=<?= $nextAction['module_id'] ?>#seg-<?= $nextAction['segment_id'] ?>" class="btn-continue">
             Continue → <?= htmlspecialchars($nextAction['module_title'] ?? 'Next Module') ?>
         </a>
     <?php elseif ($allDone): ?>
-        <a href="/become/" class="btn-continue">🎉 Module Complete — Back to Dashboard</a>
+        <a href="/become/" class="btn-continue">🎉 All done here — Back to Dashboard</a>
     <?php elseif ($nextSeg): ?>
-        <a href="#seg-<?= $nextSeg['id'] ?>" class="btn-continue" onclick="document.getElementById('seg-<?= $nextSeg['id'] ?>').scrollIntoView({behavior:'smooth',block:'center'});return false;">
+        <a href="#seg-<?= $nextSeg['id'] ?>" class="btn-continue" data-scroll-seg="<?= $nextSeg['id'] ?>">
             Continue → <?= htmlspecialchars($nextSeg['title']) ?>
         </a>
     <?php endif; ?>

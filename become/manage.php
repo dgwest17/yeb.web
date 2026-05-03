@@ -217,6 +217,7 @@ select.ed-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
   <div class="mgr-hdr-right">
     <span style="color:var(--dim);font-size:.85rem"><?= $userName ?></span>
     <a href="/become/">← Portal</a>
+    <a href="/become/backup.php" style="color:var(--green)">💾 Backup</a>
     <a href="/become/logout.php">Log Out</a>
   </div>
 </header>

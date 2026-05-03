@@ -229,21 +229,63 @@ class ProgressionEngine {
     // ================================================================
 
     public function resolveNextAction($userId) {
-        $content = $this->getAccessibleContent($userId);
+        $progress = $this->getUserProgress($userId);
+        $userLevel = (int)$progress['level'];
+        $compSegs = $this->getCompletedSegmentIds($userId);
+        $compMods = $this->getCompletedModuleIds($userId);
 
-        foreach ($content as $folder) {
-            $r = $this->scanFolder($folder);
-            if ($r) return $r;
-            foreach ($folder['children'] ?? [] as $child) {
-                $r = $this->scanFolder($child);
-                if ($r) return $r;
+        // Get all active modules with their segments, ordered by level then stage
+        $s = $this->db->prepare("SELECT m.id, m.title, m.icon, m.unlock_rule, m.module_order, m.folder_id,
+            f.title AS folder_title
+            FROM modules m JOIN folders f ON m.folder_id = f.id
+            WHERE m.is_active=1 ORDER BY m.module_order");
+        $s->execute();
+        $allMods = $s->fetchAll();
+
+        // Group by level, then by stage
+        $byLevel = [];
+        foreach ($allMods as $m) {
+            $rule = json_decode($m['unlock_rule'] ?? 'null', true);
+            if ($rule && ($rule['kind'] ?? '') === 'open') continue; // skip "open to all"
+            $lvl = ($rule && ($rule['kind'] ?? '') === 'level') ? (int)$rule['value'] : 0;
+            $stage = (int)($m['module_order'] ?? 1);
+            if (!isset($byLevel[$lvl])) $byLevel[$lvl] = [];
+            if (!isset($byLevel[$lvl][$stage])) $byLevel[$lvl][$stage] = [];
+            $byLevel[$lvl][$stage][] = $m;
+        }
+        ksort($byLevel);
+
+        // Find the first incomplete module in the progression
+        foreach ($byLevel as $lvl => $stages) {
+            if ($lvl > $userLevel) break; // can't access future levels
+            ksort($stages);
+            foreach ($stages as $stageNum => $mods) {
+                foreach ($mods as $m) {
+                    if (in_array((int)$m['id'], $compMods)) continue;
+                    // This module is incomplete — find its first incomplete segment
+                    $s = $this->db->prepare("SELECT id, title FROM segments WHERE module_id=? AND is_active=1 ORDER BY segment_order");
+                    $s->execute([$m['id']]);
+                    $segs = $s->fetchAll();
+                    foreach ($segs as $seg) {
+                        if (!in_array((int)$seg['id'], $compSegs)) {
+                            return [
+                                'type'          => 'segment',
+                                'module_id'     => (int)$m['id'],
+                                'module_title'  => $m['title'],
+                                'folder_title'  => $m['folder_title'],
+                                'segment_id'    => (int)$seg['id'],
+                                'segment_title' => $seg['title'],
+                                'label'         => $m['folder_title'] . ' → ' . $m['title'],
+                            ];
+                        }
+                    }
+                }
             }
         }
 
-        // All done — suggest level up
-        $progress = $this->getUserProgress($userId);
+        // All done at current level
         foreach ($this->thresholds() as $t) {
-            if ((int)$t['level'] > (int)$progress['level']) {
+            if ((int)$t['level'] > $userLevel) {
                 return [
                     'type' => 'level_up',
                     'label' => "Keep going to reach {$t['badge_icon']} {$t['title']}!",
@@ -252,27 +294,6 @@ class ProgressionEngine {
             }
         }
         return ['type' => 'all_complete', 'label' => 'All training complete! 🌟'];
-    }
-
-    private function scanFolder($folder) {
-        if (!empty($folder['locked'])) return null;
-        foreach ($folder['modules'] ?? [] as $mod) {
-            if (!empty($mod['locked']) || !empty($mod['completed'])) continue;
-            foreach ($mod['segments'] ?? [] as $seg) {
-                if (!empty($seg['locked']) || !empty($seg['completed'])) continue;
-                return [
-                    'type'          => 'segment',
-                    'folder_id'     => (int)$folder['id'],
-                    'folder_title'  => $folder['title'],
-                    'module_id'     => (int)$mod['id'],
-                    'module_title'  => $mod['title'],
-                    'segment_id'    => (int)$seg['id'],
-                    'segment_title' => $seg['title'],
-                    'label'         => $folder['title'] . ' → ' . $mod['title'],
-                ];
-            }
-        }
-        return null;
     }
 
     // ================================================================
@@ -394,35 +415,36 @@ class ProgressionEngine {
             $s->execute([$xp, $userId]);
 
             $progress = $this->getUserProgress($userId);
-            $xpLevel = $this->computeLevel((int)$progress['xp']);
             $oldLvl = (int)$progress['level'];
             
-            // Level up requires BOTH enough XP AND all modules in current level completed
+            // Level up: only advance ONE level at a time
+            // Requires ALL modules in current level to be completed
             $newLvl = $oldLvl;
-            if ($xpLevel > $oldLvl) {
-                // Check if all modules in the current level are done
-                $s = $this->db->prepare("SELECT id, unlock_rule FROM modules WHERE is_active=1");
-                $s->execute();
-                $allMods = $s->fetchAll();
-                $compModIds = $this->getCompletedModuleIds($userId);
-                
-                $currentLevelDone = true;
-                foreach ($allMods as $mod) {
-                    $rule = json_decode($mod['unlock_rule'] ?? 'null', true);
-                    if ($rule && ($rule['kind'] ?? '') === 'open') continue; // skip open modules
-                    $modLvl = ($rule && ($rule['kind'] ?? '') === 'level') ? (int)$rule['value'] : 0;
-                    if ($modLvl === $oldLvl && !in_array((int)$mod['id'], $compModIds)) {
-                        $currentLevelDone = false;
-                        break;
-                    }
+            
+            // Get all modules and completed module IDs
+            $s = $this->db->prepare("SELECT id, unlock_rule FROM modules WHERE is_active=1");
+            $s->execute();
+            $allMods = $s->fetchAll();
+            $compModIds = $this->getCompletedModuleIds($userId);
+            
+            // Check if ALL non-open modules at the current level are done
+            $currentLevelDone = true;
+            foreach ($allMods as $mod) {
+                $rule = json_decode($mod['unlock_rule'] ?? 'null', true);
+                if ($rule && ($rule['kind'] ?? '') === 'open') continue;
+                $modLvl = ($rule && ($rule['kind'] ?? '') === 'level') ? (int)$rule['value'] : 0;
+                if ($modLvl === $oldLvl && !in_array((int)$mod['id'], $compModIds)) {
+                    $currentLevelDone = false;
+                    break;
                 }
-                
-                if ($currentLevelDone) {
-                    $newLvl = $xpLevel;
-                    $s = $this->db->prepare("UPDATE user_progress SET level=? WHERE user_id=?");
-                    $s->execute([$newLvl, $userId]);
-                    $events[] = ['type'=>'level_up','from'=>$oldLvl,'to'=>$newLvl];
-                }
+            }
+            
+            if ($currentLevelDone) {
+                // Only go up by ONE level
+                $newLvl = $oldLvl + 1;
+                $s = $this->db->prepare("UPDATE user_progress SET level=? WHERE user_id=?");
+                $s->execute([$newLvl, $userId]);
+                $events[] = ['type'=>'level_up','from'=>$oldLvl,'to'=>$newLvl];
             }
 
             // 5) Log

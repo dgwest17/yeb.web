@@ -669,7 +669,8 @@ function openSegEditor(segId) {
           <button class="btn btn-ghost btn-sm" onclick="insertYouTube()">▶️ YouTube</button>
           <button class="btn btn-ghost btn-sm" onclick="triggerFileUpload('any')">📁 Upload File</button>
           <button class="btn btn-ghost btn-sm" onclick="insertDivider()">— Divider</button>
-          <span id="save-status" style="color:var(--green);font-size:.8rem;margin-left:auto"></span>
+          <button class="btn btn-green btn-sm" onclick="manualSave()" style="padding:.3rem .8rem;font-weight:700">💾 Save Now</button>
+          <span id="save-status" style="color:var(--green);font-size:.78rem;margin-left:auto"></span>
         </div>
         <p style="color:var(--mute);font-size:.75rem;margin-top:.5rem">Tip: Shift+Enter = new line · Enter = new paragraph · Ctrl+B = bold · Ctrl+I = italic · Ctrl+K = link</p>
       </div>
@@ -784,6 +785,23 @@ function insertDivider() {
   const range = quillEditor.getSelection(true);
   quillEditor.insertText(range.index, '\n───────────────────\n');
   quillEditor.setSelection(range.index + 22);
+}
+
+async function manualSave() {
+  if (!quillEditor || !currentEditSegId) { toast('No segment open', true); return; }
+  const html = quillEditor.root.innerHTML;
+  const content = html === '<p><br></p>' ? '' : html;
+  const statusEl = document.getElementById('save-status');
+  try {
+    if (statusEl) { statusEl.textContent = '⏳ Saving...'; statusEl.style.color = 'var(--gold)'; }
+    await api('POST', {action:'update_segment', id: currentEditSegId, content_html: content});
+    const s = data.segments.find(x => x.id == currentEditSegId);
+    if (s) s.content_html = content;
+    if (statusEl) { statusEl.textContent = '✓ Saved!'; statusEl.style.color = 'var(--green)'; }
+    toast('Saved');
+  } catch(e) {
+    if (statusEl) { statusEl.textContent = '✕ Failed'; statusEl.style.color = 'var(--red)'; }
+  }
 }
 
 function insertYouTube() {

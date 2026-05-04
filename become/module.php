@@ -226,17 +226,16 @@ $stats = $engine->getUserStats($userId);
         <?php endforeach; ?>
     </div>
 
-    <!-- CONTINUE BUTTON -->
+    <!-- CONTINUE BUTTON (server-rendered, hidden when JS next-steps appears) -->
+    <div id="server-continue">
     <?php
     $allDone = ($done >= $total && $total > 0);
     $nextAction = null;
     $nextSeg = null;
     
     if ($allDone) {
-        // Module complete — find the next module in the progression
         $nextAction = $engine->resolveNextAction($userId);
     } else {
-        // Find next uncompleted segment within this module
         foreach ($segs as $i => $seg) {
             if (!$seg['done']) {
                 $nextSeg = $seg;
@@ -256,6 +255,7 @@ $stats = $engine->getUserStats($userId);
             Continue → <?= htmlspecialchars($nextSeg['title']) ?>
         </a>
     <?php endif; ?>
+    </div>
 
     <?php if ($mod['next_step_text']): ?>
         <div class="card next-step">👉 <?= htmlspecialchars($mod['next_step_text']) ?></div>

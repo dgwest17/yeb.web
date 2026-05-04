@@ -234,7 +234,6 @@ class ProgressionEngine {
         $compSegs = $this->getCompletedSegmentIds($userId);
         $compMods = $this->getCompletedModuleIds($userId);
 
-        // Get all active modules with their segments, ordered by level then stage
         $s = $this->db->prepare("SELECT m.id, m.title, m.icon, m.unlock_rule, m.module_order, m.folder_id,
             f.title AS folder_title
             FROM modules m JOIN folders f ON m.folder_id = f.id
@@ -242,11 +241,11 @@ class ProgressionEngine {
         $s->execute();
         $allMods = $s->fetchAll();
 
-        // Group by level, then by stage
+        // Group by level then stage
         $byLevel = [];
         foreach ($allMods as $m) {
             $rule = json_decode($m['unlock_rule'] ?? 'null', true);
-            if ($rule && ($rule['kind'] ?? '') === 'open') continue; // skip "open to all"
+            if ($rule && ($rule['kind'] ?? '') === 'open') continue;
             $lvl = ($rule && ($rule['kind'] ?? '') === 'level') ? (int)$rule['value'] : 0;
             $stage = (int)($m['module_order'] ?? 1);
             if (!isset($byLevel[$lvl])) $byLevel[$lvl] = [];
@@ -255,14 +254,12 @@ class ProgressionEngine {
         }
         ksort($byLevel);
 
-        // Find the first incomplete module in the progression
         foreach ($byLevel as $lvl => $stages) {
-            if ($lvl > $userLevel) break; // can't access future levels
+            if ($lvl > $userLevel) break;
             ksort($stages);
             foreach ($stages as $stageNum => $mods) {
                 foreach ($mods as $m) {
                     if (in_array((int)$m['id'], $compMods)) continue;
-                    // This module is incomplete — find its first incomplete segment
                     $s = $this->db->prepare("SELECT id, title FROM segments WHERE module_id=? AND is_active=1 ORDER BY segment_order");
                     $s->execute([$m['id']]);
                     $segs = $s->fetchAll();
@@ -283,7 +280,6 @@ class ProgressionEngine {
             }
         }
 
-        // All done at current level
         foreach ($this->thresholds() as $t) {
             if ((int)$t['level'] > $userLevel) {
                 return [
@@ -291,6 +287,84 @@ class ProgressionEngine {
                     'label' => "Keep going to reach {$t['badge_icon']} {$t['title']}!",
                     'xp_needed' => (int)$t['xp_required'] - (int)$progress['xp'],
                 ];
+            }
+        }
+        return ['type' => 'all_complete', 'label' => 'All training complete! 🌟'];
+    }
+
+    /**
+     * Get ALL modules in the next incomplete stage (for showing branches)
+     */
+    public function resolveNextStage($userId) {
+        $progress = $this->getUserProgress($userId);
+        $userLevel = (int)$progress['level'];
+        $compMods = $this->getCompletedModuleIds($userId);
+        $compSegs = $this->getCompletedSegmentIds($userId);
+
+        $s = $this->db->prepare("SELECT m.id, m.title, m.icon, m.unlock_rule, m.module_order, m.folder_id,
+            f.title AS folder_title, f.icon AS folder_icon
+            FROM modules m JOIN folders f ON m.folder_id = f.id
+            WHERE m.is_active=1 ORDER BY m.module_order");
+        $s->execute();
+        $allMods = $s->fetchAll();
+
+        $byLevel = [];
+        foreach ($allMods as $m) {
+            $rule = json_decode($m['unlock_rule'] ?? 'null', true);
+            if ($rule && ($rule['kind'] ?? '') === 'open') continue;
+            $lvl = ($rule && ($rule['kind'] ?? '') === 'level') ? (int)$rule['value'] : 0;
+            $stage = (int)($m['module_order'] ?? 1);
+            if (!isset($byLevel[$lvl])) $byLevel[$lvl] = [];
+            if (!isset($byLevel[$lvl][$stage])) $byLevel[$lvl][$stage] = [];
+            $byLevel[$lvl][$stage][] = $m;
+        }
+        ksort($byLevel);
+
+        // Find the first stage that has incomplete modules
+        foreach ($byLevel as $lvl => $stages) {
+            if ($lvl > $userLevel) break;
+            ksort($stages);
+            foreach ($stages as $stageNum => $mods) {
+                $incompleteMods = [];
+                foreach ($mods as $m) {
+                    if (!in_array((int)$m['id'], $compMods)) {
+                        // Get first incomplete segment
+                        $s = $this->db->prepare("SELECT id, title FROM segments WHERE module_id=? AND is_active=1 ORDER BY segment_order");
+                        $s->execute([$m['id']]);
+                        $segs = $s->fetchAll();
+                        $firstSeg = null;
+                        foreach ($segs as $seg) {
+                            if (!in_array((int)$seg['id'], $compSegs)) { $firstSeg = $seg; break; }
+                        }
+                        $incompleteMods[] = [
+                            'module_id'     => (int)$m['id'],
+                            'module_title'  => $m['title'],
+                            'module_icon'   => $m['icon'] ?? '📄',
+                            'folder_title'  => $m['folder_title'],
+                            'folder_icon'   => $m['folder_icon'] ?? '📁',
+                            'segment_id'    => $firstSeg ? (int)$firstSeg['id'] : null,
+                            'segment_title' => $firstSeg ? $firstSeg['title'] : null,
+                            'level'         => $lvl,
+                            'stage'         => $stageNum,
+                        ];
+                    }
+                }
+                if (count($incompleteMods) > 0) {
+                    return [
+                        'type'    => 'next_stage',
+                        'level'   => $lvl,
+                        'stage'   => $stageNum,
+                        'count'   => count($incompleteMods),
+                        'modules' => $incompleteMods,
+                    ];
+                }
+            }
+        }
+
+        // Check level up
+        foreach ($this->thresholds() as $t) {
+            if ((int)$t['level'] > $userLevel) {
+                return ['type' => 'level_up', 'label' => "Keep going to reach {$t['badge_icon']} {$t['title']}!"];
             }
         }
         return ['type' => 'all_complete', 'label' => 'All training complete! 🌟'];

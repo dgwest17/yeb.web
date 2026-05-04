@@ -38,29 +38,12 @@ async function completeSeg(segId, btn) {
                 if (ev.type === 'level_up') setTimeout(function(){ levelUpModal(ev); }, 1200);
             });
 
-            // Show next steps card
+            // Show next steps card — check if there are more UNLOCKED segments in this module
             var allSegs = document.querySelectorAll('.seg');
             var currentIdx = -1;
             allSegs.forEach(function(s, i) { if (s.id === 'seg-' + segId) currentIdx = i; });
 
-            // Collect remaining segments in this module
-            var remaining = [];
-            for (var i = currentIdx + 1; i < allSegs.length && remaining.length < 4; i++) {
-                var s = allSegs[i];
-                var sid = s.getAttribute('data-seg') || s.id.replace('seg-', '');
-                var title = s.querySelector('.seg-title');
-                var isDone = s.classList.contains('seg--done');
-                if (!isDone) {
-                    remaining.push({
-                        id: sid,
-                        title: title ? title.textContent : 'Segment ' + sid,
-                        locked: s.classList.contains('seg--locked'),
-                        el: s
-                    });
-                }
-            }
-
-            // Unlock the immediate next segment
+            // Unlock the immediate next locked segment
             var nxt = document.querySelector('.seg--locked');
             if (nxt) {
                 nxt.classList.remove('seg--locked');
@@ -69,31 +52,49 @@ async function completeSeg(segId, btn) {
                 if (ni) ni.textContent = (nxt.querySelector('[data-action="check-quiz"]')) ? '📝' : '📄';
             }
 
+            // NOW collect remaining unlocked, incomplete segments
+            var remaining = [];
+            for (var i = currentIdx + 1; i < allSegs.length && remaining.length < 4; i++) {
+                var s = allSegs[i];
+                var sid = s.getAttribute('data-seg') || s.id.replace('seg-', '');
+                var title = s.querySelector('.seg-title');
+                var isDone = s.classList.contains('seg--done');
+                var isLocked = s.classList.contains('seg--locked');
+                // Only show segments that are unlocked and not done
+                if (!isDone && !isLocked) {
+                    remaining.push({
+                        id: sid,
+                        title: title ? title.textContent : 'Segment ' + sid
+                    });
+                }
+            }
+
             // Build next-steps card
             var nextHtml = '<div class="seg-done-badge">✅ Completed</div>';
 
             if (remaining.length > 0) {
-                // More segments in this module
+                // More unlocked segments in this module
                 nextHtml += '<div class="next-steps-card">';
                 nextHtml += '<div class="next-steps-title">Up Next</div>';
                 remaining.forEach(function(r) {
-                    if (r.locked) {
-                        nextHtml += '<div class="next-step-item next-step--locked">🔒 ' + r.title + '</div>';
-                    } else {
-                        nextHtml += '<a class="next-step-item" href="#seg-' + r.id + '" data-scroll-seg="' + r.id + '">' +
-                            '📄 ' + r.title + ' <span style="color:var(--teal)">→</span></a>';
-                    }
+                    nextHtml += '<a class="next-step-item" href="#seg-' + r.id + '" data-scroll-seg="' + r.id + '">' +
+                        '📄 ' + r.title + ' <span style="color:var(--teal)">→</span></a>';
                 });
                 nextHtml += '</div>';
                 btn.parentElement.innerHTML = nextHtml;
             } else {
-                // Module complete — fetch ALL modules in next stage
+                // No more unlocked segments — module is effectively complete
+                // Fetch ALL modules in the next progression stage
                 btn.parentElement.innerHTML = nextHtml + '<div class="next-steps-card"><div class="next-steps-title">⏳ Finding what\'s next...</div></div>';
                 fetchNextStage(btn.parentElement, nextHtml);
             }
 
             updateProg();
             confetti();
+            
+            // Hide the server-rendered continue button since JS is handling it now
+            var serverContinue = document.getElementById('server-continue');
+            if (serverContinue) serverContinue.style.display = 'none';
         }
     } catch (err) {
         btn.textContent = '✕ Error — Retry';

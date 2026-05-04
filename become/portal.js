@@ -43,7 +43,7 @@ async function completeSeg(segId, btn) {
             var currentIdx = -1;
             allSegs.forEach(function(s, i) { if (s.id === 'seg-' + segId) currentIdx = i; });
 
-            // Collect remaining segments (both locked and unlocked)
+            // Collect remaining segments in this module
             var remaining = [];
             for (var i = currentIdx + 1; i < allSegs.length && remaining.length < 4; i++) {
                 var s = allSegs[i];
@@ -60,7 +60,7 @@ async function completeSeg(segId, btn) {
                 }
             }
 
-            // Unlock the immediate next segment(s) at the same stage
+            // Unlock the immediate next segment
             var nxt = document.querySelector('.seg--locked');
             if (nxt) {
                 nxt.classList.remove('seg--locked');
@@ -69,9 +69,11 @@ async function completeSeg(segId, btn) {
                 if (ni) ni.textContent = (nxt.querySelector('[data-action="check-quiz"]')) ? '📝' : '📄';
             }
 
-            // Build the next-steps card
+            // Build next-steps card
             var nextHtml = '<div class="seg-done-badge">✅ Completed</div>';
+
             if (remaining.length > 0) {
+                // More segments in this module
                 nextHtml += '<div class="next-steps-card">';
                 nextHtml += '<div class="next-steps-title">Up Next</div>';
                 remaining.forEach(function(r) {
@@ -79,18 +81,16 @@ async function completeSeg(segId, btn) {
                         nextHtml += '<div class="next-step-item next-step--locked">🔒 ' + r.title + '</div>';
                     } else {
                         nextHtml += '<a class="next-step-item" href="#seg-' + r.id + '" data-scroll-seg="' + r.id + '">' +
-                            '📄 ' + r.title + ' <span style="color:var(--teal);font-size:.75rem">→</span></a>';
+                            '📄 ' + r.title + ' <span style="color:var(--teal)">→</span></a>';
                     }
                 });
                 nextHtml += '</div>';
+                btn.parentElement.innerHTML = nextHtml;
             } else {
-                // Module complete
-                nextHtml += '<div class="next-steps-card">';
-                nextHtml += '<div class="next-steps-title">🎉 Module Complete!</div>';
-                nextHtml += '<a class="next-step-item" href="/become/" style="color:var(--teal);font-weight:700">← Back to Dashboard</a>';
-                nextHtml += '</div>';
+                // Module complete — fetch ALL modules in next stage
+                btn.parentElement.innerHTML = nextHtml + '<div class="next-steps-card"><div class="next-steps-title">⏳ Finding what\'s next...</div></div>';
+                fetchNextStage(btn.parentElement, nextHtml);
             }
-            btn.parentElement.innerHTML = nextHtml;
 
             updateProg();
             confetti();
@@ -222,6 +222,49 @@ function updateProg() {
     var pct = total > 0 ? Math.round((done / total) * 100) : 0;
     fill.style.width = pct + '%';
     if (info) info.innerHTML = '<span>' + done + '/' + total + ' segments</span><span>' + pct + '%</span>';
+}
+
+// Fetch all modules in the next progression stage
+async function fetchNextStage(container, baseHtml) {
+    try {
+        var res = await fetch('/become/api/index.php?route=next_stage');
+        var ns = await res.json();
+
+        if (ns.type === 'next_stage' && ns.modules && ns.modules.length > 0) {
+            var stageHtml = baseHtml + '<div class="next-steps-card">';
+            if (ns.modules.length === 1) {
+                stageHtml += '<div class="next-steps-title">🎉 Module Complete! Next Up:</div>';
+            } else {
+                stageHtml += '<div class="next-steps-title">🎉 Module Complete! Complete all ' + ns.modules.length + ':</div>';
+            }
+            ns.modules.forEach(function(m) {
+                var href = m.segment_id ? '/become/module.php?id=' + m.module_id + '#seg-' + m.segment_id : '/become/module.php?id=' + m.module_id;
+                stageHtml += '<a class="next-step-item" href="' + href + '" style="font-weight:600">' +
+                    (m.module_icon || '📄') + ' ' + m.module_title +
+                    '<span style="color:var(--dim);font-size:.7rem;margin-left:.5rem">' + (m.folder_icon || '📁') + ' ' + m.folder_title + '</span>' +
+                    ' <span style="color:var(--teal)">→</span></a>';
+            });
+            stageHtml += '<a class="next-step-item" href="/become/" style="color:var(--dim);font-size:.78rem">← Or back to dashboard</a>';
+            stageHtml += '</div>';
+            container.innerHTML = stageHtml;
+        } else if (ns.type === 'level_up') {
+            container.innerHTML = baseHtml +
+                '<div class="next-steps-card">' +
+                '<div class="next-steps-title">🎉 Level Complete!</div>' +
+                '<div class="next-step-item" style="color:var(--gold)">' + (ns.label || 'Keep going!') + '</div>' +
+                '<a class="next-step-item" href="/become/" style="color:var(--teal);font-weight:700">← Back to Dashboard</a></div>';
+        } else {
+            container.innerHTML = baseHtml +
+                '<div class="next-steps-card">' +
+                '<div class="next-steps-title">🎉 All Complete!</div>' +
+                '<a class="next-step-item" href="/become/" style="color:var(--teal);font-weight:700">← Back to Dashboard</a></div>';
+        }
+    } catch(e) {
+        container.innerHTML = baseHtml +
+            '<div class="next-steps-card">' +
+            '<div class="next-steps-title">🎉 Module Complete!</div>' +
+            '<a class="next-step-item" href="/become/">← Back to Dashboard</a></div>';
+    }
 }
 
 // ── XP TOAST ──

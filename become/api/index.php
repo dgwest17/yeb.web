@@ -179,6 +179,12 @@ try {
         exit;
     }
 
+    // ── Next stage: GET ?route=next_stage ──
+    if ($route === 'next_stage' && $method === 'GET') {
+        echo json_encode($engine->resolveNextStage($userId));
+        exit;
+    }
+
     // ── Search: GET ?route=search&q=... ──
     if ($route === 'search' && $method === 'GET') {
         $q = trim($_GET['q'] ?? '');

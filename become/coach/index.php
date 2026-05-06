@@ -226,9 +226,16 @@ var currentMode = 'coach';
 var conversationId = null;
 var sending = false;
 
-// Check if configured
-fetch('/become/coach/api.php?action=status').then(r=>r.json()).then(d=>{
-    if (!d.configured) document.getElementById('notConfigured').style.display='block';
+// Check status
+fetch('/become/coach/api.php?action=status').then(function(r){return r.json()}).then(function(d){
+    if (!d.configured) {
+        var banner = document.getElementById('notConfigured');
+        banner.style.display = 'block';
+        banner.innerHTML = '🦅 <strong>Griffin Demo Mode</strong> — Using your real training content. Add the Anthropic API key in config.php to unlock full AI coaching. <a href="https://console.anthropic.com" target="_blank">Get key →</a>';
+        banner.style.background = 'rgba(139,92,246,.08)';
+        banner.style.borderColor = 'rgba(139,92,246,.2)';
+        banner.style.color = '#a78bfa';
+    }
 }).catch(function(){});
 
 // Mode switch
@@ -437,12 +444,21 @@ async function deleteDoctrine(id) {
 
 // Index content
 async function indexContent() {
-    if (!confirm('Re-index all training content into the AI knowledge base?')) return;
+    if (!confirm('Index all training content into Griffin\\'s knowledge base?\\n\\nThis pulls text from every segment so Griffin can search and reference it.')) return;
+    var btn = document.getElementById('indexBtn');
+    var oldText = btn.textContent;
+    btn.textContent = '⏳ Indexing...';
     try {
         var res = await fetch('/become/coach/api.php?action=index');
         var data = await res.json();
-        alert('Indexed ' + data.chunks_indexed + ' content chunks');
-    } catch(e) { alert('Error: ' + e.message); }
+        if (data.error) throw new Error(data.error);
+        btn.textContent = '✅ ' + data.chunks_indexed + ' chunks';
+        setTimeout(function() { btn.textContent = oldText; }, 3000);
+        alert('Indexed ' + data.chunks_indexed + ' content chunks into Griffin\\'s knowledge base!\\n\\nGriffin can now search and reference all your training content.');
+    } catch(e) { 
+        btn.textContent = oldText;
+        alert('Error: ' + e.message); 
+    }
 }
 </script>
 </body>

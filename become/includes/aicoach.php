@@ -23,10 +23,8 @@ class AICoach {
      * Send a message and get AI response
      */
     public function chat($userId, $message, $conversationId = null, $mode = 'coach') {
-        if (!$this->apiKey) throw new Exception('API key not configured. Add it in config.php');
-        if (!$this->checkRateLimit($userId)) throw new Exception('Rate limit: max 30 messages/hour');
+        if (!$this->checkRateLimit($userId)) throw new Exception('Rate limit reached. Try again in a few minutes.');
 
-        // Load or create conversation
         $history = [];
         if ($conversationId) {
             $s = $this->db->prepare("SELECT messages, mode FROM ai_conversations WHERE id=? AND user_id=?");
@@ -38,19 +36,17 @@ class AICoach {
             }
         }
 
-        // Build system prompt with relevant content
-        $systemPrompt = $this->buildSystemPrompt($mode, $message);
-
-        // Add user message
         $history[] = ['role' => 'user', 'content' => $message];
-
-        // Keep last 20 messages
         if (count($history) > 20) $history = array_slice($history, -20);
 
-        // Call Claude
-        $response = $this->callClaude($systemPrompt, $history);
+        // Real API or demo mode
+        if ($this->apiKey) {
+            $systemPrompt = $this->buildSystemPrompt($mode, $message);
+            $response = $this->callClaude($systemPrompt, $history);
+        } else {
+            $response = $this->demoResponse($mode, $message);
+        }
 
-        // Save
         $history[] = ['role' => 'assistant', 'content' => $response['text']];
         $tokens = ($response['input_tokens'] ?? 0) + ($response['output_tokens'] ?? 0);
 
@@ -67,7 +63,57 @@ class AICoach {
             'response'        => $response['text'],
             'conversation_id' => (int)$conversationId,
             'tokens_used'     => $tokens,
+            'demo_mode'       => !$this->apiKey,
         ];
+    }
+
+    /**
+     * Demo mode: searches training content and returns it directly
+     */
+    private function demoResponse($mode, $message) {
+        $context = $this->retrieveContext($message);
+        $hasContent = strpos($context, 'No specific training content') === false;
+
+        if ($mode === 'roleplay') {
+            $roleplayLines = [
+                "*Opens door halfway*\n\nYeah? What do you need? I'm kind of busy right now.\n\n---\n🎭 *Roleplay mode — I'm acting as a homeowner. Respond like you would at the door!*\n*Say \"END ROLEPLAY\" when you want feedback.*",
+                "Look, we already have solar quotes from three other companies. Why should I go with you guys?\n\n---\n🎭 *How do you differentiate from competitors?*",
+                "My wife handles all this stuff. You'd have to come back when she's here.\n\n---\n🎭 *Classic spouse objection. How do you handle it?*",
+                "Solar? No thanks, I heard those things ruin your roof.\n\n---\n🎭 *Misinformation objection. Educate without being condescending.*",
+                "I don't know... it sounds good but that's a lot of money to commit to right now.\n\n---\n🎭 *Price hesitation. What's your next move?*"
+            ];
+            $text = $roleplayLines[array_rand($roleplayLines)];
+        } elseif ($hasContent) {
+            // Parse context into readable format
+            $chunks = array_filter(explode("--- [", $context));
+            $formatted = "";
+            $count = 0;
+            foreach ($chunks as $chunk) {
+                if ($count >= 3) break;
+                $chunk = trim($chunk);
+                if (!$chunk) continue;
+                if (preg_match('/^(\w+)\]\s*(.+?)---/s', $chunk . '---', $m)) {
+                    $title = trim($m[2]);
+                    $firstLine = strtok($title, "\n");
+                    $body = trim(substr($title, strlen($firstLine)));
+                    if (strlen($body) > 400) $body = substr($body, 0, 400) . '...';
+                    $formatted .= "**📌 " . trim($firstLine) . "**\n" . trim($body) . "\n\n";
+                    $count++;
+                }
+            }
+            if (!$formatted) $formatted = $context;
+            $text = "Here's what I found in your training on that topic:\n\n" . $formatted .
+                "---\n💡 *Demo mode — showing real content from your training library. Add the API key in config.php to unlock full AI coaching, follow-up questions, and personalized responses.*";
+        } else {
+            $text = "I couldn't find specific training content matching \"" . htmlspecialchars(substr($message, 0, 50)) . "\".\n\n" .
+                "**Try:**\n• More specific keywords (e.g. \"not interested objection\" instead of \"objections\")\n" .
+                "• Check the Training Library for related modules\n" .
+                "• Ask your leader about this topic\n\n" .
+                "---\n💡 *Demo mode — make sure you've clicked 🔄 Index to sync your training content. Add the API key for full AI coaching.*";
+        }
+
+        return ['text' => $text, 'input_tokens' => 0, 'output_tokens' => 0];
+    }
     }
 
     private function buildSystemPrompt($mode, $userMessage) {

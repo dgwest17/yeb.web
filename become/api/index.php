@@ -143,6 +143,14 @@ try {
         $input = json_decode(file_get_contents('php://input'), true);
         $html  = $input['content_html'] ?? '';
         $engine->updateSegment($segId, $html);
+        
+        // Auto-index for AI coach
+        try {
+            require_once __DIR__ . '/../includes/AICoach.php';
+            $coach = new AICoach();
+            $coach->indexSegment($segId);
+        } catch (Exception $e) { /* AI not configured yet, skip */ }
+        
         echo json_encode(['success' => true]);
         exit;
     }

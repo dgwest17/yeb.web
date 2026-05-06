@@ -165,6 +165,10 @@ foreach ($lvlGroups as $mods) {
 .res-btn{background:rgba(255,183,3,.15);border:1px solid rgba(255,183,3,.3);color:var(--gold);padding:.6rem 1rem;border-radius:12px;font-weight:700;font-size:.88rem;cursor:pointer;font-family:var(--bf);display:flex;align-items:center;gap:.4rem;transition:all .2s;box-shadow:0 2px 10px rgba(255,183,3,.1)}
 .res-btn:hover{background:rgba(255,183,3,.25);transform:translateY(-1px)}
 
+/* AI Coach button */
+.ai-btn{background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.3);color:#a78bfa;padding:.55rem .9rem;border-radius:10px;font-weight:700;font-size:.82rem;cursor:pointer;font-family:var(--bf);text-decoration:none;display:flex;align-items:center;gap:.35rem;transition:all .2s;box-shadow:0 2px 10px rgba(139,92,246,.1)}
+.ai-btn:hover{background:rgba(139,92,246,.25);transform:translateY(-1px)}
+
 /* Header — push down for fixed top bar */
 .sk-hdr{text-align:center;padding:4rem 0 1.5rem;position:relative}
 .sk-hdr h1{font-family:var(--hf);font-size:1.5rem;background:linear-gradient(135deg,var(--teal),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.3rem}
@@ -313,6 +317,7 @@ foreach ($lvlGroups as $mods) {
 <!-- TOP BAR: Training Library (left) + Search + Resources (right) -->
 <div class="top-bar">
     <button class="lib-btn" id="libBtn">📚 Training Library</button>
+    <a href="/become/coach/" class="ai-btn">🤖 AI Coach</a>
     <div class="search-wrap">
         <span class="search-icon">🔍</span>
         <input class="search-input" id="searchInput" type="text" placeholder="Search training..." autocomplete="off">

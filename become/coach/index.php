@@ -1,6 +1,6 @@
 <?php
 /**
- * become/coach/index.php — AI Sales Coach Chat
+ * become/coach/index.php — Griffin — AI Sales Coach
  * Location: public_html/become/coach/index.php
  */
 require_once __DIR__ . '/../includes/auth.php';
@@ -12,7 +12,7 @@ $isAdmin = ($_SESSION['portal_role'] ?? '') === 'admin';
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>AI Coach — Become</title>
+<title>Griffin — Sales Coach</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0a0a0f;--card:rgba(255,255,255,0.04);--bdr:rgba(255,255,255,0.08);--txt:#e8e8ef;--dim:#6b7280;--teal:#22A8B3;--gold:#FFB703;--green:#06D6A0;--red:#EF476F}
@@ -20,8 +20,9 @@ $isAdmin = ($_SESSION['portal_role'] ?? '') === 'admin';
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);height:100vh;display:flex;flex-direction:column;overflow:hidden}
 
 /* Header */
-.chat-hdr{display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;background:rgba(255,255,255,0.02);border-bottom:1px solid var(--bdr);flex-shrink:0}
-.chat-hdr h1{font-size:1rem;font-weight:700;flex:1}
+.chat-hdr{display:flex;align-items:center;gap:.5rem;padding:.75rem 1rem;background:rgba(255,255,255,0.02);border-bottom:1px solid var(--bdr);flex-shrink:0}
+.chat-hdr h1{font-size:1rem;font-weight:700;flex:1;color:#a78bfa}
+.griffin-icon{flex-shrink:0;display:flex;align-items:center}
 .chat-hdr a{color:var(--dim);text-decoration:none;font-size:.82rem}
 .chat-hdr a:hover{color:var(--teal)}
 
@@ -37,7 +38,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);heig
 .msg{max-width:85%;padding:.75rem 1rem;border-radius:12px;font-size:.9rem;line-height:1.6;animation:msgIn .3s ease}
 @keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .msg--user{align-self:flex-end;background:var(--teal);color:#fff;border-bottom-right-radius:4px}
-.msg--ai{align-self:flex-start;background:var(--card);border:1px solid var(--bdr);border-bottom-left-radius:4px}
+.msg--ai{align-self:flex-start;background:var(--card);border:1px solid var(--bdr);border-bottom-left-radius:4px;position:relative;padding-left:2.2rem}
+.msg--ai::before{content:'🦅';position:absolute;left:.5rem;top:.5rem;font-size:.85rem}
 .msg--ai strong{color:var(--teal)}
 .msg--ai em{color:var(--gold)}
 .msg--ai code{background:rgba(255,255,255,0.06);padding:2px 5px;border-radius:4px;font-size:.85em}
@@ -61,7 +63,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);heig
 .send-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
 
 /* Welcome */
-.welcome{text-align:center;padding:3rem 1.5rem;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.welcome{text-align:center;padding:2rem 1.5rem;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.griffin-welcome-icon{margin-bottom:1rem;animation:griffinFloat 3s ease-in-out infinite}
+@keyframes griffinFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 .welcome h2{font-size:1.3rem;margin-bottom:.5rem}
 .welcome p{color:var(--dim);font-size:.9rem;max-width:400px;margin-bottom:1.5rem}
 .quick-btns{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;max-width:500px}
@@ -91,7 +95,39 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);heig
 <body>
 
 <div class="chat-hdr">
-    <h1>🤖 AI Sales Coach</h1>
+    <div class="griffin-icon">
+        <svg viewBox="0 0 40 40" width="36" height="36" xmlns="http://www.w3.org/2000/svg">
+            <!-- Griffin body -->
+            <circle cx="20" cy="22" r="12" fill="#a78bfa" opacity=".15"/>
+            <!-- Head -->
+            <ellipse cx="20" cy="16" rx="8" ry="7" fill="#8b5cf6"/>
+            <!-- Beak -->
+            <polygon points="28,15 33,17 28,18" fill="#FFB703"/>
+            <!-- Eye area / Glasses -->
+            <rect x="13" y="13" width="6" height="5" rx="2" fill="none" stroke="#22A8B3" stroke-width="1.2"/>
+            <rect x="21" y="13" width="6" height="5" rx="2" fill="none" stroke="#22A8B3" stroke-width="1.2"/>
+            <line x1="19" y1="15" x2="21" y2="15" stroke="#22A8B3" stroke-width="1"/>
+            <line x1="13" y1="15" x2="10" y2="13" stroke="#22A8B3" stroke-width="1"/>
+            <line x1="27" y1="15" x2="30" y2="13" stroke="#22A8B3" stroke-width="1"/>
+            <!-- Eyes behind glasses -->
+            <circle cx="16" cy="15.5" r="1.2" fill="#fff"/>
+            <circle cx="24" cy="15.5" r="1.2" fill="#fff"/>
+            <circle cx="16.3" cy="15.5" r=".6" fill="#1a1a2e"/>
+            <circle cx="24.3" cy="15.5" r=".6" fill="#1a1a2e"/>
+            <!-- Ear tufts -->
+            <polygon points="13,10 11,5 15,9" fill="#7c3aed"/>
+            <polygon points="27,10 29,5 25,9" fill="#7c3aed"/>
+            <!-- Wings -->
+            <path d="M8,24 Q4,18 6,12 Q8,16 10,20 Z" fill="#a78bfa" opacity=".6"/>
+            <path d="M32,24 Q36,18 34,12 Q32,16 30,20 Z" fill="#a78bfa" opacity=".6"/>
+            <!-- Body -->
+            <ellipse cx="20" cy="28" rx="7" ry="5" fill="#7c3aed"/>
+            <!-- Feet -->
+            <path d="M15,32 L13,36 L15,35 L17,36 L15,32" fill="#FFB703"/>
+            <path d="M25,32 L23,36 L25,35 L27,36 L25,32" fill="#FFB703"/>
+        </svg>
+    </div>
+    <h1>Griffin</h1>
     <a href="#" id="historyBtn">📋 History</a>
     <?php if($isAdmin):?><a href="#" id="doctrineBtn">⚙️ Doctrine</a>
     <a href="#" id="indexBtn" style="color:var(--green)">🔄 Index</a><?php endif;?>
@@ -99,19 +135,42 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);heig
 </div>
 
 <div class="mode-tabs">
-    <div class="mode-tab active" data-mode="coach">🎓 Coach Mode</div>
-    <div class="mode-tab" data-mode="roleplay">🎭 Roleplay Mode</div>
+    <div class="mode-tab active" data-mode="coach">🎓 Ask Griffin</div>
+    <div class="mode-tab" data-mode="roleplay">🎭 Roleplay</div>
 </div>
 
 <div id="notConfigured" class="not-configured" style="display:none">
-    ⚠️ AI not configured yet. Admin needs to add the Anthropic API key in <code>config.php</code>.
+    ⚠️ Griffin not configured yet. Admin needs to add the Anthropic API key in <code>config.php</code>.
     <br><a href="https://console.anthropic.com" target="_blank">Get API key →</a>
 </div>
 
 <div class="chat-messages" id="messages">
     <div class="welcome" id="welcome">
+        <div class="griffin-welcome-icon">
+            <svg viewBox="0 0 80 80" width="80" height="80" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="40" cy="44" r="24" fill="#a78bfa" opacity=".1"/>
+                <ellipse cx="40" cy="32" rx="16" ry="14" fill="#8b5cf6"/>
+                <polygon points="56,30 66,34 56,36" fill="#FFB703"/>
+                <rect x="26" y="26" width="12" height="10" rx="4" fill="none" stroke="#22A8B3" stroke-width="2"/>
+                <rect x="42" y="26" width="12" height="10" rx="4" fill="none" stroke="#22A8B3" stroke-width="2"/>
+                <line x1="38" y1="31" x2="42" y2="31" stroke="#22A8B3" stroke-width="1.5"/>
+                <line x1="26" y1="31" x2="20" y2="27" stroke="#22A8B3" stroke-width="1.5"/>
+                <line x1="54" y1="31" x2="60" y2="27" stroke="#22A8B3" stroke-width="1.5"/>
+                <circle cx="32" cy="31" r="2.5" fill="#fff"/>
+                <circle cx="48" cy="31" r="2.5" fill="#fff"/>
+                <circle cx="32.5" cy="31" r="1.2" fill="#1a1a2e"/>
+                <circle cx="48.5" cy="31" r="1.2" fill="#1a1a2e"/>
+                <polygon points="26,20 22,10 30,18" fill="#7c3aed"/>
+                <polygon points="54,20 58,10 50,18" fill="#7c3aed"/>
+                <path d="M16,48 Q8,36 12,24 Q16,32 20,40 Z" fill="#a78bfa" opacity=".5"/>
+                <path d="M64,48 Q72,36 68,24 Q64,32 60,40 Z" fill="#a78bfa" opacity=".5"/>
+                <ellipse cx="40" cy="56" rx="14" ry="10" fill="#7c3aed"/>
+                <path d="M30,64 L26,72 L30,70 L34,72 L30,64" fill="#FFB703"/>
+                <path d="M50,64 L46,72 L50,70 L54,72 L50,64" fill="#FFB703"/>
+            </svg>
+        </div>
         <h2>Hey <?= $name ?> 👋</h2>
-        <p id="welcomeText">Ask me anything about sales technique, objection handling, or our training. I know everything in the manual.</p>
+        <p id="welcomeText">I'm Griffin, your AI sales coach. Ask me anything about sales technique, objection handling, or our training. I know everything in the manual.</p>
         <div class="quick-btns" id="quickBtns">
             <button class="quick-btn" data-q="How do I handle 'not interested' at the door?">🚪 Not interested</button>
             <button class="quick-btn" data-q="What's the Griffin Hill needs audit process?">📋 Needs audit</button>
@@ -125,7 +184,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);heig
 <div class="typing" id="typing"><span></span><span></span><span></span></div>
 
 <div class="chat-input">
-    <textarea id="chatInput" placeholder="Ask your coach..." rows="1"></textarea>
+    <textarea id="chatInput" placeholder="Ask Griffin..." rows="1"></textarea>
     <button class="send-btn" id="sendBtn" title="Send">➤</button>
 </div>
 
@@ -133,7 +192,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);heig
 <div class="conv-list" id="convList">
     <div class="conv-list-inner">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-            <h2 style="font-size:1.1rem">📋 Past Conversations</h2>
+            <h2 style="font-size:1.1rem">📋 Past Chats with Griffin</h2>
             <button style="background:none;border:none;color:var(--dim);font-size:1.2rem;cursor:pointer" id="convClose">✕</button>
         </div>
         <button class="quick-btn" style="width:100%;margin-bottom:1rem" id="newConvBtn">+ New Conversation</button>
@@ -188,7 +247,7 @@ document.querySelectorAll('.mode-tab').forEach(function(tab) {
                 '<button class="quick-btn" data-q="Hi! I noticed you don\'t have solar panels yet. Do you have a couple minutes?">☀️ Solar opener</button>' +
                 '<button class="quick-btn" data-q="Hey! We\'re doing a free energy audit in the neighborhood today...">🔋 Energy audit opener</button>';
         } else {
-            document.getElementById('welcomeText').textContent = 'Ask me anything about sales technique, objection handling, or our training.';
+            document.getElementById('welcomeText').textContent = 'I'm Griffin, your AI sales coach. Ask me anything about sales technique, objection handling, or our training.';
             document.getElementById('quickBtns').innerHTML =
                 '<button class="quick-btn" data-q="How do I handle \'not interested\' at the door?">🚪 Not interested</button>' +
                 '<button class="quick-btn" data-q="What\'s the Griffin Hill needs audit process?">📋 Needs audit</button>' +

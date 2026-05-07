@@ -1,110 +1,93 @@
 <?php
-/**
- * become/griff/api.php — Griff AI Coach API
- * Location: public_html/become/griff/api.php
- */
+// become/griff/api.php — Griff API
 header('Content-Type: application/json');
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 
-session_start();
+// Prevent double session_start
+if (session_status() === PHP_SESSION_NONE) session_start();
 
 if (empty($_SESSION['portal_user_id'])) {
     http_response_code(401);
-    echo json_encode(['error' => 'Not authenticated. Please log in.']);
-    exit;
+    die(json_encode(array('error' => 'Not logged in')));
+}
+
+require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/AICoach.php';
+
+$userId = intval($_SESSION['portal_user_id']);
+$role = isset($_SESSION['portal_role']) ? $_SESSION['portal_role'] : 'rep';
+$action = isset($_GET['action']) ? $_GET['action'] : '';
+$input = array();
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $raw = file_get_contents('php://input');
+    $input = json_decode($raw, true);
+    if (!is_array($input)) $input = array();
 }
 
 try {
-    require_once __DIR__ . '/../includes/db.php';
-    require_once __DIR__ . '/../includes/AICoach.php';
-} catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Server config error: ' . $e->getMessage()]);
-    exit;
-}
+    $coach = new AICoach();
 
-$userId = (int)$_SESSION['portal_user_id'];
-$role = $_SESSION['portal_role'] ?? 'rep';
-$coach = new AICoach();
-
-$method = $_SERVER['REQUEST_METHOD'];
-$action = $_GET['action'] ?? '';
-$input = $method === 'POST' ? json_decode(file_get_contents('php://input'), true) : [];
-
-try {
-    switch ($action) {
-
-        // ─── Chat ───
-        case 'chat':
-            if ($method !== 'POST') throw new Exception('POST required');
-            $message = trim($input['message'] ?? '');
-            if (!$message) throw new Exception('Message required');
-            if (strlen($message) > 2000) throw new Exception('Message too long (2000 char max)');
-            $convId = $input['conversation_id'] ?? null;
-            $mode = $input['mode'] ?? 'coach';
-            $result = $coach->chat($userId, $message, $convId, $mode);
-            echo json_encode($result);
-            break;
-
-        // ─── Get conversations list ───
-        case 'conversations':
-            echo json_encode($coach->getConversations($userId));
-            break;
-
-        // ─── Get single conversation ───
-        case 'conversation':
-            $convId = (int)($_GET['id'] ?? 0);
-            $conv = $coach->getConversation($convId, $userId);
-            if (!$conv) throw new Exception('Not found');
-            $conv['messages'] = json_decode($conv['messages'], true);
-            echo json_encode($conv);
-            break;
-
-        // ─── Check if configured ───
-        case 'status':
-            echo json_encode([
-                'configured' => $coach->isConfigured(),
-                'rate_ok' => $coach->checkRateLimit($userId),
-            ]);
-            break;
-
-        // ─── Index all content (admin only) ───
-        case 'index':
-            if ($role !== 'admin') throw new Exception('Admin only');
-            $count = $coach->indexAllContent();
-            echo json_encode(['success' => true, 'chunks_indexed' => $count]);
-            break;
-
-        // ─── Doctrine CRUD (admin only) ───
-        case 'doctrine':
-            if ($role !== 'admin') throw new Exception('Admin only');
-            $db = Database::getInstance();
-            if ($method === 'GET') {
-                $s = $db->prepare("SELECT * FROM doctrine_rules ORDER BY priority DESC, id");
-                $s->execute();
-                echo json_encode($s->fetchAll());
-            } else {
-                $subAction = $input['sub'] ?? '';
-                if ($subAction === 'add') {
-                    $s = $db->prepare("INSERT INTO doctrine_rules (category, rule_title, rule_text, priority) VALUES (?, ?, ?, ?)");
-                    $s->execute([$input['category'] ?? 'general', $input['title'] ?? '', $input['text'] ?? '', (int)($input['priority'] ?? 5)]);
-                    echo json_encode(['success' => true, 'id' => $db->lastInsertId()]);
-                } elseif ($subAction === 'update') {
-                    $s = $db->prepare("UPDATE doctrine_rules SET category=?, rule_title=?, rule_text=?, priority=?, is_active=? WHERE id=?");
-                    $s->execute([$input['category'] ?? 'general', $input['title'] ?? '', $input['text'] ?? '', (int)($input['priority'] ?? 5), (int)($input['is_active'] ?? 1), (int)$input['id']]);
-                    echo json_encode(['success' => true]);
-                } elseif ($subAction === 'delete') {
-                    $db->prepare("DELETE FROM doctrine_rules WHERE id=?")->execute([(int)$input['id']]);
-                    echo json_encode(['success' => true]);
-                }
-            }
-            break;
-
-        default:
-            throw new Exception('Unknown action: ' . $action);
+    if ($action === 'status') {
+        echo json_encode(array('configured' => $coach->isConfigured(), 'ok' => true));
+        exit;
     }
+
+    if ($action === 'chat') {
+        $msg = isset($input['message']) ? trim($input['message']) : '';
+        if ($msg === '') throw new Exception('Message required');
+        $convId = isset($input['conversation_id']) ? $input['conversation_id'] : null;
+        $mode = isset($input['mode']) ? $input['mode'] : 'coach';
+        echo json_encode($coach->chat($userId, $msg, $convId, $mode));
+        exit;
+    }
+
+    if ($action === 'conversations') {
+        echo json_encode($coach->getConversations($userId));
+        exit;
+    }
+
+    if ($action === 'conversation') {
+        $cid = isset($_GET['id']) ? intval($_GET['id']) : 0;
+        $conv = $coach->getConversation($cid, $userId);
+        if (!$conv) throw new Exception('Not found');
+        $conv['messages'] = json_decode($conv['messages'], true);
+        echo json_encode($conv);
+        exit;
+    }
+
+    if ($action === 'index' && $role === 'admin') {
+        $count = $coach->indexAllContent();
+        echo json_encode(array('success' => true, 'chunks_indexed' => $count));
+        exit;
+    }
+
+    if ($action === 'doctrine') {
+        if ($role !== 'admin') throw new Exception('Admin only');
+        $db = Database::getInstance();
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            $s = $db->prepare("SELECT * FROM doctrine_rules ORDER BY priority DESC, id");
+            $s->execute();
+            echo json_encode($s->fetchAll());
+        } else {
+            $sub = isset($input['sub']) ? $input['sub'] : '';
+            if ($sub === 'add') {
+                $s = $db->prepare("INSERT INTO doctrine_rules (category, rule_title, rule_text, priority) VALUES (?, ?, ?, ?)");
+                $s->execute(array(isset($input['category']) ? $input['category'] : 'general', isset($input['title']) ? $input['title'] : '', isset($input['text']) ? $input['text'] : '', intval(isset($input['priority']) ? $input['priority'] : 5)));
+                echo json_encode(array('success' => true));
+            } elseif ($sub === 'delete') {
+                $db->prepare("DELETE FROM doctrine_rules WHERE id=?")->execute(array(intval($input['id'])));
+                echo json_encode(array('success' => true));
+            } else {
+                echo json_encode(array('error' => 'Unknown sub-action'));
+            }
+        }
+        exit;
+    }
+
+    throw new Exception('Unknown action: ' . $action);
+
 } catch (Exception $e) {
     http_response_code(400);
-    echo json_encode(['error' => $e->getMessage()]);
+    echo json_encode(array('error' => $e->getMessage()));
 }

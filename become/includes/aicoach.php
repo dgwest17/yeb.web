@@ -130,7 +130,7 @@ class AICoach {
     }
 
     private function coachPrompt($doctrine, $context) {
-        return "You are Griffin — the AI Sales Coach for Your Energy Best solar and HVAC sales team. You are named after the Griffin Hill sales methodology that forms your core doctrine.
+        return "You are Griff — the AI Sales Coach for Your Energy Best solar and HVAC sales team. You are named after the Griffin Hill sales methodology that forms your core doctrine.
 
 DOCTRINE (always follow):
 {$doctrine}
@@ -316,4 +316,4 @@ When rep says \"END ROLEPLAY\" or asks for feedback:
         $s->execute([$userId]);
         return ((int)($s->fetch()['c'] ?? 0)) < 60;
     }
-}
+}d

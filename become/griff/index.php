@@ -64,8 +64,9 @@ body{font-family:-apple-system,system-ui,sans-serif;background:var(--bg);color:v
 
 <div class="hdr">
     <div class="hdr-title">🦅 Griff</div>
+    <a href="/become/griff/doctrine.php">📜</a>
     <?php if($isLeader):?><a href="/become/griff/analytics.php">📊</a><?php endif;?>
-    <?php if($isAdmin):?><a href="/become/griff/doctrine.php">📜</a><a href="#" id="idxBtn">🔄</a><?php endif;?>
+    <?php if($isAdmin):?><a href="#" id="idxBtn">🔄</a><?php endif;?>
     <a href="/become/">← Portal</a>
 </div>
 

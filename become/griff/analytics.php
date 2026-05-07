@@ -5,7 +5,8 @@
  * Shows: common questions, rep usage, trending topics, flagged issues
  */
 require_once __DIR__ . '/../includes/auth.php';
-if (($_SESSION['portal_role'] ?? '') !== 'admin') {
+$userRole = $_SESSION['portal_role'] ?? 'rep';
+if (!in_array($userRole, ['admin', 'leader'])) {
     header('Location: /become/griff/');
     exit;
 }

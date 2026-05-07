@@ -86,10 +86,31 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);heig
 .doctrine-panel.open{display:block}
 
 /* Not configured warning */
-.not-configured{background:rgba(255,183,3,.08);border:1px solid rgba(255,183,3,.2);border-radius:10px;padding:1rem;margin:.75rem;text-align:center}
+.not-configured{background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:10px;padding:.75rem;margin:.5rem .75rem;text-align:center;font-size:.82rem;color:#a78bfa}
 .not-configured a{color:var(--gold)}
 
-@media(max-width:500px){.msg{max-width:92%}.chat-hdr h1{font-size:.9rem}}
+/* Mobile optimization */
+@media(max-width:600px){
+    .chat-hdr{padding:.5rem .75rem;gap:.4rem;flex-wrap:wrap}
+    .chat-hdr h1{font-size:.9rem}
+    .chat-hdr a{font-size:.72rem;padding:.2rem .4rem}
+    .mode-tabs{padding:.35rem .5rem;gap:.2rem}
+    .mode-tab{padding:.4rem .3rem;font-size:.75rem}
+    .msg{max-width:92%;font-size:.85rem;padding:.6rem .8rem}
+    .chat-input{padding:.5rem .6rem;gap:.35rem}
+    .chat-input textarea{padding:.5rem .7rem;font-size:.88rem;border-radius:10px}
+    .send-btn{width:38px;height:38px;font-size:1rem}
+    .welcome{padding:1.5rem 1rem}
+    .welcome h2{font-size:1.1rem}
+    .welcome p{font-size:.82rem}
+    .quick-btns{gap:.3rem}
+    .quick-btn{padding:.45rem .7rem;font-size:.78rem}
+    .griffin-welcome-icon svg{width:60px;height:60px}
+    .typing{padding:.4rem .8rem}
+    .not-configured{font-size:.75rem;padding:.5rem;margin:.35rem .5rem}
+    .conv-list-inner{padding:1rem}
+    .search-results{top:48px}
+}
 </style>
 </head>
 <body>
@@ -369,7 +390,14 @@ function addMessage(text, type) {
 
 function scrollBottom() {
     var c = document.getElementById('messages');
-    setTimeout(function() { c.scrollTop = c.scrollHeight; }, 50);
+    setTimeout(function() { 
+        c.scrollTop = c.scrollHeight;
+        // Also ensure typing indicator is visible on mobile
+        var typing = document.getElementById('typing');
+        if (typing && typing.classList.contains('show')) {
+            typing.scrollIntoView({block: 'end', behavior: 'smooth'});
+        }
+    }, 50);
 }
 
 // History

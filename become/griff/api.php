@@ -1,19 +1,28 @@
 <?php
 /**
- * become/coach/api.php — AI Coach API
- * Location: public_html/become/coach/api.php
+ * become/griff/api.php — Griff AI Coach API
+ * Location: public_html/become/griff/api.php
  */
 header('Content-Type: application/json');
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+
 session_start();
 
 if (empty($_SESSION['portal_user_id'])) {
     http_response_code(401);
-    echo json_encode(['error' => 'Not authenticated']);
+    echo json_encode(['error' => 'Not authenticated. Please log in.']);
     exit;
 }
 
-require_once __DIR__ . '/../includes/db.php';
-require_once __DIR__ . '/../includes/AICoach.php';
+try {
+    require_once __DIR__ . '/../includes/db.php';
+    require_once __DIR__ . '/../includes/AICoach.php';
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Server config error: ' . $e->getMessage()]);
+    exit;
+}
 
 $userId = (int)$_SESSION['portal_user_id'];
 $role = $_SESSION['portal_role'] ?? 'rep';

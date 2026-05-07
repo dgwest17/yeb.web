@@ -114,7 +114,6 @@ class AICoach {
 
         return ['text' => $text, 'input_tokens' => 0, 'output_tokens' => 0];
     }
-    }
 
     private function buildSystemPrompt($mode, $userMessage) {
         $s = $this->db->prepare("SELECT rule_title, rule_text FROM doctrine_rules WHERE is_active=1 ORDER BY priority DESC");
@@ -187,10 +186,10 @@ When rep says \"END ROLEPLAY\" or asks for feedback:
 
         // Fallback: keyword search
         if (empty($results)) {
-            $words = array_filter(explode(' ', $query), fn($w) => strlen($w) > 3);
+            $words = array_filter(explode(' ', $query), function($w) { return strlen($w) > 3; });
             if ($words) {
-                $conds = array_map(fn() => "chunk_text LIKE ?", array_slice($words, 0, 3));
-                $params = array_map(fn($w) => "%{$w}%", array_slice($words, 0, 3));
+                $conds = array_map(function() { return "chunk_text LIKE ?"; }, array_slice($words, 0, 3));
+                $params = array_map(function($w) { return "%{$w}%"; }, array_slice($words, 0, 3));
                 $params[] = $limit;
                 try {
                     $s = $this->db->prepare("SELECT source_title, chunk_text, source_type FROM knowledge_base WHERE " . implode(' OR ', $conds) . " LIMIT ?");
@@ -316,4 +315,4 @@ When rep says \"END ROLEPLAY\" or asks for feedback:
         $s->execute([$userId]);
         return ((int)($s->fetch()['c'] ?? 0)) < 60;
     }
-}d
+}

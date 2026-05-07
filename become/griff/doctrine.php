@@ -4,12 +4,12 @@ error_reporting(E_ALL); ini_set('display_errors', 0);
 if (session_status() === PHP_SESSION_NONE) session_start();
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth.php';
-if (!isset($_SESSION['portal_role']) || $_SESSION['portal_role'] !== 'admin') { header('Location: /become/griff/'); exit; }
+$isAdmin = (isset($_SESSION['portal_role']) && $_SESSION['portal_role'] === 'admin');
 $db = Database::getInstance();
 $msg = ''; $msgOk = false;
 
-// Handle POST
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+// Handle POST — admin only
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isAdmin) {
     $act = isset($_POST['act']) ? $_POST['act'] : '';
     try {
         if ($act === 'paste') {
@@ -93,8 +93,8 @@ textarea{resize:vertical;min-height:80px}
 .grp{margin-bottom:.75rem}
 .grp-h{font-weight:600;font-size:.85rem;margin-bottom:.25rem}
 </style></head><body>
-<h1>🦅 Griff — Doctrine Builder</h1>
-<p class="sub">Feed Griff your sales doctrine, training philosophy, and rules.</p>
+<h1>🦅 Griff — <?=$isAdmin?'Doctrine Builder':'Doctrine Reference'?></h1>
+<p class="sub"><?=$isAdmin?'Feed Griff your sales doctrine, training philosophy, and rules.':'View the sales doctrine and rules that guide Griff.'?></p>
 <div class="nav"><a href="/become/griff/">← Griff Chat</a><a href="/become/griff/analytics.php">📊 Analytics</a><a href="/become/manage.php">⚙️ Manage</a></div>
 
 <?php if($msg):?><div class="alert <?=$msgOk?'alert-ok':'alert-err'?>"><?=htmlspecialchars($msg)?></div><?php endif;?>
@@ -105,6 +105,7 @@ textarea{resize:vertical;min-height:80px}
 <span class="stat">⚖️ Rules: <b><?=count($rules)?></b></span>
 </div>
 
+<?php if($isAdmin):?>
 <h2>📝 Paste Doctrine Text</h2>
 <div class="card">
 <form method="POST"><input type="hidden" name="act" value="paste">
@@ -122,13 +123,14 @@ textarea{resize:vertical;min-height:80px}
 <label>Priority (1-10, higher = more important)</label><input name="rp" type="number" value="5" min="1" max="10" style="max-width:80px">
 <button class="btn btn-t" type="submit">Add Rule</button>
 </form></div>
+<?php endif;?>
 
 <?php if($rules):?>
 <h2>⚖️ Active Rules (<?=count($rules)?>)</h2>
 <?php foreach($rules as $r):?>
 <div class="rule">
 <div class="rule-info"><div class="rule-t"><?=htmlspecialchars($r['rule_title'])?></div><div class="rule-x"><?=htmlspecialchars($r['rule_text'])?></div><div class="rule-m">P<?=$r['priority']?> · <?=$r['category']?></div></div>
-<form method="POST"><input type="hidden" name="act" value="delrule"><input type="hidden" name="did" value="<?=$r['id']?>"><button class="btn btn-r" onclick="return confirm('Delete?')">✕</button></form>
+<?php if($isAdmin):?><form method="POST"><input type="hidden" name="act" value="delrule"><input type="hidden" name="did" value="<?=$r['id']?>"><button class="btn btn-r" onclick="return confirm('Delete?')">✕</button></form><?php endif;?>
 </div>
 <?php endforeach;endif;?>
 
@@ -138,7 +140,7 @@ textarea{resize:vertical;min-height:80px}
 <div class="grp"><div class="grp-h"><?=htmlspecialchars($title)?> <span style="color:#6b7280;font-weight:400;font-size:.72rem">(<?=count($cks)?>)</span></div>
 <?php foreach($cks as $c):?>
 <div class="chunk"><span class="chunk-t"><?=htmlspecialchars($c['preview'])?>...</span>
-<form method="POST" style="flex-shrink:0"><input type="hidden" name="act" value="delchunk"><input type="hidden" name="did" value="<?=$c['id']?>"><button class="btn btn-r" style="font-size:.6rem;padding:.15rem .3rem" onclick="return confirm('Delete?')">✕</button></form>
+<?php if($isAdmin):?><form method="POST" style="flex-shrink:0"><input type="hidden" name="act" value="delchunk"><input type="hidden" name="did" value="<?=$c['id']?>"><button class="btn btn-r" style="font-size:.6rem;padding:.15rem .3rem" onclick="return confirm('Delete?')">✕</button></form><?php endif;?>
 </div>
 <?php endforeach;?></div>
 <?php endforeach;endif;?>

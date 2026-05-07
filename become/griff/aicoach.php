@@ -445,7 +445,7 @@ async function deleteDoctrine(id) {
 
 // Index content
 async function indexContent() {
-    if (!confirm('Index all training content into Griffin\\'s knowledge base?\\n\\nThis pulls text from every segment so Griffin can search and reference it.')) return;
+    if (!confirm('Index all training content into Griff\\'s knowledge base?\\n\\nThis pulls text from every segment so Griff can search and reference it.')) return;
     var btn = document.getElementById('indexBtn');
     var oldText = btn.textContent;
     btn.textContent = '⏳ Indexing...';
@@ -455,7 +455,7 @@ async function indexContent() {
         if (data.error) throw new Error(data.error);
         btn.textContent = '✅ ' + data.chunks_indexed + ' chunks';
         setTimeout(function() { btn.textContent = oldText; }, 3000);
-        alert('Indexed ' + data.chunks_indexed + ' content chunks into Griffin\\'s knowledge base!\\n\\nGriff can now search and reference all your training content.');
+        alert('Indexed ' + data.chunks_indexed + ' content chunks into Griff\\'s knowledge base!\\n\\nGriff can now search and reference all your training content.');
     } catch(e) { 
         btn.textContent = oldText;
         alert('Error: ' + e.message); 

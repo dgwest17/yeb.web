@@ -129,8 +129,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);heig
     </div>
     <h1>Griff</h1>
     <a href="#" id="historyBtn">📋 History</a>
-    <?php if($isAdmin):?><a href="/become/griff/doctrine.php">📜 Doctrine</a>
+    <?php if($isAdmin || ($_SESSION['portal_role'] ?? '') === 'leader'):?>
     <a href="/become/griff/analytics.php">📊 Analytics</a>
+    <?php endif;?>
+    <?php if($isAdmin):?><a href="/become/griff/doctrine.php">📜 Doctrine</a>
     <a href="#" id="indexBtn" style="color:var(--green)">🔄 Index</a><?php endif;?>
     <a href="/become/" >← Portal</a>
 </div>
@@ -173,16 +175,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);heig
         <h2>Hey <?= $name ?> 👋</h2>
         <p id="welcomeText">I'm Griff, your AI sales coach. Ask me anything about sales technique, objection handling, or our training. I know everything in the manual.</p>
         <div class="quick-btns" id="quickBtns">
-            <button class="quick-btn" data-q="How do I handle 'not interested' at the door?">🚪 Not interested</button>
-            <button class="quick-btn" data-q="What's the Griffin Hill needs audit process?">📋 Needs audit</button>
+            <button class="quick-btn" data-q="How do I handle the not interested response at the door?">🚪 Not interested</button>
+            <button class="quick-btn" data-q="What is the Griffin Hill needs audit process?">📋 Needs audit</button>
             <button class="quick-btn" data-q="How do I transition from the case open to the pitch?">🔄 Case open → pitch</button>
-            <button class="quick-btn" data-q="What should I say when they say 'it's too expensive'?">💰 Too expensive</button>
+            <button class="quick-btn" data-q="What should I say when they say its too expensive?">💰 Too expensive</button>
             <button class="quick-btn" data-q="Give me a strong opening line for door knocking">🎯 Opening line</button>
         </div>
     </div>
-</div>
-
 <div class="typing" id="typing"><span></span><span></span><span></span></div>
+</div>
 
 <div class="chat-input">
     <textarea id="chatInput" placeholder="Ask Griff..." rows="1"></textarea>
@@ -246,21 +247,21 @@ document.querySelectorAll('.mode-tab').forEach(function(tab) {
         this.classList.add('active');
         currentMode = this.dataset.mode;
         conversationId = null;
-        document.getElementById('messages').innerHTML = '';
-        document.getElementById('welcome').style.display = 'flex';
+        // Clear only chat messages, not the welcome div
+        document.querySelectorAll('#messages .msg').forEach(function(m) { m.remove(); });
         if (currentMode === 'roleplay') {
-            document.getElementById('welcomeText').textContent = 'Practice your pitch! I\'ll act as a homeowner. Start knocking...';
+            document.getElementById('welcomeText').textContent = 'Practice your pitch! I will act as a homeowner. Start knocking...';
             document.getElementById('quickBtns').innerHTML =
-                '<button class="quick-btn" data-q="*knocks on door* Hi there, my name is ' + <?= json_encode($name) ?> + ', I\'m with Your Energy Best...">🚪 Start cold knock</button>' +
-                '<button class="quick-btn" data-q="Hi! I noticed you don\'t have solar panels yet. Do you have a couple minutes?">☀️ Solar opener</button>' +
-                '<button class="quick-btn" data-q="Hey! We\'re doing a free energy audit in the neighborhood today...">🔋 Energy audit opener</button>';
+                '<button class="quick-btn" data-q="*knocks on door* Hi there, my name is ' + <?= json_encode($name) ?> + ', I am with Your Energy Best...">🚪 Start cold knock</button>' +
+                '<button class="quick-btn" data-q="Hi! I noticed you do not have solar panels yet. Do you have a couple minutes?">☀️ Solar opener</button>' +
+                '<button class="quick-btn" data-q="Hey! We are doing a free energy audit in the neighborhood today...">🔋 Energy audit opener</button>';
         } else {
-            document.getElementById('welcomeText').textContent = 'I'm Griff, your AI sales coach. Ask me anything about sales technique, objection handling, or our training.';
+            document.getElementById('welcomeText').textContent = 'I am Griff, your AI sales coach. Ask me anything about sales technique, objection handling, or our training.';
             document.getElementById('quickBtns').innerHTML =
-                '<button class="quick-btn" data-q="How do I handle \'not interested\' at the door?">🚪 Not interested</button>' +
-                '<button class="quick-btn" data-q="What\'s the Griffin Hill needs audit process?">📋 Needs audit</button>' +
+                '<button class="quick-btn" data-q="How do I handle the not interested response at the door?">🚪 Not interested</button>' +
+                '<button class="quick-btn" data-q="What is the Griffin Hill needs audit process?">📋 Needs audit</button>' +
                 '<button class="quick-btn" data-q="How do I transition from the case open to the pitch?">🔄 Case open → pitch</button>' +
-                '<button class="quick-btn" data-q="What should I say when they say \'it\'s too expensive\'?">💰 Too expensive</button>';
+                '<button class="quick-btn" data-q="What should I say when they say it is too expensive?">💰 Too expensive</button>';
         }
         showWelcome();
     });
@@ -268,9 +269,9 @@ document.querySelectorAll('.mode-tab').forEach(function(tab) {
 
 function showWelcome() {
     var w = document.getElementById('welcome');
-    var m = document.getElementById('messages');
-    m.innerHTML = '';
-    m.appendChild(w);
+    // Clear all messages except welcome and typing
+    var msgs = document.querySelectorAll('.msg');
+    msgs.forEach(function(m) { m.remove(); });
     w.style.display = 'flex';
 }
 
@@ -323,18 +324,23 @@ async function sendMessage() {
     scrollBottom();
 
     try {
+        var payload = { message: msg, conversation_id: conversationId, mode: currentMode };
         var res = await fetch('/become/griff/api.php?action=chat', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ message: msg, conversation_id: conversationId, mode: currentMode })
+            body: JSON.stringify(payload)
         });
+        if (!res.ok) {
+            var errText = await res.text();
+            try { var errObj = JSON.parse(errText); throw new Error(errObj.error || 'Server error ' + res.status); }
+            catch(pe) { if (pe.message.indexOf('Server error') === 0 || pe.message.indexOf('API') >= 0) throw pe; throw new Error('Server error ' + res.status + ': ' + errText.substring(0, 100)); }
+        }
         var data = await res.json();
         if (data.error) throw new Error(data.error);
-
         conversationId = data.conversation_id;
         addMessage(data.response, 'ai');
     } catch(err) {
-        addMessage('⚠️ ' + err.message, 'system');
+        addMessage('⚠️ ' + (err.message || 'Something went wrong. Check your connection.'), 'system');
     }
 
     sending = false;

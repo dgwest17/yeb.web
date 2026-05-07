@@ -1,16 +1,24 @@
 <?php
 /**
- * become/coach/doctrine.php — Griff Doctrine Builder
+ * become/griff/doctrine.php — Griff Doctrine Builder
  * Location: public_html/become/griff/doctrine.php
- * Upload PDFs or paste text to build Griff's reference library
  */
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+
 require_once __DIR__ . '/../includes/auth.php';
 if (($_SESSION['portal_role'] ?? '') !== 'admin') {
     header('Location: /become/griff/');
     exit;
 }
 require_once __DIR__ . '/../includes/db.php';
-require_once __DIR__ . '/../includes/AICoach.php';
+
+try {
+    require_once __DIR__ . '/../includes/AICoach.php';
+} catch (Exception $e) {
+    // AICoach may fail if config is missing — continue without it
+}
+
 $db = Database::getInstance();
 
 $message = '';
@@ -92,26 +100,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Get current knowledge base entries (doctrine type)
-$s = $db->prepare("SELECT id, source_title, LEFT(chunk_text, 150) AS preview, chunk_order, created_at FROM knowledge_base WHERE source_type='doctrine' ORDER BY source_title, chunk_order");
-$s->execute();
-$doctrineChunks = $s->fetchAll();
-
-// Group by title
+$doctrineChunks = [];
 $grouped = [];
-foreach ($doctrineChunks as $c) {
-    $grouped[$c['source_title']][] = $c;
+$rules = [];
+$kbStats = [];
+
+try {
+    $s = $db->prepare("SELECT id, source_title, LEFT(chunk_text, 150) AS preview, chunk_order, created_at FROM knowledge_base WHERE source_type='doctrine' ORDER BY source_title, chunk_order");
+    $s->execute();
+    $doctrineChunks = $s->fetchAll();
+    foreach ($doctrineChunks as $c) {
+        $grouped[$c['source_title']][] = $c;
+    }
+} catch (Exception $e) {
+    $message = 'Knowledge base table not found. Run ai-migration.sql in phpMyAdmin first.';
+    $messageType = 'error';
 }
 
-// Get doctrine rules
-$s = $db->prepare("SELECT * FROM doctrine_rules ORDER BY priority DESC");
-$s->execute();
-$rules = $s->fetchAll();
+try {
+    $s = $db->prepare("SELECT * FROM doctrine_rules ORDER BY priority DESC");
+    $s->execute();
+    $rules = $s->fetchAll();
+} catch (Exception $e) {
+    if (!$message) { $message = 'Doctrine rules table not found. Run ai-migration.sql first.'; $messageType = 'error'; }
+}
 
-// Get knowledge base stats
-$s = $db->prepare("SELECT source_type, COUNT(*) c FROM knowledge_base GROUP BY source_type");
-$s->execute();
-$kbStats = [];
-foreach ($s->fetchAll() as $r) $kbStats[$r['source_type']] = (int)$r['c'];
+try {
+    $s = $db->prepare("SELECT source_type, COUNT(*) c FROM knowledge_base GROUP BY source_type");
+    $s->execute();
+    foreach ($s->fetchAll() as $r) $kbStats[$r['source_type']] = (int)$r['c'];
+} catch (Exception $e) {}
 
 function chunkText($text, $maxLen = 1000) {
     $text = trim($text);

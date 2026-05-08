@@ -19,6 +19,7 @@ $isLeader = (isset($_SESSION['portal_role']) && ($_SESSION['portal_role'] === 'l
 body{font-family:-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--txt);height:100dvh;display:flex;flex-direction:column;overflow:hidden}
 
 .hdr{display:flex;align-items:center;gap:.4rem;padding:.5rem .75rem;border-bottom:1px solid var(--bdr);background:rgba(255,255,255,.015);flex-shrink:0;min-height:44px}
+.hdr-icon{flex-shrink:0}
 .hdr-title{font-size:.95rem;font-weight:700;color:var(--purple);flex:1}
 .hdr a{color:var(--dim);text-decoration:none;font-size:.72rem;padding:.25rem .4rem;border:1px solid var(--bdr);border-radius:6px}
 .hdr a:active{background:var(--card)}
@@ -34,6 +35,7 @@ body{font-family:-apple-system,system-ui,sans-serif;background:var(--bg);color:v
 
 .msg{max-width:88%;padding:.6rem .8rem;border-radius:12px;font-size:.85rem;line-height:1.55;animation:fadeIn .25s ease;word-wrap:break-word}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 .msg-u{align-self:flex-end;background:var(--teal);color:#fff;border-bottom-right-radius:4px}
 .msg-a{align-self:flex-start;background:var(--card);border:1px solid var(--bdr);border-bottom-left-radius:4px}
 .msg-s{align-self:center;color:var(--dim);font-size:.75rem;text-align:center;background:rgba(239,71,111,.08);border:1px solid rgba(239,71,111,.15);border-radius:8px;padding:.4rem .6rem}
@@ -63,7 +65,24 @@ body{font-family:-apple-system,system-ui,sans-serif;background:var(--bg);color:v
 <body>
 
 <div class="hdr">
-    <div class="hdr-title">🦅 Griff</div>
+    <svg class="hdr-icon" viewBox="0 0 40 40" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="20" cy="16" rx="8" ry="7" fill="#8b5cf6"/>
+        <polygon points="28,15 33,17 28,18" fill="#FFB703"/>
+        <rect x="13" y="13" width="6" height="5" rx="2" fill="none" stroke="#22A8B3" stroke-width="1.2"/>
+        <rect x="21" y="13" width="6" height="5" rx="2" fill="none" stroke="#22A8B3" stroke-width="1.2"/>
+        <line x1="19" y1="15" x2="21" y2="15" stroke="#22A8B3" stroke-width="1"/>
+        <line x1="13" y1="15" x2="10" y2="13" stroke="#22A8B3" stroke-width="1"/>
+        <line x1="27" y1="15" x2="30" y2="13" stroke="#22A8B3" stroke-width="1"/>
+        <circle cx="16" cy="15.5" r="1.2" fill="#fff"/><circle cx="24" cy="15.5" r="1.2" fill="#fff"/>
+        <circle cx="16.3" cy="15.5" r=".6" fill="#1a1a2e"/><circle cx="24.3" cy="15.5" r=".6" fill="#1a1a2e"/>
+        <polygon points="13,10 11,5 15,9" fill="#7c3aed"/><polygon points="27,10 29,5 25,9" fill="#7c3aed"/>
+        <path d="M8,24 Q4,18 6,12 Q8,16 10,20 Z" fill="#a78bfa" opacity=".6"/>
+        <path d="M32,24 Q36,18 34,12 Q32,16 30,20 Z" fill="#a78bfa" opacity=".6"/>
+        <ellipse cx="20" cy="28" rx="7" ry="5" fill="#7c3aed"/>
+        <path d="M15,32 L13,36 L15,35 L17,36 L15,32" fill="#FFB703"/>
+        <path d="M25,32 L23,36 L25,35 L27,36 L25,32" fill="#FFB703"/>
+    </svg>
+    <div class="hdr-title">Griff</div>
     <a href="/become/griff/doctrine.php">📜</a>
     <?php if($isLeader):?><a href="/become/griff/analytics.php">📊</a><?php endif;?>
     <?php if($isAdmin):?><a href="#" id="idxBtn">🔄</a><?php endif;?>
@@ -79,7 +98,29 @@ body{font-family:-apple-system,system-ui,sans-serif;background:var(--bg);color:v
 
 <div class="msgs" id="msgs">
     <div class="welcome" id="welcome">
-        <div style="font-size:2.5rem;margin-bottom:.5rem">🦅</div>
+        <div style="margin-bottom:.75rem;animation:float 3s ease-in-out infinite">
+            <svg viewBox="0 0 80 80" width="72" height="72" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="40" cy="44" r="24" fill="#a78bfa" opacity=".1"/>
+                <ellipse cx="40" cy="32" rx="16" ry="14" fill="#8b5cf6"/>
+                <polygon points="56,30 66,34 56,36" fill="#FFB703"/>
+                <rect x="26" y="26" width="12" height="10" rx="4" fill="none" stroke="#22A8B3" stroke-width="2"/>
+                <rect x="42" y="26" width="12" height="10" rx="4" fill="none" stroke="#22A8B3" stroke-width="2"/>
+                <line x1="38" y1="31" x2="42" y2="31" stroke="#22A8B3" stroke-width="1.5"/>
+                <line x1="26" y1="31" x2="20" y2="27" stroke="#22A8B3" stroke-width="1.5"/>
+                <line x1="54" y1="31" x2="60" y2="27" stroke="#22A8B3" stroke-width="1.5"/>
+                <circle cx="32" cy="31" r="2.5" fill="#fff"/>
+                <circle cx="48" cy="31" r="2.5" fill="#fff"/>
+                <circle cx="32.5" cy="31" r="1.2" fill="#1a1a2e"/>
+                <circle cx="48.5" cy="31" r="1.2" fill="#1a1a2e"/>
+                <polygon points="26,20 22,10 30,18" fill="#7c3aed"/>
+                <polygon points="54,20 58,10 50,18" fill="#7c3aed"/>
+                <path d="M16,48 Q8,36 12,24 Q16,32 20,40 Z" fill="#a78bfa" opacity=".5"/>
+                <path d="M64,48 Q72,36 68,24 Q64,32 60,40 Z" fill="#a78bfa" opacity=".5"/>
+                <ellipse cx="40" cy="56" rx="14" ry="10" fill="#7c3aed"/>
+                <path d="M30,64 L26,72 L30,70 L34,72 L30,64" fill="#FFB703"/>
+                <path d="M50,64 L46,72 L50,70 L54,72 L50,64" fill="#FFB703"/>
+            </svg>
+        </div>
         <h2>Hey <?=$name?></h2>
         <p id="wtxt">Ask me anything about sales technique, objection handling, or the training manual.</p>
         <div class="qbtns" id="qbtns"></div>

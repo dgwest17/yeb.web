@@ -17,116 +17,6 @@
     .hero__content { display: flex; flex-direction: column; gap: 3rem; }
     .hero__text { order: 1; }
     .hero__visual { order: 2; }
-
-    /* ═══════════════════════════════════════
-       MOBILE NAV — Complete Override
-       Ensures hamburger + slide-out works
-       ═══════════════════════════════════════ */
-
-    /* Nav bar layout */
-    .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 9999; transition: background 0.3s, padding 0.3s; }
-    .nav__inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; position: relative; }
-
-    /* Hamburger toggle — ALWAYS visible on mobile */
-    .nav__toggle {
-      display: none; /* hidden on desktop */
-      background: none; border: none; cursor: pointer;
-      width: 32px; height: 24px; position: relative; z-index: 10001;
-      padding: 0; flex-shrink: 0;
-    }
-    .nav__toggle span {
-      display: block; position: absolute; left: 0; right: 0;
-      height: 2.5px; background: #fff; border-radius: 2px;
-      transition: all 0.3s ease;
-    }
-    .nav__toggle span:nth-child(1) { top: 0; }
-    .nav__toggle span:nth-child(2) { top: 10px; }
-    .nav__toggle span:nth-child(3) { top: 20px; }
-
-    /* Hamburger → X animation */
-    .nav__toggle.active span:nth-child(1) { top: 10px; transform: rotate(45deg); }
-    .nav__toggle.active span:nth-child(2) { opacity: 0; }
-    .nav__toggle.active span:nth-child(3) { top: 10px; transform: rotate(-45deg); }
-
-    /* Nav links — horizontal on desktop */
-    .nav__links {
-      display: flex; list-style: none; gap: 0.25rem; align-items: center;
-      margin: 0; padding: 0;
-    }
-    .nav__links a {
-      color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9rem;
-      font-weight: 500; padding: 0.5rem 0.75rem; border-radius: 6px;
-      transition: color 0.2s, background 0.2s; white-space: nowrap;
-    }
-    .nav__links a:hover, .nav__links a.active { color: #fff; background: rgba(255,255,255,0.08); }
-
-    /* Phone + CTA on desktop */
-    .nav__phone {
-      display: flex; align-items: center; gap: 0.4rem;
-      color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.85rem;
-      font-weight: 500; white-space: nowrap;
-    }
-    .nav__phone:hover { color: #FFB703; }
-    .nav__phone svg { flex-shrink: 0; }
-    .nav__cta-mobile { display: none; } /* hidden on desktop, shown on mobile */
-
-    /* Dark overlay behind mobile menu */
-    .nav__overlay {
-      display: none; position: fixed; inset: 0; z-index: 9998;
-      background: rgba(0,0,0,0.6); opacity: 0; transition: opacity 0.3s;
-    }
-    .nav__overlay.open { display: block; opacity: 1; }
-
-    /* Body scroll lock when nav is open */
-    body.nav-open { overflow: hidden; }
-
-    /* ─── MOBILE BREAKPOINT ─── */
-    @media (max-width: 900px) {
-      .nav { padding: 0.5rem 1rem; }
-      .nav__logo img { height: 50px; }
-
-      /* Show hamburger */
-      .nav__toggle { display: block !important; }
-
-      /* Hide phone on mobile (it's in the menu instead) */
-      .nav__phone span { display: none; }
-      .nav__phone { padding: 0.4rem; }
-
-      /* Show mobile CTA */
-      .nav__cta-mobile {
-        display: inline-block;
-        background: #FFB703; color: #023047;
-        padding: 0.5rem 1rem; border-radius: 100px;
-        font-weight: 700; font-size: 0.8rem; text-decoration: none;
-        white-space: nowrap; margin-right: 0.5rem;
-      }
-
-      /* Slide-out menu */
-      .nav__links {
-        position: fixed !important; top: 0 !important; right: 0 !important;
-        width: 280px; max-width: 80vw; height: 100vh !important;
-        background: linear-gradient(180deg, #023047 0%, #011627 100%) !important;
-        flex-direction: column !important; align-items: stretch !important;
-        padding: 5rem 1.5rem 2rem !important;
-        gap: 0 !important;
-        transform: translateX(100%) !important;
-        transition: transform 0.35s cubic-bezier(0.16,1,0.3,1) !important;
-        z-index: 10000 !important;
-        box-shadow: -4px 0 30px rgba(0,0,0,0.3);
-        overflow-y: auto;
-      }
-      .nav__links.open { transform: translateX(0) !important; }
-
-      .nav__links li { border-bottom: 1px solid rgba(255,255,255,0.06); }
-      .nav__links a {
-        display: block; padding: 1rem 0.75rem;
-        font-size: 1.05rem; border-radius: 0;
-        color: rgba(255,255,255,0.8);
-      }
-      .nav__links a:hover, .nav__links a.active {
-        color: #FFB703; background: rgba(255,183,3,0.06);
-      }
-    }
   </style>
 </head>
 <body>
@@ -522,6 +412,10 @@
     <form id="newsletterForm" class="newsletter-popup__form">
       <input type="text" id="nlFirstName" placeholder="First name" required />
       <input type="email" id="nlEmail" placeholder="Email address" required />
+      <!-- Honeypot — invisible to humans -->
+      <div style="position:absolute;left:-9999px;top:-9999px;height:0;width:0;overflow:hidden" aria-hidden="true">
+        <input type="text" id="nlWebsite" name="website" tabindex="-1" autocomplete="off" />
+      </div>
       <button type="submit">Subscribe</button>
     </form>
     <p class="newsletter-popup__fine">No spam, ever. Unsubscribe anytime.</p>
@@ -938,6 +832,8 @@ CMS.load().then(() => {
     if (e.target === popup) { popup.classList.remove('visible'); sessionStorage.setItem('nl_dismissed', '1'); }
   });
   
+  const _nlLoadTs = Math.floor(Date.now() / 1000);
+  
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = form.querySelector('button');
@@ -952,7 +848,7 @@ CMS.load().then(() => {
     });
     
     try {
-      await fetch('zoho.php', {
+      await fetch('/zoho.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -960,6 +856,8 @@ CMS.load().then(() => {
           source_form: 'NewsletterPopup',
           first_name: document.getElementById('nlFirstName').value,
           email: document.getElementById('nlEmail').value,
+          website: document.getElementById('nlWebsite').value,
+          _ts: _nlLoadTs,
           ...utmData
         })
       });

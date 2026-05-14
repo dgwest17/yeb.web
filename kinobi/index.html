@@ -2070,6 +2070,23 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
           </div>
 
           <div style="height:1px;background:rgba(255,255,255,0.06);margin-bottom:0.75rem"></div>
+          <div class="n-card-title" style="font-size:0.65rem;margin-bottom:0.5rem">Connection Fee</div>
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.35rem">
+            <label style="display:flex;align-items:center;gap:0.45rem;cursor:pointer;font-size:0.78rem;color:var(--muted)">
+              <input type="checkbox" id="inp-connfee-on" checked onchange="recalc()"
+                style="accent-color:var(--gold);width:14px;height:14px;cursor:pointer">
+              Show on graph
+            </label>
+            <div style="display:flex;align-items:center;gap:0.35rem;flex:1">
+              <span style="font-size:0.72rem;color:var(--dim)">$</span>
+              <input type="number" class="n-input" id="inp-connfee" value="24" oninput="recalc()"
+                style="font-size:0.85rem;width:70px;border-color:rgba(150,150,150,0.25);color:var(--muted)">
+              <span style="font-size:0.68rem;color:var(--dim)">/mo</span>
+            </div>
+          </div>
+          <div style="font-size:0.65rem;color:var(--dim);line-height:1.4">Flat utility delivery/connection fee — stays constant even after solar. Matches <span id="connfee-util-label" style="color:var(--muted)">SDG&E</span>.</div>
+
+          <div style="height:1px;background:rgba(255,255,255,0.06);margin-bottom:0.75rem;margin-top:0.75rem"></div>
           <div class="n-card-title" style="font-size:0.65rem;margin-bottom:0.5rem">Cash vs. Invest Analysis</div>
 
           <div class="n-input-group">
@@ -2471,11 +2488,21 @@ function buildData() {
     ? [...kwhSolar, ...Array(CHART_MAX - TERM).fill(null)]
     : null;
 
-  const savings = solarCumul ? utilCumul[TERM - 1] - solarCumul[TERM - 1] : 0;
+  // Connection fee — adds to post-solar cost, reducing apparent savings
+  const cfEl2  = document.getElementById('inp-connfee');
+  const cfOn2  = document.getElementById('inp-connfee-on');
+  const connFee = (cfOn2 && cfOn2.checked) ? (parseFloat(cfEl2?.value) || 0) : 0;
+
+  // Adjust solarCumul to include connection fee (it's paid even post-solar)
+  const solarCumulWithFee = solarCumul
+    ? solarCumul.map((v, i) => v + connFee * 12 * (i + 1))
+    : null;
+
+  const savings = solarCumulWithFee ? utilCumul[TERM - 1] - solarCumulWithFee[TERM - 1] : 0;
   let breakeven = null;
-  if (solarCumul) {
+  if (solarCumulWithFee) {
     for (let i = 0; i < TERM; i++) {
-      if (utilCumul[i] > solarCumul[i]) { breakeven = i + 1; break; }
+      if (utilCumul[i] > solarCumulWithFee[i]) { breakeven = i + 1; break; }
     }
   }
 
@@ -2486,12 +2513,12 @@ function buildData() {
   const spGrowth  = netCost * Math.pow(1 + invSp, TERM);
 
   return {
-    utilMonthly, utilCumul, solarMonthly, solarCumul,
+    utilMonthly, utilCumul, solarMonthly, solarCumul, solarCumulWithFee,
     kwhUtil, kwhSolar, kwhRate, solarKwhRateCurrent, offset,
     savings, breakeven, yr25util: utilMonthly[TERM - 1], utilName,
     bill, rate, solar, solarKwh, vppRate, sp,
     netCost, spGrowth, invSystem, invItc, invSp,
-    TERM, YEARS_T
+    connFee, TERM, YEARS_T
   };
 }
 
@@ -2572,7 +2599,7 @@ function updateDonationsTable(d) {
   points.forEach(yr => {
     const idx = yr - 1;
     const utilAmt = d.utilCumul[idx];
-    const saveAmt = d.solarCumul ? d.utilCumul[idx] - d.solarCumul[idx] : null;
+    const saveAmt = d.solarCumulWithFee ? d.utilCumul[idx] - d.solarCumulWithFee[idx] : null;
     const savePosColor = saveAmt !== null && saveAmt >= 0 ? 'var(--green-l)' : 'var(--rage-l)';
     const saveStr = saveAmt === null ? '—' : (saveAmt >= 0 ? '+' : '') + '$' + Math.round(Math.abs(saveAmt)).toLocaleString();
     const div = document.createElement('div');
@@ -2619,6 +2646,17 @@ function updateCharts(d) {
   const labels = d.YEARS_T.map(y => 'Yr ' + y);
   let utilData, solarData;
 
+  // Connection fee
+  const cfEl = document.getElementById('inp-connfee');
+  const cfOn = document.getElementById('inp-connfee-on');
+  const cfAmt = cfEl ? (parseFloat(cfEl.value) || 0) : 24;
+  const cfActive = cfOn ? cfOn.checked : true;
+
+  // Sync utility name to connection fee label
+  const utilEl = document.getElementById('inp-utility');
+  const cfLabel = document.getElementById('connfee-util-label');
+  if(cfLabel && utilEl) cfLabel.textContent = utilEl.value || 'SDG&E';
+
   if (chartMode === 'kwh') {
     utilData  = d.kwhUtil.map(v => +v.toFixed(4));
     solarData = d.kwhSolar ? d.kwhSolar.map(v => +v.toFixed(4)) : null;
@@ -2629,9 +2667,16 @@ function updateCharts(d) {
     document.getElementById('main-chart-title').textContent = 'Monthly Payment ($)';
   }
 
+  // Connection fee flat line — only meaningful on monthly $ view
+  const cfData = (cfActive && chartMode !== 'kwh' && cfAmt > 0)
+    ? d.YEARS_T.map(() => cfAmt)
+    : [];
+
   chartMain.data.labels = labels;
   chartMain.data.datasets[0].data = utilData;
   chartMain.data.datasets[1].data = solarData || [];
+  chartMain.data.datasets[2].data = cfData;
+  chartMain.data.datasets[2].hidden = !cfActive || chartMode === 'kwh';
   chartMain.update('none');
 
   // Update cash term labels
@@ -2873,6 +2918,7 @@ chartMain = new Chart(document.getElementById('chartMain').getContext('2d'), {
     datasets: [
       { label: 'Utility', data: [], borderColor: '#E74C3C', borderWidth: 2.5, pointRadius: 0, tension: 0.3, fill: false },
       { label: 'Solar',   data: [], borderColor: '#2ECC71', borderWidth: 2,   pointRadius: 0, tension: 0.1, fill: false, borderDash: [5,3] },
+      { label: 'Connection Fee', data: [], borderColor: 'rgba(160,160,160,0.65)', borderWidth: 1.5, pointRadius: 0, tension: 0, fill: false, borderDash: [4,4], hidden: false },
     ]
   },
   options: chartCfgMain

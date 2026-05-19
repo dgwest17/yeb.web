@@ -818,10 +818,21 @@ function init(){
     var cachedToken = localStorage.getItem('ig_token')||'';
     if(cachedToken){ doLoad(cachedToken); return; }
     // 2. Fetch from server-side token file
-    fetch('/.instagram_token')
+    // Try both paths — rename .instagram_token to instagram_token.txt on Hostinger
+    fetch('/instagram_token.txt')
+      .then(function(r){ return r.ok ? r.text() : fetch('/.instagram_token').then(function(r2){ return r2.ok?r2.text():''; }); })
       .then(function(r){ return r.ok ? r.text() : ''; })
       .then(function(txt){
-        var token = txt ? txt.trim() : '';
+        var token = '';
+        if(txt){
+          txt = txt.trim();
+          // Handle JSON format: {"access_token":"..."}
+          if(txt.charAt(0)==='{'){
+            try{ token = JSON.parse(txt).access_token||''; }catch(e){ token=''; }
+          } else {
+            token = txt;
+          }
+        }
         if(token) localStorage.setItem('ig_token', token); // cache it
         doLoad(token);
       })

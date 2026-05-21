@@ -242,6 +242,14 @@ footer a{color:var(--gold);text-decoration:none}
   .timeline-steps{grid-template-columns:repeat(2,1fr)}
   .metrics-row{grid-template-columns:repeat(3,1fr)}
 }
+/* ── WHY SECTION LAYOUT ── */
+.why-layout{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
+.why-ig-col{min-width:0}
+@media(max-width:680px){
+  .why-layout{grid-template-columns:1fr;gap:1.5rem}
+  #prop-ig-feed{grid-template-columns:repeat(3,1fr)!important;min-height:100px}
+  .prop-ig-post{aspect-ratio:1!important}
+}
 </style>
 </head>
 <body>
@@ -375,16 +383,16 @@ footer a{color:var(--gold);text-decoration:none}
   <section class="section" id="why" data-sec="why">
     <span class="eyebrow">Why Work With Me</span>
     <h2 class="section-title">I DON'T SELL SOLAR. <span style="color:var(--gold)">I PROTECT FAMILIES.</span></h2>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start">
+    <div class="why-layout">
       <div style="display:flex;flex-direction:column;gap:0.85rem">
         <div class="why-bullet"><span class="why-star">★</span><div><strong>Local San Diego expert</strong> — I live here, I know the rates, I know the permits, I know the utility games. This is my community too.</div></div>
         <div class="why-bullet"><span class="why-star">★</span><div><strong>Post-install support for life</strong> — I'm not a door-knocker who disappears. My number doesn't change. Call me in year 10.</div></div>
         <div class="why-bullet"><span class="why-star">★</span><div><strong>My mission is to make this industry truly sustainable</strong> — the better experience I give, the more people you tell about it, and the quicker we can get there together.</div></div>
       </div>
       <!-- Instagram feed column -->
-      <div>
+      <div class="why-ig-col">
         <div style="font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:0.75rem;opacity:0.8">📸 @energy.best.ca</div>
-        <div id="prop-ig-feed" style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;border-radius:8px;overflow:hidden"></div>
+        <div id="prop-ig-feed" style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;border-radius:8px;overflow:hidden;min-height:120px"></div>
       </div>
     </div>
   </section>

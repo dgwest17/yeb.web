@@ -2048,17 +2048,10 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
               <option value="0.035">3.5%</option>
             </select>
           </div>
-        </div>
 
-        <!-- HIDDEN CASH TAB -->
-        <button class="hidden-tab-btn" onclick="toggleCashPanel()">· · ·</button>
-        <div class="cash-panel" id="cash-panel">
-          <div class="n-card-title" style="font-size:0.65rem;margin-bottom:0.75rem">Advanced Settings</div>
-
-          <!-- LOAN TERM — secret adjustment -->
-          <div class="n-input-group" style="margin-bottom:0.75rem">
-            <div class="n-label" style="color:var(--gold)">Solar Term (Years)</div>
-            <select class="n-select" id="inp-term" onchange="recalc()" style="font-size:0.85rem;border-color:rgba(200,168,75,0.3);color:var(--gold)">
+          <div class="n-input-group">
+            <div class="n-label" style="color:var(--green-l)">Solar Term (Years)</div>
+            <select class="n-select" id="inp-term" onchange="recalc()" style="border-color:rgba(39,174,96,0.25);color:var(--green-l)">
               <option value="10">10 Years</option>
               <option value="12">12 Years</option>
               <option value="15">15 Years</option>
@@ -2066,27 +2059,33 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
               <option value="25" selected>25 Years</option>
               <option value="30">30 Years</option>
             </select>
-            <div style="font-size:0.68rem;color:var(--dim);margin-top:0.3rem">Adjusts cumulative cost calculations and break-even year</div>
           </div>
 
-          <div style="height:1px;background:rgba(255,255,255,0.06);margin-bottom:0.75rem"></div>
-          <div class="n-card-title" style="font-size:0.65rem;margin-bottom:0.5rem">Connection Fee</div>
-          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.35rem">
-            <label style="display:flex;align-items:center;gap:0.45rem;cursor:pointer;font-size:0.78rem;color:var(--muted)">
+          <!-- CONNECTION FEE toggle — visible directly on card -->
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:0.6rem 0.85rem;display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;flex:1;min-width:140px">
               <input type="checkbox" id="inp-connfee-on" checked onchange="recalc()"
-                style="accent-color:var(--gold);width:14px;height:14px;cursor:pointer">
-              Show on graph
+                style="accent-color:var(--gold);width:15px;height:15px;cursor:pointer;flex-shrink:0">
+              <div>
+                <div style="font-size:0.72rem;color:var(--muted);font-weight:500">Connection Fee</div>
+                <div style="font-size:0.6rem;color:var(--dim);margin-top:1px">Utility delivery fee post-solar</div>
+              </div>
             </label>
-            <div style="display:flex;align-items:center;gap:0.35rem;flex:1">
+            <div style="display:flex;align-items:center;gap:0.3rem">
               <span style="font-size:0.72rem;color:var(--dim)">$</span>
               <input type="number" class="n-input" id="inp-connfee" value="24" oninput="recalc()"
-                style="font-size:0.85rem;width:70px;border-color:rgba(150,150,150,0.25);color:var(--muted)">
+                style="font-size:0.88rem;width:58px;padding:0.3rem 0.5rem;border-color:rgba(150,150,150,0.2);color:var(--muted);text-align:center">
               <span style="font-size:0.68rem;color:var(--dim)">/mo</span>
             </div>
           </div>
-          <div style="font-size:0.65rem;color:var(--dim);line-height:1.4">Flat utility delivery/connection fee — stays constant even after solar. Matches <span id="connfee-util-label" style="color:var(--muted)">SDG&E</span>.</div>
+        </div>
 
-          <div style="height:1px;background:rgba(255,255,255,0.06);margin-bottom:0.75rem;margin-top:0.75rem"></div>
+        <!-- HIDDEN CASH TAB -->
+        <button class="hidden-tab-btn" onclick="toggleCashPanel()">· · ·</button>
+        <div class="cash-panel" id="cash-panel">
+          <div class="n-card-title" style="font-size:0.65rem;margin-bottom:0.75rem">Advanced Settings</div>
+
+          <div style="height:1px;background:rgba(255,255,255,0.06);margin-bottom:0.75rem"></div>
           <div class="n-card-title" style="font-size:0.65rem;margin-bottom:0.5rem">Cash vs. Invest Analysis</div>
 
           <div class="n-input-group">
@@ -2651,11 +2650,6 @@ function updateCharts(d) {
   const cfOn = document.getElementById('inp-connfee-on');
   const cfAmt = cfEl ? (parseFloat(cfEl.value) || 0) : 24;
   const cfActive = cfOn ? cfOn.checked : true;
-
-  // Sync utility name to connection fee label
-  const utilEl = document.getElementById('inp-utility');
-  const cfLabel = document.getElementById('connfee-util-label');
-  if(cfLabel && utilEl) cfLabel.textContent = utilEl.value || 'SDG&E';
 
   if (chartMode === 'kwh') {
     utilData  = d.kwhUtil.map(v => +v.toFixed(4));
@@ -3554,19 +3548,31 @@ function promptAdminPw(e) {
 // ═══════════════════════════════════════════
 let touchStartX = 0, touchStartY = 0;
 document.addEventListener('touchstart', e => {
+  // Ignore multi-touch (pinch-to-zoom)
+  if (e.touches.length > 1) { touchStartX = null; return; }
   touchStartX = e.touches[0].clientX;
   touchStartY = e.touches[0].clientY;
 }, {passive:true});
+
+document.addEventListener('touchmove', e => {
+  // If a second finger appears mid-gesture, cancel the swipe
+  if (e.touches.length > 1) touchStartX = null;
+}, {passive:true});
+
 document.addEventListener('touchend', e => {
+  // Cancelled due to multi-touch
+  if (touchStartX === null) return;
   if (document.getElementById('gallery-overlay').classList.contains('open')) return;
   if (document.getElementById('gallery-modal').classList.contains('open')) return;
   const dx = e.changedTouches[0].clientX - touchStartX;
   const dy = e.changedTouches[0].clientY - touchStartY;
-  if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+  // Require 150px horizontal swipe, strongly horizontal (4:1 ratio), and not much vertical drift
+  if (Math.abs(dx) > 150 && Math.abs(dx) > Math.abs(dy) * 4 && Math.abs(dy) < 60) {
     const scrollable = e.target.closest('[style*="overflow-y:auto"],[style*="overflow-y: auto"],.numbers-layout,#investment-panel');
     if (scrollable) return;
     if (dx < 0) changeSlide(1); else changeSlide(-1);
   }
+  touchStartX = null;
 }, {passive:true});
 
 // ═══════════════════════════════════════════

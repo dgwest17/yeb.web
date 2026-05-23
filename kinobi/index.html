@@ -2513,11 +2513,14 @@ function buildData() {
 
   return {
     utilMonthly, utilCumul, solarMonthly, solarCumul, solarCumulWithFee,
-    kwhUtil, kwhSolar, kwhRate, solarKwhRateCurrent, offset,
+    utilMonthly30: utilMonthly30Chart,
+    solarMonthly30,
+    kwhUtil, kwhSolar, kwhSolar30, kwhRate, solarKwhRateCurrent, offset,
     savings, breakeven, yr25util: utilMonthly[TERM - 1], utilName,
     bill, rate, solar, solarKwh, vppRate, sp,
     netCost, spGrowth, invSystem, invItc, invSp,
-    connFee, TERM, YEARS_T
+    connFee, TERM, YEARS_T,
+    YEARS_30: Array.from({length: 30}, (_, i) => i + 1)
   };
 }
 
@@ -2642,7 +2645,8 @@ function updateSlide1(d) {
 function updateOptions(d) { /* mini charts static */ }
 
 function updateCharts(d) {
-  const labels = d.YEARS_T.map(y => 'Yr ' + y);
+  // Always display 30 years on the chart — utility runs full 30, solar drops to null after TERM
+  const labels = d.YEARS_30.map(y => 'Yr ' + y);
   let utilData, solarData;
 
   // Connection fee
@@ -2653,17 +2657,19 @@ function updateCharts(d) {
 
   if (chartMode === 'kwh') {
     utilData  = d.kwhUtil.map(v => +v.toFixed(4));
-    solarData = d.kwhSolar ? d.kwhSolar.map(v => +v.toFixed(4)) : null;
+    // kwhSolar30 is null-padded to 30; kwhSolar falls to null after TERM
+    solarData = d.kwhSolar30 ? d.kwhSolar30.map(v => v !== null ? +v.toFixed(4) : null) : null;
     document.getElementById('main-chart-title').textContent = 'kWh Rate Trajectory ($/kWh)';
   } else {
-    utilData  = d.utilMonthly.map(v => Math.round(v));
-    solarData = d.solarMonthly ? d.solarMonthly.map(v => +v.toFixed(2)) : null;
+    utilData  = d.utilMonthly30.map(v => Math.round(v));
+    // solarMonthly30 is null-padded to 30 — values after TERM are null (line drops off)
+    solarData = d.solarMonthly30 ? d.solarMonthly30.map(v => v !== null ? +v.toFixed(2) : null) : null;
     document.getElementById('main-chart-title').textContent = 'Monthly Payment ($)';
   }
 
-  // Connection fee flat line — only meaningful on monthly $ view
+  // Connection fee flat line runs full 30 years
   const cfData = (cfActive && chartMode !== 'kwh' && cfAmt > 0)
-    ? d.YEARS_T.map(() => cfAmt)
+    ? d.YEARS_30.map(() => cfAmt)
     : [];
 
   chartMain.data.labels = labels;
@@ -2671,6 +2677,8 @@ function updateCharts(d) {
   chartMain.data.datasets[1].data = solarData || [];
   chartMain.data.datasets[2].data = cfData;
   chartMain.data.datasets[2].hidden = !cfActive || chartMode === 'kwh';
+  // Enable spanGaps:false so solar line stops cleanly at term end
+  chartMain.data.datasets[1].spanGaps = false;
   chartMain.update('none');
 
   // Update cash term labels
@@ -2911,7 +2919,7 @@ chartMain = new Chart(document.getElementById('chartMain').getContext('2d'), {
     labels: [],
     datasets: [
       { label: 'Utility', data: [], borderColor: '#E74C3C', borderWidth: 2.5, pointRadius: 0, tension: 0.3, fill: false },
-      { label: 'Solar',   data: [], borderColor: '#2ECC71', borderWidth: 2,   pointRadius: 0, tension: 0.1, fill: false, borderDash: [5,3] },
+      { label: 'Solar',   data: [], borderColor: '#2ECC71', borderWidth: 2,   pointRadius: 0, tension: 0.1, fill: false, borderDash: [5,3], spanGaps: false },
       { label: 'Connection Fee', data: [], borderColor: 'rgba(160,160,160,0.65)', borderWidth: 1.5, pointRadius: 0, tension: 0, fill: false, borderDash: [4,4], hidden: false },
     ]
   },

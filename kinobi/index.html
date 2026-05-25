@@ -136,51 +136,76 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);font-fam
 }
 #overview-btn:hover{background:rgba(200,168,75,0.15);border-color:var(--gold)}
 
-/* ── PROPOSAL MODAL ── */
+/* ── PROPOSAL MODAL — LIGHT THEME ── */
 #proposal-modal{
   position:fixed;inset:0;z-index:500;
-  background:rgba(5,14,24,0.88);backdrop-filter:blur(16px);
+  background:rgba(5,14,24,0.75);backdrop-filter:blur(16px);
   display:none;align-items:center;justify-content:center;padding:1rem;
 }
 #proposal-modal.open{display:flex}
 #proposal-modal-inner{
-  background:#0D1F30;border:1px solid var(--border);border-radius:12px;
-  padding:1.75rem;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;
+  background:#F8F5EF;
+  border:1px solid rgba(0,0,0,0.08);
+  border-radius:14px;box-shadow:0 24px 60px rgba(0,0,0,0.35);
+  padding:1.75rem;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;
 }
 #proposal-modal-header{
-  display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;
+  display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;
 }
+#proposal-modal-header h2,
+#proposal-modal-header .display{color:#1a1206!important}
 .pm-field{display:flex;flex-direction:column;gap:0.3rem;margin-bottom:0}
-.pm-label{font-size:0.65rem;color:var(--dim);letter-spacing:0.08em;text-transform:uppercase}
+.pm-label{font-size:0.65rem;color:#6b5f48;letter-spacing:0.08em;text-transform:uppercase;font-weight:600}
 .pm-input{
-  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
-  color:var(--text);padding:0.5rem 0.75rem;border-radius:4px;
-  font-family:'DM Sans',sans-serif;font-size:0.85rem;outline:none;width:100%;
+  background:#fff;
+  border:1px solid rgba(0,0,0,0.14);
+  color:#1a1206;
+  padding:0.55rem 0.85rem;border-radius:6px;
+  font-family:'DM Sans',sans-serif;font-size:0.88rem;outline:none;width:100%;
   transition:border-color 0.2s;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,0.05);
 }
-.pm-input:focus{border-color:var(--gold)}
-.pm-input option{background:var(--navy)}
+.pm-input:focus{border-color:#C8A84B;box-shadow:0 0 0 3px rgba(200,168,75,0.15)}
+.pm-input option{background:#fff;color:#1a1206}
 .pm-check{
   display:flex;align-items:center;gap:0.45rem;
-  font-size:0.78rem;color:var(--muted);cursor:pointer;
-  padding:0.35rem 0.5rem;border-radius:4px;
-  border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.03);
+  font-size:0.8rem;color:#2c2418;cursor:pointer;
+  padding:0.4rem 0.6rem;border-radius:5px;
+  border:1px solid rgba(0,0,0,0.1);background:#fff;
   transition:all 0.15s;
 }
-.pm-check:hover{border-color:rgba(200,168,75,0.3);color:var(--text)}
-.pm-check input{accent-color:var(--gold);cursor:pointer}
+.pm-check:hover{border-color:#C8A84B;background:rgba(200,168,75,0.06)}
+.pm-check input{accent-color:#C8A84B;cursor:pointer}
 .pm-btn-primary{
-  background:var(--gold);color:var(--deep);border:none;
-  padding:0.6rem 1.5rem;border-radius:4px;font-family:'DM Sans',sans-serif;
-  font-size:0.85rem;font-weight:600;cursor:pointer;transition:background 0.2s;
+  background:#C8A84B;color:#1a1206;border:none;
+  padding:0.65rem 1.75rem;border-radius:6px;font-family:'DM Sans',sans-serif;
+  font-size:0.88rem;font-weight:700;cursor:pointer;transition:background 0.2s;
+  box-shadow:0 2px 8px rgba(200,168,75,0.3);
 }
-.pm-btn-primary:hover{background:var(--gold-l)}
+.pm-btn-primary:hover{background:#E8C96A}
 .pm-btn-secondary{
-  background:transparent;border:1px solid rgba(255,255,255,0.12);color:var(--muted);
-  padding:0.6rem 1.1rem;border-radius:4px;font-family:'DM Sans',sans-serif;
+  background:transparent;border:1px solid rgba(0,0,0,0.15);color:#6b5f48;
+  padding:0.65rem 1.1rem;border-radius:6px;font-family:'DM Sans',sans-serif;
   font-size:0.82rem;cursor:pointer;transition:all 0.15s;
 }
-.pm-btn-secondary:hover{border-color:var(--gold);color:var(--gold)}
+.pm-btn-secondary:hover{border-color:#C8A84B;color:#8A6E2A}
+/* Modal close button */
+#proposal-modal-inner button[onclick*="closeProposalModal"],
+#proposal-modal-inner .pm-close{color:#6b5f48!important;border-color:rgba(0,0,0,0.15)!important}
+/* Modal section dividers */
+#proposal-modal-inner .pm-divider,
+#proposal-modal-inner [style*="border-top"]{border-color:rgba(0,0,0,0.08)!important}
+/* Modal generated link box */
+#proposal-modal-inner #pm-link-box,
+#proposal-modal-inner [id*="pm-link"]{
+  background:#fff!important;border-color:rgba(0,0,0,0.12)!important;color:#1a1206!important;
+}
+/* Any text inside modal that inherited --muted or --dim should be dark */
+#proposal-modal-inner{color:#1a1206}
+#proposal-modal-inner .pm-label{color:#6b5f48}
+#proposal-modal-inner p,
+#proposal-modal-inner small,
+#proposal-modal-inner .note{color:#4a3f2e}
 
 /* day mode adjustments */
 body.day-mode #hamburger-btn,body.day-mode .hm-item{
@@ -229,15 +254,15 @@ body.day-mode #overview-btn{background:rgba(240,235,225,0.92);border-color:rgba(
 /* ── GALLERY TRIGGER BTN (on slide) ── */
 /* ── COMMON SLIDE ELEMENTS ── */
 .slide-inner{position:relative;z-index:1;width:100%;max-width:1100px;margin:0 auto}
-.eyebrow{font-size:0.7rem;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);margin-bottom:0.75rem;display:block}
+.eyebrow{font-size:0.75rem;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);margin-bottom:0.75rem;display:block;text-shadow:0 0 20px rgba(200,168,75,0.4)}
 .eyebrow.red{color:var(--rage-l)}
 .display{font-family:'Bebas Neue',sans-serif;letter-spacing:0.03em;line-height:0.95}
-.display.xl{font-size:clamp(3.5rem,8vw,7rem)}
-.display.lg{font-size:clamp(2.5rem,5.5vw,5rem)}
-.display.md{font-size:clamp(1.8rem,4vw,3.2rem)}
+.display.xl{font-size:clamp(3.8rem,8.5vw,7.5rem)}
+.display.lg{font-size:clamp(2.8rem,6vw,5.5rem)}
+.display.md{font-size:clamp(2rem,4.5vw,3.6rem)}
 .serif{font-family:'DM Serif Display',serif}
 .serif em{font-style:italic;color:var(--gold)}
-.body-text{font-size:1rem;font-weight:400;line-height:1.75;color:#e8e4dc;max-width:640px}
+.body-text{font-size:1.05rem;font-weight:400;line-height:1.8;color:#f0ece4;max-width:640px}
 .body-text.centered{text-align:center;margin:0 auto}
 .accent-line{width:60px;height:3px;border-radius:2px;margin-bottom:1.5rem}
 .accent-line.red{background:var(--rage-l)}
@@ -247,17 +272,17 @@ body.day-mode #overview-btn{background:rgba(240,235,225,0.92);border-color:rgba(
 /* stat blocks */
 .stat-row{display:flex;gap:2px;margin:2rem 0;flex-wrap:wrap}
 .stat-b{
-  flex:1;min-width:130px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+  flex:1;min-width:130px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
   padding:1.5rem 1.25rem;text-align:center;
 }
 .stat-b:first-child{border-radius:6px 0 0 6px}
 .stat-b:last-child{border-radius:0 6px 6px 0}
-.stat-b.red-glow{border-color:var(--border-red);background:rgba(192,57,43,0.08)}
-.stat-b.gold-glow{border-color:var(--border);background:rgba(200,168,75,0.06)}
-.stat-b .val{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;color:var(--rage-l);letter-spacing:0.03em;display:block;line-height:1}
+.stat-b.red-glow{border-color:var(--border-red);background:rgba(192,57,43,0.1)}
+.stat-b.gold-glow{border-color:var(--border);background:rgba(200,168,75,0.08)}
+.stat-b .val{font-family:'Bebas Neue',sans-serif;font-size:2.6rem;color:var(--rage-l);letter-spacing:0.03em;display:block;line-height:1}
 .stat-b.gold-glow .val{color:var(--gold)}
 .stat-b.green-glow .val{color:var(--green-l)}
-.stat-b .lbl{font-size:0.7rem;font-weight:400;letter-spacing:0.1em;text-transform:uppercase;color:var(--dim);display:block;margin-top:0.3rem}
+.stat-b .lbl{font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.7);display:block;margin-top:0.3rem}
 
 /* two-col */
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center}
@@ -266,12 +291,12 @@ body.day-mode #overview-btn{background:rgba(240,235,225,0.92);border-color:rgba(
 
 /* bullet list */
 .blist{list-style:none;display:flex;flex-direction:column;gap:1rem;margin:1.5rem 0}
-.blist li{display:flex;align-items:flex-start;gap:0.75rem;font-size:0.95rem;color:#ddd8ce;line-height:1.6;font-weight:400}
+.blist li{display:flex;align-items:flex-start;gap:0.75rem;font-size:1rem;color:#eeead6;line-height:1.65;font-weight:400}
 .blist li .icon{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;margin-top:1px}
 .blist li .icon.red{background:rgba(192,57,43,0.25);color:var(--rage-l)}
 .blist li .icon.gold{background:rgba(200,168,75,0.2);color:var(--gold)}
 .blist li .icon.green{background:rgba(39,174,96,0.2);color:var(--green-l)}
-.blist li strong{color:var(--text);font-weight:500}
+.blist li strong{color:#fff;font-weight:600}
 
 /* image placeholder */
 .img-slot{
@@ -304,8 +329,8 @@ body.day-mode #overview-btn{background:rgba(240,235,225,0.92);border-color:rgba(
   border-radius:8px;padding:1.25rem;text-align:center;
 }
 .demand-card .icon-big{font-size:2rem;margin-bottom:0.5rem;display:block}
-.demand-card h4{font-size:0.9rem;font-weight:500;color:var(--text);margin-bottom:0.25rem}
-.demand-card p{font-size:0.75rem;color:#ccc8be;line-height:1.5}
+.demand-card h4{font-size:0.95rem;font-weight:600;color:#fff;margin-bottom:0.25rem}
+.demand-card p{font-size:0.78rem;color:rgba(255,255,255,0.75);line-height:1.55}
 
 /* ── SLIDE 3 — OPTIONS ── */
 .options-stack{display:flex;flex-direction:column;gap:1rem;margin:1.5rem 0;width:100%}
@@ -317,12 +342,12 @@ body.day-mode #overview-btn{background:rgba(240,235,225,0.92);border-color:rgba(
 .option-card.op1{background:rgba(192,57,43,0.1);border-color:rgba(192,57,43,0.25)}
 .option-card.op2{background:rgba(90,90,90,0.1);border-color:rgba(120,120,120,0.2)}
 .option-card.op3{background:rgba(39,174,96,0.08);border-color:rgba(39,174,96,0.25)}
-.op-badge{font-size:0.68rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;padding:3px 8px;border-radius:3px;display:inline-block;margin-bottom:0.4rem}
+.op-badge{font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:3px 8px;border-radius:3px;display:inline-block;margin-bottom:0.4rem}
 .op1 .op-badge{background:rgba(192,57,43,0.3);color:var(--rage-l)}
-.op2 .op-badge{background:rgba(120,120,120,0.2);color:#aaa}
+.op2 .op-badge{background:rgba(120,120,120,0.2);color:#ccc}
 .op3 .op-badge{background:rgba(39,174,96,0.2);color:var(--green-l)}
-.op-title{font-size:1rem;font-weight:500;color:var(--text);margin-bottom:0.2rem}
-.op-desc{font-size:0.8rem;color:var(--muted);line-height:1.5}
+.op-title{font-size:1.05rem;font-weight:600;color:#fff;margin-bottom:0.2rem}
+.op-desc{font-size:0.85rem;color:rgba(255,255,255,0.82);line-height:1.55}
 .op-chart-mini{height:90px;position:relative}
 
 /* ── SLIDE 4 — HIGHLIGHTS ── */
@@ -332,8 +357,8 @@ body.day-mode #overview-btn{background:rgba(240,235,225,0.92);border-color:rgba(
   border-radius:8px;padding:1.25rem;
 }
 .warranty-card .w-icon{font-size:1.75rem;margin-bottom:0.5rem;display:block}
-.warranty-card h4{font-size:0.9rem;font-weight:500;color:var(--green-l);margin-bottom:0.3rem}
-.warranty-card p{font-size:0.78rem;color:#d4d0c6;line-height:1.5}
+.warranty-card h4{font-size:0.92rem;font-weight:600;color:var(--green-l);margin-bottom:0.3rem}
+.warranty-card p{font-size:0.8rem;color:#e0ddd5;line-height:1.55}
 
 /* ── SLIDE 5 — QUALIFICATIONS ── */
 .qual-list{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
@@ -381,13 +406,13 @@ body.day-mode #overview-btn{background:rgba(240,235,225,0.92);border-color:rgba(
 
 .numbers-inputs{display:flex;flex-direction:column;gap:1rem}
 .n-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:1.25rem}
-.n-card-title{font-size:0.68rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:0.75rem}
+.n-card-title{font-size:0.7rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.85);margin-bottom:0.75rem}
 .n-input-group{display:flex;flex-direction:column;gap:0.4rem;margin-bottom:0.75rem}
 .n-input-group:last-child{margin-bottom:0}
-.n-label{font-size:0.72rem;color:var(--dim);letter-spacing:0.05em}
+.n-label{font-size:0.73rem;color:rgba(255,255,255,0.7);letter-spacing:0.05em;font-weight:500}
 .n-input{
-  background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);
-  color:var(--text);padding:0.5rem 0.75rem;border-radius:4px;
+  background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.16);
+  color:#fff;padding:0.5rem 0.75rem;border-radius:4px;
   font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:500;outline:none;width:100%;
   transition:border-color 0.2s;
 }
@@ -395,28 +420,28 @@ body.day-mode #overview-btn{background:rgba(240,235,225,0.92);border-color:rgba(
 .n-input.big{font-size:1.4rem;font-family:'Bebas Neue',sans-serif;letter-spacing:0.05em;padding:0.6rem 0.75rem}
 .n-input.red-focus:focus{border-color:var(--rage-l)}
 .n-select{
-  background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);
-  color:var(--text);padding:0.5rem 0.75rem;border-radius:4px;
-  font-family:'DM Sans',sans-serif;font-size:0.85rem;outline:none;width:100%;cursor:pointer;
+  background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.16);
+  color:#fff;padding:0.5rem 0.75rem;border-radius:4px;
+  font-family:'DM Sans',sans-serif;font-size:0.85rem;outline:none;width:100%;cursor:pointer;font-weight:500;
 }
 .n-select option{background:var(--navy)}
 
 .metric-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem}
-.m-tile{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:0.85rem;text-align:center}
-.m-tile.green{border-color:rgba(39,174,96,0.3);background:rgba(39,174,96,0.06)}
-.m-tile.red{border-color:rgba(192,57,43,0.3);background:rgba(192,57,43,0.05)}
+.m-tile{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:0.85rem;text-align:center}
+.m-tile.green{border-color:rgba(39,174,96,0.35);background:rgba(39,174,96,0.08)}
+.m-tile.red{border-color:rgba(192,57,43,0.35);background:rgba(192,57,43,0.07)}
 .m-tile .m-val{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:0.03em;display:block;line-height:1;margin-bottom:0.2rem}
 .m-tile.green .m-val{color:var(--green-l)}
 .m-tile.red .m-val{color:var(--rage-l)}
 .m-tile.gold .m-val{color:var(--gold)}
-.m-tile .m-lbl{font-size:0.65rem;font-weight:400;letter-spacing:0.08em;text-transform:uppercase;color:var(--dim)}
+.m-tile .m-lbl{font-size:0.67rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.65)}
 
 .chart-area{display:flex;flex-direction:column;gap:1rem}
-.chart-box{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:1.25rem}
+.chart-box{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:8px;padding:1.25rem}
 .chart-box-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
-.chart-box-title{font-size:0.72rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted)}
+.chart-box-title{font-size:0.73rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.8)}
 .toggle-row{display:flex;gap:4px}
-.toggle-btn{background:transparent;border:1px solid rgba(255,255,255,0.1);color:var(--dim);padding:0.25rem 0.65rem;border-radius:3px;font-size:0.7rem;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif}
+.toggle-btn{background:transparent;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.55);padding:0.25rem 0.65rem;border-radius:3px;font-size:0.7rem;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif}
 .toggle-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(200,168,75,0.1)}
 
 .hidden-tab-btn{
@@ -1169,10 +1194,10 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
 <div id="proposal-modal">
   <div id="proposal-modal-inner">
     <div id="proposal-modal-header">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--gold);letter-spacing:0.06em">Create Customer Proposal</div>
-      <button onclick="closeCreateProposal()" style="background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;line-height:1">✕</button>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:#8A6E2A;letter-spacing:0.06em">Create Customer Proposal</div>
+      <button onclick="closeCreateProposal()" style="background:none;border:none;color:#6b5f48;font-size:1.2rem;cursor:pointer;line-height:1">✕</button>
     </div>
-    <p style="font-size:0.8rem;color:var(--dim);margin-bottom:1.25rem;line-height:1.6">Numbers are pulled from the current presentation. Customer can only adjust the utility rate assumption.</p>
+    <p style="font-size:0.82rem;color:#5a4f38;margin-bottom:1.25rem;line-height:1.6">Numbers are pulled from the current presentation. Customer can only adjust the utility rate assumption.</p>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1rem">
       <div class="pm-field">
@@ -1201,12 +1226,12 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
 
     <!-- Numbers from presentation (read-only display) -->
     <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:0.85rem;margin-bottom:1rem">
-      <div style="font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:0.6rem">Numbers from this presentation</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;font-size:0.75rem;color:var(--muted)" id="pm-numbers-display">
-        <span>Monthly Bill: <strong id="pm-d-bill" style="color:var(--text)">—</strong></span>
-        <span>Solar Payment: <strong id="pm-d-solar" style="color:var(--green-l)">—</strong></span>
-        <span>Annual Usage: <strong id="pm-d-kwh" style="color:var(--text)">—</strong></span>
-        <span>Production: <strong id="pm-d-skwh" style="color:var(--text)">—</strong></span>
+      <div style="font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:#8A6E2A;margin-bottom:0.6rem">Numbers from this presentation</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;font-size:0.75rem;color:#3d3020" id="pm-numbers-display">
+        <span>Monthly Bill: <strong id="pm-d-bill" style="color:#1a1206">—</strong></span>
+        <span>Solar Payment: <strong id="pm-d-solar" style="color:#1d7a48">—</strong></span>
+        <span>Annual Usage: <strong id="pm-d-kwh" style="color:#1a1206">—</strong></span>
+        <span>Production: <strong id="pm-d-skwh" style="color:#1a1206">—</strong></span>
       </div>
     </div>
 
@@ -1247,7 +1272,7 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
 
     <!-- Slide selector -->
     <div style="margin-bottom:1.1rem">
-      <div style="font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);margin-bottom:0.5rem">Sections to include</div>
+      <div style="font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:#5a4f38;margin-bottom:0.5rem">Sections to include</div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.4rem">
         <label class="pm-check"><input type="checkbox" id="pmc-overview" checked><span>Overview</span></label>
         <label class="pm-check"><input type="checkbox" id="pmc-bill" checked><span>Your Bill</span></label>
@@ -1264,8 +1289,8 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
     <!-- Generated link -->
     <div id="pm-link-row" style="display:none;margin-bottom:1rem">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem">
-        <div style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold)">Proposal Link</div>
-        <div id="pm-shorten-status" style="font-size:0.62rem;color:var(--dim)"></div>
+        <div style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:#8A6E2A">Proposal Link</div>
+        <div id="pm-shorten-status" style="font-size:0.62rem;color:#5a4f38"></div>
       </div>
       <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.4rem">
         <input class="pm-input" id="pm-link" readonly style="font-size:0.68rem;flex:1;cursor:text">
@@ -1321,17 +1346,17 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
   <div class="title-slide-inner">
     <span class="eyebrow" style="letter-spacing:0.25em">Kinhome</span>
     <div class="accent-line gold" style="margin:0 auto"></div>
-    <h1 class="display xl" style="line-height:0.95;text-align:center">YOUR ENERGY<br><span style="color:var(--gold)">FUTURE</span></h1>
-    <p style="font-size:0.9rem;color:var(--muted);text-align:center;max-width:400px;line-height:1.7">A personalized solar analysis prepared for</p>
+    <h1 class="display xl" style="line-height:0.95;text-align:center">YOUR ENERGY<br><span style="color:#8A6E2A">FUTURE</span></h1>
+    <p style="font-size:0.9rem;color:#3d3020;text-align:center;max-width:400px;line-height:1.7">A personalized solar analysis prepared for</p>
     <!-- Editable customer name -->
     <div id="customer-name-display" class="customer-name-display" onclick="editCustomerName()" title="Click to edit">
       Your Family Name
     </div>
-    <p style="font-size:0.68rem;color:var(--dim);letter-spacing:0.1em;text-transform:uppercase">tap name to edit</p>
+    <p style="font-size:0.68rem;color:#5a4f38;letter-spacing:0.1em;text-transform:uppercase">tap name to edit</p>
     <div style="margin-top:1rem;display:flex;gap:1rem;flex-wrap:wrap;justify-content:center">
-      <div style="background:rgba(200,168,75,0.1);border:1px solid var(--border);border-radius:100px;padding:0.4rem 1.1rem;font-size:0.75rem;color:var(--gold)">SDG&E Territory</div>
-      <div style="background:rgba(200,168,75,0.1);border:1px solid var(--border);border-radius:100px;padding:0.4rem 1.1rem;font-size:0.75rem;color:var(--gold)">25-Year Warranty</div>
-      <div style="background:rgba(200,168,75,0.1);border:1px solid var(--border);border-radius:100px;padding:0.4rem 1.1rem;font-size:0.75rem;color:var(--gold)">$0 Down</div>
+      <div style="background:rgba(200,168,75,0.1);border:1px solid var(--border);border-radius:100px;padding:0.4rem 1.1rem;font-size:0.75rem;color:#8A6E2A">SDG&E Territory</div>
+      <div style="background:rgba(200,168,75,0.1);border:1px solid var(--border);border-radius:100px;padding:0.4rem 1.1rem;font-size:0.75rem;color:#8A6E2A">25-Year Warranty</div>
+      <div style="background:rgba(200,168,75,0.1);border:1px solid var(--border);border-radius:100px;padding:0.4rem 1.1rem;font-size:0.75rem;color:#8A6E2A">$0 Down</div>
     </div>
   </div>
 </div>
@@ -1344,13 +1369,13 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
       <div>
         <span class="eyebrow red editable" id="s0-eyebrow">The Problem with Your Power Company</span>
         <div class="accent-line red"></div>
-        <h1 class="display xl" style="color:#fff">YOUR BILL <span class="editable" id="s0-headline" style="color:var(--rage-l)">ISN'T YOURS.</span></h1>
+        <h1 class="display xl" style="color:#fff">YOUR BILL <span class="editable" id="s0-headline" style="color:#c0392b">ISN'T YOURS.</span></h1>
         <p class="body-text editable" id="s0-body" style="margin:1rem 0">Every month you pay for miles of aging wire, corporate executives, and shareholder dividends — before a single electron reaches your home. SDG&E is a <strong style="color:#fff">for-profit business</strong> with one goal: extract as much as possible from a captive customer.</p>
 
         <!-- BILL INPUT — syncs with Numbers slide -->
         <div class="slide-bill-input-wrap">
           <label>Current Monthly Bill</label>
-          <span style="color:var(--rage-l);font-family:'Bebas Neue',sans-serif;font-size:2rem;line-height:1">$</span>
+          <span style="color:#c0392b;font-family:'Bebas Neue',sans-serif;font-size:2rem;line-height:1">$</span>
           <input type="number" class="slide-bill-input" id="slide-bill-input" value="134" placeholder="0" oninput="syncBillFromSlide1(this.value)">
         </div>
 
@@ -1367,7 +1392,7 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
           <div class="stat-b red-glow"><span class="val" id="s1-yr10">$21,195</span><span class="lbl editable" id="s0-lbl3">10 Years Donated</span></div>
           <div class="stat-b red-glow"><span class="val" id="s1-yr25" style="color:#ff4444">$88,222</span><span class="lbl editable" id="s0-lbl4">25 Years — Gone Forever</span></div>
         </div>
-        <p class="editable" id="s0-footnote" style="font-size:0.7rem;color:var(--dim);margin-top:0.75rem;text-align:center">Based on 9% annual rate increases — SDG&E's historical average</p>
+        <p class="editable" id="s0-footnote" style="font-size:0.7rem;color:#5a4f38;margin-top:0.75rem;text-align:center">Based on 9% annual rate increases — SDG&E's historical average</p>
       </div>
     </div>
   </div>
@@ -1379,7 +1404,7 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
   <div class="slide-inner">
     <span class="eyebrow red editable" id="s1-eyebrow">The Demand Crisis Coming For Your Wallet</span>
     <div class="accent-line red"></div>
-    <h1 class="display lg editable" id="s1-headline" style="max-width:700px">CALIFORNIA'S GRID IS <span style="color:var(--rage-l)">BREAKING UNDER PRESSURE</span></h1>
+    <h1 class="display lg editable" id="s1-headline" style="max-width:700px">CALIFORNIA'S GRID IS <span style="color:#c0392b">BREAKING UNDER PRESSURE</span></h1>
     <p class="body-text editable" id="s1-intro" style="margin:1rem 0 1.5rem">Electricity demand is exploding — and utilities will pass every penny of the cost to you.</p>
     <div class="demand-grid">
       <div class="demand-card">
@@ -1421,7 +1446,7 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
   <div class="slide-inner">
     <span class="eyebrow">Your Three Paths Forward</span>
     <div class="accent-line gold"></div>
-    <h1 class="display md" style="margin-bottom:0.5rem">WHICH STORY DO YOU <em style="font-family:'DM Serif Display',serif;font-style:italic;color:var(--gold)">want to live?</em></h1>
+    <h1 class="display md" style="margin-bottom:0.5rem">WHICH STORY DO YOU <em style="font-family:'DM Serif Display',serif;font-style:italic;color:#8A6E2A">want to live?</em></h1>
     <div class="options-stack">
 
       <!-- Option 1 -->
@@ -1429,18 +1454,18 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
         <div style="flex:1">
           <div style="display:flex;align-items:baseline;gap:0.6rem;margin-bottom:0.2rem;flex-wrap:wrap">
             <span class="op-badge">Option 1</span>
-            <span style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.1rem,2.5vw,1.6rem);color:var(--rage-l);letter-spacing:0.04em">Endlessly Donate to SDG&E</span>
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.1rem,2.5vw,1.6rem);color:#c0392b;letter-spacing:0.04em">Endlessly Donate to SDG&E</span>
           </div>
-          <div class="op-desc" style="margin-top:0.2rem">Rates keep climbing. You keep paying. Over 25 years you'll hand them <strong style="color:var(--rage-l)" id="op-total">$88,222</strong> and own absolutely nothing.
-            <span style="color:var(--dim);font-size:0.68rem;margin-left:0.5rem">— hover the chart to see cumulative costs →</span>
+          <div class="op-desc" style="margin-top:0.2rem">Rates keep climbing. You keep paying. Over 25 years you'll hand them <strong style="color:#c0392b" id="op-total">$88,222</strong> and own absolutely nothing.
+            <span style="color:#5a4f38;font-size:0.68rem;margin-left:0.5rem">— hover the chart to see cumulative costs →</span>
           </div>
         </div>
         <div class="op-chart-mini" style="position:relative">
           <canvas id="chartOp1"></canvas>
           <div id="op1-tooltip" style="display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(8,15,30,0.95);border:1px solid rgba(231,76,60,0.4);border-radius:6px;padding:0.5rem 0.85rem;pointer-events:none;text-align:center;white-space:nowrap;z-index:10">
-            <div style="font-size:0.6rem;color:var(--dim)" id="op1-tip-yr">Year</div>
+            <div style="font-size:0.6rem;color:#5a4f38" id="op1-tip-yr">Year</div>
             <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:#E74C3C;letter-spacing:0.03em" id="op1-tip-val">$0</div>
-            <div style="font-size:0.58rem;color:var(--dim)">cumulative to SDG&E</div>
+            <div style="font-size:0.58rem;color:#5a4f38">cumulative to SDG&E</div>
           </div>
         </div>
       </div>
@@ -1462,7 +1487,7 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
         <div style="flex:1">
           <div style="display:flex;align-items:baseline;gap:0.6rem;margin-bottom:0.2rem;flex-wrap:wrap">
             <span class="op-badge">Option 3</span>
-            <span style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.1rem,2.5vw,1.6rem);color:var(--green-l);letter-spacing:0.04em">Lock In Your Rate. Own Your Power.</span>
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.1rem,2.5vw,1.6rem);color:#1d7a48;letter-spacing:0.04em">Lock In Your Rate. Own Your Power.</span>
           </div>
           <div class="op-desc" style="color:rgba(255,255,255,0.7);margin-top:0.2rem">Fixed payment. No surprises. 25-year warranty. Your rate <em>never</em> goes up — while theirs climbs every single year.</div>
         </div>
@@ -1478,7 +1503,7 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
   <div class="slide-inner">
     <span class="eyebrow">What You're Getting</span>
     <div class="accent-line gold"></div>
-    <h1 class="display lg" style="margin-bottom:0.3rem">EVERYTHING <span style="color:var(--gold)">INCLUDED.</span></h1>
+    <h1 class="display lg" style="margin-bottom:0.3rem">EVERYTHING <span style="color:#8A6E2A">INCLUDED.</span></h1>
     <p class="body-text">This isn't just solar — it's a complete home energy system, fully protected for the life of your system.</p>
     <div class="warranty-grid">
       <div class="warranty-card">
@@ -1520,16 +1545,16 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
   <div class="slide-inner">
     <span class="eyebrow">You Qualify</span>
     <div class="accent-line gold"></div>
-    <h1 class="display lg">YOUR HOME IS READY FOR <span style="color:var(--gold)">$0 UPFRONT COSTS FOR ENERGY</span></h1>
+    <h1 class="display lg">YOUR HOME IS READY FOR <span style="color:#8A6E2A">$0 UPFRONT COSTS FOR ENERGY</span></h1>
     <p class="body-text" style="margin:0.75rem 0 1.5rem">Here are some of the qualifications.</p>
     <div class="qual-list">
-      <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:var(--text)">Roof condition</strong> — adequate remaining life, no issues flagged</div></div>
-      <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:var(--text)">Sufficient sun exposure</strong> — your roof orientation maximizes production</div></div>
-      <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:var(--text)">Credit pre-approval</strong> — you qualify for 0% down financing</div></div>
-      <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:var(--text)">Utility &amp; Federal Incentives</strong> — you qualify for available rebates and tax credits in your area</div></div>
-      <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:var(--text)">Utility territory</strong> — SDG&E rates confirmed for your address</div></div>
-      <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:var(--text)">HOA / permits</strong> — no restrictions, permit-ready in your jurisdiction</div></div>
-      <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:var(--text)">No out-of-pocket costs</strong> — $0 down, installation fully financed</div></div>
+      <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:#1a1206">Roof condition</strong> — adequate remaining life, no issues flagged</div></div>
+      <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:#1a1206">Sufficient sun exposure</strong> — your roof orientation maximizes production</div></div>
+      <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:#1a1206">Credit pre-approval</strong> — you qualify for 0% down financing</div></div>
+      <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:#1a1206">Utility &amp; Federal Incentives</strong> — you qualify for available rebates and tax credits in your area</div></div>
+      <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:#1a1206">Utility territory</strong> — SDG&E rates confirmed for your address</div></div>
+      <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:#1a1206">HOA / permits</strong> — no restrictions, permit-ready in your jurisdiction</div></div>
+      <div class="qual-item"><div class="qual-check">✓</div><div class="qual-text"><strong style="color:#1a1206">No out-of-pocket costs</strong> — $0 down, installation fully financed</div></div>
     </div>
   </div>
 </div>
@@ -1539,13 +1564,13 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
   <div class="slide-inner" style="max-width:1100px">
     <span class="eyebrow" style="text-align:center;display:block">From Signing to Sunshine</span>
     <div class="accent-line gold" style="margin:0 auto 0.5rem"></div>
-    <h1 class="display lg" style="text-align:center;margin-bottom:0.4rem">YOUR SOLAR <span style="color:var(--gold)">TIMELINE</span></h1>
-    <p style="text-align:center;font-size:0.82rem;color:var(--muted);margin-bottom:1.5rem">Solar is a process. We break down each step to get you up and running as soon as possible.</p>
+    <h1 class="display lg" style="text-align:center;margin-bottom:0.4rem">YOUR SOLAR <span style="color:#8A6E2A">TIMELINE</span></h1>
+    <p style="text-align:center;font-size:0.82rem;color:#3d3020;margin-bottom:1.5rem">Solar is a process. We break down each step to get you up and running as soon as possible.</p>
 
     <!-- Tab selector -->
     <div style="display:flex;justify-content:center;gap:0.5rem;margin-bottom:1.75rem">
-      <button class="tl-tab active-tl" id="tl-solar" onclick="setTlTab('solar')" style="padding:0.45rem 1.25rem;border-radius:100px;font-size:0.75rem;font-weight:600;letter-spacing:0.06em;background:var(--deep);border:2px solid var(--gold);color:var(--gold);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s">SOLAR STEPS</button>
-      <button class="tl-tab" id="tl-customer" onclick="setTlTab('customer')" style="padding:0.45rem 1.25rem;border-radius:100px;font-size:0.75rem;font-weight:500;letter-spacing:0.06em;background:transparent;border:1px solid rgba(255,255,255,0.15);color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s">CUSTOMER STEPS</button>
+      <button class="tl-tab active-tl" id="tl-solar" onclick="setTlTab('solar')" style="padding:0.45rem 1.25rem;border-radius:100px;font-size:0.75rem;font-weight:600;letter-spacing:0.06em;background:var(--deep);border:2px solid var(--gold);color:#8A6E2A;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s">SOLAR STEPS</button>
+      <button class="tl-tab" id="tl-customer" onclick="setTlTab('customer')" style="padding:0.45rem 1.25rem;border-radius:100px;font-size:0.75rem;font-weight:500;letter-spacing:0.06em;background:transparent;border:1px solid rgba(255,255,255,0.15);color:#3d3020;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s">CUSTOMER STEPS</button>
     </div>
 
     <!-- TIMELINE: circular nodes arranged like screenshot -->
@@ -1557,8 +1582,8 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
       <!-- CENTER INFO CARD -->
       <div id="tl-center-card" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-48%);z-index:10;width:200px;background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:12px;padding:1.25rem 1rem;text-align:center;backdrop-filter:blur(8px)">
         <div style="font-size:1.5rem;margin-bottom:0.4rem">🔄</div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--gold);letter-spacing:0.06em;margin-bottom:0.35rem" id="tl-card-title">Solar Steps</div>
-        <div style="font-size:0.72rem;color:var(--muted);line-height:1.5" id="tl-card-body">Click any step to learn more about what happens and how long it takes.</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:#8A6E2A;letter-spacing:0.06em;margin-bottom:0.35rem" id="tl-card-title">Solar Steps</div>
+        <div style="font-size:0.72rem;color:#3d3020;line-height:1.5" id="tl-card-body">Click any step to learn more about what happens and how long it takes.</div>
       </div>
 
       <!-- TOP ROW: Consultation → Survey → Final Design → Permitting -->
@@ -1624,11 +1649,11 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
 
         <!-- Power On -->
         <div class="tl-node" onclick="tlClick('Power On','Day 1','Your system is energized. The app goes live. Your meter starts spinning backward. Welcome to energy independence.')">
-          <div class="tl-circle" style="border-color:var(--gold);background:rgba(200,168,75,0.15)">
+          <div class="tl-circle" style="border-color:#8A6E2A;background:rgba(200,168,75,0.15)">
             <span style="font-size:1.6rem">🏠</span>
           </div>
           <div class="tl-badge" style="background:var(--gold);color:var(--deep)">DAY<br>1</div>
-          <div class="tl-label" style="color:var(--gold)">POWER ON</div>
+          <div class="tl-label" style="color:#8A6E2A">POWER ON</div>
         </div>
       </div>
 
@@ -1642,7 +1667,7 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
     <div style="flex-shrink:0">
       <span class="eyebrow">Why Work With Me</span>
       <div class="accent-line gold"></div>
-      <h1 class="display md" style="margin-bottom:0.75rem">I DON'T SELL SOLAR. <span style="color:var(--gold)">I PROTECT FAMILIES.</span></h1>
+      <h1 class="display md" style="margin-bottom:0.75rem">I DON'T SELL SOLAR. <span style="color:#8A6E2A">I PROTECT FAMILIES.</span></h1>
     </div>
 
     <div class="sell-layout">
@@ -1671,8 +1696,8 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
       <!-- RIGHT: Instagram feed fills full height -->
       <div class="ig-column">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;flex-shrink:0">
-          <p style="font-size:0.7rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim)">From My Feed</p>
-          <p style="font-size:0.65rem;color:var(--dim)">@energy.best.ca</p>
+          <p style="font-size:0.7rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:#5a4f38">From My Feed</p>
+          <p style="font-size:0.65rem;color:#5a4f38">@energy.best.ca</p>
         </div>
         <div id="ig-feed" style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,1fr);gap:5px;flex:1;min-height:0">
           <div class="ig-post" style="height:auto"><div class="ig-loading">Loading...</div></div>
@@ -1693,7 +1718,7 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
   <div class="slide-inner" style="text-align:center">
     <span class="eyebrow" style="text-align:center">Who's Behind Your System</span>
     <div class="accent-line gold" style="margin:0 auto 1.5rem"></div>
-    <h1 class="display lg">BUILT ON <span style="color:var(--gold)">STRENGTH.</span></h1>
+    <h1 class="display lg">BUILT ON <span style="color:#8A6E2A">STRENGTH.</span></h1>
     <div class="company-pillars">
       <div class="pillar">
         <span class="p-icon">🏆</span>
@@ -1723,14 +1748,14 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
   <div class="slide-inner" style="max-width:1100px">
     <span class="eyebrow">The Technology</span>
     <div class="accent-line gold"></div>
-    <h1 class="display md" style="margin-bottom:0.4rem">HOW SOLAR <span style="color:var(--gold)">ACTUALLY WORKS</span></h1>
+    <h1 class="display md" style="margin-bottom:0.4rem">HOW SOLAR <span style="color:#8A6E2A">ACTUALLY WORKS</span></h1>
     <p class="body-text" style="margin-bottom:1.25rem">Simple technology. Proven for 40+ years. Working silently on your roof every single day.</p>
 
     <!-- Top nav questions -->
     <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:1.25rem">
-      <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:100px;padding:0.4rem 1.1rem;font-size:0.75rem;color:var(--muted)">About Net Metering</div>
-      <div style="background:rgba(200,168,75,0.15);border:1px solid var(--border);border-radius:100px;padding:0.4rem 1.1rem;font-size:0.75rem;color:var(--gold);font-weight:500">Will I Still Get a Utility Bill?</div>
-      <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:100px;padding:0.4rem 1.1rem;font-size:0.75rem;color:var(--muted)">What If I Use More Power?</div>
+      <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:100px;padding:0.4rem 1.1rem;font-size:0.75rem;color:#3d3020">About Net Metering</div>
+      <div style="background:rgba(200,168,75,0.15);border:1px solid var(--border);border-radius:100px;padding:0.4rem 1.1rem;font-size:0.75rem;color:#8A6E2A;font-weight:500">Will I Still Get a Utility Bill?</div>
+      <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:100px;padding:0.4rem 1.1rem;font-size:0.75rem;color:#3d3020">What If I Use More Power?</div>
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 2.2fr;gap:1.5rem;align-items:start">
@@ -1739,25 +1764,25 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
       <div style="display:flex;flex-direction:column;gap:1rem">
         <div style="display:flex;flex-direction:column;gap:0.5rem">
           <div id="solar-tab-daily" class="solar-tab" onclick="openNetMeteringModal()" style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;padding:0.5rem 0.75rem;border-radius:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)">
-            <div style="width:28px;height:28px;border-radius:50%;border:1.5px solid var(--muted);display:flex;align-items:center;justify-content:center;font-size:0.72rem;color:var(--muted)">1</div>
-            <span style="font-size:0.85rem;color:var(--muted);font-weight:500;letter-spacing:0.05em">DAILY</span>
+            <div style="width:28px;height:28px;border-radius:50%;border:1.5px solid var(--muted);display:flex;align-items:center;justify-content:center;font-size:0.72rem;color:#3d3020">1</div>
+            <span style="font-size:0.85rem;color:#3d3020;font-weight:500;letter-spacing:0.05em">DAILY</span>
           </div>
           <div id="solar-tab-monthly" class="solar-tab active-tab" onclick="setSolarTab('monthly')" style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;padding:0.5rem 0.75rem;border-radius:6px;background:rgba(200,168,75,0.1);border:1px solid var(--border)">
             <div style="width:28px;height:28px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:0.72rem;color:var(--deep);font-weight:700">2</div>
-            <span style="font-size:0.85rem;color:var(--gold);font-weight:600;letter-spacing:0.05em">MONTHLY</span>
+            <span style="font-size:0.85rem;color:#8A6E2A;font-weight:600;letter-spacing:0.05em">MONTHLY</span>
           </div>
           <div id="solar-tab-yearly" class="solar-tab" onclick="setSolarTab('yearly')" style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;padding:0.5rem 0.75rem;border-radius:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)">
-            <div style="width:28px;height:28px;border-radius:50%;border:1.5px solid var(--muted);display:flex;align-items:center;justify-content:center;font-size:0.72rem;color:var(--muted)">3</div>
-            <span style="font-size:0.85rem;color:var(--muted);font-weight:500;letter-spacing:0.05em">YEARLY</span>
+            <div style="width:28px;height:28px;border-radius:50%;border:1.5px solid var(--muted);display:flex;align-items:center;justify-content:center;font-size:0.72rem;color:#3d3020">3</div>
+            <span style="font-size:0.85rem;color:#3d3020;font-weight:500;letter-spacing:0.05em">YEARLY</span>
           </div>
         </div>
         <!-- Legend -->
         <div style="display:flex;flex-direction:column;gap:0.5rem;padding:0.75rem;background:rgba(255,255,255,0.04);border-radius:6px;border:1px solid rgba(255,255,255,0.08)">
-          <div style="display:flex;align-items:center;gap:0.6rem;font-size:0.75rem;color:var(--muted)">
+          <div style="display:flex;align-items:center;gap:0.6rem;font-size:0.75rem;color:#3d3020">
             <span style="width:14px;height:14px;background:#C8A84B;border-radius:2px;display:inline-block;flex-shrink:0"></span>
             <span>☀️ PRODUCTION</span>
           </div>
-          <div style="display:flex;align-items:center;gap:0.6rem;font-size:0.75rem;color:var(--muted)">
+          <div style="display:flex;align-items:center;gap:0.6rem;font-size:0.75rem;color:#3d3020">
             <span style="width:14px;height:14px;background:#E05A2B;border-radius:2px;display:inline-block;flex-shrink:0"></span>
             <span>⚡ CONSUMPTION</span>
           </div>
@@ -1771,10 +1796,10 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
         </div>
         <!-- Seasons row -->
         <div style="display:flex;justify-content:space-around;align-items:center;margin-top:0.5rem;padding:0.5rem 0;border-top:1px solid rgba(255,255,255,0.08)">
-          <div style="text-align:center;font-size:0.72rem;color:var(--muted)"><span style="font-size:1.4rem;display:block">❄️</span>Winter</div>
-          <div style="text-align:center;font-size:0.72rem;color:var(--muted)"><span style="font-size:1.4rem;display:block">🌸</span>Spring</div>
-          <div style="text-align:center;font-size:0.72rem;color:var(--muted)"><span style="font-size:1.4rem;display:block">🌻</span>Summer</div>
-          <div style="text-align:center;font-size:0.72rem;color:var(--muted)"><span style="font-size:1.4rem;display:block">🍂</span>Autumn</div>
+          <div style="text-align:center;font-size:0.72rem;color:#3d3020"><span style="font-size:1.4rem;display:block">❄️</span>Winter</div>
+          <div style="text-align:center;font-size:0.72rem;color:#3d3020"><span style="font-size:1.4rem;display:block">🌸</span>Spring</div>
+          <div style="text-align:center;font-size:0.72rem;color:#3d3020"><span style="font-size:1.4rem;display:block">🌻</span>Summer</div>
+          <div style="text-align:center;font-size:0.72rem;color:#3d3020"><span style="font-size:1.4rem;display:block">🍂</span>Autumn</div>
         </div>
       </div>
     </div>
@@ -1822,7 +1847,7 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
   <div class="slide-inner" style="max-width:1100px">
     <span class="eyebrow">The Comparison</span>
     <div class="accent-line gold"></div>
-    <h1 class="display md" style="margin-bottom:1.25rem">WHAT ARE YOU <span style="color:var(--gold)">ACTUALLY GETTING?</span></h1>
+    <h1 class="display md" style="margin-bottom:1.25rem">WHAT ARE YOU <span style="color:#8A6E2A">ACTUALLY GETTING?</span></h1>
 
     <div class="summary-cols">
 
@@ -1830,7 +1855,7 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
       <div class="summary-col summary-col-util">
         <div class="summary-col-header">
           <div class="summary-col-icon">⚡</div>
-          <div class="summary-col-title" style="color:var(--rage-l)" id="sum-util-name">SDG&E</div>
+          <div class="summary-col-title" style="color:#c0392b" id="sum-util-name">SDG&E</div>
           <div class="summary-col-sub">What you have now</div>
         </div>
         <ul class="summary-list">
@@ -1874,15 +1899,15 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
         <!-- LOCKED STATE -->
         <div id="summary-locked" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:1rem;padding:2rem">
           <div style="font-size:3rem">☀️</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--gold);letter-spacing:0.06em;text-align:center">Virtual Power Plant</div>
-          <div style="font-size:0.82rem;color:var(--muted);text-align:center;line-height:1.6">Tap to reveal what solar<br>gives you instead</div>
-          <div style="width:48px;height:48px;border-radius:50%;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:1.4rem;animation:pulse-gold 2s infinite">→</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:#8A6E2A;letter-spacing:0.06em;text-align:center">Virtual Power Plant</div>
+          <div style="font-size:0.82rem;color:#3d3020;text-align:center;line-height:1.6">Tap to reveal what solar<br>gives you instead</div>
+          <div style="width:48px;height:48px;border-radius:50%;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;color:#8A6E2A;font-size:1.4rem;animation:pulse-gold 2s infinite">→</div>
         </div>
         <!-- REVEALED STATE -->
         <div id="summary-revealed" style="display:none;width:100%">
           <div class="summary-col-header">
             <div class="summary-col-icon">☀️</div>
-            <div class="summary-col-title" style="color:var(--green-l)">Virtual Power Plant</div>
+            <div class="summary-col-title" style="color:#1d7a48">Virtual Power Plant</div>
             <div class="summary-col-sub">What you're switching to</div>
           </div>
           <ul class="summary-list">
@@ -1908,7 +1933,7 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
   <div class="slide-inner" style="max-width:1100px">
     <span class="eyebrow">The Choice Is Clear</span>
     <div class="accent-line gold"></div>
-    <h1 class="display lg" style="margin-bottom:1.25rem">WHAT YOU GET <span style="color:var(--gold)">WITH EACH</span></h1>
+    <h1 class="display lg" style="margin-bottom:1.25rem">WHAT YOU GET <span style="color:#8A6E2A">WITH EACH</span></h1>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;align-items:start">
 
@@ -1918,7 +1943,7 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
           <span style="font-size:1.5rem">🏭</span>
           <div>
             <div style="font-size:0.65rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:rgba(231,76,60,0.7);margin-bottom:2px">Your Utility Company</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--rage-l);letter-spacing:0.04em">SDG&E</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:#c0392b;letter-spacing:0.04em">SDG&E</div>
           </div>
         </div>
         <ul class="summ-list" id="util-list">
@@ -1934,8 +1959,8 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
         <div id="vpp-locked" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:180px;gap:1rem">
           <div style="width:60px;height:60px;border-radius:50%;background:rgba(39,174,96,0.15);border:2px solid rgba(39,174,96,0.3);display:flex;align-items:center;justify-content:center;font-size:1.5rem">🔒</div>
           <div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--green-l);letter-spacing:0.04em;margin-bottom:0.3rem">Virtual Power Plant</div>
-            <div style="font-size:0.82rem;color:var(--muted);line-height:1.5">Tap to reveal what solar<br>actually gives you</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:#1d7a48;letter-spacing:0.04em;margin-bottom:0.3rem">Virtual Power Plant</div>
+            <div style="font-size:0.82rem;color:#3d3020;line-height:1.5">Tap to reveal what solar<br>actually gives you</div>
           </div>
           <div style="font-size:0.72rem;color:rgba(39,174,96,0.5);letter-spacing:0.1em;text-transform:uppercase">Tap to unlock →</div>
         </div>
@@ -1946,7 +1971,7 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
             <span style="font-size:1.5rem">☀️</span>
             <div>
               <div style="font-size:0.65rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:rgba(39,174,96,0.7);margin-bottom:2px">Virtual Power Plant</div>
-              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--green-l);letter-spacing:0.04em">Kinhome</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:#1d7a48;letter-spacing:0.04em">Kinhome</div>
             </div>
           </div>
           <ul class="summ-list" id="vpp-list">
@@ -1972,7 +1997,7 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
   <div class="slide-inner" style="max-width:1320px;width:100%">
     <span class="eyebrow">The Numbers</span>
     <div class="accent-line green"></div>
-    <h1 class="display md" style="margin-bottom:0.75rem">YOUR ENERGY <span style="color:var(--green-l)">FUTURE</span></h1>
+    <h1 class="display md" style="margin-bottom:0.75rem">YOUR ENERGY <span style="color:#1d7a48">FUTURE</span></h1>
 
     <div class="numbers-layout">
 
@@ -1981,12 +2006,12 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
 
         <!-- UTILITY CARD -->
         <div class="n-card" style="border-color:rgba(231,76,60,0.3);background:rgba(231,76,60,0.04)">
-          <div class="n-card-title" style="color:var(--rage-l)">Current Situation</div>
+          <div class="n-card-title" style="color:#c0392b">Current Situation</div>
 
           <!-- UTILITY DROPDOWN — TOP, RED, BOLD -->
           <div class="n-input-group">
             <div class="n-label">Utility / Provider</div>
-            <select class="n-select" id="inp-utility" onchange="recalc()" style="color:var(--rage-l);font-weight:700;font-size:1rem;border-color:rgba(231,76,60,0.4)">
+            <select class="n-select" id="inp-utility" onchange="recalc()" style="color:#c0392b;font-weight:700;font-size:1rem;border-color:rgba(231,76,60,0.4)">
               <option value="SDG&E" selected>SDG&E</option>
               <option value="SCE">SCE (SoCal Edison)</option>
               <option value="PG&E">PG&E</option>
@@ -2000,25 +2025,25 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
           <!-- MONTHLY BILL -->
           <div class="n-input-group">
             <div class="n-label">Monthly Bill ($)</div>
-            <input type="number" class="n-input big" id="inp-bill" value="134" placeholder="134" oninput="recalc()" style="color:var(--rage-l);border-color:rgba(231,76,60,0.3)">
+            <input type="number" class="n-input big" id="inp-bill" value="134" placeholder="134" oninput="recalc()" style="color:#c0392b;border-color:rgba(231,76,60,0.3)">
           </div>
 
           <!-- ANNUAL KWH -->
           <div class="n-input-group">
             <div class="n-label">Annual kWh Usage</div>
-            <input type="number" class="n-input" id="inp-kwh-usage" value="3540" placeholder="3540" oninput="recalc()" style="color:var(--rage-l);border-color:rgba(231,76,60,0.25)">
+            <input type="number" class="n-input" id="inp-kwh-usage" value="3540" placeholder="3540" oninput="recalc()" style="color:#c0392b;border-color:rgba(231,76,60,0.25)">
           </div>
 
           <!-- CALCULATED $/kWh BUBBLE -->
           <div style="background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);border-radius:6px;padding:0.55rem 0.85rem;display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem">
             <span style="font-size:0.66rem;color:rgba(231,76,60,0.7);letter-spacing:0.1em;text-transform:uppercase">Utility $/kWh Rate</span>
-            <span style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--rage-l);letter-spacing:0.03em;line-height:1" id="calc-kwh-rate">$0.454</span>
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:#c0392b;letter-spacing:0.03em;line-height:1" id="calc-kwh-rate">$0.454</span>
           </div>
 
           <!-- RATE INCREASE -->
           <div class="n-input-group">
             <div class="n-label">Annual Rate Increase</div>
-            <select class="n-select" id="inp-rate" onchange="recalc()" style="border-color:rgba(231,76,60,0.35);color:var(--rage-l);font-weight:500">
+            <select class="n-select" id="inp-rate" onchange="recalc()" style="border-color:rgba(231,76,60,0.35);color:#c0392b;font-weight:500">
               <option value="0.00">0% — Frozen (Never Happens)</option>
               <option value="0.04">4% — Matches Inflation</option>
               <option value="0.06">6% — Conservative</option>
@@ -2030,11 +2055,11 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
 
         <!-- VPP CARD -->
         <div class="n-card" style="border-color:rgba(39,174,96,0.3);background:rgba(39,174,96,0.03)">
-          <div class="n-card-title" style="color:var(--green-l)">Virtual Power Plant Investment</div>
+          <div class="n-card-title" style="color:#1d7a48">Virtual Power Plant Investment</div>
 
           <div class="n-input-group">
             <div class="n-label">Monthly Energy Investment ($)</div>
-            <input type="number" class="n-input big" id="inp-solar" value="" placeholder="Enter payment" oninput="recalc()" style="color:var(--green-l);border-color:rgba(39,174,96,0.3)">
+            <input type="number" class="n-input big" id="inp-solar" value="" placeholder="Enter payment" oninput="recalc()" style="color:#1d7a48;border-color:rgba(39,174,96,0.3)">
           </div>
 
           <div class="n-input-group">
@@ -2045,17 +2070,17 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
           <!-- OFFSET BUBBLE -->
           <div style="background:rgba(39,174,96,0.1);border:1px solid rgba(39,174,96,0.3);border-radius:6px;padding:0.55rem 0.85rem;display:flex;justify-content:space-between;align-items:center;margin-bottom:0.15rem">
             <span style="font-size:0.66rem;color:rgba(39,174,96,0.7);letter-spacing:0.1em;text-transform:uppercase">Production Offset</span>
-            <span style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--green-l);letter-spacing:0.03em;line-height:1" id="calc-offset">—</span>
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:#1d7a48;letter-spacing:0.03em;line-height:1" id="calc-offset">—</span>
           </div>
           <!-- SOLAR $/kWh BUBBLE -->
           <div style="background:rgba(39,174,96,0.07);border:1px solid rgba(39,174,96,0.2);border-radius:6px;padding:0.55rem 0.85rem;display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem">
             <span style="font-size:0.66rem;color:rgba(39,174,96,0.6);letter-spacing:0.1em;text-transform:uppercase">Solar $/kWh Rate</span>
-            <span style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--green-l);letter-spacing:0.03em;line-height:1" id="calc-solar-kwh-rate">—</span>
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:#1d7a48;letter-spacing:0.03em;line-height:1" id="calc-solar-kwh-rate">—</span>
           </div>
 
           <div class="n-input-group">
             <div class="n-label">VPP Fixed Annual Rate Increase</div>
-            <select class="n-select" id="inp-vpp-rate" onchange="recalc()" style="border-color:rgba(39,174,96,0.25);color:var(--green-l)">
+            <select class="n-select" id="inp-vpp-rate" onchange="recalc()" style="border-color:rgba(39,174,96,0.25);color:#1d7a48">
               <option value="0.000">0.0% — Fully Fixed Forever</option>
               <option value="0.0099">0.99%</option>
               <option value="0.0199">1.99%</option>
@@ -2065,8 +2090,8 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
           </div>
 
           <div class="n-input-group">
-            <div class="n-label" style="color:var(--green-l)">Solar Term (Years)</div>
-            <select class="n-select" id="inp-term" onchange="recalc()" style="border-color:rgba(39,174,96,0.25);color:var(--green-l)">
+            <div class="n-label" style="color:#1d7a48">Solar Term (Years)</div>
+            <select class="n-select" id="inp-term" onchange="recalc()" style="border-color:rgba(39,174,96,0.25);color:#1d7a48">
               <option value="10">10 Years</option>
               <option value="12">12 Years</option>
               <option value="15">15 Years</option>
@@ -2080,17 +2105,17 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
           <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:0.6rem 0.85rem;display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap">
             <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;flex:1;min-width:140px">
               <input type="checkbox" id="inp-connfee-on" checked onchange="recalc()"
-                style="accent-color:var(--gold);width:15px;height:15px;cursor:pointer;flex-shrink:0">
+                style="accent-color:#8A6E2A;width:15px;height:15px;cursor:pointer;flex-shrink:0">
               <div>
-                <div style="font-size:0.72rem;color:var(--muted);font-weight:500">Connection Fee</div>
-                <div style="font-size:0.6rem;color:var(--dim);margin-top:1px">Utility delivery fee post-solar</div>
+                <div style="font-size:0.72rem;color:#3d3020;font-weight:500">Connection Fee</div>
+                <div style="font-size:0.6rem;color:#5a4f38;margin-top:1px">Utility delivery fee post-solar</div>
               </div>
             </label>
             <div style="display:flex;align-items:center;gap:0.3rem">
-              <span style="font-size:0.72rem;color:var(--dim)">$</span>
+              <span style="font-size:0.72rem;color:#5a4f38">$</span>
               <input type="number" class="n-input" id="inp-connfee" value="24" oninput="recalc()"
-                style="font-size:0.88rem;width:58px;padding:0.3rem 0.5rem;border-color:rgba(150,150,150,0.2);color:var(--muted);text-align:center">
-              <span style="font-size:0.68rem;color:var(--dim)">/mo</span>
+                style="font-size:0.88rem;width:58px;padding:0.3rem 0.5rem;border-color:rgba(150,150,150,0.2);color:#3d3020;text-align:center">
+              <span style="font-size:0.68rem;color:#5a4f38">/mo</span>
             </div>
           </div>
         </div>
@@ -2100,7 +2125,7 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
         <div class="cash-panel" id="cash-panel">
           <div class="n-card-title" style="font-size:0.65rem;margin-bottom:0.75rem">Advanced Settings</div>
 
-          <div style="height:1px;background:rgba(255,255,255,0.06);margin-bottom:0.75rem"></div>
+          <div style="height:1px;background:#fff;margin-bottom:0.75rem"></div>
           <div class="n-card-title" style="font-size:0.65rem;margin-bottom:0.5rem">Cash vs. Invest Analysis</div>
 
           <div class="n-input-group">
@@ -2124,11 +2149,11 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
               <option value="0.10">10%</option>
             </select>
           </div>
-          <div style="margin-top:0.6rem;font-size:0.78rem;color:var(--muted);line-height:1.8">
-            Net Cost After ITC: <strong style="color:var(--gold)" id="cash-netcost">$39,406</strong><br>
+          <div style="margin-top:0.6rem;font-size:0.78rem;color:#3d3020;line-height:1.8">
+            Net Cost After ITC: <strong style="color:#8A6E2A" id="cash-netcost">$39,406</strong><br>
             S&P Growth <span id="cash-term-label">25</span>yr: <strong style="color:#5B9BD5" id="cash-spgrowth">—</strong><br>
-            Solar Savings <span id="cash-term-label2">25</span>yr: <strong style="color:var(--green-l)" id="cash-solarsavings">—</strong><br>
-            <em style="color:var(--dim);font-size:0.7rem">Investing cash grows more numerically — but solar eliminates rate risk forever.</em>
+            Solar Savings <span id="cash-term-label2">25</span>yr: <strong style="color:#1d7a48" id="cash-solarsavings">—</strong><br>
+            <em style="color:#5a4f38;font-size:0.7rem">Investing cash grows more numerically — but solar eliminates rate risk forever.</em>
           </div>
         </div>
 
@@ -2147,7 +2172,7 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
             </div>
           </div>
           <div style="position:relative;height:240px"><canvas id="chartMain"></canvas></div>
-          <div style="display:flex;gap:1.5rem;flex-wrap:wrap;font-size:0.72rem;color:var(--muted);margin-top:0.6rem">
+          <div style="display:flex;gap:1.5rem;flex-wrap:wrap;font-size:0.72rem;color:#3d3020;margin-top:0.6rem">
             <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:3px;background:#E74C3C;border-radius:2px;display:inline-block"></span><span id="leg-util">SDG&E</span> (rising)</span>
             <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:3px;background:#2ECC71;border-radius:2px;display:inline-block;border-top:2px dashed #2ECC71"></span>Solar VPP (fixed)</span>
           </div>
@@ -2156,12 +2181,12 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
         <!-- DONATIONS vs SAVINGS MILESTONES — BIGGER -->
         <div class="chart-box" style="padding:1rem 1.25rem">
           <div class="chart-box-header" style="margin-bottom:0.75rem">
-            <div class="chart-box-title">Cost Donated to <span id="donations-util-name" style="color:var(--rage-l);font-weight:600">SDG&E</span> vs Your Solar Savings</div>
+            <div class="chart-box-title">Cost Donated to <span id="donations-util-name" style="color:#c0392b;font-weight:600">SDG&E</span> vs Your Solar Savings</div>
           </div>
           <div style="display:grid;grid-template-columns:56px 1fr 1fr;gap:0;margin-bottom:6px">
-            <div style="font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--dim)">Year</div>
-            <div style="font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rage-l);text-align:right">Donated to Utility</div>
-            <div style="font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--green-l);text-align:right">Solar Saves You</div>
+            <div style="font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:#5a4f38">Year</div>
+            <div style="font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:#c0392b;text-align:right">Donated to Utility</div>
+            <div style="font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:#1d7a48;text-align:right">Solar Saves You</div>
           </div>
           <div id="milestone-rows"></div>
         </div>
@@ -2171,28 +2196,28 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
           <div class="flip-inner">
             <div class="flip-front">
               <div style="display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:0.6rem">
-                <span style="font-size:0.72rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold)">Key Benefits</span>
-                <span style="font-size:0.68rem;color:var(--dim)">click to reveal →</span>
+                <span style="font-size:0.72rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:#8A6E2A">Key Benefits</span>
+                <span style="font-size:0.68rem;color:#5a4f38">click to reveal →</span>
               </div>
               <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;width:100%">
                 <div style="background:rgba(39,174,96,0.08);border:1px solid rgba(39,174,96,0.2);border-radius:5px;padding:0.6rem;text-align:center">
-                  <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--green-l);line-height:1" id="fb-offset">—</div>
-                  <div style="font-size:0.65rem;color:var(--dim);text-transform:uppercase;letter-spacing:0.08em;margin-top:3px">Production Offset</div>
+                  <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:#1d7a48;line-height:1" id="fb-offset">—</div>
+                  <div style="font-size:0.65rem;color:#5a4f38;text-transform:uppercase;letter-spacing:0.08em;margin-top:3px">Production Offset</div>
                 </div>
                 <div style="background:rgba(200,168,75,0.07);border:1px solid rgba(200,168,75,0.2);border-radius:5px;padding:0.6rem;text-align:center">
-                  <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--gold);line-height:1" id="fb-breakeven">—</div>
-                  <div style="font-size:0.65rem;color:var(--dim);text-transform:uppercase;letter-spacing:0.08em;margin-top:3px">Break-Even</div>
+                  <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:#8A6E2A;line-height:1" id="fb-breakeven">—</div>
+                  <div style="font-size:0.65rem;color:#5a4f38;text-transform:uppercase;letter-spacing:0.08em;margin-top:3px">Break-Even</div>
                 </div>
                 <div style="background:rgba(39,174,96,0.08);border:1px solid rgba(39,174,96,0.2);border-radius:5px;padding:0.6rem;text-align:center">
-                  <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--green-l);line-height:1" id="fb-savings">—</div>
-                  <div style="font-size:0.65rem;color:var(--dim);text-transform:uppercase;letter-spacing:0.08em;margin-top:3px">25yr Savings</div>
+                  <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:#1d7a48;line-height:1" id="fb-savings">—</div>
+                  <div style="font-size:0.65rem;color:#5a4f38;text-transform:uppercase;letter-spacing:0.08em;margin-top:3px">25yr Savings</div>
                 </div>
               </div>
             </div>
             <div class="flip-back">
               <div style="display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:0.6rem">
-                <span style="font-size:0.72rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold)">Benefits of This Plan</span>
-                <button onclick="addBenefit(event)" style="background:transparent;border:1px solid var(--border);color:var(--gold);padding:3px 10px;border-radius:3px;font-size:0.72rem;cursor:pointer;font-family:'DM Sans',sans-serif">+ Add</button>
+                <span style="font-size:0.72rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:#8A6E2A">Benefits of This Plan</span>
+                <button onclick="addBenefit(event)" style="background:transparent;border:1px solid var(--border);color:#8A6E2A;padding:3px 10px;border-radius:3px;font-size:0.72rem;cursor:pointer;font-family:'DM Sans',sans-serif">+ Add</button>
               </div>
               <ul id="benefits-list" style="list-style:none;display:flex;flex-direction:column;gap:5px;width:100%;overflow-y:auto;max-height:100px"></ul>
             </div>
@@ -2206,19 +2231,19 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
     <div id="investment-panel" style="display:none;margin-top:2rem;padding-top:2rem;border-top:1px solid rgba(200,168,75,0.2)">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
         <div>
-          <div style="font-size:0.68rem;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:0.3rem">Hidden Analysis</div>
-          <h2 class="display md" style="font-size:clamp(1.4rem,3vw,2.2rem)">CASH PURCHASE <span style="color:var(--gold)">VS INVESTING</span></h2>
+          <div style="font-size:0.68rem;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:#8A6E2A;margin-bottom:0.3rem">Hidden Analysis</div>
+          <h2 class="display md" style="font-size:clamp(1.4rem,3vw,2.2rem)">CASH PURCHASE <span style="color:#8A6E2A">VS INVESTING</span></h2>
         </div>
-        <button onclick="toggleInvestment()" style="background:transparent;border:1px solid var(--border);color:var(--dim);padding:0.4rem 1rem;border-radius:4px;font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif">Close ✕</button>
+        <button onclick="toggleInvestment()" style="background:transparent;border:1px solid var(--border);color:#5a4f38;padding:0.4rem 1rem;border-radius:4px;font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif">Close ✕</button>
       </div>
 
       <!-- Inputs row -->
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem">
         <div class="n-card" style="border-color:rgba(200,168,75,0.25)">
-          <div class="n-card-title" style="color:var(--gold)">Cash Investment</div>
+          <div class="n-card-title" style="color:#8A6E2A">Cash Investment</div>
           <div class="n-input-group">
             <div class="n-label">System Cash Cost ($)</div>
-            <input type="number" class="n-input big" id="inv-system" value="56294" oninput="recalcInv()" style="color:var(--gold)">
+            <input type="number" class="n-input big" id="inv-system" value="56294" oninput="recalcInv()" style="color:#8A6E2A">
           </div>
           <div class="n-input-group">
             <div class="n-label">30% Federal Energy Discount</div>
@@ -2229,38 +2254,38 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
               <option value="0">None</option>
             </select>
           </div>
-          <div style="margin-top:0.5rem;padding:0.5rem 0.75rem;background:rgba(200,168,75,0.08);border-radius:4px;border:1px solid rgba(200,168,75,0.2)">
-            <div style="font-size:0.65rem;color:var(--dim);margin-bottom:2px">Net Cash Cost</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--gold)" id="inv-netcost">$39,406</div>
+          <div style="margin-top:0.5rem;padding:0.5rem 0.75rem;background:rgba(200,168,75,0.1);border-radius:4px;border:1px solid rgba(200,168,75,0.2)">
+            <div style="font-size:0.65rem;color:#5a4f38;margin-bottom:2px">Net Cash Cost</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:#8A6E2A" id="inv-netcost">$39,406</div>
           </div>
           <!-- Cash purchase total savings: utility cumul - net cost -->
           <div style="margin-top:0.5rem;padding:0.5rem 0.75rem;background:rgba(39,174,96,0.07);border-radius:4px;border:1px solid rgba(39,174,96,0.18)">
-            <div style="font-size:0.65rem;color:var(--dim);margin-bottom:2px">Net Savings if Paid Cash (<span id="cash-term-yr">25</span>yr bills eliminated − net cost)</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--green-l)" id="inv-cash-netsavings">—</div>
+            <div style="font-size:0.65rem;color:#5a4f38;margin-bottom:2px">Net Savings if Paid Cash (<span id="cash-term-yr">25</span>yr bills eliminated − net cost)</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:#1d7a48" id="inv-cash-netsavings">—</div>
           </div>
         </div>
         <div class="n-card">
           <div class="n-card-title">S&P 500 Return (if invested)</div>
           <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.4rem">
             <input type="range" id="inv-sp-slider" min="4" max="14" step="0.5" value="8" oninput="document.getElementById('inv-sp-val').textContent=this.value+'%';recalcInv()" style="flex:1">
-            <span style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--gold);min-width:48px;text-align:right" id="inv-sp-val">8%</span>
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:#8A6E2A;min-width:48px;text-align:right" id="inv-sp-val">8%</span>
           </div>
-          <div style="font-size:0.72rem;color:var(--dim);margin-top:0.25rem">S&P 500 Historical Average: ~10%<br>Conservative estimate: 7–8%</div>
+          <div style="font-size:0.72rem;color:#5a4f38;margin-top:0.25rem">S&P 500 Historical Average: ~10%<br>Conservative estimate: 7–8%</div>
           <div style="margin-top:0.75rem;padding:0.5rem 0.75rem;background:rgba(91,155,213,0.08);border-radius:4px;border:1px solid rgba(91,155,213,0.2)">
-            <div style="font-size:0.65rem;color:var(--dim);margin-bottom:2px">25yr S&P Growth of Net Cost</div>
+            <div style="font-size:0.65rem;color:#5a4f38;margin-bottom:2px">25yr S&P Growth of Net Cost</div>
             <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:#5B9BD5" id="inv-sp-25">—</div>
           </div>
         </div>
         <div class="n-card" style="border-color:rgba(39,174,96,0.25)">
-          <div class="n-card-title" style="color:var(--green-l)">$0 Down Solar Savings</div>
-          <div style="font-size:0.78rem;color:var(--muted);line-height:1.6;margin-bottom:0.5rem">Based on current inputs from the model above (monthly payment vs. utility trajectory).</div>
+          <div class="n-card-title" style="color:#1d7a48">$0 Down Solar Savings</div>
+          <div style="font-size:0.78rem;color:#3d3020;line-height:1.6;margin-bottom:0.5rem">Based on current inputs from the model above (monthly payment vs. utility trajectory).</div>
           <div style="padding:0.5rem 0.75rem;background:rgba(39,174,96,0.08);border-radius:4px;border:1px solid rgba(39,174,96,0.2);margin-bottom:0.5rem">
-            <div style="font-size:0.65rem;color:var(--dim);margin-bottom:2px">25yr Solar Savings ($0 Down)</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--green-l)" id="inv-solar-savings">—</div>
+            <div style="font-size:0.65rem;color:#5a4f38;margin-bottom:2px">25yr Solar Savings ($0 Down)</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:#1d7a48" id="inv-solar-savings">—</div>
           </div>
           <div style="padding:0.5rem 0.75rem;background:rgba(200,168,75,0.07);border-radius:4px;border:1px solid rgba(200,168,75,0.2)">
-            <div style="font-size:0.65rem;color:var(--dim);margin-bottom:2px">Savings + S&P Gain (Cash → Invest)</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--gold)" id="inv-total-combo">—</div>
+            <div style="font-size:0.65rem;color:#5a4f38;margin-bottom:2px">Savings + S&P Gain (Cash → Invest)</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:#8A6E2A" id="inv-total-combo">—</div>
           </div>
         </div>
       </div>
@@ -2269,18 +2294,18 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
       <div class="chart-box" style="padding:1.5rem">
         <div class="chart-box-header" style="margin-bottom:1.5rem">
           <div class="chart-box-title">25-Year Scenario Comparison</div>
-          <div style="font-size:0.65rem;color:var(--dim)">Hover each bar for details</div>
+          <div style="font-size:0.65rem;color:#5a4f38">Hover each bar for details</div>
         </div>
         <div id="inv-bars" style="display:flex;align-items:flex-end;justify-content:center;gap:1rem;padding:0.5rem 0;min-height:280px;position:relative">
           <!-- Bars rendered by recalcInv() -->
         </div>
         <!-- Legend -->
         <div style="display:flex;flex-wrap:wrap;gap:0.75rem 1.25rem;margin-top:1.25rem;justify-content:center">
-          <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.68rem;color:var(--muted)"><span style="width:10px;height:10px;border-radius:2px;background:#E74C3C;display:inline-block"></span>Utility Cost</div>
-          <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.68rem;color:var(--muted)"><span style="width:10px;height:10px;border-radius:2px;background:#C8A84B;display:inline-block"></span>Cash Savings</div>
-          <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.68rem;color:var(--muted)"><span style="width:10px;height:10px;border-radius:2px;background:#2ECC71;display:inline-block"></span>$0 Down Solar</div>
-          <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.68rem;color:var(--muted)"><span style="width:10px;height:10px;border-radius:2px;background:#5B9BD5;display:inline-block"></span>S&P Returns</div>
-          <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.68rem;color:var(--muted)"><span style="width:10px;height:10px;border-radius:2px;background:linear-gradient(180deg,#5B9BD5 50%,#2ECC71 50%);display:inline-block"></span>Best of Both</div>
+          <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.68rem;color:#3d3020"><span style="width:10px;height:10px;border-radius:2px;background:#E74C3C;display:inline-block"></span>Utility Cost</div>
+          <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.68rem;color:#3d3020"><span style="width:10px;height:10px;border-radius:2px;background:#C8A84B;display:inline-block"></span>Cash Savings</div>
+          <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.68rem;color:#3d3020"><span style="width:10px;height:10px;border-radius:2px;background:#2ECC71;display:inline-block"></span>$0 Down Solar</div>
+          <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.68rem;color:#3d3020"><span style="width:10px;height:10px;border-radius:2px;background:#5B9BD5;display:inline-block"></span>S&P Returns</div>
+          <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.68rem;color:#3d3020"><span style="width:10px;height:10px;border-radius:2px;background:linear-gradient(180deg,#5B9BD5 50%,#2ECC71 50%);display:inline-block"></span>Best of Both</div>
         </div>
       </div>
 

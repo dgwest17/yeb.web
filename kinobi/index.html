@@ -1425,31 +1425,46 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
     <div class="options-stack">
 
       <!-- Option 1 -->
-      <div class="option-card op1">
-        <div>
-          <span class="op-badge">Option 1 — Do Nothing</span>
-          <div class="op-title">Keep paying SDG&E forever</div>
-          <div class="op-desc">Rates keep climbing. You keep paying. Over 25 years you'll hand them <strong style="color:var(--rage-l)" id="op-total">$88,222</strong> and own absolutely nothing.</div>
+      <div class="option-card op1" id="op1-card">
+        <div style="flex:1">
+          <div style="display:flex;align-items:baseline;gap:0.6rem;margin-bottom:0.2rem;flex-wrap:wrap">
+            <span class="op-badge">Option 1</span>
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.1rem,2.5vw,1.6rem);color:var(--rage-l);letter-spacing:0.04em">Endlessly Donate to SDG&E</span>
+          </div>
+          <div class="op-desc" style="margin-top:0.2rem">Rates keep climbing. You keep paying. Over 25 years you'll hand them <strong style="color:var(--rage-l)" id="op-total">$88,222</strong> and own absolutely nothing.
+            <span style="color:var(--dim);font-size:0.68rem;margin-left:0.5rem">— hover the chart to see cumulative costs →</span>
+          </div>
         </div>
-        <div class="op-chart-mini"><canvas id="chartOp1"></canvas></div>
+        <div class="op-chart-mini" style="position:relative">
+          <canvas id="chartOp1"></canvas>
+          <div id="op1-tooltip" style="display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(8,15,30,0.95);border:1px solid rgba(231,76,60,0.4);border-radius:6px;padding:0.5rem 0.85rem;pointer-events:none;text-align:center;white-space:nowrap;z-index:10">
+            <div style="font-size:0.6rem;color:var(--dim)" id="op1-tip-yr">Year</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:#E74C3C;letter-spacing:0.03em" id="op1-tip-val">$0</div>
+            <div style="font-size:0.58rem;color:var(--dim)">cumulative to SDG&E</div>
+          </div>
+        </div>
       </div>
 
       <!-- Option 2 -->
       <div class="option-card op2">
-        <div>
-          <span class="op-badge">Option 2 — Cut Back</span>
-          <div class="op-title" style="color:#aaa">Lower your lifestyle to lower your bill</div>
-          <div class="op-desc" style="color:rgba(255,255,255,0.4)">No A/C. No hot tub. No EV charging. Your bill stays flat — but so does your quality of life. Is that the trade-off you want to make?</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:baseline;gap:0.6rem;margin-bottom:0.2rem;flex-wrap:wrap">
+            <span class="op-badge">Option 2</span>
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.1rem,2.5vw,1.6rem);color:#aaa;letter-spacing:0.04em">Cut Back on Your Lifestyle</span>
+          </div>
+          <div class="op-desc" style="color:rgba(255,255,255,0.4);margin-top:0.2rem">No A/C. No hot tub. No EV charging. Your bill stays flat — but so does your quality of life. Is that the trade-off you want to make?</div>
         </div>
         <div class="op-chart-mini"><canvas id="chartOp2"></canvas></div>
       </div>
 
       <!-- Option 3 -->
       <div class="option-card op3">
-        <div>
-          <span class="op-badge">Option 3 — Take Control</span>
-          <div class="op-title" style="color:var(--green-l)">Lock in your rate. Own your power.</div>
-          <div class="op-desc" style="color:rgba(255,255,255,0.7)">Fixed payment. No surprises. 25-year warranty. Your rate <em>never</em> goes up — while theirs climbs every single year.</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:baseline;gap:0.6rem;margin-bottom:0.2rem;flex-wrap:wrap">
+            <span class="op-badge">Option 3</span>
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.1rem,2.5vw,1.6rem);color:var(--green-l);letter-spacing:0.04em">Lock In Your Rate. Own Your Power.</span>
+          </div>
+          <div class="op-desc" style="color:rgba(255,255,255,0.7);margin-top:0.2rem">Fixed payment. No surprises. 25-year warranty. Your rate <em>never</em> goes up — while theirs climbs every single year.</div>
         </div>
         <div class="op-chart-mini"><canvas id="chartOp3"></canvas></div>
       </div>
@@ -2250,12 +2265,23 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
         </div>
       </div>
 
-      <!-- Comparison bars -->
-      <div class="chart-box">
-        <div class="chart-box-header">
+      <!-- Vertical bar chart comparison -->
+      <div class="chart-box" style="padding:1.5rem">
+        <div class="chart-box-header" style="margin-bottom:1.5rem">
           <div class="chart-box-title">25-Year Scenario Comparison</div>
+          <div style="font-size:0.65rem;color:var(--dim)">Hover each bar for details</div>
         </div>
-        <div id="inv-bars" style="display:flex;flex-direction:column;gap:0.75rem;padding:0.5rem 0"></div>
+        <div id="inv-bars" style="display:flex;align-items:flex-end;justify-content:center;gap:1rem;padding:0.5rem 0;min-height:280px;position:relative">
+          <!-- Bars rendered by recalcInv() -->
+        </div>
+        <!-- Legend -->
+        <div style="display:flex;flex-wrap:wrap;gap:0.75rem 1.25rem;margin-top:1.25rem;justify-content:center">
+          <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.68rem;color:var(--muted)"><span style="width:10px;height:10px;border-radius:2px;background:#E74C3C;display:inline-block"></span>Utility Cost</div>
+          <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.68rem;color:var(--muted)"><span style="width:10px;height:10px;border-radius:2px;background:#C8A84B;display:inline-block"></span>Cash Savings</div>
+          <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.68rem;color:var(--muted)"><span style="width:10px;height:10px;border-radius:2px;background:#2ECC71;display:inline-block"></span>$0 Down Solar</div>
+          <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.68rem;color:var(--muted)"><span style="width:10px;height:10px;border-radius:2px;background:#5B9BD5;display:inline-block"></span>S&P Returns</div>
+          <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.68rem;color:var(--muted)"><span style="width:10px;height:10px;border-radius:2px;background:linear-gradient(180deg,#5B9BD5 50%,#2ECC71 50%);display:inline-block"></span>Best of Both</div>
+        </div>
       </div>
 
     </div>
@@ -2811,31 +2837,105 @@ function recalcInv() {
   // Comparison bars
   const barsEl = document.getElementById('inv-bars');
   if (!barsEl) return;
-  const maxVal = Math.max(d.utilCumul[TERM - 1], solarSav, cashNetSavings, spGrowth25, combo, 1);
+  const maxVal = Math.max(d.utilCumul[TERM - 1], Math.abs(solarSav), Math.abs(cashNetSavings), spGrowth25, combo, 1);
+  const chartH = 260; // px height of chart area
 
   const scenarios = [
-    { label: 'Total cost if staying with ' + d.utilName + ' (' + TERM + 'yr)', val: d.utilCumul[TERM - 1], color: '#E74C3C', sign: '-' },
-    { label: 'Net savings if paid cash (bills eliminated − net cost)', val: cashNetSavings, color: '#C8A84B', sign: cashNetSavings >= 0 ? '+' : '' },
-    { label: 'Savings with $0 Down Solar (' + TERM + 'yr)', val: solarSav, color: '#2ECC71', sign: '+' },
-    { label: 'S&P 500 growth if net cash cost invested (' + TERM + 'yr)', val: spGrowth25, color: '#5B9BD5', sign: '' },
-    { label: 'Best of both: $0 Down savings + S&P gain', val: combo, color: '#C8A84B', sign: '+' },
+    { label: 'Utility Cost', sub: d.utilName + ' ' + TERM + 'yr total', val: d.utilCumul[TERM - 1], color: '#E74C3C', sign: '-', glow: 'rgba(231,76,60,0.25)' },
+    { label: 'Cash Savings', sub: 'Bills avoided − net system cost', val: cashNetSavings, color: '#C8A84B', sign: cashNetSavings >= 0 ? '+' : '', glow: 'rgba(200,168,75,0.25)' },
+    { label: '$0 Down Solar', sub: 'Savings over ' + TERM + ' years', val: solarSav, color: '#2ECC71', sign: '+', glow: 'rgba(46,204,113,0.25)' },
+    { label: 'S&P Returns', sub: 'Net cost invested at ' + Math.round((d.invSp||0.08)*100) + '%', val: spGrowth25, color: '#5B9BD5', sign: '+', glow: 'rgba(91,155,213,0.25)' },
+    { label: 'Best of Both', sub: '$0 Down + S&P gain', val: combo, color: null, solarVal: solarSav, spVal: spGrowth25 - (d.netCost||0), sign: '+', glow: 'rgba(200,168,75,0.2)', stacked: true },
   ];
 
   barsEl.innerHTML = '';
-  scenarios.forEach(s => {
-    const pct = Math.min((Math.abs(s.val) / maxVal) * 100, 100);
-    const div = document.createElement('div');
-    div.innerHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
-        <span style="font-size:0.75rem;color:var(--muted)">${s.label}</span>
-        <span style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:${s.color};letter-spacing:0.03em">${s.sign}$${Math.round(Math.abs(s.val)).toLocaleString()}</span>
-      </div>
-      <div style="height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;margin-bottom:10px">
-        <div style="height:100%;width:${pct}%;background:${s.color};border-radius:4px;transition:width 0.6s ease;opacity:0.85"></div>
-      </div>
-    `;
-    barsEl.appendChild(div);
+
+  // Y-axis grid lines
+  const gridWrap = document.createElement('div');
+  gridWrap.style.cssText = 'position:absolute;inset:0;pointer-events:none';
+  [0,25,50,75,100].forEach(pct => {
+    const y = chartH * (1 - pct/100);
+    const line = document.createElement('div');
+    line.style.cssText = `position:absolute;left:0;right:0;top:${y}px;height:1px;background:rgba(255,255,255,0.06)`;
+    if(pct===0) line.style.background='rgba(255,255,255,0.12)';
+    gridWrap.appendChild(line);
+    if(pct>0){
+      const lbl = document.createElement('span');
+      lbl.style.cssText = `position:absolute;left:4px;top:${y-8}px;font-size:0.55rem;color:rgba(255,255,255,0.2);font-family:'DM Sans',sans-serif`;
+      lbl.textContent = '$'+Math.round(maxVal*pct/100/1000)+'K';
+      gridWrap.appendChild(lbl);
+    }
   });
+  barsEl.appendChild(gridWrap);
+
+  // Bar container (flex row, sits on baseline)
+  const barRow = document.createElement('div');
+  barRow.style.cssText = `display:flex;align-items:flex-end;justify-content:space-around;width:100%;height:${chartH}px;position:relative;z-index:1;padding:0 0.5rem`;
+
+  scenarios.forEach((s, si) => {
+    const absVal = Math.abs(s.val);
+    const pct = Math.min(absVal / maxVal, 1);
+    const barH = Math.max(pct * chartH, 4);
+
+    const col = document.createElement('div');
+    col.style.cssText = 'display:flex;flex-direction:column;align-items:center;flex:1;max-width:120px;cursor:pointer;position:relative';
+
+    // Tooltip on hover
+    const valStr = (s.sign||'') + '$' + Math.round(absVal).toLocaleString();
+
+    // Bar
+    const barWrap = document.createElement('div');
+    barWrap.style.cssText = `width:72%;max-width:64px;height:${barH}px;position:relative;border-radius:4px 4px 0 0;transition:filter 0.2s,transform 0.2s`;
+
+    if(s.stacked) {
+      // Split bar: solar on bottom, S&P on top
+      const totalStacked = (s.solarVal||0) + Math.max(s.spVal||0, 0);
+      const solarPct = totalStacked > 0 ? (s.solarVal||0)/totalStacked : 0.5;
+      const spPct = 1 - solarPct;
+      barWrap.style.background = 'transparent';
+      barWrap.style.overflow = 'hidden';
+      barWrap.innerHTML = `
+        <div style="position:absolute;bottom:0;width:100%;height:${solarPct*100}%;background:#2ECC71;opacity:0.88;border-radius:0"></div>
+        <div style="position:absolute;bottom:${solarPct*100}%;width:100%;height:${spPct*100}%;background:#5B9BD5;opacity:0.88;border-radius:4px 4px 0 0"></div>
+      `;
+    } else {
+      barWrap.style.cssText += `;background:${s.color};opacity:0.88`;
+    }
+
+    // Glow
+    barWrap.style.boxShadow = `0 0 18px ${s.glow||'rgba(255,255,255,0.1)'}`;
+
+    // Value label on top of bar
+    const valLbl = document.createElement('div');
+    valLbl.style.cssText = 'font-family:"Bebas Neue",sans-serif;font-size:0.9rem;letter-spacing:0.03em;color:#fff;text-align:center;margin-bottom:4px;white-space:nowrap';
+    valLbl.style.color = s.stacked ? '#fff' : (s.color||'#fff');
+    valLbl.textContent = valStr;
+
+    // Bar label
+    const nameLbl = document.createElement('div');
+    nameLbl.style.cssText = 'font-size:0.6rem;color:var(--muted);text-align:center;margin-top:6px;line-height:1.3;max-width:80px';
+    nameLbl.textContent = s.label;
+
+    // Hover tooltip
+    const tip = document.createElement('div');
+    tip.style.cssText = 'position:absolute;bottom:100%;left:50%;transform:translateX(-50%) translateY(-8px);background:rgba(10,20,40,0.97);border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:0.6rem 0.85rem;white-space:nowrap;display:none;z-index:100;pointer-events:none;min-width:160px';
+    tip.innerHTML = `<div style="font-size:0.68rem;color:var(--muted);margin-bottom:3px">${s.label}</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:${s.color||'#fff'}">${valStr}</div>
+      <div style="font-size:0.62rem;color:var(--dim);margin-top:2px">${s.sub}</div>`;
+
+    col.addEventListener('mouseenter', () => { barWrap.style.filter='brightness(1.2)'; barWrap.style.transform='scaleY(1.02)'; barWrap.style.transformOrigin='bottom'; tip.style.display='block'; });
+    col.addEventListener('mouseleave', () => { barWrap.style.filter=''; barWrap.style.transform=''; tip.style.display='none'; });
+    // Touch
+    col.addEventListener('touchstart', (e) => { e.stopPropagation(); tip.style.display=tip.style.display==='block'?'none':'block'; }, {passive:true});
+
+    col.appendChild(tip);
+    col.appendChild(valLbl);
+    col.appendChild(barWrap);
+    col.appendChild(nameLbl);
+    barRow.appendChild(col);
+  });
+
+  barsEl.appendChild(barRow);
 }
 
 // ─── SUMMARY SLIDE REVEAL ──────────────────
@@ -2943,9 +3043,35 @@ function buildMiniChart(id, data, color) {
 }
 
 const d0 = buildData();
-buildMiniChart('chartOp1', d0.utilMonthly.map(v=>Math.round(v)), '#E74C3C');
+buildMiniChart('chartOp1', d0.utilMonthly30.map(v=>Math.round(v)), '#E74C3C');
 buildMiniChart('chartOp2', YEARS.map(()=>Math.round(d0.bill)), '#888888');
 buildMiniChart('chartOp3', YEARS.map(()=>d0.solarMonthly ? Math.round(d0.solarMonthly[0]) : 202), '#2ECC71');
+
+// ── Op1 hover: show cumulative cost tooltip ──
+(function(){
+  const canvas = document.getElementById('chartOp1');
+  const tip    = document.getElementById('op1-tooltip');
+  const tipYr  = document.getElementById('op1-tip-yr');
+  const tipVal = document.getElementById('op1-tip-val');
+  if(!canvas||!tip) return;
+
+  function showTip(clientX, clientY) {
+    const d = buildData();
+    const rect = canvas.getBoundingClientRect();
+    const relX = clientX - rect.left;
+    const pct  = Math.max(0, Math.min(1, relX / rect.width));
+    const yr   = Math.round(pct * (d.YEARS_30.length - 1));
+    const cumVal = d.utilMonthly30.slice(0, yr+1).reduce((s,m)=>s+m*12, 0);
+    tipYr.textContent  = 'Year ' + d.YEARS_30[yr];
+    tipVal.textContent = '$' + Math.round(cumVal).toLocaleString();
+    tip.style.display  = 'block';
+  }
+
+  canvas.addEventListener('mousemove',  e => showTip(e.clientX, e.clientY));
+  canvas.addEventListener('touchmove',  e => { e.stopPropagation(); showTip(e.touches[0].clientX, e.touches[0].clientY); }, {passive:true});
+  canvas.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+  canvas.addEventListener('touchend',   () => { setTimeout(()=>tip.style.display='none', 1200); }, {passive:true});
+})();
 
 // ═══════════════════════════════════════════
 //  INSTAGRAM FEED

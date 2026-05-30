@@ -44,13 +44,13 @@ function set_security_headers() {
 // 3. ADMIN AUTHENTICATION
 // ============================================================
 
-// Admin credentials — CHANGE THESE
-// Generate a new hash: php -r "echo password_hash('YOUR_NEW_PASSWORD', PASSWORD_BCRYPT);"
-define('ADMIN_USERNAME', 'admin');
-define('ADMIN_PASSWORD_HASH', password_hash('beacons', PASSWORD_BCRYPT)); 
-// ⚠️  IMPORTANT: After first deploy, replace the line above with a pre-computed hash:
-// define('ADMIN_PASSWORD_HASH', '$2y$10$XXXXX...your_precomputed_hash...');
-// Then delete the password_hash() call so the plain-text password isn't in source.
+// Admin credentials — loaded from config.php (gitignored, lives ONLY on the server)
+// In config.php set:
+//   'admin_username'      => 'admin',
+//   'admin_password_hash' => '$2y$10$....'   // generate with: php -r "echo password_hash('YOUR_PASSWORD', PASSWORD_BCRYPT);"
+$__sec_cfg = file_exists(__DIR__ . '/config.php') ? require __DIR__ . '/config.php' : [];
+define('ADMIN_USERNAME',      $__sec_cfg['admin_username']      ?? 'admin');
+define('ADMIN_PASSWORD_HASH', $__sec_cfg['admin_password_hash'] ?? '');
 
 /**
  * Verify admin login credentials

@@ -9,8 +9,10 @@ header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
 // ─── CONFIG ───
-define('CLIENT_ID',          '1000.E3XUN0DQA4EZ8XZDGLTVVN33YEPB4V');
-define('CLIENT_SECRET',      'e6c650a1fdf0dcaa229d2f3569c24d8e7a927205c3');
+// Credentials loaded from config.php (gitignored — lives ONLY on the server)
+$__cfg = file_exists(__DIR__ . '/config.php') ? require __DIR__ . '/config.php' : [];
+define('CLIENT_ID',          $__cfg['zoho_client_id']     ?? '');
+define('CLIENT_SECRET',      $__cfg['zoho_client_secret'] ?? '');
 define('REFRESH_TOKEN_FILE', __DIR__ . '/.zoho_refresh_token');
 define('ZOHO_API_BASE',      'https://www.zohoapis.com/crm/v2');
 define('CACHE_FILE',         __DIR__ . '/map-pins-cache.json');

@@ -13,8 +13,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit; }
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 
-define('CLIENT_ID',          '1000.E3XUN0DQA4EZ8XZDGLTVVN33YEPB4V');
-define('CLIENT_SECRET',      'e6c650a1fdf0dcaa229d2f3569c24d8e7a927205c3');
+// ─── Credentials loaded from config.php (gitignored — lives ONLY on the server) ───
+$__cfg = file_exists(__DIR__ . '/config.php') ? require __DIR__ . '/config.php' : [];
+define('CLIENT_ID',          $__cfg['zoho_client_id']     ?? '');
+define('CLIENT_SECRET',      $__cfg['zoho_client_secret'] ?? '');
 define('REFRESH_TOKEN_FILE', __DIR__ . '/.zoho_refresh_token');
 define('LOG_FILE',           __DIR__ . '/zoho_debug.log');
 define('LEADS_BACKUP_FILE',  __DIR__ . '/leads_backup.csv');

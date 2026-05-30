@@ -17,6 +17,144 @@
     .hero__content { display: flex; flex-direction: column; gap: 3rem; }
     .hero__text { order: 1; }
     .hero__visual { order: 2; }
+
+    /* ═══════════════════════════════════════
+       MOBILE NAV — Complete Override
+       ═══════════════════════════════════════ */
+    .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 9999; transition: background 0.3s, padding 0.3s; }
+    .nav__inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; position: relative; }
+
+    .nav__toggle {
+      display: none;
+      background: none; border: none; cursor: pointer;
+      width: 32px; height: 24px; position: relative; z-index: 10001;
+      padding: 0; flex-shrink: 0;
+    }
+    .nav__toggle span {
+      display: block; position: absolute; left: 0; right: 0;
+      height: 2.5px; background: #fff; border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+    .nav__toggle span:nth-child(1) { top: 0; }
+    .nav__toggle span:nth-child(2) { top: 10px; }
+    .nav__toggle span:nth-child(3) { top: 20px; }
+    .nav__toggle.active span:nth-child(1) { top: 10px; transform: rotate(45deg); }
+    .nav__toggle.active span:nth-child(2) { opacity: 0; }
+    .nav__toggle.active span:nth-child(3) { top: 10px; transform: rotate(-45deg); }
+
+    .nav__links {
+      display: flex; list-style: none; gap: 0.25rem; align-items: center;
+      margin: 0; padding: 0;
+    }
+    .nav__links a {
+      color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9rem;
+      font-weight: 500; padding: 0.5rem 0.75rem; border-radius: 6px;
+      transition: color 0.2s, background 0.2s; white-space: nowrap;
+    }
+    .nav__links a:hover, .nav__links a.active { color: #fff; background: rgba(255,255,255,0.08); }
+
+    .nav__phone {
+      display: flex; align-items: center; gap: 0.4rem;
+      color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.85rem;
+      font-weight: 500; white-space: nowrap;
+    }
+    .nav__phone:hover { color: #FFB703; }
+    .nav__phone svg { flex-shrink: 0; }
+    .nav__cta-mobile { display: none; }
+
+    /* Hide phone/CTA list items on desktop */
+    .nav__links-phone, .nav__links-cta { display: none; }
+
+    .nav__overlay {
+      display: none; position: fixed; inset: 0; z-index: 9998;
+      background: rgba(0,0,0,0.6); opacity: 0; transition: opacity 0.3s;
+    }
+    .nav__overlay.open { display: block; opacity: 1; }
+    body.nav-open { overflow: hidden; }
+
+    /* ─── MOBILE ─── */
+    @media (max-width: 900px) {
+      .nav { padding: 0.5rem 1rem !important; }
+      .nav__logo img { height: 50px !important; }
+      .nav__toggle { display: block !important; }
+      .nav__phone span { display: none !important; }
+      .nav__phone { padding: 0.4rem; }
+      .nav__cta-mobile {
+        display: inline-block !important;
+        background: #FFB703; color: #023047;
+        padding: 0.5rem 1rem; border-radius: 100px;
+        font-weight: 700; font-size: 0.8rem; text-decoration: none;
+        white-space: nowrap; margin-right: 0.5rem;
+      }
+
+      /* Slide-out panel */
+      .nav__links {
+        position: fixed !important; top: 0 !important; right: 0 !important;
+        width: 280px !important; max-width: 80vw !important; height: 100vh !important;
+        background: linear-gradient(180deg, #023047 0%, #011627 100%) !important;
+        flex-direction: column !important; align-items: stretch !important;
+        padding: 5rem 1.5rem 2rem !important;
+        gap: 0 !important;
+        transform: translateX(100%) !important;
+        transition: transform 0.35s cubic-bezier(0.16,1,0.3,1) !important;
+        z-index: 10000 !important;
+        box-shadow: -4px 0 30px rgba(0,0,0,0.3);
+        overflow-y: auto !important;
+        display: flex !important;
+      }
+      .nav__links.open { transform: translateX(0) !important; }
+
+      /* Force EVERY item visible */
+      .nav__links li {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        height: auto !important;
+        overflow: visible !important;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+        max-height: none !important;
+        position: static !important;
+        width: 100% !important;
+        pointer-events: auto !important;
+      }
+      .nav__links li a {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        padding: 1rem 0.75rem !important;
+        font-size: 1.05rem !important;
+        border-radius: 0 !important;
+        color: rgba(255,255,255,0.8) !important;
+        text-decoration: none !important;
+        width: 100% !important;
+        height: auto !important;
+        position: static !important;
+        max-height: none !important;
+        pointer-events: auto !important;
+        line-height: 1.4 !important;
+        clip: auto !important;
+        -webkit-clip-path: none !important;
+        clip-path: none !important;
+        transform: none !important;
+      }
+      .nav__links li a:hover,
+      .nav__links li a.active {
+        color: #FFB703 !important;
+        background: rgba(255,183,3,0.06) !important;
+      }
+
+      /* Phone + CTA inside mobile menu */
+      .nav__links-phone, .nav__links-cta { display: block !important; }
+      .nav__links-phone { margin-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.1) !important; }
+      .nav__links-phone a { color: #FFB703 !important; font-weight: 600 !important; }
+      .nav__links-cta { border-bottom: none !important; padding: 0.5rem 0 !important; }
+      .nav__links-cta a {
+        background: #FFB703 !important; color: #023047 !important;
+        font-weight: 700 !important; text-align: center !important;
+        border-radius: 100px !important; padding: 0.85rem 1rem !important;
+        margin-top: 0.5rem !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -43,6 +181,8 @@
   <li role="none"><a href="build" role="menuitem">Build With Us</a></li>
   <li role="none"><a href="blog.html" role="menuitem">Blog</a></li>
   <li role="none"><a href="#testimonials" role="menuitem">Testimonials</a></li>
+  <li role="none" class="nav__links-phone"><a href="tel:7608607862" role="menuitem">📞 (760) 860-7862</a></li>
+  <li role="none" class="nav__links-cta"><a href="quote.html" role="menuitem">Get Your Custom Quote →</a></li>
     </ul>
   </div>
 </nav>
@@ -412,7 +552,7 @@
     <form id="newsletterForm" class="newsletter-popup__form">
       <input type="text" id="nlFirstName" placeholder="First name" required />
       <input type="email" id="nlEmail" placeholder="Email address" required />
-      <!-- Honeypot — invisible to humans -->
+      <!-- Honeypot -->
       <div style="position:absolute;left:-9999px;top:-9999px;height:0;width:0;overflow:hidden" aria-hidden="true">
         <input type="text" id="nlWebsite" name="website" tabindex="-1" autocomplete="off" />
       </div>
@@ -818,6 +958,7 @@ CMS.load().then(() => {
   const closeBtn = document.getElementById('newsletterClose');
   const form = document.getElementById('newsletterForm');
   if (!popup) return;
+  const _nlTs = Math.floor(Date.now() / 1000);
   
   const dismissed = sessionStorage.getItem('nl_dismissed');
   if (dismissed) return;
@@ -832,15 +973,12 @@ CMS.load().then(() => {
     if (e.target === popup) { popup.classList.remove('visible'); sessionStorage.setItem('nl_dismissed', '1'); }
   });
   
-  const _nlLoadTs = Math.floor(Date.now() / 1000);
-  
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = form.querySelector('button');
     btn.textContent = 'Subscribing...';
     btn.disabled = true;
     
-    // Collect UTM data
     const utmData = {};
     ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','referrer'].forEach(k => {
       const v = sessionStorage.getItem(k);
@@ -857,7 +995,7 @@ CMS.load().then(() => {
           first_name: document.getElementById('nlFirstName').value,
           email: document.getElementById('nlEmail').value,
           website: document.getElementById('nlWebsite').value,
-          _ts: _nlLoadTs,
+          _ts: _nlTs,
           ...utmData
         })
       });

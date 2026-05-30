@@ -10,7 +10,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-define('ADMIN_PASSWORD', 'beacons');
+// Password loaded from config.php (gitignored — lives ONLY on the server)
+$__cfg = file_exists(__DIR__ . '/../config.php') ? require __DIR__ . '/../config.php' : [];
+define('ADMIN_PASSWORD', $__cfg['admin_save_password'] ?? '');
 
 $input = file_get_contents('php://input');
 $data = json_decode($input, true);
@@ -23,7 +25,7 @@ if ($data === null) {
 
 // Handle login check
 if (isset($data['action']) && $data['action'] === 'login') {
-    if (isset($data['password']) && $data['password'] === ADMIN_PASSWORD) {
+    if (ADMIN_PASSWORD !== '' && isset($data['password']) && $data['password'] === ADMIN_PASSWORD) {
         echo json_encode(['success' => true]);
     } else {
         http_response_code(401);

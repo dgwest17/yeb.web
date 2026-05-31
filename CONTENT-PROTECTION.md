@@ -19,7 +19,7 @@ When Claude sends you site updates, your admin edits (gallery photos, testimonia
 ```
 
 Claude will:
-1. Call: `yourenergybest.com/api.php?key=yeb_5622d6ee37e38f85c2ea52ca73eb43af`
+1. Call: `yourenergybest.com/api.php/APIKEY`
 2. See your current data
 3. Build changes around YOUR data, not old placeholder data
 

@@ -99,8 +99,8 @@ The form fails because the refresh token is missing/expired:
 ```bash
 curl -X POST "https://accounts.zoho.com/oauth/v2/token" \
   -d "code=PASTE_CODE_HERE" \
-  -d "client_id=1000.W1ZOGCIIX44GUMUK0827B9V9ZHC12L" \
-  -d "client_secret=b7fc12526163429eda966f0f289096708eceb82983" \
+  -d "client_id=" \
+  -d "client_secret=" \
   -d "redirect_uri=https://yourenergybest.com/auth" \
   -d "grant_type=authorization_code"
 ```

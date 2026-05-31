@@ -8,7 +8,7 @@ Claude can now READ your live website content before making any changes. This me
 ## Your API Credentials:
 
 **Endpoint:** `https://yourenergybest.com/api.php`  
-**API Key:** `yeb_5622d6ee37e38f85c2ea52ca73eb43af`
+**API Key:** ``
 
 *(You can also find these in Admin → Global Settings tab)*
 

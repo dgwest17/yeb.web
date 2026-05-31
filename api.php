@@ -5,8 +5,9 @@ header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET');
 
-// Generate a secure API key (you'll use this)
-define('API_KEY', 'yeb_5622d6ee37e38f85c2ea52ca73eb43af');
+// API key loaded from config.php (gitignored — lives ONLY on the server)
+$__cfg = file_exists(__DIR__ . '/config.php') ? require __DIR__ . '/config.php' : [];
+define('API_KEY', $__cfg['api_read_key'] ?? '');
 
 // Rate limiting
 $rate_limit_file = __DIR__ . '/.api_rate_limit';
@@ -42,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit;
 }
 
-if (!isset($_GET['key']) || $_GET['key'] !== API_KEY) {
+if (API_KEY === '' || !isset($_GET['key']) || $_GET['key'] !== API_KEY) {
     http_response_code(401);
     echo json_encode(['error' => 'Invalid API key']);
     exit;

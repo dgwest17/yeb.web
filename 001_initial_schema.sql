@@ -230,7 +230,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- SEED DATA
 -- ═══════════════════════════════════════════════════════════
 
--- Default admin user (password: beacons — change after first login!)
+-- Default admin user (password: — change after first login!)
 INSERT INTO `users` (`name`, `email`, `password_hash`, `role`, `unlocked_level`) VALUES
 ('David West', 'info@yourenergybest.com', '$2y$10$placeholder_hash_replace_me', 'admin', 90);
 

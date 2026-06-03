@@ -2,12 +2,12 @@
 /**
  * become/includes/auth.php — Portal Auth (MySQL-backed)
  * Location: public_html/become/includes/auth.php
- * 
- * Checks session, loads user from MySQL.
- * Sets $_SESSION['portal_user_id'] and $_SESSION['portal_role'] for the API.
+ *
+ * Checks session, loads user from MySQL, exposes role + hierarchy helpers.
+ * Sets $_SESSION['portal_user_id'], ['portal_role'], ['portal_full_access'].
  */
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) session_start();
 
 function require_portal_auth() {
     if (empty($_SESSION['portal_user_id'])) {
@@ -47,7 +47,26 @@ function has_role($required) {
     return ($hierarchy[$role] ?? 0) >= ($hierarchy[$required] ?? 0);
 }
 
-function is_leader() { return has_role('leader'); }
+function is_leader()    { return has_role('leader'); }
+function is_trainer()   { return has_role('trainer'); }
+function portal_role()  { return $_SESSION['portal_role'] ?? 'rep'; }
+function is_engineer()  { return !empty($_SESSION['portal_full_access']); }
+
+/**
+ * Can the current user manage (add/view) the target user?
+ *  - admin/leader: everyone
+ *  - trainer: only their own direct reports (parent_id = trainer's id), and themselves
+ *  - rep/engineer: only themselves
+ */
+function portal_can_manage($targetUser) {
+    $me   = (int)($_SESSION['portal_user_id'] ?? 0);
+    $role = portal_role();
+    if ($role === 'admin' || $role === 'leader') return true;
+    if (!is_array($targetUser)) return false;
+    if ((int)$targetUser['id'] === $me) return true;
+    if ($role === 'trainer') return (int)($targetUser['parent_id'] ?? 0) === $me;
+    return false;
+}
 
 require_portal_auth();
 $current_user = get_portal_user();
@@ -56,3 +75,7 @@ if (!$current_user) {
     header('Location: /become/login.php');
     exit;
 }
+
+// Keep session capability flags fresh from the DB row.
+$_SESSION['portal_full_access'] = !empty($current_user['full_access']) ? 1 : 0;
+$_SESSION['portal_role']        = $current_user['role'] ?? ($_SESSION['portal_role'] ?? 'rep');

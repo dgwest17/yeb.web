@@ -245,6 +245,21 @@ footer a{color:var(--gold);text-decoration:none}
 /* ── WHY SECTION LAYOUT ── */
 .why-layout{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
 .why-ig-col{min-width:0}
+/* IG post tiles — always square with defined size */
+.prop-ig-post{
+  aspect-ratio:1;
+  overflow:hidden;
+  border-radius:4px;
+  background:rgba(200,168,75,0.06);
+  border:1px solid rgba(200,168,75,0.1);
+  display:flex;align-items:center;justify-content:center;
+  transition:transform 0.2s,border-color 0.2s;
+  cursor:pointer;
+  position:relative;
+  min-height:80px;
+}
+.prop-ig-post:hover{transform:scale(1.02);border-color:rgba(200,168,75,0.35)}
+.prop-ig-placeholder{font-size:1.4rem;opacity:0.35}
 @media(max-width:680px){
   .why-layout{grid-template-columns:1fr;gap:1.5rem}
   #prop-ig-feed{grid-template-columns:repeat(3,1fr)!important;min-height:100px}
@@ -798,7 +813,11 @@ function init(){
       fetch('https://graph.instagram.com/me/media?fields=id,media_url,thumbnail_url,permalink,media_type&limit=6&access_token='+token)
         .then(function(r){return r.json()})
         .then(function(data){
-          if(!data.data){placeholders();return;}
+          if(!data.data){
+            // Token may be expired — clear cache so next load retries server
+            if(data.error) localStorage.removeItem('ig_token');
+            placeholders();return;
+          }
           grid.innerHTML='';
           var posts=data.data.slice(0,6);
           posts.forEach(function(p){
@@ -822,29 +841,43 @@ function init(){
           }
         }).catch(placeholders);
     }
-    // 1. Check localStorage (set by Kinobi admin panel)
-    var cachedToken = localStorage.getItem('ig_token')||'';
-    if(cachedToken){ doLoad(cachedToken); return; }
-    // 2. Fetch from server-side token file
-    // Try both paths — rename .instagram_token to instagram_token.txt on Hostinger
-    fetch('/instagram_token.txt')
-      .then(function(r){ return r.ok ? r.text() : fetch('/.instagram_token').then(function(r2){ return r2.ok?r2.text():''; }); })
-      .then(function(r){ return r.ok ? r.text() : ''; })
+    // 1. Try server file first (always most up-to-date token)
+    // 2. Fall back to localStorage cache
+    // 3. Fall back to placeholders
+    function fetchToken(path){
+      return fetch(path).then(function(r){
+        if(!r.ok) throw new Error('not found');
+        return r.text();
+      });
+    }
+    function parseToken(txt){
+      if(!txt) return '';
+      txt = txt.trim();
+      if(txt.charAt(0)==='{'){
+        try{ return JSON.parse(txt).access_token||''; }catch(e){ return ''; }
+      }
+      return txt;
+    }
+    // Always fetch from server first — ensures fresh token even for returning customers
+    fetchToken('/instagram_token.txt')
+      .catch(function(){ return fetchToken('/.instagram_token'); })
+      .catch(function(){ return ''; })
       .then(function(txt){
-        var token = '';
-        if(txt){
-          txt = txt.trim();
-          // Handle JSON format: {"access_token":"..."}
-          if(txt.charAt(0)==='{'){
-            try{ token = JSON.parse(txt).access_token||''; }catch(e){ token=''; }
-          } else {
-            token = txt;
-          }
+        var serverToken = parseToken(txt);
+        if(serverToken){
+          localStorage.setItem('ig_token', serverToken);
+          doLoad(serverToken);
+        } else {
+          // Server file missing/empty — try cache as last resort
+          var cachedToken = localStorage.getItem('ig_token')||'';
+          if(cachedToken){ doLoad(cachedToken); }
+          else { doLoad(''); }
         }
-        if(token) localStorage.setItem('ig_token', token); // cache it
-        doLoad(token);
       })
-      .catch(function(){ doLoad(''); });
+      .catch(function(){
+        var cachedToken = localStorage.getItem('ig_token')||'';
+        doLoad(cachedToken);
+      });
   }
 
   // ── SOLAR PLAN BENEFITS ──
@@ -920,7 +953,6 @@ function init(){
     }).join('');
   }
 
-loadPropIG();
 loadSolarBenefits();
 
 function toggleDemand(item){
@@ -936,10 +968,12 @@ if(params.get('debug')!=='1'){
     } else {
       try {
         init();
+        loadPropIG();
       } catch(e) {
         console.error('Proposal init error:', e);
         document.getElementById('loading-screen').style.display='none';
         document.getElementById('main-content').style.display='block';
+        loadPropIG();
       }
     }
   });
@@ -964,6 +998,7 @@ if(params.get('debug')==='1'){
     dlog('Calling init()...');
     try{
       init();
+      loadPropIG();
       dlog('init() OK ✓','#0ff');
       dlog('loading-screen now='+ls.style.display);
       dlog('main-content now='+mc.style.display);

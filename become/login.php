@@ -1,11 +1,15 @@
 <?php
 /**
- * become/login.php — Portal Login
+ * become/login.php — Portal Login (email-based)
  * Location: public_html/become/login.php
+ *
+ * Reps log in with their EMAIL. For backward compatibility we also match
+ * the legacy `username` column, so existing accounts that don't yet have an
+ * email set are not locked out. Once every account has an email, you can make
+ * this strict by removing the "OR username = ?" clause below.
  */
 session_start();
 
-// Already logged in?
 if (!empty($_SESSION['portal_user_id'])) {
     header('Location: /become/');
     exit;
@@ -13,24 +17,26 @@ if (!empty($_SESSION['portal_user_id'])) {
 
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username'] ?? '');
+    $login    = trim($_POST['email'] ?? $_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
 
-    if ($username && $password) {
+    if ($login && $password) {
         try {
             require_once __DIR__ . '/includes/db.php';
             $db = Database::getInstance();
-            $s = $db->prepare("SELECT * FROM training_users WHERE username = ? AND is_active = 1");
-            $s->execute([$username]);
+            // Email first; legacy username as a safety fallback.
+            $s = $db->prepare("SELECT * FROM training_users WHERE (email = ? OR username = ?) AND is_active = 1 LIMIT 1");
+            $s->execute([$login, $login]);
             $user = $s->fetch();
 
             if ($user && password_verify($password, $user['password_hash'])) {
-                $_SESSION['portal_user_id']   = (int)$user['id'];
-                $_SESSION['portal_user']      = $user['username'];
-                $_SESSION['portal_role']      = $user['role'];
-                $_SESSION['portal_login_time'] = time();
+                $_SESSION['portal_user_id']     = (int)$user['id'];
+                $_SESSION['portal_user']        = $user['username'];
+                $_SESSION['portal_email']       = $user['email'] ?? '';
+                $_SESSION['portal_role']        = $user['role'];
+                $_SESSION['portal_full_access'] = !empty($user['full_access']) ? 1 : 0;
+                $_SESSION['portal_login_time']  = time();
 
-                // Ensure user_progress row exists
                 require_once __DIR__ . '/includes/ProgressionEngine.php';
                 $engine = new ProgressionEngine();
                 $engine->getUserProgress((int)$user['id']);
@@ -38,13 +44,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 header('Location: /become/');
                 exit;
             } else {
-                $error = 'Invalid username or password.';
+                $error = 'Invalid email or password.';
             }
         } catch (Exception $e) {
             $error = 'Connection error. Please try again.';
         }
     } else {
-        $error = 'Please enter username and password.';
+        $error = 'Please enter your email and password.';
     }
 }
 
@@ -91,12 +97,12 @@ $expired = isset($_GET['expired']);
 
         <form method="POST">
             <div class="field">
-                <label>Username</label>
-                <input type="text" name="username" required autofocus value="<?= htmlspecialchars($_POST['username'] ?? '') ?>">
+                <label>Email</label>
+                <input type="text" name="email" required autofocus autocomplete="username" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
             </div>
             <div class="field">
                 <label>Password</label>
-                <input type="password" name="password" required>
+                <input type="password" name="password" required autocomplete="current-password">
             </div>
             <button type="submit" class="login-btn">Log In →</button>
         </form>

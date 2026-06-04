@@ -37,7 +37,7 @@ try {
             $s = $db->prepare("SELECT * FROM folders WHERE is_active=1 ORDER BY folder_order"); $s->execute(); $folders = $s->fetchAll();
             $s = $db->prepare("SELECT * FROM modules WHERE is_active=1 ORDER BY module_order"); $s->execute(); $modules = $s->fetchAll();
             $s = $db->prepare("SELECT * FROM segments WHERE is_active=1 ORDER BY segment_order"); $s->execute(); $segments = $s->fetchAll();
-            $s = $db->prepare("SELECT id, username, first_name, last_name, role, is_active, created_at FROM training_users ORDER BY created_at"); $s->execute(); $users = $s->fetchAll();
+            $s = $db->prepare("SELECT id, username, first_name, last_name, email, role, parent_id, full_access, is_active, created_at FROM training_users ORDER BY created_at"); $s->execute(); $users = $s->fetchAll();
             $s = $db->prepare("SELECT * FROM level_thresholds ORDER BY level"); $s->execute(); $thresholds = $s->fetchAll();
 
             // Parse JSON fields
@@ -160,9 +160,19 @@ try {
 
         // ── USERS ──
         case 'add_user':
-            $hash = password_hash($input['password'] ?? '', PASSWORD_DEFAULT);
-            $s = $db->prepare("INSERT INTO training_users (username, first_name, last_name, password_hash, role) VALUES (?, ?, ?, ?, ?)");
-            $s->execute([$input['username'], $input['first_name']??'', $input['last_name']??'', $hash, $input['role']??'rep']);
+            $email = trim($input['email'] ?? '');
+            $uname = $email !== '' ? $email : trim($input['username'] ?? '');
+            if ($uname === '') { echo json_encode(['error'=>'Email is required.']); break; }
+            // Block duplicate email/username up front for a clean message.
+            $chk = $db->prepare("SELECT id FROM training_users WHERE email = ? OR username = ? LIMIT 1");
+            $chk->execute([$email !== '' ? $email : $uname, $uname]);
+            if ($chk->fetch()) { echo json_encode(['error'=>'A user with that email already exists.']); break; }
+
+            $hash    = password_hash($input['password'] ?? '', PASSWORD_DEFAULT);
+            $parent  = isset($input['parent_id']) && $input['parent_id'] !== '' ? (int)$input['parent_id'] : null;
+            $full    = !empty($input['full_access']) ? 1 : 0;
+            $s = $db->prepare("INSERT INTO training_users (username, first_name, last_name, email, password_hash, role, parent_id, full_access) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            $s->execute([$uname, $input['first_name']??'', $input['last_name']??'', ($email !== '' ? $email : null), $hash, $input['role']??'rep', $parent, $full]);
             $newId = (int)$db->lastInsertId();
             $db->prepare("INSERT INTO user_progress (user_id, xp, level, join_date) VALUES (?, 0, 0, CURDATE())")->execute([$newId]);
             echo json_encode(['success'=>true, 'id'=>$newId]);
@@ -170,10 +180,19 @@ try {
 
         case 'update_user':
             $id = (int)($input['id'] ?? 0);
-            $allowed = ['first_name','last_name','role','is_active'];
+            $allowed = ['first_name','last_name','email','role','parent_id','full_access','is_active'];
             $sets = []; $vals = [];
             foreach ($allowed as $k) {
-                if (array_key_exists($k, $input)) { $sets[] = "$k = ?"; $vals[] = $input[$k]; }
+                if (array_key_exists($k, $input)) {
+                    $v = $input[$k];
+                    if ($k === 'parent_id')   $v = ($v === '' || $v === null) ? null : (int)$v;
+                    if ($k === 'full_access') $v = !empty($v) ? 1 : 0;
+                    $sets[] = "$k = ?"; $vals[] = $v;
+                }
+            }
+            // Keep the login username in step with the email when email changes.
+            if (array_key_exists('email', $input) && trim($input['email']) !== '') {
+                $sets[] = "username = ?"; $vals[] = trim($input['email']);
             }
             if ($sets) { $vals[] = $id; $db->prepare("UPDATE training_users SET ".implode(',',$sets)." WHERE id=?")->execute($vals); }
             echo json_encode(['success'=>true]);
@@ -217,7 +236,16 @@ try {
             $lvl = (int)($input['level'] ?? 1);
             $xp = (int)($input['xp'] ?? 0);
             $db->prepare("UPDATE user_progress SET level=?, xp=? WHERE user_id=?")->execute([$lvl, $xp, $uid]);
+            // Mirror the new level into Zoho (best-effort).
+            require_once __DIR__ . '/../includes/ZohoRecruitSync.php';
+            ZohoRecruitSync::pushLevelForUser($uid);
             echo json_encode(['success'=>true]);
+            break;
+
+        case 'zoho_sync':
+            require_once __DIR__ . '/../includes/ZohoRecruitSync.php';
+            $sync = new ZohoRecruitSync();
+            echo json_encode($sync->run());
             break;
 
         default:

@@ -274,13 +274,16 @@ select.ed-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
   <div id="panel-users" class="panel">
     <div class="sec-hdr">
       <h2>👥 Team Members</h2>
-      <button class="btn btn-teal" data-action="showAddUser">+ Add Rep</button>
+      <div style="display:flex;gap:.4rem">
+        <button class="btn btn-ghost" data-action="syncZoho" id="zohoSyncBtn" title="Pull hires from Zoho Recruits and deactivate departures">⟲ Sync from Zoho</button>
+        <button class="btn btn-teal" data-action="showAddUser">+ Add Rep</button>
+      </div>
     </div>
     <div class="card" id="usersList"></div>
     <div class="card" id="addUserForm" style="display:none">
       <h3 style="margin-bottom:1rem;font-family:var(--hf)">New Team Member</h3>
       <div class="ed-row">
-        <div class="ed-field"><label>Username</label><input class="ed-input" id="nu-user" placeholder="jsmith"></div>
+        <div class="ed-field"><label>Email <span style="color:var(--mute);font-weight:400">(used to log in)</span></label><input class="ed-input" id="nu-email" type="email" placeholder="rep@yourenergybest.com"></div>
         <div class="ed-field"><label>Password</label><input class="ed-input" id="nu-pass" type="password" placeholder="Temporary password"></div>
       </div>
       <div class="ed-row">
@@ -289,6 +292,17 @@ select.ed-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg 
       </div>
       <div class="ed-field"><label>Role</label>
         <select class="ed-input" id="nu-role" onchange="suggestStartLevel(this.value)"><option value="rep">Rep (Rookie)</option><option value="trainer">Trainer</option><option value="leader">Leader</option><option value="admin">Admin</option></select>
+      </div>
+      <div class="ed-row">
+        <div class="ed-field"><label>Trainer <span style="color:var(--mute);font-weight:400">(who this rep reports to)</span></label>
+          <select class="ed-input" id="nu-parent"><option value="">— No trainer —</option></select>
+        </div>
+        <div class="ed-field"><label>Engineer access</label>
+          <label style="display:flex;align-items:center;gap:.5rem;padding:.6rem .2rem;cursor:pointer">
+            <input type="checkbox" id="nu-full" style="width:18px;height:18px;accent-color:var(--orange)">
+            <span style="font-size:.85rem;color:var(--dim)">⚡ Full access — unlock everything, skip all pass-offs</span>
+          </label>
+        </div>
       </div>
       <div class="ed-field"><label>Starting Level — Controls what content they can access immediately</label>
         <select class="ed-input" id="nu-level">
@@ -1395,19 +1409,33 @@ async function deleteSegment(id) {
 }
 
 // ─── USERS ───
+function trainerOptions(selId) {
+  const mgrs = (data.users || []).filter(u => ['trainer','leader','admin'].includes(u.role));
+  const label = u => (u.first_name || u.last_name) ? `${u.first_name||''} ${u.last_name||''}`.trim() : (u.email || u.username);
+  return '<option value="">— No trainer —</option>' +
+    mgrs.map(u => `<option value="${u.id}" ${String(selId)===String(u.id)?'selected':''}>${esc(label(u))}</option>`).join('');
+}
+function populateTrainerSelect() {
+  const s = document.getElementById('nu-parent');
+  if (s) s.innerHTML = trainerOptions('');
+}
+
 function renderUsers() {
   const el = document.getElementById('usersList');
+  populateTrainerSelect();
   if (!data.users || data.users.length === 0) {
     el.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--mute)">No users yet</div>';
     return;
   }
   el.innerHTML = data.users.map(u => {
-    const initials = ((u.first_name||'')[0]||'') + ((u.last_name||'')[0]||'') || u.username[0].toUpperCase();
+    const initials = ((u.first_name||'')[0]||'') + ((u.last_name||'')[0]||'') || (u.username||'?')[0].toUpperCase();
     const roleCls = u.role === 'admin' ? 'admin' : u.role === 'leader' ? 'leader' : 'rep';
+    const full = Number(u.full_access) === 1;
     return `<div class="user-row">
       <div class="user-avatar">${esc(initials)}</div>
-      <div class="user-name">${esc(u.first_name||'')} ${esc(u.last_name||'')}<small>@${esc(u.username)}</small></div>
+      <div class="user-name">${esc(u.first_name||'')} ${esc(u.last_name||'')}<small>${esc(u.email||u.username||'')}</small></div>
       <span class="user-role user-role--${roleCls}">${u.role}</span>
+      ${full ? '<span class="user-role" style="background:rgba(251,155,71,.15);color:var(--orange)">⚡ Engineer</span>' : ''}
       <select class="ed-input" style="width:auto;font-size:.8rem;padding:.3rem .5rem" onchange="updateUser(${u.id},{role:this.value})" ${u.role==='admin'?'disabled':''}>
         <option value="rep" ${u.role==='rep'?'selected':''}>Rep</option>
         <option value="trainer" ${u.role==='trainer'?'selected':''}>Trainer</option>
@@ -1417,9 +1445,16 @@ function renderUsers() {
       <select class="ed-input" style="width:auto;font-size:.8rem;padding:.3rem .5rem" onchange="setUserLevel(${u.id},parseInt(this.value))" title="Set access level">
         ${[0,1,2,3,4,5,6,7].map(l => `<option value="${l}">Lvl ${l}</option>`).join('')}
       </select>
+      <select class="ed-input" style="width:auto;font-size:.8rem;padding:.3rem .5rem" onchange="updateUser(${u.id},{parent_id:this.value})" title="Reports to (trainer)">
+        ${trainerOptions(u.parent_id)}
+      </select>
+      <label style="display:flex;align-items:center;gap:.3rem;font-size:.72rem;color:var(--dim);cursor:pointer" title="Engineer = full access">
+        <input type="checkbox" ${full?'checked':''} style="accent-color:var(--orange)" onchange="updateUser(${u.id},{full_access:this.checked?1:0})">⚡
+      </label>
       <div style="display:flex;gap:.25rem">
-        <button class="btn btn-sm btn-ghost" onclick="resetPw(${u.id},'${esc(u.username)}')">🔑</button>
-        ${u.role!=='admin'?`<button class="btn btn-sm btn-red" onclick="deleteUser(${u.id},'${esc(u.username)}')">✕</button>`:''}
+        <button class="btn btn-sm btn-ghost" onclick="editEmail(${u.id},'${esc(u.email||'')}')" title="Edit login email">✉</button>
+        <button class="btn btn-sm btn-ghost" onclick="resetPw(${u.id},'${esc(u.email||u.username)}')">🔑</button>
+        ${u.role!=='admin'?`<button class="btn btn-sm btn-red" onclick="deleteUser(${u.id},'${esc(u.email||u.username)}')">✕</button>`:''}
       </div>
     </div>`;
   }).join('');
@@ -1427,25 +1462,42 @@ function renderUsers() {
 
 function showAddUser() { document.getElementById('addUserForm').style.display = 'block'; }
 
+async function syncZoho() {
+  const btn = document.getElementById('zohoSyncBtn');
+  if (btn) { btn.disabled = true; btn.textContent = '⟲ Syncing…'; }
+  try {
+    const r = await api('POST', {action:'zoho_sync'});
+    if (r && r.ok) {
+      toast(`Zoho: ${r.created} created · ${r.reactivated} reactivated · ${r.deactivated} deactivated`);
+      if (r.errors && r.errors.length) console.warn('Zoho sync errors:', r.errors);
+      await loadAll();
+    } else {
+      toast((r && r.error) ? r.error : 'Zoho sync failed', true);
+    }
+  } catch (e) { toast('Zoho sync error', true); }
+  if (btn) { btn.disabled = false; btn.textContent = '⟲ Sync from Zoho'; }
+}
+
 async function createUser() {
   const startLevel = parseInt(document.getElementById('nu-level').value) || 0;
   const d = {
     action:'add_user',
-    username: document.getElementById('nu-user').value.trim(),
+    email: document.getElementById('nu-email').value.trim(),
     password: document.getElementById('nu-pass').value,
     first_name: document.getElementById('nu-first').value.trim(),
     last_name: document.getElementById('nu-last').value.trim(),
-    role: document.getElementById('nu-role').value
+    role: document.getElementById('nu-role').value,
+    parent_id: document.getElementById('nu-parent').value,
+    full_access: document.getElementById('nu-full').checked ? 1 : 0
   };
-  if (!d.username || !d.password) return toast('Username and password required', true);
+  if (!d.email || !d.password) return toast('Email and password required', true);
   const result = await api('POST', d);
+  if (result && result.error) return toast(result.error, true);
 
   // Set starting level if higher than 1
   if (startLevel > 1 && result.id) {
-    // Find the XP needed for that level from thresholds
     const th = data.thresholds.find(t => t.level == startLevel);
     const xp = th ? th.xp_required : 0;
-    // Update user_progress directly via a custom API call
     await fetch(API, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -1454,8 +1506,10 @@ async function createUser() {
   }
 
   document.getElementById('addUserForm').style.display = 'none';
-  ['nu-user','nu-pass','nu-first','nu-last'].forEach(id => document.getElementById(id).value = '');
+  ['nu-email','nu-pass','nu-first','nu-last'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('nu-level').value = '0';
+  document.getElementById('nu-parent').value = '';
+  document.getElementById('nu-full').checked = false;
   await loadAll();
   toast('User created' + (startLevel > 1 ? ' at Level ' + startLevel : ''));
 }
@@ -1638,6 +1692,7 @@ document.addEventListener('click', function(e) {
     else if (action === 'createUser') createUser();
     else if (action === 'cancelAddUser') document.getElementById('addUserForm').style.display = 'none';
     else if (action === 'addLevel') addNewLevel();
+    else if (action === 'syncZoho') syncZoho();
     return;
   }
 

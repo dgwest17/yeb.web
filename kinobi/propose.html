@@ -828,9 +828,14 @@ function init(){
               ? '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none"><div style="width:28px;height:28px;background:rgba(0,0,0,0.55);border-radius:50%;display:flex;align-items:center;justify-content:center"><span style="color:#fff;font-size:12px;margin-left:2px">▶</span></div></div>'
               : '';
             d.style.position='relative';
-            d.innerHTML='<a href="'+p.permalink+'" target="_blank" style="display:block;width:100%;height:100%;position:relative">'
-              +'<img src="'+imgSrc+'" loading="lazy" style="width:100%;height:100%;object-fit:cover">'
-              +playOverlay+'</a>';
+            // On iOS/Android, instagram.com links open the app and bounce back.
+            // Workaround: strip the scheme so the browser treats it as a plain URL,
+            // or open via a data-href we intercept and navigate with location.href
+            // inside the same tab (bypasses universal link interception).
+            d.setAttribute('data-igurl', p.permalink);
+            d.innerHTML='<div class="ig-tap-target" data-igurl="'+p.permalink+'" style="display:block;width:100%;height:100%;position:relative;cursor:pointer">'
+              +'<img src="'+imgSrc+'" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block">'
+              +playOverlay+'</div>';
             grid.appendChild(d);
           });
           while(grid.children.length<6){
@@ -840,6 +845,20 @@ function init(){
             grid.appendChild(d);
           }
         }).catch(placeholders);
+    }
+    // Delegated handler: open IG posts in same tab to avoid app interception
+    if(!grid.dataset.igHandler){
+      grid.dataset.igHandler='1';
+      grid.addEventListener('click', function(e){
+        var target = e.target.closest('[data-igurl]');
+        if(!target) return;
+        e.preventDefault();
+        var url = target.getAttribute('data-igurl');
+        if(!url) return;
+        // Opening in same tab avoids iOS universal link interception
+        // Customer can hit Back to return to proposal
+        window.location.href = url;
+      });
     }
     // 1. Try server file first (always most up-to-date token)
     // 2. Fall back to localStorage cache

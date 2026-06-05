@@ -1594,19 +1594,27 @@ async function loadPassoffs() {
 
     if (badge) { badge.style.display = 'inline'; badge.textContent = items.length; }
 
-    if (el) el.innerHTML = items.map(p => `
+    if (el) el.innerHTML = items.map(p => {
+      const initials = `${esc((p.first_name||'')[0]||'')}${esc((p.last_name||'')[0]||'')}`;
+      const isLevel = p.kind === 'level';
+      const detail = isLevel
+        ? `<span style="color:var(--teal);font-weight:700">🎓 Level ${p.level} pass-off</span> — ready to advance to Level ${(parseInt(p.level)||0)+1}`
+        : `Segment: <strong style="color:var(--gold)">${esc(p.segment_title||'')}</strong>`;
+      const actions = isLevel
+        ? `<button class="btn btn-green" onclick="approveLevel(${p.id},this)" style="padding:.6rem 1.2rem">✓ Approve</button>
+           <button class="btn btn-ghost" onclick="rejectLevel(${p.id},this)" style="padding:.6rem .9rem">Return</button>`
+        : `<button class="btn btn-green" onclick="approvePassoff(${p.id},this)" style="font-size:1.05rem;padding:.7rem 1.8rem;box-shadow:0 0 20px rgba(6,214,160,0.3)">✓ Pass</button>`;
+      return `
       <div style="display:flex;align-items:center;gap:1rem;padding:1rem;border-bottom:1px solid rgba(255,255,255,0.04)">
-        <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--orange));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0;box-shadow:0 0 20px rgba(255,183,3,0.4);animation:glow 2s ease infinite">
-          ${esc((p.first_name||'')[0]||'')}${esc((p.last_name||'')[0]||'')}
-        </div>
+        <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,${isLevel?'var(--teal),#1a8a93':'var(--gold),var(--orange)'});display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0">${initials}</div>
         <div style="flex:1">
-          <div style="font-weight:700;font-size:.95rem">${esc(p.first_name||'')} ${esc(p.last_name||'')} <span style="color:var(--dim);font-weight:400;font-size:.85rem">@${esc(p.username)}</span></div>
-          <div style="font-size:.88rem;color:var(--dim);margin-top:.15rem">${esc(p.mod_title)} → <strong style="color:var(--gold)">${esc(p.seg_title)}</strong></div>
+          <div style="font-weight:700;font-size:.95rem">${esc(p.first_name||'')} ${esc(p.last_name||'')} <span style="color:var(--dim);font-weight:400;font-size:.85rem">${esc(p.email||p.username||'')}</span></div>
+          <div style="font-size:.88rem;color:var(--dim);margin-top:.15rem">${detail}</div>
           <div style="font-size:.75rem;color:var(--mute);margin-top:.15rem">Requested ${timeAgo(p.requested_at)}</div>
         </div>
-        <button class="btn btn-green" onclick="approvePassoff(${p.id},this)" style="font-size:1.05rem;padding:.7rem 1.8rem;box-shadow:0 0 20px rgba(6,214,160,0.3)">✓ Pass</button>
-      </div>
-    `).join('');
+        <div style="display:flex;gap:.4rem;align-items:center">${actions}</div>
+      </div>`;
+    }).join('');
   } catch(e) { console.error('Passoff load error:', e); }
 }
 
@@ -1619,7 +1627,7 @@ async function approvePassoff(requestId, btn) {
     });
     const data = await res.json();
     if (data.success) {
-      btn.parentElement.style.opacity = '.3';
+      btn.parentElement.parentElement.style.opacity = '.3';
       btn.textContent = '✓ Passed!';
       btn.style.background = 'var(--teal)';
       toast('Pass-off approved! Segment completed for rep.');
@@ -1633,6 +1641,38 @@ async function approvePassoff(requestId, btn) {
     btn.textContent = '✕ Error';
     btn.disabled = false;
   }
+}
+
+async function approveLevel(requestId, btn) {
+  btn.disabled = true; btn.textContent = '⏳...';
+  try {
+    const res = await fetch('/become/api/index.php?route=level-passoff/' + requestId + '/approve', {
+      method:'POST', headers:{'Content-Type':'application/json'}
+    });
+    const data = await res.json();
+    if (data.success) {
+      const row = btn.closest('div[style*="border-bottom"]');
+      if (row) row.style.opacity = '.3';
+      toast('Level pass-off approved — rep advanced to Level ' + data.new_level + '.');
+      setTimeout(() => loadPassoffs(), 1200);
+    } else {
+      btn.textContent = '✕'; btn.disabled = false;
+      toast(data.error || 'Approval failed', true);
+    }
+  } catch(e) { btn.textContent = '✕'; btn.disabled = false; }
+}
+
+async function rejectLevel(requestId, btn) {
+  const notes = prompt('Optional note to the rep about why this pass-off is being returned:') || '';
+  btn.disabled = true; btn.textContent = '⏳...';
+  try {
+    const res = await fetch('/become/api/index.php?route=level-passoff/' + requestId + '/reject', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({notes})
+    });
+    const data = await res.json();
+    if (data.success) { toast('Pass-off returned to rep.'); setTimeout(() => loadPassoffs(), 1000); }
+    else { btn.textContent = 'Return'; btn.disabled = false; toast(data.error || 'Failed', true); }
+  } catch(e) { btn.textContent = 'Return'; btn.disabled = false; }
 }
 
 function timeAgo(dateStr) {

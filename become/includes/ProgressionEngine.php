@@ -290,14 +290,15 @@ class ProgressionEngine {
         $status  = $request ? $request['status'] : 'none';
 
         $isMax = !$hasHigher && $lvl >= $this->maxLevel();
+        $allComplete = ($total === 0) ? true : ($done >= $total);
 
         return [
             'level'           => $lvl,
             'full_access'     => $full,
             'modules_total'   => $total,
             'modules_done'    => $done,
-            'all_complete'    => ($total > 0 && $done >= $total),
-            'eligible'        => (!$full && $total > 0 && $done >= $total && $status !== 'pending' && !$isMax),
+            'all_complete'    => $allComplete,
+            'eligible'        => (!$full && !$isMax && $status !== 'pending' && $allComplete),
             'passoff_status'  => $status,            // none | pending | passed | rejected
             'request_id'      => $request ? (int)$request['id'] : null,
             'is_max_level'    => $isMax,

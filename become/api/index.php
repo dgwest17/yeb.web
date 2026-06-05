@@ -114,21 +114,58 @@ try {
             echo json_encode(['error' => 'Leader access required']);
             exit;
         }
+        echo json_encode($engine->getPendingPassoffs());
+        exit;
+    }
+
+    // ── Request a LEVEL pass-off: POST ?route=level-passoff/request (rep) ──
+    if ($route === 'level-passoff/request' && $method === 'POST') {
         try {
-            $db = Database::getInstance();
-            $s = $db->prepare("SELECT pr.*, tu.username, tu.first_name, tu.last_name, s.title AS seg_title, m.title AS mod_title
-                FROM passoff_requests pr
-                JOIN training_users tu ON pr.user_id = tu.id
-                JOIN segments s ON pr.segment_id = s.id
-                JOIN modules m ON s.module_id = m.id
-                WHERE pr.status = 'pending'
-                ORDER BY pr.requested_at DESC");
-            $s->execute();
-            echo json_encode($s->fetchAll());
+            $res = $engine->requestLevelPassoff($userId);
         } catch (Exception $e) {
-            // Table may not exist yet — return empty array
-            echo json_encode([]);
+            echo json_encode(['error' => $e->getMessage()]);
+            exit;
         }
+        if (empty($res['already_pending'])) {
+            try {
+                require_once __DIR__ . '/../includes/mailer.php';
+                $db = Database::getInstance();
+                $s = $db->prepare("SELECT id, first_name, last_name, email FROM training_users WHERE id=?");
+                $s->execute([$userId]);
+                $rep = $s->fetch();
+                if ($rep) { notify_level_passoff($rep, $res['level']); $engine->markNotified($res['request_id']); }
+            } catch (Exception $e) { /* notification is best-effort */ }
+        }
+        echo json_encode(['success' => true] + $res);
+        exit;
+    }
+
+    // ── Approve a LEVEL pass-off: POST ?route=level-passoff/{id}/approve (leader) ──
+    if (preg_match('#^level-passoff/(\d+)/approve$#', $route, $m) && $method === 'POST') {
+        if (!in_array($role, ['leader', 'admin'])) {
+            http_response_code(403);
+            echo json_encode(['error' => 'Leader access required']);
+            exit;
+        }
+        $res = $engine->approveLevelPassoff((int)$m[1], $userId);
+        // Mirror the new level into Zoho (best-effort).
+        try {
+            require_once __DIR__ . '/../includes/ZohoRecruitSync.php';
+            ZohoRecruitSync::pushLevelForUser($res['user_id']);
+        } catch (Exception $e) {}
+        echo json_encode($res);
+        exit;
+    }
+
+    // ── Reject a LEVEL pass-off: POST ?route=level-passoff/{id}/reject (leader) ──
+    if (preg_match('#^level-passoff/(\d+)/reject$#', $route, $m) && $method === 'POST') {
+        if (!in_array($role, ['leader', 'admin'])) {
+            http_response_code(403);
+            echo json_encode(['error' => 'Leader access required']);
+            exit;
+        }
+        $input = json_decode(file_get_contents('php://input'), true) ?? [];
+        echo json_encode($engine->rejectLevelPassoff((int)$m[1], $userId, $input['notes'] ?? ''));
         exit;
     }
 

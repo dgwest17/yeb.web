@@ -635,11 +635,10 @@ class ProgressionEngine {
 
             $xp = 0; $events = [];
 
-            $segXp = $this->calculateSegmentXp((int)$seg['mid']);
+            $segXp = 0; // XP system removed — progression is completion + pass-off only
             $s = $this->db->prepare("INSERT INTO completed_segments (user_id,segment_id,xp_awarded) VALUES (?,?,?)");
             $s->execute([$userId, $segmentId, $segXp]);
-            $xp += $segXp;
-            $events[] = ['type'=>'segment_complete','id'=>$segmentId,'xp'=>$segXp];
+            $events[] = ['type'=>'segment_complete','id'=>$segmentId];
 
             // Module completion?
             $mid = (int)$seg['mid'];

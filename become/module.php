@@ -96,8 +96,7 @@ $stats = $engine->getUserStats($userId);
         <?php foreach ($segs as $i => $seg):
             $sid = (int)$seg['id'];
             $isDone = $seg['done'];
-            $prevDone = ($i === 0) ? true : $segs[$i-1]['done'];
-            $isLocked = !$isDone && $i > 0 && !$prevDone;
+            $isLocked = false; // whole module is open — no sequential segment gating
 
             $cls = 'seg';
             if ($isDone)   $cls .= ' seg--done';

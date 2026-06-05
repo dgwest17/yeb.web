@@ -268,16 +268,8 @@ async function fetchNextStage(container, baseHtml) {
     }
 }
 
-// ── XP TOAST ──
-function xpToast(xp) {
-    if (!xp) return;
-    var t = document.createElement('div');
-    t.className = 'xp-toast';
-    t.innerHTML = '⚡ +' + xp + ' XP';
-    document.body.appendChild(t);
-    requestAnimationFrame(function(){ t.classList.add('xp-toast--in'); });
-    setTimeout(function(){ t.classList.add('xp-toast--out'); setTimeout(function(){ t.remove(); }, 500); }, 2500);
-}
+// ── XP removed: no-op (kept so existing calls stay harmless) ──
+function xpToast(xp) { return; }
 
 // ── LEVEL UP MODAL ──
 function levelUpModal(ev) {

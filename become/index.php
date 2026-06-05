@@ -358,7 +358,7 @@ foreach ($lvlGroups as $mods) {
         <div class="sk-xp-bar"><div class="sk-xp-fill" style="width:<?= $stats['level_progress'] ?>%;background:<?= $curColor ?>"></div></div>
         <div class="sk-xp-txt"><?php
             if (!empty($stats['full_access'])) { echo '⚡ Engineer — full access to everything'; }
-            elseif (!empty($stats['is_max_level'])) { echo number_format($stats['xp']).' XP — Top level!'; }
+            elseif (!empty($stats['is_max_level'])) { echo '🏆 Top level reached — fully certified!'; }
             else { echo (int)$stats['level_modules_done'].'/'.(int)$stats['level_modules_total'].' modules complete this level'; }
         ?></div>
     </div>

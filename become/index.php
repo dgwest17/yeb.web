@@ -86,37 +86,9 @@ foreach ($lvlGroups as $lvl => &$mods) {
         continue;
     }
 
-    // Current level: sequential by stage
-    $stages = [];
-    foreach ($mods as &$m) {
-        $stage = (int)($m['module_order'] ?? 1);
-        $m['_stage'] = $stage;
-        if (!isset($stages[$stage])) $stages[$stage] = [];
-        $stages[$stage][] = &$m;
-    }
+    // Current level: ALL unlocked at once (whole level opens; advance via pass-off)
+    foreach ($mods as &$m) { $m['_locked'] = false; }
     unset($m);
-    ksort($stages);
-
-    $prevStageDone = true; // first stage is always unlocked (within an unlocked level)
-    foreach ($stages as $stageNum => $stageMods) {
-        // Check if all mods in this stage are done
-        $allDone = true;
-        foreach ($stageMods as &$sm) {
-            if ($sm['_open']) {
-                $sm['_locked'] = false;
-            } elseif ($sm['_side']) {
-                $sm['_locked'] = false; // side quests don't block
-            } else {
-                $sm['_locked'] = !$prevStageDone;
-            }
-            if (!$sm['_done']) $allDone = false;
-        }
-        unset($sm);
-        // Only advance to next stage if ALL non-side modules in this stage are done
-        $coreInStage = array_filter($stageMods, fn($m) => !$m['_side'] && !$m['_open']);
-        $coreDone = !count($coreInStage) || !array_filter($coreInStage, fn($m) => !$m['_done']);
-        $prevStageDone = $coreDone ? true : false;
-    }
 }
 unset($mods);
 
@@ -384,8 +356,38 @@ foreach ($lvlGroups as $mods) {
     </div>
     <div class="sk-xp">
         <div class="sk-xp-bar"><div class="sk-xp-fill" style="width:<?= $stats['level_progress'] ?>%;background:<?= $curColor ?>"></div></div>
-        <div class="sk-xp-txt"><?php if($stats['next_level_title']):?><?= $stats['xp_in_level'] ?>/<?= $stats['xp_for_next_level'] ?> XP to <?= $stats['next_level_icon'] ?> <?= $stats['next_level_title'] ?><?php else:?><?= number_format($stats['xp']) ?> XP — Max level!<?php endif;?></div>
+        <div class="sk-xp-txt"><?php
+            if (!empty($stats['full_access'])) { echo '⚡ Engineer — full access to everything'; }
+            elseif (!empty($stats['is_max_level'])) { echo number_format($stats['xp']).' XP — Top level!'; }
+            else { echo (int)$stats['level_modules_done'].'/'.(int)$stats['level_modules_total'].' modules complete this level'; }
+        ?></div>
     </div>
+    <?php if (empty($stats['full_access']) && empty($stats['is_max_level'])):
+        if (($stats['passoff_status'] ?? '') === 'pending'): ?>
+        <div style="margin:.75rem 0;padding:.7rem 1rem;border-radius:12px;background:rgba(255,183,3,.12);border:1px solid rgba(255,183,3,.3);color:#FFB703;font-size:.9rem">⏳ Pass-off requested — a leader will review your Level <?= $userLevel ?> work.</div>
+        <?php elseif (!empty($stats['passoff_eligible'])): ?>
+        <div style="margin:.75rem 0;padding:.8rem 1rem;border-radius:12px;background:rgba(6,214,160,.12);border:1px solid rgba(6,214,160,.35);display:flex;flex-wrap:wrap;align-items:center;gap:.6rem">
+            <span style="color:#06D6A0;font-weight:600">🎉 You've finished every Level <?= $userLevel ?> module!</span>
+            <button id="reqPassoffBtn" style="margin-left:auto;background:linear-gradient(135deg,#06D6A0,#04a87d);color:#fff;border:none;border-radius:10px;padding:.55rem 1rem;font-weight:700;cursor:pointer;font-family:inherit">🎓 Request Pass-off</button>
+            <?php if (($stats['passoff_status'] ?? '') === 'rejected'): ?><small style="flex-basis:100%;color:rgba(255,255,255,.5)">Your last request was returned — check in with your leader, then try again.</small><?php endif; ?>
+        </div>
+        <script>
+        (function(){
+            var b = document.getElementById('reqPassoffBtn');
+            if (!b) return;
+            b.addEventListener('click', async function(){
+                b.disabled = true; b.textContent = 'Requesting…';
+                try {
+                    var r = await fetch('/become/api/index.php?route=level-passoff/request', {method:'POST'});
+                    var j = await r.json();
+                    if (j && j.success) { b.textContent = '✅ Requested!'; setTimeout(function(){ location.reload(); }, 900); }
+                    else { b.disabled = false; b.textContent = '🎓 Request Pass-off'; alert((j && j.error) ? j.error : 'Could not request pass-off.'); }
+                } catch (e) { b.disabled = false; b.textContent = '🎓 Request Pass-off'; alert('Network error — please try again.'); }
+            });
+        })();
+        </script>
+        <?php endif;
+    endif; ?>
     <div class="sk-nav">
         <?php if($isLeader):?><a href="/become/manage.php">⚙️ Manage</a><?php endif;?>
         <a href="/become/logout.php">Log Out</a>
@@ -424,7 +426,7 @@ foreach ($lvlGroups as $lvl => $mods):
 <div class="gate <?= $isNow ? 'gate--now' : ($isFuture ? 'gate--future' : '') ?> reveal-scale" style="--gc:<?= $c ?>44" data-toggle="level-collapse">
     <div class="gate__badge" style="background:<?= $c ?>12;border-color:<?= $c ?><?= $isFuture?'44':'' ?>;color:<?= $c ?><?= $isFuture?'77':'' ?>">
         <?= $th ? $th['badge_icon'] : '' ?> Level <?= $lvl ?><?= $th ? ' — '.htmlspecialchars($th['title']) : '' ?>
-        <?php if($isFuture && $th):?><span class="gate__sub"><?= $th['xp_required'] ?> XP to unlock</span><?php endif;?>
+        <?php if($isFuture):?><span class="gate__sub">🔒 Pass off Level <?= $lvl-1 ?> to unlock</span><?php endif;?>
         <?php if($isPast):?><span class="gate__sub">✅ Complete · tap to expand</span><?php endif;?>
     </div>
 </div>

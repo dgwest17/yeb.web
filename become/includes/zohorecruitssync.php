@@ -4,15 +4,18 @@
  * Location: public_html/become/includes/ZohoRecruitSync.php
  *
  * One scan of the Recruits module does everything:
- *   - HIRED status, no portal login yet  -> create login (seed Level + Role from Zoho), email temp creds
- *   - HIRED status, login deactivated     -> reactivate
- *   - INACTIVE status ("no longer working")-> deactivate the portal login
+ *   - HIRED status, no portal login yet     -> create login (seed Level + Role from Zoho), email temp creds
+ *   - HIRED status, login deactivated        -> reactivate
+ *   - INACTIVE status ("no longer working")   -> deactivate the portal login
  *   - Any linked record:
  *       Role:  Zoho -> Become   (Zoho is authoritative; Engineer maps to full_access)
  *       Level: Become -> Zoho   (training is authoritative; pushed back to Zoho)
  *
  * Level and Role move in opposite directions, so they never fight.
  * All field/status/role names come from config.php.
+ *
+ * Level field type: set 'zoho_level_is_number' => true if Level is a Number
+ * field (default), or false if it's a picklist of "0".."10" strings.
  */
 
 require_once __DIR__ . '/db.php';
@@ -35,6 +38,12 @@ class ZohoRecruitSync {
         if (is_array($v)) return array_values(array_filter(array_map('trim', $v), 'strlen'));
         if (is_string($v) && trim($v) !== '') return [trim($v)];
         return [];
+    }
+
+    /** Format a level for the Zoho field: integer for a Number field, string for a picklist. */
+    private function levelValue($lvl) {
+        $lvl = (int)$lvl;
+        return !empty($this->cfg('zoho_level_is_number', true)) ? $lvl : (string)$lvl;
     }
 
     private function roleMap() {
@@ -64,13 +73,13 @@ class ZohoRecruitSync {
 
         $module   = $this->cfg('zoho_recruits_module', 'Recruits');
         $fEmail   = $this->cfg('zoho_field_email', 'Email');
-        $fFirst   = $this->cfg('zoho_field_first', 'First_Name');
+        $fFirst   = $this->cfg('zoho_field_first', 'Name');
         $fLast    = $this->cfg('zoho_field_last', 'Last_Name');
-        $fStatus  = $this->cfg('zoho_field_status', 'Recruit_Status');
+        $fStatus  = $this->cfg('zoho_field_status', 'Status');
         $fLevel   = $this->cfg('zoho_field_level', 'Level');
         $fRole    = $this->cfg('zoho_field_role', 'Role');
         $hired    = $this->asList($this->cfg('zoho_status_hired', ['Hired']));
-        $inactive = $this->asList($this->cfg('zoho_status_inactive', ['No longer working here']));
+        $inactive = $this->asList($this->cfg('zoho_status_inactive', ['No Longer Working']));
 
         $fields = implode(',', array_unique([$fEmail, $fFirst, $fLast, $fStatus, $fLevel, $fRole]));
 
@@ -87,11 +96,11 @@ class ZohoRecruitSync {
 
         foreach ($records as $r) {
             try {
-                $email = trim($r[$fEmail] ?? '');
-                $recId = (string)($r['id'] ?? '');
+                $email  = trim($r[$fEmail] ?? '');
+                $recId  = (string)($r['id'] ?? '');
                 $status = $r[$fStatus] ?? '';
                 $zRole  = $r[$fRole] ?? '';
-                $zLevel = $r[$fLevel];
+                $zLevel = $r[$fLevel] ?? null;
 
                 $isHired    = in_array($status, $hired, true);
                 $isInactive = in_array($status, $inactive, true);
@@ -99,7 +108,6 @@ class ZohoRecruitSync {
                 $existing = $this->findUser($recId, $email);
 
                 if ($existing) {
-                    // Make sure the link is recorded.
                     if (empty($existing['zoho_record_id']) && $recId !== '') {
                         $this->db->prepare("UPDATE training_users SET zoho_record_id=? WHERE id=?")->execute([$recId, $existing['id']]);
                     }
@@ -131,7 +139,7 @@ class ZohoRecruitSync {
                     // Level: Become -> Zoho
                     $becomeLevel = (int)$existing['level'];
                     if ($recId !== '' && (int)$zLevel !== $becomeLevel) {
-                        $levelPush[] = ['id' => $recId, $fLevel => $becomeLevel];
+                        $levelPush[] = ['id' => $recId, $fLevel => $this->levelValue($becomeLevel)];
                     }
                     continue;
                 }
@@ -179,12 +187,10 @@ class ZohoRecruitSync {
         $first = trim($r[$fFirst] ?? '');
         $last  = trim($r[$fLast] ?? '');
 
-        // Role/full_access from Zoho, falling back to config defaults.
         $mapped = $this->mapRole($zRole);
         $role = $mapped ? $mapped[0] : $this->cfg('zoho_default_role', 'rep');
         $full = $mapped ? $mapped[1] : 0;
 
-        // Initial level seeded from Zoho (training takes over after this).
         $level = ($zLevel === null || $zLevel === '') ? (int)$this->cfg('zoho_default_level', 0) : (int)$zLevel;
 
         $parent = $this->cfg('zoho_default_parent_id', null);
@@ -241,7 +247,7 @@ class ZohoRecruitSync {
             if (!$row || empty($row['zoho_record_id'])) return;
             $module = $self->cfg('zoho_recruits_module', 'Recruits');
             $fLevel = $self->cfg('zoho_field_level', 'Level');
-            $self->zoho->updateRecords($module, [['id' => $row['zoho_record_id'], $fLevel => (int)$row['level']]]);
+            $self->zoho->updateRecords($module, [['id' => $row['zoho_record_id'], $fLevel => $self->levelValue($row['level'])]]);
         } catch (Exception $e) { /* non-fatal */ }
     }
 }

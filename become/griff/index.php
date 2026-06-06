@@ -92,6 +92,7 @@ body{font-family:-apple-system,system-ui,sans-serif;background:var(--bg);color:v
 <div class="tabs">
     <div class="tab on" id="tabCoach">🎓 Ask Griff</div>
     <div class="tab" id="tabRole">🎭 Roleplay</div>
+    <div class="tab" id="tabPitch">🎤 Pitch</div>
 </div>
 
 <div class="banner" id="banner"></div>
@@ -149,21 +150,37 @@ var roleQs = [
     {t:'☀️ Solar opener', q:'Hi! I noticed you do not have solar panels yet. Do you have a couple minutes?'},
     {t:'🔋 Energy audit', q:'Hey! We are doing free energy audits in the neighborhood today.'}
 ];
+var pitchQs = [
+    {t:'🎤 Score my opener', q:'Score my door opener:\n\n'},
+    {t:'🔁 Rate my rebuttal', q:'Rate how I handle the "too expensive" objection:\n\n'},
+    {t:'🏁 Judge my close', q:'Judge my close:\n\n'}
+];
 
 function renderQs() {
-    var qs = MODE==='roleplay' ? roleQs : coachQs;
+    var qs = MODE==='roleplay' ? roleQs : (MODE==='pitch' ? pitchQs : coachQs);
     var h='';
     for(var i=0;i<qs.length;i++) h+='<button class="qb" data-qi="'+i+'">'+qs[i].t+'</button>';
     document.getElementById('qbtns').innerHTML=h;
-    document.getElementById('wtxt').textContent = MODE==='roleplay'
-        ? 'Practice your pitch! I will act as a homeowner.'
-        : 'Ask me anything about sales technique, objection handling, or the training manual.';
+    document.getElementById('wtxt').textContent =
+        MODE==='roleplay' ? 'Practice live — I will play a real homeowner, objections and all. Type END ROLEPLAY anytime for your scorecard.'
+      : MODE==='pitch' ? 'Paste a pitch, opener, rebuttal, or close and I will score it and rewrite it stronger.'
+      : 'Ask me anything about sales technique, objection handling, or the training manual.';
 }
 renderQs();
 
 // Tab switching
-document.getElementById('tabCoach').onclick=function(){MODE='coach';CID=null;this.className='tab on';document.getElementById('tabRole').className='tab';clearMsgs();renderQs()};
-document.getElementById('tabRole').onclick=function(){MODE='roleplay';CID=null;this.className='tab on';document.getElementById('tabCoach').className='tab';clearMsgs();renderQs()};
+function setMode(mode){
+    MODE=mode; CID=null;
+    document.getElementById('tabCoach').className = mode==='coach' ? 'tab on' : 'tab';
+    document.getElementById('tabRole').className  = mode==='roleplay' ? 'tab on' : 'tab';
+    document.getElementById('tabPitch').className = mode==='pitch' ? 'tab on' : 'tab';
+    var ti=document.getElementById('ti');
+    if(ti) ti.placeholder = mode==='roleplay' ? 'Knock on the door…' : (mode==='pitch' ? 'Paste your pitch to be scored…' : 'Ask Griff…');
+    clearMsgs(); renderQs();
+}
+document.getElementById('tabCoach').onclick=function(){setMode('coach')};
+document.getElementById('tabRole').onclick=function(){setMode('roleplay')};
+document.getElementById('tabPitch').onclick=function(){setMode('pitch')};
 
 function clearMsgs(){
     var c=document.getElementById('msgs');
@@ -177,7 +194,7 @@ document.getElementById('qbtns').addEventListener('click',function(e){
     var b=e.target.closest('.qb');
     if(!b) return;
     var idx=parseInt(b.getAttribute('data-qi'));
-    var qs=MODE==='roleplay'?roleQs:coachQs;
+    var qs=MODE==='roleplay'?roleQs:(MODE==='pitch'?pitchQs:coachQs);
     if(qs[idx]) send(qs[idx].q);
 });
 

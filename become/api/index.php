@@ -31,40 +31,7 @@ try {
     // ── Complete segment: POST ?route=segments/{id}/complete ──
     if (preg_match('#^segments/(\d+)/complete$#', $route, $m) && $method === 'POST') {
         $segId = (int)$m[1];
-        $db = Database::getInstance();
-
-        // Check if this is a passoff segment (graceful - works even without passoff table)
-        try {
-            $s = $db->prepare("SELECT segment_type FROM segments WHERE id=?");
-            $s->execute([$segId]);
-            $seg = $s->fetch();
-
-            if ($seg && ($seg['segment_type'] ?? 'lesson') === 'passoff') {
-                try {
-                    $s = $db->prepare("SELECT status FROM passoff_requests WHERE user_id=? AND segment_id=? ORDER BY id DESC LIMIT 1");
-                    $s->execute([$userId, $segId]);
-                    $req = $s->fetch();
-
-                    if ($req && $req['status'] === 'passed') {
-                        $result = $engine->completeSegment($userId, $segId);
-                        echo json_encode($result);
-                        exit;
-                    } elseif ($req && $req['status'] === 'pending') {
-                        echo json_encode(['passoff_pending' => true, 'message' => 'Waiting for leader approval']);
-                        exit;
-                    } else {
-                        echo json_encode(['needs_passoff' => true, 'message' => 'This segment requires a leader pass-off']);
-                        exit;
-                    }
-                } catch (Exception $e) {
-                    // passoff_requests table may not exist — treat as regular segment
-                }
-            }
-        } catch (Exception $e) {
-            // segment_type column may not exist — treat as regular lesson
-        }
-
-        // Regular lesson completion
+        // Pass-offs are gated at the level, not per segment, so every segment completes directly.
         $result = $engine->completeSegment($userId, $segId);
         echo json_encode($result);
         exit;

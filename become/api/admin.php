@@ -171,7 +171,7 @@ try {
             $hash    = password_hash($input['password'] ?? '', PASSWORD_DEFAULT);
             $parent  = isset($input['parent_id']) && $input['parent_id'] !== '' ? (int)$input['parent_id'] : null;
             $full    = !empty($input['full_access']) ? 1 : 0;
-            $s = $db->prepare("INSERT INTO training_users (username, first_name, last_name, email, password_hash, role, parent_id, full_access) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            $s = $db->prepare("INSERT INTO training_users (username, first_name, last_name, email, password_hash, role, parent_id, full_access, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)");
             $s->execute([$uname, $input['first_name']??'', $input['last_name']??'', ($email !== '' ? $email : null), $hash, $input['role']??'rep', $parent, $full]);
             $newId = (int)$db->lastInsertId();
             $db->prepare("INSERT INTO user_progress (user_id, xp, level, join_date) VALUES (?, 0, 0, CURDATE())")->execute([$newId]);
@@ -252,7 +252,7 @@ try {
             echo json_encode(['error'=>'Unknown action: '.$action]);
     }
 
-} catch (Exception $e) {
+} catch (Throwable $e) {
     http_response_code(500);
     echo json_encode(['error'=>$e->getMessage()]);
 }

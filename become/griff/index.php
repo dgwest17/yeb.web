@@ -243,6 +243,7 @@ function addMsg(text,cls){
     var d=document.createElement('div');
     d.className='msg '+cls;
     if(cls==='msg-a'){
+        text=text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
         text=text.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
         text=text.replace(/\n/g,'<br>');
         d.innerHTML=text;

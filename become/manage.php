@@ -1469,12 +1469,12 @@ async function syncZoho() {
     const r = await api('POST', {action:'zoho_sync'});
     if (r && r.ok) {
       toast(`Zoho: ${r.created} created · ${r.reactivated} reactivated · ${r.deactivated} deactivated`);
-      if (r.errors && r.errors.length) console.warn('Zoho sync errors:', r.errors);
+      if (r.errors && r.errors.length) { console.warn('Zoho sync errors:', r.errors); toast(r.errors.length + ' record issue(s): ' + r.errors[0], true); }
       await loadAll();
     } else {
       toast((r && r.error) ? r.error : 'Zoho sync failed', true);
     }
-  } catch (e) { toast('Zoho sync error', true); }
+  } catch (e) { toast('Zoho: ' + (e && e.message ? e.message : 'sync failed'), true); }
   if (btn) { btn.disabled = false; btn.textContent = '⟲ Sync from Zoho'; }
 }
 

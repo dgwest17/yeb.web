@@ -203,67 +203,8 @@ function updateProg() {
     if (info) info.innerHTML = '<span>' + done + '/' + total + ' segments</span><span>' + pct + '%</span>';
 }
 
-// Fetch all modules in the next progression stage
-async function fetchNextStage(container, baseHtml) {
-    try {
-        var res = await fetch('/become/api/index.php?route=next_stage');
-        var ns = await res.json();
-
-        if (ns.type === 'next_stage' && ns.modules && ns.modules.length > 0) {
-            var stageHtml = baseHtml + '<div class="next-steps-card">';
-            if (ns.modules.length === 1) {
-                stageHtml += '<div class="next-steps-title">🎉 Module Complete! Next Up:</div>';
-            } else {
-                stageHtml += '<div class="next-steps-title">🎉 Module Complete! Complete all ' + ns.modules.length + ':</div>';
-            }
-            ns.modules.forEach(function(m) {
-                var href = m.segment_id ? '/become/module.php?id=' + m.module_id + '#seg-' + m.segment_id : '/become/module.php?id=' + m.module_id;
-                stageHtml += '<a class="next-step-item" href="' + href + '" style="font-weight:600">' +
-                    (m.module_icon || '📄') + ' ' + m.module_title +
-                    '<span style="color:var(--dim);font-size:.7rem;margin-left:.5rem">' + (m.folder_icon || '📁') + ' ' + m.folder_title + '</span>' +
-                    ' <span style="color:var(--teal)">→</span></a>';
-            });
-            stageHtml += '<a class="next-step-item" href="/become/" style="color:var(--dim);font-size:.78rem">← Or back to dashboard</a>';
-            stageHtml += '</div>';
-            container.innerHTML = stageHtml;
-        } else if (ns.type === 'level_up') {
-            container.innerHTML = baseHtml +
-                '<div class="next-steps-card">' +
-                '<div class="next-steps-title">🎉 Level Complete!</div>' +
-                '<div class="next-step-item" style="color:var(--gold)">' + (ns.label || 'Keep going!') + '</div>' +
-                '<a class="next-step-item" href="/become/" style="color:var(--teal);font-weight:700">← Back to Dashboard</a></div>';
-        } else {
-            container.innerHTML = baseHtml +
-                '<div class="next-steps-card">' +
-                '<div class="next-steps-title">🎉 All Complete!</div>' +
-                '<a class="next-step-item" href="/become/" style="color:var(--teal);font-weight:700">← Back to Dashboard</a></div>';
-        }
-    } catch(e) {
-        container.innerHTML = baseHtml +
-            '<div class="next-steps-card">' +
-            '<div class="next-steps-title">🎉 Module Complete!</div>' +
-            '<a class="next-step-item" href="/become/">← Back to Dashboard</a></div>';
-    }
-}
-
 // ── XP removed: no-op (kept so existing calls stay harmless) ──
 function xpToast(xp) { return; }
-
-// ── LEVEL UP MODAL ──
-function levelUpModal(ev) {
-    var bg = document.createElement('div');
-    bg.className = 'modal-bg';
-    bg.innerHTML =
-        '<div class="lvl-modal">' +
-        '<h2 class="lvl-title">⚡ LEVEL UP!</h2>' +
-        '<p class="lvl-from">Level ' + ev.from + '</p>' +
-        '<p class="lvl-arrow">→</p>' +
-        '<p class="lvl-to">Level ' + ev.to + '</p>' +
-        '<button class="btn-teal lvl-btn" onclick="this.closest(\'.modal-bg\').remove()">Let\'s Go! 🚀</button>' +
-        '</div>';
-    document.body.appendChild(bg);
-    confetti(); confetti();
-}
 
 // ── CONFETTI ──
 function confetti() {

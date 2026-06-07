@@ -86,8 +86,8 @@ class AICoach {
     private function retrieveContext($query, $limit = 6) {
         $results = array();
         try {
-            $s = $this->db->prepare("SELECT source_title, chunk_text FROM knowledge_base WHERE MATCH(chunk_text, source_title) AGAINST(? IN NATURAL LANGUAGE MODE) ORDER BY MATCH(chunk_text, source_title) AGAINST(? IN NATURAL LANGUAGE MODE) DESC LIMIT ?");
-            $s->execute(array($query, $query, $limit));
+            $s = $this->db->prepare("SELECT source_title, chunk_text FROM knowledge_base WHERE MATCH(chunk_text, source_title) AGAINST(? IN NATURAL LANGUAGE MODE) ORDER BY MATCH(chunk_text, source_title) AGAINST(? IN NATURAL LANGUAGE MODE) DESC LIMIT " . (int)$limit);
+            $s->execute(array($query, $query));
             $results = $s->fetchAll();
         } catch (Exception $e) {}
 
@@ -98,9 +98,8 @@ class AICoach {
             if (!empty($words)) {
                 $conds = array(); $params = array();
                 foreach ($words as $w) { $conds[] = "chunk_text LIKE ?"; $params[] = '%' . $w . '%'; }
-                $params[] = $limit;
                 try {
-                    $s = $this->db->prepare("SELECT source_title, chunk_text FROM knowledge_base WHERE " . implode(' OR ', $conds) . " LIMIT ?");
+                    $s = $this->db->prepare("SELECT source_title, chunk_text FROM knowledge_base WHERE " . implode(' OR ', $conds) . " LIMIT " . (int)$limit);
                     $s->execute($params);
                     $results = $s->fetchAll();
                 } catch (Exception $e) {}
@@ -210,7 +209,7 @@ class AICoach {
     }
 
     public function getConversations($uid, $lim = 20) {
-        try { $s = $this->db->prepare("SELECT id, mode, created_at, updated_at, token_count FROM ai_conversations WHERE user_id=? ORDER BY updated_at DESC LIMIT ?"); $s->execute(array($uid, $lim)); return $s->fetchAll(); } catch (Exception $e) { return array(); }
+        try { $s = $this->db->prepare("SELECT id, mode, created_at, updated_at, token_count FROM ai_conversations WHERE user_id=? ORDER BY updated_at DESC LIMIT " . (int)$lim); $s->execute(array($uid)); return $s->fetchAll(); } catch (Exception $e) { return array(); }
     }
 
     public function getConversation($cid, $uid) {

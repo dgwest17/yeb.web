@@ -397,8 +397,8 @@ class ProgressionEngine {
                  LEFT JOIN segments seg ON pr.segment_id = seg.id
                  WHERE pr.status = 'pending'
                  ORDER BY pr.requested_at ASC
-                 LIMIT ?");
-            $s->execute([$limit]);
+                 LIMIT " . (int)$limit);
+            $s->execute();
             return $s->fetchAll();
         } catch (Exception $e) { return []; }
     }

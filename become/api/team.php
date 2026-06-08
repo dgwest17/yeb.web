@@ -12,6 +12,8 @@
  * Every write verifies the target actually reports to the caller.
  */
 header('Content-Type: application/json');
+error_reporting(E_ALL);
+ini_set('display_errors', '0');
 require_once __DIR__ . '/../includes/auth.php';          // require_portal_auth + helpers
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/ProgressionEngine.php';

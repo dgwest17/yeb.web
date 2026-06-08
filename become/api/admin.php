@@ -8,6 +8,9 @@
  */
 session_start();
 header('Content-Type: application/json');
+error_reporting(E_ALL);
+ini_set('display_errors', '0');   // never leak PHP notices/warnings into the JSON body
+ob_start();
 
 // Auth check — must be leader or admin
 $role = $_SESSION['portal_role'] ?? '';
@@ -253,6 +256,7 @@ try {
     }
 
 } catch (Throwable $e) {
+    if (ob_get_level()) ob_end_clean();
     http_response_code(500);
     echo json_encode(['error'=>$e->getMessage()]);
 }

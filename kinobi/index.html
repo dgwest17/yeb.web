@@ -977,6 +977,7 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
 
 <!-- ADMIN LINK — stays top-center, faded -->
 <a href="admin.html" id="admin-btn" target="_blank" onclick="return promptAdminPw(event)">⚙ Admin</a>
+<button id="rep-share-btn" onclick="openRepShare()" style="position:fixed;top:1rem;right:8.5rem;z-index:300;background:rgba(200,168,75,0.12);border:1px solid rgba(200,168,75,0.3);color:var(--gold);font-family:'DM Sans',sans-serif;font-size:0.65rem;font-weight:600;letter-spacing:0.06em;padding:0.32rem 0.75rem;border-radius:4px;cursor:pointer;transition:all 0.2s" title="Share rep version">👥 Rep Link</button>
 
 <!-- OVERVIEW BUTTON — standalone bottom right, always visible -->
 <button id="overview-btn" onclick="openOverview()">⊞ Overview</button>
@@ -1339,6 +1340,15 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
 <!-- ══════════════════════════════════════════════
      SLIDES
 ══════════════════════════════════════════════ -->
+<div id="rep-mode-bar">
+  <span>⚡ REP MODE</span>
+  <span style="opacity:0.7;font-weight:400">Your name shown to client:</span>
+  <input id="rep-name-input" type="text" placeholder="Your Name" oninput="updateRepName(this.value)">
+  <span style="opacity:0.7;font-weight:400">Company:</span>
+  <input id="rep-company-input" type="text" placeholder="Kinhome" oninput="updateRepCompany(this.value)" style="width:120px">
+  <span style="opacity:0.5;font-size:0.7rem;margin-left:0.5rem">IG feed hidden · Personal info replaced</span>
+  <button onclick="copyRepLink()" style="margin-left:auto">📋 Copy My Link</button>
+</div>
 <div id="deck">
 
 <!-- ══ TITLE SLIDE ══ -->
@@ -3988,6 +3998,89 @@ document.addEventListener('DOMContentLoaded', () => {
   spawnParticles('particles-0','rgba(192,57,43,0.6)',12);
   spawnParticles('particles-1','rgba(180,40,20,0.5)',10);
 });
+
+// ─── REP MODE ───
+(function(){
+  var params = new URLSearchParams(location.search);
+  var isRepMode = params.get('rep') === '1';
+  if(!isRepMode) return;
+
+  document.body.classList.add('rep-mode');
+  document.getElementById('rep-mode-bar').classList.add('visible');
+
+  // Push body down so rep bar doesn't cover nav
+  document.body.style.paddingTop = '40px';
+
+  // Pre-fill from URL params if set
+  var rn = params.get('rn') || '';
+  var rc = params.get('rc') || '';
+  if(rn) document.getElementById('rep-name-input').value = rn;
+  if(rc) document.getElementById('rep-company-input').value = rc;
+  if(rn || rc){ updateRepName(rn); updateRepCompany(rc); }
+
+  // Replace IG "From My Feed" section with neutral placeholder
+  var igCol = document.querySelector('#slide-6 .ig-column');
+  if(igCol){
+    igCol.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:1rem;opacity:0.35;text-align:center;padding:2rem">'
+      + '<div style="font-size:3rem">📸</div>'
+      + '<div style="font-size:0.8rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted)">Your feed will appear here</div>'
+      + '<div style="font-size:0.7rem;color:var(--dim)">Add your Instagram token in Settings</div>'
+      + '</div>';
+  }
+
+  // Replace "I" language bullets with generic rep language
+  var bullets = document.querySelectorAll('#slide-6 .blist li span:last-child');
+  var repTexts = [
+    '<strong>Local San Diego expert</strong> — We live here, know the rates, the permits, and the utility games. This is our community too.',
+    '<strong>Post-install support for life</strong> — We do not disappear after install. Our team number does not change. Call us in year 10.',
+    '<strong>Our mission is to make this industry truly sustainable</strong> — The better your experience, the more people you tell, and the quicker we get there together.'
+  ];
+  bullets.forEach(function(b, i){ if(repTexts[i]) b.innerHTML = repTexts[i]; });
+
+  // Replace "David" testimonial default rep name references
+  document.querySelectorAll('.t-name').forEach(function(el){
+    el.textContent = el.textContent.replace('David','Your Rep');
+  });
+})();
+
+function updateRepName(name){
+  // Update proposal modal default rep name
+  var pmRep = document.getElementById('pm-rep');
+  if(pmRep) pmRep.value = name || '';
+  // Update any visible rep name spans
+  document.querySelectorAll('.rep-name-span').forEach(function(el){ el.textContent = name || 'Your Rep'; });
+}
+
+function updateRepCompany(company){
+  var pmCo = document.getElementById('pm-company');
+  if(pmCo) pmCo.value = company || 'Kinhome';
+}
+
+
+function openRepShare(){
+  var url = location.origin + location.pathname + '?rep=1';
+  var msg = 'Share this link with other reps.\n\nThey can add their name to the URL:\n' + url + '&rn=Their+Name&rc=Kinhome\n\nOr they can enter their name in the gold bar at the top.';
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(url + '&rn=Rep+Name&rc=Kinhome').then(function(){
+      alert('Rep link copied to clipboard!\n\n' + url + '&rn=Rep+Name&rc=Kinhome\n\nTell the rep to replace "Rep+Name" with their name in the URL, or enter it in the gold bar.');
+    }).catch(function(){ prompt('Rep link (share this):', url + '&rn=Rep+Name&rc=Kinhome'); });
+  } else {
+    prompt('Rep link (share this):', url + '&rn=Rep+Name&rc=Kinhome');
+  }
+}
+function copyRepLink(){
+  var name = document.getElementById('rep-name-input').value;
+  var company = document.getElementById('rep-company-input').value;
+  var base = location.origin + location.pathname;
+  var url = base + '?rep=1' + (name ? '&rn='+encodeURIComponent(name) : '') + (company ? '&rc='+encodeURIComponent(company) : '');
+  navigator.clipboard.writeText(url).then(function(){
+    var btn = document.querySelector('#rep-mode-bar button');
+    if(btn){ btn.textContent = '✓ Copied!'; setTimeout(function(){ btn.textContent = '📋 Copy My Link'; }, 2000); }
+  }).catch(function(){
+    prompt('Copy this link:', url);
+  });
+}
+
 </script>
 </body>
 </html>

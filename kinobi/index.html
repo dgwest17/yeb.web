@@ -1217,11 +1217,11 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
       </div>
       <div class="pm-field">
         <div class="pm-label">Closing Rep Name</div>
-        <input class="pm-input" id="pm-rep" placeholder="David West" value="David West">
+        <input class="pm-input" id="pm-rep" placeholder="David West" value="David West" data-default="David West">
       </div>
       <div class="pm-field" style="grid-column:1/-1">
         <div class="pm-label">Installing Company</div>
-        <input class="pm-input" id="pm-company" placeholder="Kinhome" value="Kinhome">
+        <input class="pm-input" id="pm-company" placeholder="Kinhome" value="Kinhome" data-default="Kinhome">
       </div>
     </div>
 
@@ -1340,15 +1340,6 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
 <!-- ══════════════════════════════════════════════
      SLIDES
 ══════════════════════════════════════════════ -->
-<div id="rep-mode-bar">
-  <span>⚡ REP MODE</span>
-  <span style="opacity:0.7;font-weight:400">Your name shown to client:</span>
-  <input id="rep-name-input" type="text" placeholder="Your Name" oninput="updateRepName(this.value)">
-  <span style="opacity:0.7;font-weight:400">Company:</span>
-  <input id="rep-company-input" type="text" placeholder="Kinhome" oninput="updateRepCompany(this.value)" style="width:120px">
-  <span style="opacity:0.5;font-size:0.7rem;margin-left:0.5rem">IG feed hidden · Personal info replaced</span>
-  <button onclick="copyRepLink()" style="margin-left:auto">📋 Copy My Link</button>
-</div>
 <div id="deck">
 
 <!-- ══ TITLE SLIDE ══ -->
@@ -1363,6 +1354,9 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
       Your Family Name
     </div>
     <p style="font-size:0.68rem;color:#5a4f38;letter-spacing:0.1em;text-transform:uppercase">tap name to edit</p>
+    <div id="rep-presented-by" style="display:none;margin-top:0.5rem;font-size:0.78rem;color:var(--gold);letter-spacing:0.06em;text-align:center;font-family:'DM Sans',sans-serif;font-weight:500">
+      Presented by <span id="rep-presented-name" style="font-weight:700"></span>
+    </div>
     <div style="margin-top:1rem;display:flex;gap:1rem;flex-wrap:wrap;justify-content:center">
       <div style="background:rgba(200,168,75,0.1);border:1px solid var(--border);border-radius:100px;padding:0.4rem 1.1rem;font-size:0.75rem;color:#8A6E2A">SDG&E Territory</div>
       <div style="background:rgba(200,168,75,0.1);border:1px solid var(--border);border-radius:100px;padding:0.4rem 1.1rem;font-size:0.75rem;color:#8A6E2A">25-Year Warranty</div>
@@ -2256,17 +2250,27 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
             <input type="number" class="n-input big" id="inv-system" value="56294" oninput="recalcInv()" style="color:#8A6E2A">
           </div>
           <div class="n-input-group">
-            <div class="n-label">30% Federal Energy Discount</div>
-            <select class="n-select" id="inv-itc" onchange="recalcInv()">
-              <option value="0.30" selected>30% (Current Rate)</option>
+            <div class="n-label">Federal Energy Discount</div>
+            <select class="n-select" id="inv-itc" onchange="onItcChange()" style="margin-bottom:0.35rem">
+              <option value="0.30" selected>30% (Current ITC)</option>
               <option value="0.26">26%</option>
               <option value="0.22">22%</option>
-              <option value="0">None</option>
+              <option value="0">None / Already Applied</option>
+              <option value="custom">Enter Custom Amount ($)</option>
             </select>
+            <div id="inv-itc-custom-wrap" style="display:none">
+              <input type="number" class="n-input" id="inv-itc-custom" placeholder="e.g. 16000" oninput="recalcInv()" style="font-size:0.88rem">
+              <div style="font-size:0.62rem;color:var(--dim);margin-top:0.2rem">Enter your actual rebate/credit dollar amount</div>
+            </div>
           </div>
           <div style="margin-top:0.5rem;padding:0.5rem 0.75rem;background:rgba(200,168,75,0.1);border-radius:4px;border:1px solid rgba(200,168,75,0.2)">
             <div style="font-size:0.65rem;color:#5a4f38;margin-bottom:2px">Net Cash Cost</div>
             <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:#8A6E2A" id="inv-netcost">$39,406</div>
+          </div>
+          <div style="margin-top:0.5rem;padding:0.5rem 0.75rem;background:rgba(91,155,213,0.08);border-radius:4px;border:1px solid rgba(91,155,213,0.2)">
+            <div style="font-size:0.65rem;color:#5a4f38;margin-bottom:2px">ROI — Utility break-even</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:#5B9BD5" id="inv-roi">—</div>
+            <div style="font-size:0.6rem;color:#5a4f38;margin-top:1px">years until utility payments = net cost</div>
           </div>
           <!-- Cash purchase total savings: utility cumul - net cost -->
           <div style="margin-top:0.5rem;padding:0.5rem 0.75rem;background:rgba(39,174,96,0.07);border-radius:4px;border:1px solid rgba(39,174,96,0.18)">
@@ -2316,6 +2320,24 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
           <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.68rem;color:#3d3020"><span style="width:10px;height:10px;border-radius:2px;background:#2ECC71;display:inline-block"></span>$0 Down Solar</div>
           <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.68rem;color:#3d3020"><span style="width:10px;height:10px;border-radius:2px;background:#5B9BD5;display:inline-block"></span>S&P Returns</div>
           <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.68rem;color:#3d3020"><span style="width:10px;height:10px;border-radius:2px;background:linear-gradient(180deg,#5B9BD5 50%,#2ECC71 50%);display:inline-block"></span>Best of Both</div>
+        </div>
+
+        <!-- S&P Milestone Table -->
+        <div style="margin-top:1.5rem;border-top:1px solid rgba(0,0,0,0.08);padding-top:1.25rem">
+          <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#5a4f38;margin-bottom:0.75rem">📈 S&P Return on Net Investment — If You Invested Instead of Paying Cash</div>
+          <div style="overflow-x:auto">
+            <table id="sp-milestone-table" style="width:100%;border-collapse:collapse;font-family:'DM Sans',sans-serif;font-size:0.8rem;min-width:420px">
+              <thead>
+                <tr style="border-bottom:1px solid rgba(0,0,0,0.1)">
+                  <th style="text-align:left;padding:0.4rem 0.5rem;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#5a4f38">Period</th>
+                  <th style="text-align:right;padding:0.4rem 0.5rem;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#5a4f38">Portfolio Value</th>
+                  <th style="text-align:right;padding:0.4rem 0.5rem;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#5a4f38">Gain</th>
+                  <th style="text-align:right;padding:0.4rem 0.5rem;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#5a4f38">vs Utility Cost</th>
+                </tr>
+              </thead>
+              <tbody id="sp-milestone-tbody"></tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -2819,28 +2841,57 @@ function toggleInvestment() {
   }
 }
 
+function onItcChange() {
+  var sel = document.getElementById('inv-itc');
+  var wrap = document.getElementById('inv-itc-custom-wrap');
+  if(wrap) wrap.style.display = sel.value === 'custom' ? 'block' : 'none';
+  recalcInv();
+}
+
 function recalcInv() {
   const system = parseFloat(document.getElementById('inv-system')?.value) || 56294;
-  const itc    = parseFloat(document.getElementById('inv-itc')?.value) || 0.30;
+  const itcSel = document.getElementById('inv-itc')?.value || '0.30';
   const spPct  = parseFloat(document.getElementById('inv-sp-slider')?.value) || 8;
   const sp     = spPct / 100;
-  const netCost = system * (1 - itc);
+
+  // Net cost calculation — handles percent or custom dollar amount
+  let netCost;
+  if(itcSel === 'custom'){
+    const customDisc = parseFloat(document.getElementById('inv-itc-custom')?.value) || 0;
+    netCost = Math.max(0, system - customDisc);
+  } else {
+    const itc = parseFloat(itcSel) || 0;
+    netCost = system * (1 - itc);
+  }
 
   const d = buildData();
   const TERM = d.TERM;
 
-  // S&P: invest the net cost lump sum for TERM years
+  // ROI: find exact year (to 1 decimal) when cumulative utility payments >= netCost
+  let roi = null;
+  if(netCost > 0 && d.utilCumul){
+    let cumul = 0;
+    for(let y = 0; y < 30; y++){
+      const monthly = d.utilMonthly30 ? d.utilMonthly30[y] : (d.utilMonthly[y] || 0);
+      const annual = monthly * 12;
+      const prevCumul = cumul;
+      cumul += annual;
+      if(cumul >= netCost){
+        // Interpolate to 1 decimal
+        const fraction = (netCost - prevCumul) / annual;
+        roi = (y + fraction).toFixed(1);
+        break;
+      }
+    }
+  }
+
+  // S&P: invest the net cost lump sum
   const spGrowth25 = netCost * Math.pow(1 + sp, TERM);
   const spGain = spGrowth25 - netCost;
 
-  // Solar savings from main model ($0 down)
   const solarSav = d.solarCumul ? d.savings : 0;
-
-  // Cash purchase net savings: total utility bills eliminated over TERM minus net cost paid upfront
-  const utilTotalEliminated = d.utilCumul[TERM - 1]; // what you would have paid utility
+  const utilTotalEliminated = d.utilCumul[TERM - 1];
   const cashNetSavings = utilTotalEliminated - netCost;
-
-  // Total combo: solar savings ($0 down) + S&P gain from NOT paying cash
   const combo = solarSav + spGain;
 
   // Update displays
@@ -2850,6 +2901,7 @@ function recalcInv() {
   const tc   = document.getElementById('inv-total-combo');
   const cns  = document.getElementById('inv-cash-netsavings');
   const cty  = document.getElementById('cash-term-yr');
+  const roiEl= document.getElementById('inv-roi');
 
   if(nc)  nc.textContent  = '$' + Math.round(netCost).toLocaleString();
   if(sp25) sp25.textContent = '$' + Math.round(spGrowth25).toLocaleString();
@@ -2861,13 +2913,42 @@ function recalcInv() {
     cns.textContent = sign + '$' + Math.round(Math.abs(cashNetSavings)).toLocaleString();
     cns.style.color = cashNetSavings >= 0 ? 'var(--green-l)' : 'var(--rage-l)';
   }
+  if(roiEl){
+    if(roi !== null){
+      roiEl.textContent = roi + ' years';
+      roiEl.style.color = parseFloat(roi) <= 8 ? '#1d7a48' : '#5B9BD5';
+    } else {
+      roiEl.textContent = '> 30 yrs';
+      roiEl.style.color = '#aaa';
+    }
+  }
 
-  // Update S&P label for term
-  const sp25label = document.querySelector('[id="inv-sp-25"]')?.previousElementSibling;
-  const spBox = document.getElementById('inv-sp-25')?.closest('div[style]');
-  const spLabelEl = document.querySelector('#inv-sp-25 ~ *') || document.getElementById('inv-sp-25')?.parentElement?.querySelector('.font-size');
-  // Update the "25yr" label in S&P box
   document.querySelectorAll('.inv-term-label').forEach(el => el.textContent = TERM);
+
+  // S&P Milestone Table
+  const tbody = document.getElementById('sp-milestone-tbody');
+  if(tbody && netCost > 0){
+    const milestones = [5,10,15,20,25,30];
+    tbody.innerHTML = milestones.map((yr, idx) => {
+      const portfolioVal = netCost * Math.pow(1 + sp, yr);
+      const gain = portfolioVal - netCost;
+      // Util cumul at this year
+      let utilAtYr = 0;
+      for(let y = 0; y < yr; y++){
+        const m = d.utilMonthly30 ? d.utilMonthly30[y] : (d.utilMonthly[Math.min(y, d.utilMonthly.length-1)] || 0);
+        utilAtYr += m * 12;
+      }
+      const vsUtil = portfolioVal - utilAtYr;
+      const isHighlight = yr === TERM;
+      const rowStyle = isHighlight ? 'background:rgba(91,155,213,0.08);font-weight:600;' : (idx%2===0?'background:rgba(0,0,0,0.025);':'');
+      return '<tr style="border-bottom:1px solid rgba(0,0,0,0.06);'+rowStyle+'">'
+        + '<td style="padding:0.45rem 0.5rem;color:#3d3020;font-weight:'+(isHighlight?'700':'500')+'">'+(isHighlight?'★ ':'')+yr+' Years</td>'
+        + '<td style="padding:0.45rem 0.5rem;text-align:right;font-family:\'Bebas Neue\',sans-serif;font-size:1.05rem;color:#5B9BD5">$'+Math.round(portfolioVal).toLocaleString()+'</td>'
+        + '<td style="padding:0.45rem 0.5rem;text-align:right;color:#1d7a48;font-weight:600">+$'+Math.round(gain).toLocaleString()+'</td>'
+        + '<td style="padding:0.45rem 0.5rem;text-align:right;color:'+(vsUtil>=0?'#1d7a48':'#c0392b')+';">'+(vsUtil>=0?'+':'')+'$'+Math.round(vsUtil).toLocaleString()+'</td>'
+        + '</tr>';
+    }).join('');
+  }
 
   // Comparison bars
   const barsEl = document.getElementById('inv-bars');
@@ -3037,7 +3118,11 @@ const chartCfgMain = {
   scales: {
     x: {
       ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 10 },
-        callback: (v, i) => [0,4,9,14,19,24].includes(i) ? 'Yr '+(i+1) : '' },
+        callback: (v, i) => {
+          const yr = i + 1;
+          return [5,10,15,20,25,30].includes(yr) ? 'Yr '+yr : '';
+        }
+      },
       grid: { color: 'rgba(255,255,255,0.04)' }
     },
     y: {
@@ -4006,17 +4091,18 @@ document.addEventListener('DOMContentLoaded', () => {
   if(!isRepMode) return;
 
   document.body.classList.add('rep-mode');
-  document.getElementById('rep-mode-bar').classList.add('visible');
+  // Show presented-by badge on title slide
+  var pb=document.getElementById('rep-presented-by');
+  if(pb) pb.style.display='block';
 
   // Push body down so rep bar doesn't cover nav
-  document.body.style.paddingTop = '40px';
+  // no bar — no padding needed
 
-  // Pre-fill from URL params if set
+  // Pre-fill from URL params — no visible bar, just wire up silently
   var rn = params.get('rn') || '';
   var rc = params.get('rc') || '';
-  if(rn) document.getElementById('rep-name-input').value = rn;
-  if(rc) document.getElementById('rep-company-input').value = rc;
-  if(rn || rc){ updateRepName(rn); updateRepCompany(rc); }
+  if(rn) updateRepName(rn);
+  if(rc) updateRepCompany(rc);
 
   // Replace IG "From My Feed" section with neutral placeholder
   var igCol = document.querySelector('#slide-6 .ig-column');
@@ -4044,16 +4130,27 @@ document.addEventListener('DOMContentLoaded', () => {
 })();
 
 function updateRepName(name){
-  // Update proposal modal default rep name
   var pmRep = document.getElementById('pm-rep');
-  if(pmRep) pmRep.value = name || '';
-  // Update any visible rep name spans
+  if(pmRep){
+    var isRepMode = document.body.classList.contains('rep-mode');
+    pmRep.value = name || (isRepMode ? '' : (pmRep.dataset.default || 'David West'));
+    pmRep.placeholder = isRepMode ? 'Enter your name' : 'David West';
+  }
   document.querySelectorAll('.rep-name-span').forEach(function(el){ el.textContent = name || 'Your Rep'; });
+  // Update title slide "Presented by" badge
+  var pn = document.getElementById('rep-presented-name');
+  var pb = document.getElementById('rep-presented-by');
+  if(pn) pn.textContent = name || '';
+  if(pb) pb.style.display = (name && document.body.classList.contains('rep-mode')) ? 'block' : 'none';
 }
 
 function updateRepCompany(company){
   var pmCo = document.getElementById('pm-company');
-  if(pmCo) pmCo.value = company || 'Kinhome';
+  if(pmCo){
+    var isRepMode = document.body.classList.contains('rep-mode');
+    pmCo.value = company || (isRepMode ? '' : (pmCo.dataset.default || 'Kinhome'));
+    pmCo.placeholder = isRepMode ? 'Your company' : 'Kinhome';
+  }
 }
 
 
@@ -4069,13 +4166,12 @@ function openRepShare(){
   }
 }
 function copyRepLink(){
-  var name = document.getElementById('rep-name-input').value;
-  var company = document.getElementById('rep-company-input').value;
+  var name = document.getElementById('pm-rep')?.value || '';
+  var company = document.getElementById('pm-company')?.value || '';
   var base = location.origin + location.pathname;
   var url = base + '?rep=1' + (name ? '&rn='+encodeURIComponent(name) : '') + (company ? '&rc='+encodeURIComponent(company) : '');
   navigator.clipboard.writeText(url).then(function(){
-    var btn = document.querySelector('#rep-mode-bar button');
-    if(btn){ btn.textContent = '✓ Copied!'; setTimeout(function(){ btn.textContent = '📋 Copy My Link'; }, 2000); }
+    alert('Link copied!');
   }).catch(function(){
     prompt('Copy this link:', url);
   });

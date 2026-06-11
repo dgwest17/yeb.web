@@ -1378,13 +1378,30 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
         <span class="eyebrow red editable" id="s0-eyebrow">The Problem with Your Power Company</span>
         <div class="accent-line red"></div>
         <h1 class="display xl" style="color:#fff">YOUR BILL <span class="editable" id="s0-headline" style="color:#c0392b">ISN'T YOURS.</span></h1>
-        <p class="body-text editable" id="s0-body" style="margin:1rem 0">Every month you pay for miles of aging wire, corporate executives, and shareholder dividends — before a single electron reaches your home. SDG&E is a <strong style="color:#fff">for-profit business</strong> with one goal: extract as much as possible from a captive customer.</p>
+        <p class="body-text editable" id="s0-body" style="margin:1rem 0">Every month you pay for miles of aging wire, corporate executives, and shareholder dividends — before a single electron reaches your home. <span class="util-name-ref">SDG&E</span> is a <strong style="color:#fff">for-profit business</strong> with one goal: extract as much as possible from a captive customer.</p>
 
         <!-- BILL INPUT — syncs with Numbers slide -->
         <div class="slide-bill-input-wrap">
           <label>Current Monthly Bill</label>
           <span style="color:#c0392b;font-family:'Bebas Neue',sans-serif;font-size:2rem;line-height:1">$</span>
           <input type="number" class="slide-bill-input" id="slide-bill-input" value="134" placeholder="0" oninput="syncBillFromSlide1(this.value)">
+        </div>
+
+        <!-- UTILITY SELECTOR — syncs with Numbers slide and all util-name-ref spans -->
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-top:0.75rem;margin-bottom:0.75rem;padding:0.65rem 1rem;background:rgba(231,76,60,0.08);border:1px solid rgba(231,76,60,0.25);border-radius:8px;flex-wrap:wrap">
+          <div style="font-size:0.65rem;color:rgba(231,76,60,0.7);letter-spacing:0.14em;text-transform:uppercase;font-weight:700;white-space:nowrap">Your Utility</div>
+          <select id="slide-utility-select" onchange="syncUtilityFromSlide(this.value)"
+            style="background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.4);color:#c0392b;
+            font-family:'Bebas Neue',sans-serif;font-size:1.25rem;letter-spacing:0.05em;font-weight:700;
+            padding:0.25rem 0.65rem;border-radius:5px;outline:none;cursor:pointer;flex:1;min-width:140px;max-width:260px">
+            <option value="SDG&E">SDG&amp;E</option>
+            <option value="SoCal Edison">SoCal Edison</option>
+            <option value="LADWP">LADWP</option>
+            <option value="PG&E">PG&amp;E</option>
+            <option value="SMUD">SMUD</option>
+            <option value="Other">Other</option>
+          </select>
+          <div style="font-size:0.72rem;color:rgba(231,76,60,0.6);font-style:italic">Updates across all slides</div>
         </div>
 
         <ul class="blist">
@@ -1395,10 +1412,10 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
       </div>
       <div>
         <div class="stat-row" style="flex-direction:column;gap:2px">
-          <div class="stat-b red-glow"><span class="val" id="s1-yr1">$1,608</span><span class="lbl editable" id="s0-lbl1">Year 1 Cost to SDG&E</span></div>
-          <div class="stat-b red-glow"><span class="val" id="s1-yr5">$9,064</span><span class="lbl editable" id="s0-lbl2">5 Years Donated</span></div>
-          <div class="stat-b red-glow"><span class="val" id="s1-yr10">$21,195</span><span class="lbl editable" id="s0-lbl3">10 Years Donated</span></div>
-          <div class="stat-b red-glow"><span class="val" id="s1-yr25" style="color:#ff4444">$88,222</span><span class="lbl editable" id="s0-lbl4">25 Years — Gone Forever</span></div>
+          <div class="stat-b red-glow"><span class="val" id="s1-yr1">$1,608</span><span class="lbl editable" id="s0-lbl1">Year 1 Cost to <span class="util-name-ref">SDG&E</span></span></div>
+          <div class="stat-b red-glow"><span class="val" id="s1-yr5">$9,064</span><span class="lbl editable" id="s0-lbl2">5 Years Donated to <span class="util-name-ref">SDG&E</span></span></div>
+          <div class="stat-b red-glow"><span class="val" id="s1-yr10">$21,195</span><span class="lbl editable" id="s0-lbl3">10 Years Donated to <span class="util-name-ref">SDG&E</span></span></div>
+          <div class="stat-b red-glow"><span class="val" id="s1-yr25" style="color:#ff4444">$88,222</span><span class="lbl editable" id="s0-lbl4">25 Years Gone to <span class="util-name-ref">SDG&E</span> Forever</span></div>
         </div>
         <p class="editable" id="s0-footnote" style="font-size:0.7rem;color:#5a4f38;margin-top:0.75rem;text-align:center">Based on 9% annual rate increases — SDG&E's historical average</p>
       </div>
@@ -1454,7 +1471,7 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
   <div class="slide-inner">
     <span class="eyebrow">Your Three Paths Forward</span>
     <div class="accent-line gold"></div>
-    <h1 class="display md" style="margin-bottom:0.5rem">WHICH STORY DO YOU <em style="font-family:'DM Serif Display',serif;font-style:italic;color:#8A6E2A">want to live?</em></h1>
+    <h1 class="display md" style="margin-bottom:0.5rem;line-height:1.05">YOU'RE ALREADY PAYING FOR SOLAR &amp; BATTERY.<br><em style="font-family:'DM Serif Display',serif;font-style:italic;color:#8A6E2A">It's your choice how you benefit from it.</em></h1>
     <div class="options-stack">
 
       <!-- Option 1 -->
@@ -1462,7 +1479,7 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
         <div style="flex:1">
           <div style="display:flex;align-items:baseline;gap:0.6rem;margin-bottom:0.2rem;flex-wrap:wrap">
             <span class="op-badge">Option 1</span>
-            <span style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.1rem,2.5vw,1.6rem);color:#c0392b;letter-spacing:0.04em">Endlessly Donate to SDG&E</span>
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.1rem,2.5vw,1.6rem);color:#c0392b;letter-spacing:0.04em">Endlessly Donate to <span class="util-name-ref">SDG&E</span></span>
           </div>
           <div class="op-desc" style="margin-top:0.2rem">Rates keep climbing. You keep paying. Over 25 years you'll hand them <strong style="color:#c0392b" id="op-total">$88,222</strong> and own absolutely nothing.
             <span style="color:#5a4f38;font-size:0.68rem;margin-left:0.5rem">— hover the chart to see cumulative costs →</span>
@@ -2019,7 +2036,7 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
           <!-- UTILITY DROPDOWN — TOP, RED, BOLD -->
           <div class="n-input-group">
             <div class="n-label">Utility / Provider</div>
-            <select class="n-select" id="inp-utility" onchange="recalc()" style="color:#c0392b;font-weight:700;font-size:1rem;border-color:rgba(231,76,60,0.4)">
+            <select class="n-select" id="inp-utility" onchange="syncUtilityToSlide(this.value);recalc()" style="color:#c0392b;font-weight:700;font-size:1rem;border-color:rgba(231,76,60,0.4)">
               <option value="SDG&E" selected>SDG&E</option>
               <option value="SCE">SCE (SoCal Edison)</option>
               <option value="PG&E">PG&E</option>
@@ -3713,6 +3730,46 @@ function syncBillToSlide1(val) {
   if (slide1Input && document.activeElement !== slide1Input) {
     slide1Input.value = val;
   }
+}
+
+function syncUtilityFromSlide(val) {
+  // Sync to the Numbers slide utility dropdown
+  const numUtil = document.getElementById('inp-utility');
+  if (numUtil) {
+    for (let i = 0; i < numUtil.options.length; i++) {
+      if (numUtil.options[i].value === val) { numUtil.selectedIndex = i; break; }
+    }
+    recalc();
+  }
+  // Sync to proposal modal utility dropdown
+  const pmUtil = document.getElementById('pm-utility');
+  if (pmUtil) {
+    for (let i = 0; i < pmUtil.options.length; i++) {
+      if (pmUtil.options[i].value === val) { pmUtil.selectedIndex = i; break; }
+    }
+  }
+  // Update all .util-name-ref spans across the whole deck
+  document.querySelectorAll('.util-name-ref').forEach(el => el.textContent = val);
+  // Update the footnote on bill slide
+  const fn = document.getElementById('s0-footnote');
+  if (fn) fn.textContent = 'Based on 9% annual rate increases — ' + val + '\'s historical average';
+  // Keep the slide selector in sync
+  const slideUtil = document.getElementById('slide-utility-select');
+  if (slideUtil && slideUtil.value !== val) slideUtil.value = val;
+}
+
+// Keep utility selectors in sync — Numbers → Bill slide
+function syncUtilityToSlide(val) {
+  const slideUtil = document.getElementById('slide-utility-select');
+  if (slideUtil && slideUtil.value !== val) slideUtil.value = val;
+  // Also sync proposal modal
+  const pmUtil = document.getElementById('pm-utility');
+  if (pmUtil) {
+    for (let i = 0; i < pmUtil.options.length; i++) {
+      if (pmUtil.options[i].value === val) { pmUtil.selectedIndex = i; break; }
+    }
+  }
+  document.querySelectorAll('.util-name-ref').forEach(el => el.textContent = val);
 }
 
 // ═══════════════════════════════════════════

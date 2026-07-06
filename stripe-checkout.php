@@ -14,9 +14,13 @@ if (!$input) { http_response_code(400); echo json_encode(['error' => 'Invalid re
 
 // Server-side price map — NEVER trust a price from the browser
 $plans = [
-  'audit'  => ['name' => 'Self-Audit',              'amount' => 4900,  'mode' => 'payment'],
-  'full'   => ['name' => 'Full Inspection & Audit', 'amount' => 38900, 'mode' => 'payment'],
-  'annual' => ['name' => 'Yearly Service Plan',     'amount' => 10900, 'mode' => 'payment'], // switch to 'subscription' + price ID later if desired
+  // One-time services
+  'audit'     => ['name' => 'Self-Audit',                     'amount' => 7900,  'mode' => 'payment'],
+  'full'      => ['name' => 'Full Inspection & Audit',        'amount' => 24900, 'mode' => 'payment'],
+  // Annual service plans (auto-renewing yearly subscriptions)
+  'basic'     => ['name' => 'Service Plan — Essential',       'amount' => 14900, 'mode' => 'subscription'],
+  'plus'      => ['name' => 'Service Plan — Plus',            'amount' => 26900, 'mode' => 'subscription'],
+  'totalcare' => ['name' => 'Service Plan — Total Care',      'amount' => 46500, 'mode' => 'subscription'],
 ];
 
 $planKey = $input['plan'] ?? '';
@@ -41,6 +45,10 @@ $params = [
   'metadata[zip]'   => substr($input['zip']   ?? '', 0, 10),
   'metadata[opp]'   => substr($input['opp']   ?? '', 0, 100),
 ];
+
+if ($plan['mode'] === 'subscription') {
+  $params['line_items[0][price_data][recurring][interval]'] = 'year';
+}
 
 $ch = curl_init('https://api.stripe.com/v1/checkout/sessions');
 curl_setopt_array($ch, [

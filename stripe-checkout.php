@@ -17,6 +17,10 @@ $plans = [
   // One-time services
   'audit'     => ['name' => 'Self-Audit',                     'amount' => 7900,  'mode' => 'payment'],
   'full'      => ['name' => 'Full Inspection & Audit',        'amount' => 24900, 'mode' => 'payment'],
+  // Solar audit tiers (services/audit page)
+  'audit-basic'    => ['name' => 'Basic Solar Audit',    'amount' => 9900,  'mode' => 'payment', 'return' => '/services/audit/'],
+  'audit-standard' => ['name' => 'Standard Solar Audit', 'amount' => 24900, 'mode' => 'payment', 'return' => '/services/audit/'],
+  'audit-premium'  => ['name' => 'Premium Solar Audit',  'amount' => 49900, 'mode' => 'payment', 'return' => '/services/audit/'],
   // Annual service plans (auto-renewing yearly subscriptions)
   'basic'     => ['name' => 'Service Plan — Essential',       'amount' => 14900, 'mode' => 'subscription'],
   'plus'      => ['name' => 'Service Plan — Plus',            'amount' => 26900, 'mode' => 'subscription'],
@@ -37,8 +41,8 @@ $params = [
   'line_items[0][price_data][product_data][name]' => $plan['name'],
   'line_items[0][price_data][unit_amount]' => $plan['amount'],
   'line_items[0][quantity]' => 1,
-  'success_url' => $origin . '/services/?session_id={CHECKOUT_SESSION_ID}&plan=' . $planKey,
-  'cancel_url'  => $origin . '/services/?canceled=1',
+  'success_url' => $origin . ($plan['return'] ?? '/services/') . '?session_id={CHECKOUT_SESSION_ID}&plan=' . $planKey,
+  'cancel_url'  => $origin . ($plan['return'] ?? '/services/') . '?canceled=1',
   'metadata[plan]'  => $planKey,
   'metadata[name]'  => substr($input['name']  ?? '', 0, 100),
   'metadata[phone]' => substr($input['phone'] ?? '', 0, 30),

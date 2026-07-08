@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Solar Audit Plans | Your Energy Best</title>
+  <meta name="description" content="Get a professional solar audit for your home. Choose from Basic, Standard, or Premium plans." />
+  <link rel="icon" type="image/png" href="/img/logo.png" />
+  <link rel="stylesheet" href="/style.css" />
+  <style>
+    .audit-hero {
+      background: linear-gradient(135deg, var(--navy) 0%, #126782 100%);
+      padding: 6rem 2rem 4rem;
+      text-align: center;
+      color: var(--white);
+    }
+    .audit-hero h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+    .audit-hero p { color: rgba(255,255,255,0.7); max-width: 600px; margin: 0 auto; font-size: 1.1rem; }
+    
+    .pricing-section { padding: 4rem 2rem; background: var(--gray-100); }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .pricing-card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 2.5rem 2rem;
+      text-align: center;
+      border: 2px solid var(--gray-200);
+      transition: transform 0.3s, box-shadow 0.3s;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .pricing-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.08);
+    }
+    .pricing-card.featured {
+      border-color: var(--teal);
+      box-shadow: 0 8px 24px rgba(34,168,179,0.15);
+    }
+    .pricing-card__badge {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--teal);
+      color: var(--white);
+      padding: 0.3rem 1.2rem;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .pricing-card__icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .pricing-card h3 { color: var(--navy); font-size: 1.3rem; margin-bottom: 0.5rem; }
+    .pricing-card__price {
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: var(--navy);
+      margin: 0.5rem 0;
+    }
+    .pricing-card__price span { font-size: 1rem; color: var(--slate); font-weight: 400; }
+    .pricing-card__desc {
+      color: var(--slate);
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .pricing-card__features {
+      list-style: none;
+      padding: 0;
+      text-align: left;
+      margin-bottom: 2rem;
+      flex-grow: 1;
+    }
+    .pricing-card__features li {
+      padding: 0.5rem 0;
+      font-size: 0.9rem;
+      color: var(--navy-mid, #334155);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+    }
+    .pricing-card__features li::before {
+      content: "✓";
+      color: var(--teal);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .pricing-card__cta {
+      display: block;
+      width: 100%;
+      padding: 1rem;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 1rem;
+      text-decoration: none;
+      text-align: center;
+      transition: all 0.3s;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+    }
+    .pricing-card__cta--primary {
+      background: var(--teal);
+      color: var(--white);
+    }
+    .pricing-card__cta--primary:hover { background: var(--teal-dark); transform: translateY(-2px); }
+    .pricing-card__cta--outline {
+      background: transparent;
+      color: var(--teal);
+      border: 2px solid var(--teal);
+    }
+    .pricing-card__cta--outline:hover { background: var(--teal); color: var(--white); }
+    
+    .what-included {
+      padding: 4rem 2rem;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    .what-included h2 { text-align: center; margin-bottom: 2rem; }
+    .included-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+    .included-item {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+    .included-item__icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: var(--cream);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+    .included-item h4 { margin-bottom: 0.2rem; color: var(--navy); font-size: 0.95rem; }
+    .included-item p { font-size: 0.85rem; color: var(--slate); margin: 0; }
+    
+    .audit-faq { padding: 4rem 2rem; background: var(--gray-100); }
+    .audit-faq .container { max-width: 760px; }
+    
+    .paypal-loading { text-align: center; padding: 1rem; color: var(--slate); font-size: 0.9rem; }
+    
+    @media (max-width: 900px) {
+      .pricing-grid { grid-template-columns: 1fr; max-width: 420px; }
+      .included-grid { grid-template-columns: 1fr; }
+      .audit-hero h1 { font-size: 1.8rem; }
+    }
+  </style>
+  <script src="/nav.js" defer></script>
+</head>
+<body>
+
+<section class="audit-hero">
+  <span class="eyebrow" style="color: var(--teal-light);">Professional Solar Analysis</span>
+  <h1>Solar Audit Plans</h1>
+  <p>Get a comprehensive analysis of your home's solar potential before you commit. Know exactly what you're getting into — with numbers, not guesses.</p>
+</section>
+
+<section class="pricing-section">
+  <div class="pricing-grid">
+    
+    <!-- BASIC -->
+    <div class="pricing-card">
+      <div class="pricing-card__icon">📊</div>
+      <h3>Basic Audit</h3>
+      <div class="pricing-card__price">$99 <span>one-time</span></div>
+      <p class="pricing-card__desc">Quick snapshot of your solar potential</p>
+      <ul class="pricing-card__features">
+        <li>Satellite roof analysis</li>
+        <li>Estimated system size</li>
+        <li>Projected monthly savings</li>
+        <li>Utility rate comparison</li>
+        <li>Email delivery within 48 hours</li>
+      </ul>
+      <div id="paypal-basic"></div>
+    </div>
+    
+    <!-- STANDARD (Featured) -->
+    <div class="pricing-card featured">
+      <div class="pricing-card__badge">Most Popular</div>
+      <div class="pricing-card__icon">🔍</div>
+      <h3>Standard Audit</h3>
+      <div class="pricing-card__price">$249 <span>one-time</span></div>
+      <p class="pricing-card__desc">Detailed analysis with financing options</p>
+      <ul class="pricing-card__features">
+        <li>Everything in Basic</li>
+        <li>Detailed shading analysis</li>
+        <li>Multiple system design options</li>
+        <li>Financing comparison (loan vs. lease vs. PPA)</li>
+        <li>ROI & payback timeline</li>
+        <li>30-min consultation call</li>
+      </ul>
+      <div id="paypal-standard"></div>
+    </div>
+    
+    <!-- PREMIUM -->
+    <div class="pricing-card">
+      <div class="pricing-card__icon">🏠</div>
+      <h3>Premium Audit</h3>
+      <div class="pricing-card__price">$499 <span>one-time</span></div>
+      <p class="pricing-card__desc">Full on-site inspection + complete proposal</p>
+      <ul class="pricing-card__features">
+        <li>Everything in Standard</li>
+        <li>On-site roof & electrical inspection</li>
+        <li>Panel layout with exact measurements</li>
+        <li>Battery storage recommendation</li>
+        <li>Complete permit-ready proposal</li>
+        <li>60-min in-depth consultation</li>
+        <li>$499 credited toward installation</li>
+      </ul>
+      <div id="paypal-premium"></div>
+    </div>
+    
+  </div>
+</section>
+
+<!-- What's Included -->
+<section class="what-included">
+  <h2>What Every Audit Covers</h2>
+  <div class="included-grid">
+    <div class="included-item">
+      <div class="included-item__icon">☀️</div>
+      <div><h4>Solar Potential Score</h4><p>How well-suited your roof is for solar based on orientation, angle, and shading.</p></div>
+    </div>
+    <div class="included-item">
+      <div class="included-item__icon">💰</div>
+      <div><h4>Savings Estimate</h4><p>Projected monthly and annual savings based on your actual SDG&E rates.</p></div>
+    </div>
+    <div class="included-item">
+      <div class="included-item__icon">📋</div>
+      <div><h4>System Recommendation</h4><p>The right system size, panel type, and configuration for your home.</p></div>
+    </div>
+    <div class="included-item">
+      <div class="included-item__icon">🏛️</div>
+      <div><h4>Incentive Breakdown</h4><p>Federal tax credits, SDCP rebates, and any local incentives you qualify for.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="audit-faq">
+  <div class="container">
+    <div class="section-head text-center">
+      <h2>Audit FAQ</h2>
+    </div>
+    <div class="faq">
+      <div class="faq__item">
+        <button class="faq__q"><span>Is the audit fee refundable?</span><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span></button>
+        <div class="faq__a"><p>The Premium audit fee ($499) is fully credited toward your installation if you proceed. Basic and Standard audits are non-refundable but provide valuable information regardless of whether you go solar.</p></div>
+      </div>
+      <div class="faq__item">
+        <button class="faq__q"><span>How long does the audit take?</span><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span></button>
+        <div class="faq__a"><p>Basic audits are delivered within 48 hours. Standard audits within 3-5 business days. Premium audits require an on-site visit (scheduled at your convenience) with the full report delivered within 5-7 business days.</p></div>
+      </div>
+      <div class="faq__item">
+        <button class="faq__q"><span>Do I need an audit before getting a quote?</span><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span></button>
+        <div class="faq__a"><p>No — our free quote process includes a basic assessment. Audits are for homeowners who want a deeper, more detailed analysis before making a decision, or who want an independent evaluation.</p></div>
+      </div>
+      <div class="faq__item">
+        <button class="faq__q"><span>What happens after I pay?</span><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span></button>
+        <div class="faq__a"><p>You'll receive a confirmation email within minutes. We'll then reach out to gather your address, utility bill info, and schedule any necessary calls or site visits. It's that simple.</p></div>
+      </div>
+    </div>
+    <div class="faq-exit-cta text-center" style="margin-top: 2rem;">
+      <p>Not sure which plan is right? <a href="tel:7608607862" style="color:var(--teal); font-weight:600;">Call us at (760) 860-7862</a> and we'll help you choose.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="cta-banner">
+      <h2>Rather get a free quote instead?</h2>
+      <p>No audit needed — get a custom solar proposal at no cost.</p>
+      <a href="/quote/" class="btn btn--primary btn--lg">Get Your Free Quote</a>
+      <p class="microcopy" style="color: rgba(255,255,255,0.6);">Takes 30 seconds · No credit check · No commitment</p>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div>
+        <img src="/img/logo.png" alt="Your Energy Best" class="footer__logo" />
+        <p>San Diego's trusted solar installer.</p>
+        <div class="footer__contact"><a href="tel:7608607862">📞 (760) 860-7862</a></div>
+      </div>
+      <div class="footer__col"><h5>Quick Links</h5><a href="/">Home</a><a href="/quote/">Get a Quote</a><a href="/services/audit/">Solar Audit</a><a href="/build/">Build With Us</a></div>
+    </div>
+    <div class="footer__bottom">
+      <span>&copy; 2026 Your Energy Best. All rights reserved.</span>
+      <span><a href="#">Privacy Policy</a> &nbsp;·&nbsp; <a href="#">Terms of Service</a></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Nav
+
+// FAQ toggles
+document.querySelectorAll('.faq__q').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const item = btn.closest('.faq__item');
+    const wasOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq__item').forEach(i => i.classList.remove('open'));
+    if (!wasOpen) item.classList.add('open');
+  });
+});
+</script>
+
+<!--
+  ═══════════════════════════════════════════════════════════
+  PAYPAL INTEGRATION
+  ═══════════════════════════════════════════════════════════
+  
+  To enable payments, you need to:
+  1. Go to https://developer.paypal.com/dashboard/
+  2. Create a "Live" app (or use Sandbox for testing)
+  3. Copy your Client ID
+  4. Replace YOUR_PAYPAL_CLIENT_ID below with your actual Client ID
+  
+  For TESTING (sandbox), use:
+  https://www.paypal.com/sdk/js?client-id=sb&currency=USD
+  
+  For LIVE payments, use:
+  https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=USD
+  ═══════════════════════════════════════════════════════════
+-->
+
+<script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD"></script>
+<script>
+// PayPal Button Configuration
+const plans = [
+  { container: '#paypal-basic',    amount: '99.00',  name: 'Basic Solar Audit' },
+  { container: '#paypal-standard', amount: '249.00', name: 'Standard Solar Audit' },
+  { container: '#paypal-premium',  amount: '499.00', name: 'Premium Solar Audit' },
+];
+
+plans.forEach(plan => {
+  if (typeof paypal === 'undefined') {
+    document.querySelector(plan.container).innerHTML = '<p class="paypal-loading">⚠️ Payment buttons loading... <br>If this persists, please <a href="tel:7608607862">call us</a> to order.</p>';
+    return;
+  }
+  
+  paypal.Buttons({
+    style: {
+      shape: 'pill',
+      color: 'blue',
+      layout: 'vertical',
+      label: 'pay'
+    },
+    createOrder: function(data, actions) {
+      return actions.order.create({
+        purchase_units: [{
+          description: plan.name,
+          amount: { value: plan.amount }
+        }]
+      });
+    },
+    onApprove: function(data, actions) {
+      return actions.order.capture().then(function(details) {
+        // Payment successful
+        const name = details.payer.name.given_name;
+        const email = details.payer.email_address;
+        
+        // Show success
+        document.querySelector(plan.container).innerHTML = 
+          '<div style="background:#06d6a0;color:white;padding:1rem;border-radius:12px;text-align:center;font-weight:600;">' +
+          '✓ Payment received! Check your email for next steps.</div>';
+        
+        // Send notification to your backend
+        fetch('/zoho.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'lead',
+            name: name,
+            email: email,
+            customer_option: plan.name,
+            source: 'audit_payment',
+            zip: ''
+          })
+        }).catch(() => {});
+        
+        // Also send email notification
+        fetch('/zoho.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'lead',
+            name: name + ' — PAID $' + plan.amount,
+            email: email,
+            phone: '',
+            customer_option: plan.name + ' (PAID)',
+            source: 'audit_payment_' + plan.amount,
+            zip: ''
+          })
+        }).catch(() => {});
+      });
+    },
+    onError: function(err) {
+      console.error('PayPal error:', err);
+      alert('Payment could not be processed. Please try again or call us at (760) 860-7862.');
+    }
+  }).render(plan.container);
+});
+</script>
+
+</body>
+</html>

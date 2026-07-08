@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solar Knowledge Center — Your Energy Best</title>
+<meta name="description" content="Every question about solar, batteries, financing, rebates, repairs, and the grid — answered honestly by a San Diego solar expert. No fluff, no sales pitch.">
+<link rel="icon" type="image/png" href="/img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type":"Question","name":"Why is electricity so expensive in California?","acceptedAnswer":{"@type":"Answer","text":"California utility rates have climbed 40%+ in just a few years, driven by aging grid infrastructure, wildfire liability and hardening costs, transmission upgrades, and guaranteed utility profit margins on capital spending. SDG&E rates average around $0.40-0.45/kWh — among the highest in the nation — and increases of 5-8% per year have been the norm. Utilities earn regulated returns on infrastructure investment, which structurally rewards spending, not savings."}},
+    {"@type":"Question","name":"Does solar always beat the utility?","acceptedAnswer":{"@type":"Answer","text":"When designed and priced correctly, yes — because the math is structural. The utility is a payment that never ends and increases 5-8% yearly with nothing owned at the end. Solar redirects that same monthly budget toward either a fixed payment that eventually ends (ownership) or a locked lower rate (PPA). Over 25 years a typical San Diego home pays $150,000+ to the utility; every solar path costs meaningfully less, and most build equity."}},
+    {"@type":"Question","name":"How often do solar panels need maintenance?","acceptedAnswer":{"@type":"Answer","text":"Very little. Panels have no moving parts and run 25-30+ years. An annual cleaning (before summer, after pollen season) with de-ionized water helps in dry areas like San Diego. Beyond that, a system health check every 5-10 years and keeping an eye on your monitoring app is all most systems need. The components most likely to need service are inverters (10-25 year warranties) and batteries (10-15 year warranties)."}},
+    {"@type":"Question","name":"What is a solar health audit?","acceptedAnswer":{"@type":"Answer","text":"A solar health audit compares what your system actually produces against what it should produce, checks your utility usage and rates, reviews your agreement terms, and identifies missed rebates or underperformance. It uses year-over-year production data, consumption data, install date, current utility rates, and any true-up costs to calculate your real savings — and whether repairs, additions, or program changes would improve them."}},
+    {"@type":"Question","name":"Can solar panels be recycled?","acceptedAnswer":{"@type":"Answer","text":"Yes — about 95% of a solar panel's materials (glass, aluminum, silicon, silver, copper) are recyclable. Companies like SOLARCYCLE now recover up to 97% of a panel's value, recycled over a million panels in 2025, and are scaling to millions per year across six US facilities. Recycling currently costs $15-45 per panel vs. $1-5 for landfill, but costs are falling as volume grows — and the EPA is finalizing federal rules to streamline panel recycling by 2027."}},
+    {"@type":"Question","name":"What happens if my solar installer goes out of business?","acceptedAnswer":{"@type":"Answer","text":"Your equipment warranties survive — panel (25-30 yr), inverter (10-25 yr), and battery (10-15 yr) warranties are held by manufacturers, not installers. What you lose is the workmanship warranty. If you're on a PPA or lease, the agreement is an asset that gets purchased by another provider, and warranties travel with it. If you own the system, you'll need a service company for labor — which is exactly the kind of situation a solar health audit sorts out."}},
+    {"@type":"Question","name":"Is the SDCP battery rebate still available?","acceptedAnswer":{"@type":"Answer","text":"As of mid-2026, roughly 30-40% of San Diego Community Power's battery program funds remain. The rebate runs $3,000-$6,000 per battery depending on qualifications, and applies whether you're adding a battery to new solar or an existing system. Funds are first-come — once reserved, they're gone. Check current status at sdcommunitypower.org."}},
+    {"@type":"Question","name":"How long does it take solar panels to offset their manufacturing footprint?","acceptedAnswer":{"@type":"Answer","text":"Typically 1-3 years of operation — then the panel produces clean energy for another 22-27+ years. Compare that to fossil fuel generation, where every kilowatt-hour requires burning fuel that took millennia to form and can never be recycled. Solar's manufacturing impact is real, but it's a one-time cost paid back quickly, while the panel itself is up to 95% recyclable at end of life."}}
+  ]
+}
+</script>
+<style>
+:root {
+    --navy:#023047; --navy-deep:#011627; --teal:#219EBC; --teal-light:#8ECAE6;
+    --gold:#FFB703; --green:#06D6A0; --coral:#EF476F;
+    --text-light:rgba(255,255,255,0.72); --text-muted:rgba(255,255,255,0.45);
+    --heading:'Cormorant Garamond',Georgia,serif; --body:'Outfit',-apple-system,sans-serif;
+    --ease:cubic-bezier(0.25,0.46,0.45,0.94); --ease-out:cubic-bezier(0.16,1,0.3,1);
+    --r:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--body);background:var(--navy-deep);color:#fff;-webkit-font-smoothing:antialiased;overflow-x:hidden;line-height:1.7}
+.container{max-width:920px;margin:0 auto;padding:0 1.5rem}
+a{color:var(--teal-light)}
+
+/* ═══ HERO + SEARCH ═══ */
+.hero{position:relative;padding:9.5rem 0 5.5rem;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 20% 80%,rgba(33,158,188,0.15) 0%,transparent 55%),radial-gradient(ellipse at 80% 20%,rgba(255,183,3,0.07) 0%,transparent 50%),linear-gradient(165deg,#023047cc 0%,var(--navy-deep) 70%)}
+.hero-inner{position:relative;z-index:1;text-align:center}
+.hero-kicker{font-size:.78rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;animation:fadeUp .8s var(--ease-out) both}
+.hero h1{font-family:var(--heading);font-weight:600;font-size:clamp(2.3rem,5.5vw,3.8rem);line-height:1.1;letter-spacing:-.02em;margin-bottom:1rem;animation:fadeUp .8s var(--ease-out) .1s both}
+.hero h1 em{font-style:italic;color:var(--teal-light)}
+.hero-sub{font-size:1.05rem;font-weight:300;color:var(--text-light);max-width:560px;margin:0 auto 2.4rem;animation:fadeUp .8s var(--ease-out) .2s both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+.search-wrap{max-width:640px;margin:0 auto;position:relative;animation:fadeUp .8s var(--ease-out) .3s both}
+.search-bar{display:flex;align-items:center;gap:.8rem;background:rgba(255,255,255,0.06);border:1.5px solid rgba(33,158,188,0.4);border-radius:100px;padding:.4rem .5rem .4rem 1.4rem;transition:all .3s;box-shadow:0 8px 40px rgba(33,158,188,0.12)}
+.search-bar:focus-within{border-color:var(--teal);background:rgba(255,255,255,0.09);box-shadow:0 8px 50px rgba(33,158,188,0.25)}
+.search-bar .s-icon{font-size:1.1rem;opacity:.6}
+.search-bar input{flex:1;background:none;border:none;outline:none;color:#fff;font-family:var(--body);font-size:1rem;font-weight:300;padding:.7rem 0}
+.search-bar input::placeholder{color:rgba(255,255,255,0.35)}
+.search-bar .s-clear{display:none;background:rgba(255,255,255,0.1);border:none;color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:.9rem;flex-shrink:0}
+.search-bar .s-clear.show{display:block}
+.search-hint{font-size:.75rem;color:var(--text-muted);margin-top:.8rem}
+.search-hint .pulse{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:.35rem;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.search-count{display:none;font-size:.85rem;color:var(--teal-light);margin-top:1rem}
+.search-count.show{display:block}
+
+.wave-divider{position:absolute;bottom:-1px;left:0;right:0;line-height:0;z-index:1}
+.wave-divider svg{width:100%;height:60px;display:block}
+
+/* ═══ CATEGORY CHIPS ═══ */
+.cat-chips{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center;padding:2.2rem 1.5rem 0;max-width:920px;margin:0 auto}
+.chip{padding:.5rem 1.15rem;border-radius:100px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--text-light);font-size:.85rem;font-weight:500;text-decoration:none;transition:all .25s;white-space:nowrap}
+.chip:hover{border-color:var(--teal);color:#fff;background:rgba(33,158,188,0.08)}
+
+/* ═══ KC SECTIONS ═══ */
+.kc-section{padding:3.2rem 0 1rem;scroll-margin-top:90px}
+.kc-head{display:flex;align-items:center;gap:1rem;margin-bottom:.4rem}
+.kc-head .kc-icon{font-size:1.7rem}
+.kc-head h2{font-family:var(--heading);font-weight:600;font-size:clamp(1.7rem,3.5vw,2.3rem);letter-spacing:-.01em}
+.kc-desc{font-weight:300;color:var(--text-light);font-size:.98rem;margin-bottom:1.6rem;max-width:720px}
+
+/* Accordions */
+.acc{border:1px solid rgba(255,255,255,0.08);border-radius:var(--r);background:rgba(255,255,255,0.025);margin-bottom:.7rem;overflow:hidden;transition:border-color .3s}
+.acc.open{border-color:rgba(33,158,188,0.4)}
+.acc.hidden{display:none}
+.acc-q{width:100%;display:flex;justify-content:space-between;align-items:center;gap:1rem;background:none;border:none;color:#fff;font-family:var(--body);font-size:1rem;font-weight:500;text-align:left;padding:1.15rem 1.4rem;cursor:pointer;line-height:1.45}
+.acc-q:hover{background:rgba(255,255,255,0.02)}
+.acc-q .a-icon{flex-shrink:0;color:var(--gold);font-size:1.25rem;font-weight:300;transition:transform .3s}
+.acc.open .a-icon{transform:rotate(45deg)}
+.acc-a{display:none;padding:0 1.4rem 1.3rem;font-size:.94rem;font-weight:300;color:var(--text-light);line-height:1.75}
+.acc.open .acc-a{display:block;animation:fadeUp .3s var(--ease-out) both}
+.acc-a p{margin-bottom:.8rem}
+.acc-a p:last-child{margin-bottom:0}
+.acc-a strong{color:#fff;font-weight:600}
+.acc-a ul{margin:.5rem 0 .8rem 1.2rem}
+.acc-a li{margin-bottom:.35rem}
+.acc-a .mini-cta{display:inline-block;margin-top:.5rem;font-size:.85rem;font-weight:600;color:var(--gold);text-decoration:none}
+.acc-a .mini-cta:hover{text-decoration:underline}
+
+/* Dave's take */
+.daves-take{display:flex;gap:1rem;background:rgba(33,158,188,0.07);border-left:3px solid var(--teal);border-radius:0 var(--r) var(--r) 0;padding:1.3rem 1.5rem;margin:1.6rem 0}
+.daves-take .dt-avatar{flex-shrink:0;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--gold));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;color:var(--navy)}
+.daves-take .dt-label{font-size:.68rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--teal-light);margin-bottom:.25rem}
+.daves-take p{margin:0;font-size:.92rem;font-weight:300;color:var(--text-light)}
+
+/* Feature link card */
+.feature-card{display:block;background:linear-gradient(135deg,rgba(33,158,188,0.1),rgba(255,183,3,0.05));border:1px solid rgba(33,158,188,0.3);border-radius:var(--r);padding:1.6rem 1.8rem;margin:1.4rem 0;text-decoration:none;transition:all .3s}
+.feature-card:hover{transform:translateY(-2px);border-color:var(--teal);box-shadow:0 8px 30px rgba(33,158,188,0.15)}
+.feature-card .fc-tag{font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.feature-card h4{font-family:var(--heading);font-size:1.4rem;font-weight:600;color:#fff;margin:.3rem 0}
+.feature-card p{font-size:.88rem;font-weight:300;color:var(--text-light);margin:0}
+.feature-card .fc-arrow{color:var(--teal-light);font-weight:600;font-size:.9rem}
+
+/* No results */
+.no-results{display:none;text-align:center;padding:3.5rem 1.5rem;max-width:560px;margin:0 auto}
+.no-results.show{display:block}
+.no-results .nr-icon{font-size:2.4rem;margin-bottom:.8rem}
+.no-results h3{font-family:var(--heading);font-size:1.6rem;margin-bottom:.6rem}
+.no-results p{color:var(--text-light);font-weight:300;font-size:.95rem;margin-bottom:1.4rem}
+
+/* Audit CTA */
+.audit-cta{background:linear-gradient(135deg,rgba(33,158,188,0.12),rgba(255,183,3,0.06));border:1px solid rgba(33,158,188,0.3);border-radius:20px;padding:2.8rem;text-align:center;margin:3.5rem 0 2rem}
+@media(max-width:600px){.audit-cta{padding:2rem 1.4rem}}
+.audit-cta .ac-icon{font-size:2.2rem;margin-bottom:.7rem}
+.audit-cta h3{font-family:var(--heading);font-size:1.85rem;font-weight:600;margin-bottom:.7rem}
+.audit-cta p{max-width:560px;margin:0 auto 1.6rem;color:var(--text-light);font-weight:300}
+.btn-gold{display:inline-block;padding:.95rem 2.3rem;background:linear-gradient(135deg,var(--gold),#e5a400);color:var(--navy);border:none;border-radius:100px;font-family:var(--body);font-size:1rem;font-weight:700;cursor:pointer;text-decoration:none;transition:all .3s;box-shadow:0 4px 20px rgba(255,183,3,0.25)}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(255,183,3,0.4)}
+
+.page-footer{padding:3rem 0;text-align:center;border-top:1px solid rgba(255,255,255,0.06);font-size:.8rem;color:var(--text-muted);margin-top:3rem}
+.page-footer .disclaimer{max-width:640px;margin:.6rem auto 0;line-height:1.6}
+</style>
+  <script src="/nav.js" defer></script>
+</head>
+<body>
+
+<!-- ═══ YEB HEADER ═══ -->
+<!-- ═══ HERO + SEARCH ═══ -->
+<header class="hero">
+    <div class="hero-bg"></div>
+    <div class="container hero-inner">
+        <p class="hero-kicker">Your Energy Best · Knowledge Center</p>
+        <h1>Every Solar Question.<br><em>Honestly Answered.</em></h1>
+        <p class="hero-sub">Financing, rebates, batteries, repairs, the grid, recycling — everything I've learned since 2020, organized so you can find it in seconds.</p>
+        <div class="search-wrap">
+            <div class="search-bar">
+                <span class="s-icon">🔍</span>
+                <input type="text" id="kcSearch" placeholder='Try "battery rebate", "escalator", "roof leak", "recycling"…' autocomplete="off">
+                <button class="s-clear" id="searchClear">✕</button>
+            </div>
+            <p class="search-hint"><span class="pulse"></span>Smart search today — a live AI energy expert coming soon</p>
+            <p class="search-count" id="searchCount"></p>
+        </div>
+    </div>
+    <div class="wave-divider"><svg viewBox="0 0 1440 60" preserveAspectRatio="none"><path d="M0,30 C240,55 480,5 720,30 C960,55 1200,10 1440,30 L1440,60 L0,60Z" fill="#02304755"/><path d="M0,40 C280,60 560,18 840,40 C1080,55 1280,22 1440,40 L1440,60 L0,60Z" fill="#011627"/></svg></div>
+</header>
+
+<!-- ═══ CATEGORY CHIPS ═══ -->
+<div class="cat-chips" id="catChips">
+    <a href="#start" class="chip">🧭 Start Here</a>
+    <a href="#utility" class="chip">⚡ The Utility & Grid</a>
+    <a href="#financing" class="chip">💰 Financing</a>
+    <a href="#incentives" class="chip">🎁 Rebates & Incentives</a>
+    <a href="#batteries" class="chip">🔋 Batteries</a>
+    <a href="#design" class="chip">☀️ Design & Equipment</a>
+    <a href="#service" class="chip">🔧 Repairs & Audits</a>
+    <a href="#planet" class="chip">♻️ Recycling & Planet</a>
+</div>
+
+<main class="container">
+
+<!-- ═══ NO RESULTS ═══ -->
+<div class="no-results" id="noResults">
+    <div class="nr-icon">🌊</div>
+    <h3>Nothing surfaced for that one</h3>
+    <p>That's a great question though — and exactly the kind I answer personally. Ask me directly and I'll get you a straight answer (and probably add it here for the next person).</p>
+    <a href="/quote/" class="btn-gold" style="font-size:.9rem;padding:.8rem 1.9rem">Ask Dave Directly →</a>
+</div>
+
+<!-- ═══════════ 1. START HERE ═══════════ -->
+<section class="kc-section" id="start">
+    <div class="kc-head"><span class="kc-icon">🧭</span><h2>Start Here: What I Believe About Energy</h2></div>
+    <p class="kc-desc">Before the numbers, the philosophy. This is the lens I run my company through — agree or disagree, at least you'll know where I stand.</p>
+
+    <div class="acc" data-tags="beliefs philosophy why solar dave mission energy future civilization">
+        <button class="acc-q">Why do you believe in solar so strongly?<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>Our civilization has three looming issues: water, housing, and <strong>energy</strong>. Energy is everything — how we move, how we heat and cool our homes, how we power our industries and our technology. Right now over 60% of US power comes from fossil fuels, and every time we burn them, we lose an energy source instantly and permanently. There is no recycling a barrel of oil.</p>
+            <p>Solar is different in two ways that matter. First, it's <strong>predictable</strong> — the sun comes up every single day, and panels last 25-30+ years. Second, it's <strong>circular</strong> — up to 95% of a panel's materials can be recycled into new panels. Like a Diet Coke can going back on the shelf. Every system we install buys our civilization time to develop even better solutions: longer-lasting batteries, more powerful panels, small modular reactors. That's why I left a chemical engineering career in oil and gas for this. I saw both sides. I picked the one that thinks forward.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="solar complicated hard simple experience change lifestyle">
+        <button class="acc-q">Is going solar actually complicated, or do sales guys just make it sound easy?<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>Honestly? Both. Here's the truth: <strong>having</strong> solar changes almost nothing about your daily life. Done right, you'll forget it's on your roof — it just provides power like your utility does now. Most sales reps are right about that part.</p>
+            <p>But <strong>how</strong> you go solar — the program you sign, who does the construction, how the system is sized, and what equipment goes up — has a massive impact on whether solar is a blessing or a nightmare. The gap between a great solar experience and a horror story isn't the technology. It's the decisions made before install day. That's what this entire knowledge center exists to fix.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="solar perfect problems issues honest storage trust transparency">
+        <button class="acc-q">What's wrong with solar? (Yes, I'll actually answer this)<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>Solar isn't perfect, and anyone who tells you it is should worry you. The real problems: <strong>storage</strong> is still the big one — the sun doesn't shine at night, and batteries are the most expensive, fastest-evolving part of any system. <strong>Incorrect disposal</strong> — panels ending up in landfills instead of recyclers. <strong>Trust</strong> — the industry has earned its reputation for shady sales tactics, hidden escalators, and companies that vanish. And <strong>transparency in offerings</strong> — most homeowners never learn what a fair price looks like.</p>
+            <p>Every one of these is solvable, and most are being solved right now. But you deserve to know they exist. Solar is not THE solution to our energy future — it's A solution, and a genuinely great one when done honestly.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="history solar residential net metering timeline industry sunpower sunrun tesla bankruptcies kota">
+        <button class="acc-q">A 60-second history of residential solar (and why companies keep dying)<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>Solar tech dates to the 1960s; SunPower was founded in 1985; manufacturing scaled through the 2000s as net metering and the federal tax credit made rooftop solar mainstream. SolarCity, Vivint, and Sunrun built the modern sales model. Then the turbulence: California ended NEM 1.0, then NEM 2.0 in 2023 — a 75% cut to export credits. Interest rates spiked. Financiers delayed payments to installers. SunPower, Titan Solar, Lumio, and many others went bankrupt.</p>
+            <p>I lived this personally — the company I loved working with, KOTA, did things right and still collapsed in 2024 because the market storm took good companies along with bad. The lesson isn't "avoid solar." It's <strong>structure your deal so a company's death can't hurt you</strong> — manufacturer warranties, insured agreements, and financially stable backers. That thinking runs through every recommendation on this site.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="wait better technology panels improve future upgrade timing when">
+        <button class="acc-q">Should I wait for solar technology to get better?<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>No — and here's the engineering reality: solar today functions almost exactly like it will in 10 years. Panels will get slightly more efficient (they always do), but the difference waiting makes is tiny, while the money lost to your utility every month is real and gone forever. A panel installed today produces power for 25-30+ years either way.</p>
+            <p>The thing that IS changing fast is the <strong>incentive landscape</strong> — and it's changing in the wrong direction for waiters. The homeowner federal credit is already gone. The corporate credit programs expire around 2027. Rebate funds like SDCP's are being drawn down right now. Waiting for better panels means paying more for the same sun.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════ 2. UTILITY & GRID ═══════════ -->
+<section class="kc-section" id="utility">
+    <div class="kc-head"><span class="kc-icon">⚡</span><h2>The Utility & The Grid</h2></div>
+    <p class="kc-desc">Why your bill keeps climbing, where the grid is heading, and the structural math of why solar wins.</p>
+
+    <div class="acc" data-tags="expensive california rates sdge why high electricity cost wildfire infrastructure">
+        <button class="acc-q">Why is electricity so expensive in California?<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>A few compounding forces. The grid is <strong>old</strong> — much of it built decades ago and now incurring enormous maintenance costs. <strong>Wildfire liability</strong> — utilities pay billions in settlements and grid-hardening, and ratepayers foot the bill. <strong>Transmission spending</strong> — and here's the structural problem: California utilities earn a regulated <em>profit margin on infrastructure spending</em>. The more they spend, the more they earn. That's a system that rewards building, not saving.</p>
+            <p>The result: SDG&E rates average around $0.40-0.45/kWh — among the very highest in America — and 5-8% annual increases have been the norm, with some years hitting 40%+ cumulative over just a few years. An average San Diego home using 700 kWh/month pays over $300 for power that would cost $112 in Texas. Same electrons. Very different bill.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="solar wins beat utility math always comparison rent own 25 years savings">
+        <button class="acc-q">Why does solar always win against the utility?<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>Because it's not a fair fight — it's structural. Your utility bill is <strong>rent with infinite interest</strong>: a payment that never ends, increases 5-8% every year, and leaves you owning nothing. A $250/month bill today becomes $164,000+ paid over 25 years at typical escalation — and on day 9,125 you own exactly as much of the grid as you did on day one. Nothing.</p>
+            <p>Every solar path redirects that <em>same budget you're already spending</em> toward something better: ownership paths build equity and eventually end; a PPA locks a rate 30-50% below the utility with zero maintenance. Even the "worst" solar option beats the utility long-term when priced fairly. The utility's only advantages are familiarity and doing nothing. Those are expensive advantages.</p>
+            <a class="mini-cta" href="/options/">Compare all five paths side-by-side →</a>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="net metering nem billing 3.0 change california export credits history">
+        <button class="acc-q">What's the difference between Net Metering and Net Billing (NEM 3.0)?<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p><strong>Net Metering (NEM)</strong> — still the rule in most states — lets you sell excess solar to the grid at retail rate. Produce more than you use across the year and your bill hits ~$0. Simple, forgiving, oversizing was smart.</p>
+            <p><strong>Net Billing</strong> — California since 2023 — cut export credits by ~75%. Selling to the grid is now a bad trade for most hours of the year, which means the winning design changed completely: size solar to your daytime usage, add a battery to store your own power for nighttime, and minimize grid interaction. The twist: during August-September peak hours, SDG&E pays $1-$3.50/kWh for exports — so a well-designed battery system cashes in exactly when the grid is desperate. This is why systems designed after 2023 <em>must</em> be designed with software and your actual usage data (Green Button data), not napkin math. It's also why so many post-2023 systems from careless companies underperform.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="time of use tou peak hours 4-9 expensive rates lifestyle laundry ev charging">
+        <button class="acc-q">What are Time-of-Use rates and why do they matter?<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>Most California utilities now charge based on <strong>when</strong> you use power, not just how much. Power is most expensive 4-9pm — when everyone's home — often 2-4x the midday rate. This has literally changed how people live: laundry after midnight, AC off on sweltering evenings, pool pumps running at 2am even though they work better in daylight.</p>
+            <p>Solar + battery flips this completely. Your panels make power when it's nearly free (daytime), your battery deploys it when the utility charges the most (evening). Instead of arranging your life around rates, the system arranges the rates around your life. That freedom — using power when you actually want to — is one of the most underrated things solar buys you.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="cca community choice sdcp cea aggregator utility alternative">
+        <button class="acc-q">What's a CCA — and what are SDCP and CEA?<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>Community Choice Aggregators are locally-controlled, not-for-profit power providers. SDG&E still owns the wires and sends the bill, but the CCA buys the actual electricity — typically cleaner and at competitive rates, with profits reinvested locally instead of paid to shareholders. In our area: <strong>San Diego Community Power (SDCP)</strong> serves much of the region, and <strong>Clean Energy Alliance (CEA)</strong> serves 255,000+ customers in Carlsbad, Del Mar, Escondido, Solana Beach, San Marcos, Oceanside, and Vista.</p>
+            <p>Why homeowners should care: CCAs run programs the big utility never would — SDCP's battery rebates ($3,000-$6,000 per battery) and CEA's Solar Plus ($0-down, no-credit-check solar and batteries). Being in CCA territory is an advantage. Use it.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="grid future heading vpp virtual power plant decentralized microgrids direction">
+        <button class="acc-q">Where is the grid actually heading?<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>Decentralized. The old model — giant power plants pushing electricity one direction over long wires — is aging out at the exact moment demand is exploding (data centers, EVs, electrification of everything). The new model is millions of small power plants: rooftops and garages, aggregated into <strong>Virtual Power Plants</strong> that respond to the grid's needs in real time.</p>
+            <p>This isn't sci-fi — it's already paying homeowners. VPP programs pay yearly rebates for letting your battery support the grid during peak events. Utilities are crediting $1-$3.50/kWh for peak-hour exports. Every year the grid gets more desperate for local storage, your battery gets more valuable. Homeowners who install solar + storage now aren't just cutting a bill — they're buying a seat at the table of the next energy economy.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════ 3. FINANCING ═══════════ -->
+<section class="kc-section" id="financing">
+    <div class="kc-head"><span class="kc-icon">💰</span><h2>Financing & Programs</h2></div>
+    <p class="kc-desc">The tax credit changed everything in 2026. Here's the short version — and the deep dive when you're ready.</p>
+
+    <a class="feature-card" href="/knowledge/financing/">
+        <span class="fc-tag">⭐ Flagship Guide</span>
+        <h4>The Tax Credit Is Gone. Your Savings Aren't.</h4>
+        <p>The full 2026 playbook: every major provider compared honestly (GoodLeap, LightReach, EnFin, Sunrun, Propel, Participate + more), the rebate stack, and a 30-second quiz to find your fit.</p>
+        <p class="fc-arrow" style="margin-top:.6rem">Read the complete guide →</p>
+    </a>
+
+    <div class="acc" data-tags="tax credit gone 2026 federal itc expired homeowners 25d 48e">
+        <button class="acc-q">Wait — homeowners really can't claim the federal tax credit anymore?<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>Really. The residential credit (Section 25D) expired <strong>December 31, 2025</strong>. Buy a system with cash or a loan in 2026 and there's no federal credit for you — full stop. What survived is the <em>commercial</em> credit (Section 48E), alive through roughly end of 2027, and it belongs to whoever owns the system.</p>
+            <p>So the play now: programs where a company owns your system (PPA, prepaid ESA, lease), claims the ~30% credit, and passes the value through as a lower price. Add up to 10% more in energy community zip codes. This is why solar prices in 2026 are no higher than before — despite pricier materials. But it has an expiration date. Once the 2027 deadline hits and qualifying materials run out, this pricing era ends.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="prepaid esa ppa lease cash loan options compare which best">
+        <button class="acc-q">Prepaid ESA vs PPA vs cash — the 30-second version<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p><strong>Prepaid ESA</strong> (like Propel): a company owns your system ~5 years, claims the commercial credit, gives you 30-40% off, then ownership transfers to you. Discount + equity. My general favorite for qualifying credit.</p>
+            <p><strong>PPA:</strong> you buy the power, not the panels — $0.17-$0.27/kWh vs SDG&E's $0.40+, with all maintenance, repairs, and replacements covered for 25 years. Watch the escalator (0-3.9%/year), and know that "fixed payment" sales language often hides one.</p>
+            <p><strong>Cash/loan:</strong> cleanest ownership, but with no federal credit anymore, the math flipped hard. Only pencils if outright day-one ownership matters more to you than total savings.</p>
+            <a class="mini-cta" href="/knowledge/financing/">Full comparison with every provider graded →</a>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="escalator ppa hidden increase yearly fixed payment misleading trick">
+        <button class="acc-q">What's an "escalator" and why do sales reps hide it?<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>Every PPA has a yearly escalator — the percent your payment increases annually, anywhere from 0% to 3.9%. Because the payment is the same every <em>month</em>, reps love calling it "fixed" while glossing over the yearly climb. "It goes up no more than 3.9%" means <strong>it goes up 3.9% every year.</strong></p>
+            <p>An escalator isn't inherently bad — a higher escalator buys you the biggest day-one savings of any solar option, and it's still better than the utility's trajectory. But hiding it is disqualifying. Fair San Diego pricing with battery: $0.20-$0.24/kWh at 3.5% escalation, or $0.28-$0.31/kWh at 0%. Dramatically lower quotes usually mean the battery payment is hiding on a separate line. Do the math yourself: total monthly payment ÷ average monthly production = your real $/kWh.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="dealer fee interest rate buy down loan financing cost hidden">
+        <button class="acc-q">What are dealer fees — and are they a scam?<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>Not a scam — a trade-off most reps never explain. Real solar loan interest runs 6-12%. Financiers offer 3-5% rates by "buying down the rate" with an upfront <strong>dealer fee</strong> baked into your project price — sometimes 25-35% of the total.</p>
+            <p>The sliding scale: staying 10+ years and never paying early? Low rate + high fee wins. Paying off fast or moving soon? No fee + higher rate wins. In the middle? A 10-15% fee splits the difference. The scam isn't the fee — it's signing up for a huge fee without knowing it exists, then paying off a loan early and eating a fee you never needed. Ask for both quotes side-by-side. A good rep shows you the comparison without being asked.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="sell home move transfer ppa loan agreement selling house real estate">
+        <button class="acc-q">What happens to my solar agreement if I sell my home?<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>Almost every modern agreement transfers to the buyer — who inherits a power rate locked below the utility, which good real estate agents position as a selling point. Owned systems are cleaner still: they simply add home value ($15-25K typically).</p>
+            <p>Two cautions: PPAs carry prepayment penalties before year 5, so if you're selling within 5 years, make sure your agent knows how to transfer payments — or choose a program with flexible buyouts. And Sunrun-style providers only offer buyouts at certain years, which limits your options at closing. Tell your rep your realistic timeline in your home and let it shape the program choice. It matters more than people think.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════ 4. INCENTIVES ═══════════ -->
+<section class="kc-section" id="incentives">
+    <div class="kc-head"><span class="kc-icon">🎁</span><h2>Rebates & Incentives</h2></div>
+    <p class="kc-desc">The layers stack — and several are running out of money in real time. Current as of mid-2026.</p>
+
+    <div class="acc" data-tags="sdcp battery rebate san diego community power 3000 6000 funds">
+        <button class="acc-q">SDCP Battery Rebate — $3,000 to $6,000 per battery<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>San Diego Community Power's battery program pays <strong>$3,000-$6,000 per battery</strong> depending on your qualifications — and it applies whether you're pairing a battery with brand-new solar or adding one to an existing system.</p>
+            <p>The urgency is real: as of mid-2026, roughly <strong>30-40% of program funds remain</strong>, and once they're reserved, they're gone. This is a first-come program, not a permanent entitlement. Verify current status at <a href="https://sdcommunitypower.org/solar-battery-savings/" target="_blank" rel="noopener">sdcommunitypower.org</a> — and if you've been on the fence about a battery, this rebate is the fence-remover.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="cea solar plus clean energy alliance zero down no credit check tesla carlsbad oceanside vista escondido">
+        <button class="acc-q">CEA Solar Plus — $0 down, no credit check<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>If you live in Carlsbad, Del Mar, Escondido, Solana Beach, San Marcos, Oceanside, or Vista, Clean Energy Alliance's Solar Plus program is one of the most accessible offers in the country: solar + battery (or <strong>battery-only</strong>) with zero upfront cost and <strong>no credit check</strong>. Administered by CEA with Participate.Energy; Tesla designs, equips, and services the systems; payments land right on your utility bill; and all equipment replacements are covered for the minimum 25-year term.</p>
+            <p>The sleeper play I keep telling people about: <strong>battery-only for $0 down</strong>. If you already have solar, a battery lets you stop selling cheap at noon and buying expensive at 7pm — and maximize those nighttime sell-back credits. CEA also runs income-qualified programs (Battery Bonus Connect and Solar Plus Connect, funded through SGIP). Details: <a href="https://thecleanenergyalliance.org/solar-plus/" target="_blank" rel="noopener">thecleanenergyalliance.org/solar-plus</a>.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="energy community adder 10 percent zip code qualification bonus">
+        <button class="acc-q">Energy Community Adder — up to 10% more off, based on your zip code<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>Certain zip codes qualify as "energy communities" under federal rules — areas historically tied to fossil fuel employment or meeting other criteria. Systems installed there earn an extra adder on top of the ~30% commercial credit, pushing programs like Propel from 30% off to <strong>39.2% off</strong>.</p>
+            <p>You do nothing to earn this except live where you live. But it changes which program wins for your house — in an energy community zip, prepaid ESA programs get dramatically stronger. It's the first thing I check when running your numbers, and it's why the same system can be priced differently one neighborhood over.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="domestic content american made panels bonus requirement materials">
+        <button class="acc-q">Domestic Content — why "made in America" now means money<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>For providers to claim the commercial credit on your system, a required percentage of the equipment must be made from domestic materials. This is why programs specify hardware — Propel requires Enphase gear partly because it satisfies domestic content rules.</p>
+            <p>The homeowner consequence: qualifying American-made materials are in <strong>limited supply against surging demand</strong>. That's the quiet clock ticking behind 2026-2027 pricing — when the qualifying materials run out, the discounts tied to them end. It's also, honestly, good for the country: this rule has pulled panel and component manufacturing back onshore at record pace.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="smud sacramento battery rebate vpp virtual power plant yearly payments">
+        <button class="acc-q">SMUD rebate + Virtual Power Plant payments<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>Sacramento-area homeowners: SMUD runs battery rebates that stack with financing programs — check SMUD's site for current amounts and terms.</p>
+            <p>Bigger picture, <strong>VPP programs are rolling out everywhere</strong>, and they change battery math permanently: instead of a one-time rebate, they pay you <em>per year</em> for letting your battery support the grid during peak events. Every year enrolled shrinks your battery's real cost. As utilities get more desperate for local storage — and they will — expect these yearly payments to grow. A battery in 2026 isn't just backup; it's a small income-producing asset.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="sdge export credits august september peak 2 3 dollars kwh demand">
+        <button class="acc-q">SDG&E's secret $1–$3.50/kWh export window<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>Net billing slashed export credits for most of the year — but during 1-2 hours a day in <strong>August and September</strong>, SDG&E pays $1 to $3.50 per kWh for power sent to the grid. That's up to 8x their own retail rate.</p>
+            <p>A well-designed solar + battery system charges itself on nearly-free sunshine all year, then cashes in during exactly those desperate late-summer peak hours. These credits are a major reason the best true-up date is July 1st (right before peak sun), and why proper system design in the net billing era can still get you to a ~$0 monthly bill. It takes software, your Green Button usage data, and a designer who actually cares. But the window is there.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════ 5. BATTERIES ═══════════ -->
+<section class="kc-section" id="batteries">
+    <div class="kc-head"><span class="kc-icon">🔋</span><h2>Batteries & Storage</h2></div>
+    <p class="kc-desc">The most critical — and most misunderstood — piece of a modern California system.</p>
+
+    <div class="acc" data-tags="need battery california required net billing why storage">
+        <button class="acc-q">Do I actually need a battery in California?<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>Under net billing — yes, for almost everyone. Export credits were cut ~75%, so selling your excess solar to the grid is a losing trade most of the year. A battery stores your own daytime power for your own nighttime use, which is now the whole game. Without one, you'd need to size solar to only ~60-70% of usage and accept a permanent utility bill.</p>
+            <p>Batteries also unlock the stackable money: SDCP's $3,000-$6,000 rebate, VPP yearly payments, and those $1-$3.50/kWh August-September export credits. In 2026 California, the battery isn't the add-on. It's the strategy.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="battery backup whole home partial grid tied blackout outage circuits myth">
+        <button class="acc-q">Will one battery back up my whole house? (The #1 battery myth)<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>Usually not — and some batteries provide no backup at all, by design. Three configurations:</p>
+            <ul>
+                <li><strong>Grid-tied (no backup):</strong> replaces the grid at night for maximum savings, zero backup capability. Cheapest, and perfect if outages aren't your concern.</li>
+                <li><strong>Partial backup:</strong> the most common. Extra equipment backs up 2-10 essential circuits — fridge, lights, wifi. In a blackout, only those run.</li>
+                <li><strong>Whole-home backup:</strong> multiple batteries, most expensive, everything runs — until the batteries drain, so conservation still matters.</li>
+            </ul>
+            <p>Modern systems "island" during outages: your solar recharges your batteries by day even while the grid is down. But sizing backup honestly — instead of letting a rep imply one battery runs your AC through a week-long outage — is the difference between a happy customer and a furious one.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="battery capacity power kwh kw difference highway speed appliances">
+        <button class="acc-q">Capacity vs. power — the highway analogy that makes batteries click<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p><strong>Capacity (kWh)</strong> is how far a car can drive — the total energy stored. <strong>Power (kW)</strong> is the speed limit — how fast energy can flow out. A big battery with low power is a truck with a huge gas tank and a 25mph governor: lots of range, can't run the heavy stuff.</p>
+            <p>Heavy appliances — AC, pool pumps, EV chargers, dryers, heat pumps — need high power (generally 5kW+) just to switch on. They also drain capacity fast. This is why battery specs matter more than brand names: a Tesla Powerwall 3 (13.5kWh / 11.5kW) and an Enphase 5P (5kWh / 3.85kW) are built for completely different jobs, and both are excellent at their own job. Batteries stack like batteries in a remote — two 10kWh units = 20kWh — so systems are built from the load up.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="battery warranty cycles throughput 10 15 year fine print compare">
+        <button class="acc-q">Battery warranties: the fine print that actually matters<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>Most batteries carry 10-year warranties; Enphase and Franklin stand out at 15. Nearly all guarantee ≥70% capacity at end of warranty. But the fine print has two traps:</p>
+            <p><strong>Cycles:</strong> like a car's "5 years or 50,000 miles," some warranties cap full charge/discharge cycles (4,000-15,000). Daily-use batteries burn cycles fast — if you're cycling nightly (which is the whole point under net billing), a higher cycle limit or unlimited-cycle warranty matters enormously. <strong>Throughput:</strong> some cap total lifetime energy (e.g., 60MWh). Exceed either limit and the warranty is void even inside the time window. Backup-only batteries can ignore this; nightly-cycling batteries can't. This single paragraph has saved my clients more money than most sales pitches.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="battery cost price expensive 15000 18000 quote pricing going up">
+        <button class="acc-q">What does a battery cost in 2026?<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>I'll be straight with you: I don't publish battery pricing anymore, because every home is genuinely different — backup needs, panel compatibility, electrical configuration, and which rebates you qualify for swing the number by thousands. Ballpark for battery-only projects after incentives: <strong>$15,000-$18,000 per battery</strong>, but the SDCP rebate, CEA's $0-down program, and VPP payments can transform that math completely.</p>
+            <p>What I'll say with confidence: battery pricing is only going <strong>up</strong>. Materials are constrained, demand is exploding, and every VPP program launched makes storage more valuable. Adding a battery retroactively also always costs more than including it with solar. If a battery is in your future, the cheapest day to do it is today.</p>
+            <a class="mini-cta" href="/quote/?option=existing">Get real numbers for your home →</a>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════ 6. DESIGN & EQUIPMENT ═══════════ -->
+<section class="kc-section" id="design">
+    <div class="kc-head"><span class="kc-icon">☀️</span><h2>System Design & Equipment</h2></div>
+    <p class="kc-desc">The most critical component of any system isn't a component — it's the design. Get this right and everything else follows.</p>
+
+    <div class="acc" data-tags="sizing system design green button data usage important critical">
+        <button class="acc-q">Why is system sizing the single most important decision?<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>Because nothing survives a bad design. Sweet deal, cheap price, best equipment ever — none of it matters if the system is sized wrong. You'll have a confusing, frustrating, and long-term costly experience anyway.</p>
+            <p>A proper design accounts for four things: <strong>(1)</strong> your current usage, <strong>(2)</strong> your utility's metering program, <strong>(3)</strong> <em>when</em> you use power, and <strong>(4)</strong> what you're adding in the next 18 months — EV, hot tub, heat pump, more kids. Under net billing, this requires your utility's <strong>Green Button data</strong> — 15-minute interval usage — fed into design software that models sun data against your actual life. If a rep sizes your system off one monthly bill total, they're guessing. Guessing is how people end up with surprise true-up bills.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="panels brand chinese quality maxeon rec qcells silfab wattage efficiency compare">
+        <button class="acc-q">"What panels do you use? As long as they're not Chinese…"<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>My favorite question. Reality: the US imports 88% of its panels and <strong>less than 1% come from China</strong> — China makes components, but assembly happens elsewhere (and domestic content rules are pulling manufacturing to the US fast).</p>
+            <p>What actually matters: <strong>power</strong> (most panels are 400-500W now; higher wattage only matters with limited roof space), <strong>efficiency</strong> (18-23% — paying premium prices for 18% panels is what we call highway robbery), and <strong>longevity</strong> (the performance warranty: good = 86% output at 25 years; premium = 92%). Rough quality ladder: Maxeon > REC > Canadian > Silfab > Qcells > Panasonic > Jinko > Longi > Trina. Moving soon? Cheap panels fine. Forever home? REC or better. Best value balance? Silfab or Qcells — negligible performance difference, real savings.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="inverter microinverter string enphase solaredge tesla difference shade">
+        <button class="acc-q">Microinverters vs. string inverters — which is right for my roof?<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>The inverter converts your panels' DC power to usable AC. <strong>String inverters</strong> (SolarEdge, Tesla) run sets of panels through one box: more efficient and cheaper, but one shaded panel drags down its whole string, and if the inverter dies, the whole system is down. Tesla's is 12.5-year warrantied with famously thin customer service; SolarEdge has known failure rates that make many installers wary.</p>
+            <p><strong>Microinverters</strong> (Enphase, essentially alone here) put one on every panel: one fails, the rest keep producing. 25-year warranties, excellent support, the best app ecosystem, and the natural pairing for Enphase storage. My rule: beautiful sunny roof + cost focus = string. Shade, long-term security, or future Enphase battery plans = micros, no contest.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="main panel upgrade mpu electrical backfeed amps 100 200 cost trenching">
+        <button class="acc-q">The Main Panel Upgrade — solar's silent budget-killer<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>If your home is 15+ years old, your electrical panel may cap your solar before you start. Utilities limit "backfeed" by your panel's rating — the formula: <strong>(120% × service rating) − main breaker = allowable backfeed</strong>, and max system size ≈ a quarter of that in kW. A typical old 100A/100A panel allows only a 4-5kW system. Upgrading to 200A typically runs $3,000-$4,000 — cheap if your service comes in overhead, potentially $12,000+ if underground trenching is required.</p>
+            <p>Escape hatches exist: 125A upgrades without trenching, renewable meter adapters (RMA) that feed solar behind the meter, and batteries that circumvent backfeed limits. Some old panels (Zinsco, Sylvania, Stab-Lok) are fire hazards that must be replaced regardless. Here's the tell: if your home is older and a rep never mentions your electrical panel, <strong>that's a red flag the size of a billboard.</strong> Included with solar, the upgrade rides your financing.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="ppw price per watt fair pricing cost compare quote good deal">
+        <button class="acc-q">How do I know if I'm getting a fair price? (The PPW secret)<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>The industry's real pricing language is <strong>Price Per Watt</strong>: total cost ÷ total watts installed. A 6kW system quoted at $21,000 = $3.50/W. That one number lets you compare any two quotes regardless of panel count or sales theater.</p>
+            <p>Fair 2026 cash pricing for the solar portion (California, before battery/MPU/extras): roughly <strong>$2.55-$2.80/W</strong> for budget equipment, <strong>$2.70-$3.05/W</strong> mid-tier, <strong>$2.85-$3.30/W</strong> premium with microinverters. To compare honestly, strip out the extras first: subtract the battery, panel upgrade, and any dealer fee from the total, THEN divide by watts. And remember — the lowest price is not the best price. Companies need margin to still exist when your warranty call comes.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="ev charger electric vehicle install amps cost tax charging">
+        <button class="acc-q">Adding an EV charger with solar<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>EV chargers run $500-$1,500 installed depending on the electrical work. Bigger breaker = faster charging = more panel capacity required. Plug-in hybrid? A 30-40A charger is plenty (or just use the dryer outlet). Full EV? Go 50-70A — you'll want the speed.</p>
+            <p>Two smart moves: bundle the charger with your solar install so it rides your financing and program benefits, and tell your designer about the EV <em>even if it's 18 months away</em> — charging at night means more battery; charging midday means more solar. An EV can double a home's electricity usage. Surprise true-up bills love an unplanned EV.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════ 7. REPAIRS, SERVICE & AUDITS ═══════════ -->
+<section class="kc-section" id="service">
+    <div class="kc-head"><span class="kc-icon">🔧</span><h2>Repairs, Service & Audits</h2></div>
+    <p class="kc-desc">What actually goes wrong, what maintenance really looks like, and how to know if your system is earning what it should.</p>
+
+    <div class="acc" data-tags="maintenance how much upkeep panels lifespan care annual">
+        <button class="acc-q">How much maintenance does solar actually need?<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>Shockingly little — this is one place the sales guys undersell. Panels have no moving parts and run 25-30+ years. The honest maintenance list: <strong>watch your monitoring app</strong> (5 minutes a month), <strong>clean the panels once a year</strong> in low-rain areas like ours (before summer, after pollen season — de-ionized water and regular soap, never when panels are hot, or just hire a cleaner), and a <strong>system health check every 5-10 years</strong>.</p>
+            <p>The components that can actually need service over decades: inverters (that's why warranty length matters — 12.5 vs 25 years is a real difference) and batteries (10-15 year warranties). The panels themselves? They'll likely outlive your roof.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="monitoring app production down check enphase tesla solaredge underperforming">
+        <button class="acc-q">What should I watch in my monitoring app — and when should I worry?<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>Your app (Enphase, Tesla, SolarEdge, or your PPA provider's) shows production and, with a battery, storage behavior. The one metric that matters: <strong>production versus the same period last year.</strong> Weather varies, seasons swing — but if production drops significantly in a short window or year-over-year with similar weather, a panel or inverter likely needs service. That's genuinely the only failure mode solar-only systems really have.</p>
+            <p>Battery acting weird? Check the mode first — standby/backup (saves for emergencies), self-consumption (drains nightly), and time-of-use (follows rate schedules) behave completely differently, and a mode switch is the #1 "my battery is broken" false alarm. Not charging fully or dumping too fast on the right mode? Something's pulling more power than it can serve, or it needs service. Then you call — and if your installer is gone, that's what I'm here for.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="roof leak penetration warranty damage flashing worried">
+        <button class="acc-q">Will solar leak my roof?<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>Done right — no. Solar penetrations are flashed and sealed with materials rated for 25 years, exactly like any vent or skylight on your roof right now. If a leak from solar ever happens, it happens fast — usually within the first two years, from workmanship error — which is what the standard <strong>10-year roof penetration warranty</strong> exists for.</p>
+            <p>Red flags worth knowing: repeated roof-leak complaints in an installer's reviews (one-offs happen; patterns don't lie), and paradoxically, a <em>25-year</em> roof penetration warranty — that's a flashy sales gimmick from companies that won't exist long enough to honor it. And if your roof is old, replace it <em>with</em> the solar project: one crew coordination, one financing, and the roof portion can ride your program benefits. Roof + solar is one of the smartest combos in home improvement.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="installer out of business gone bankrupt warranty orphaned system help">
+        <button class="acc-q">My installer went out of business. Am I screwed?<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>Deep breath — no. I've lived this from the inside (the company I worked with, KOTA, collapsed in 2024 despite doing right by customers). Here's what survives: <strong>all equipment warranties</strong> — panels (25-30yr), inverters (10-25yr), batteries (10-15yr) are held by manufacturers, not your installer. On a PPA or lease, the agreement itself is an asset that gets bought by another provider, warranties intact — you might not even notice the change beyond a new logo on the bill.</p>
+            <p>What you lose is the workmanship warranty — the free labor. Manufacturers will replace failed parts but may charge for the truck roll. Thousands of San Diego homes are "orphaned" like this right now, and it's exactly why I built my audit and service business: someone has to take care of these systems for the next 20 years. If that's you, reach out — you're not stranded.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="audit solar health check savings performing assessment what is">
+        <button class="acc-q">What is a Solar Health Audit — and do I need one?<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>An audit answers the question most solar owners can't: <strong>"Is this thing actually working for me?"</strong> Six data points tell the whole story: year-over-year consumption, year-over-year production, install date, current utility rates, your solar payment, and any true-up costs.</p>
+            <p>From those, the math falls out: yearly consumption × current utility rate = what you'd pay without solar. Subtract your annualized solar payments and true-ups = your <em>real</em> savings. Compare production to consumption = whether you're over- or under-producing, and whether usage changes (new EV? teenager with a gaming rig?) have outgrown your design. My audit also reviews your agreement terms against what's fair and flags rebates you're leaving unclaimed — SDCP funds, VPP enrollment, the works. If you've had solar 2+ years and never checked, you're overdue.</p>
+            <a class="mini-cta" href="/quote/?option=existing">Request your audit →</a>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="true up bill surprise annual charge why big consumption exceeded">
+        <button class="acc-q">I got a surprise true-up bill. What happened?<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>The true-up is your annual settle-up with the utility for energy your system didn't cover. Surprise bills almost always trace to one cause: <strong>your usage grew past your design.</strong> New EV, hot tub, home office, kids getting older, more AC in a hotter summer — the system was sized for the life you had, not the life you have.</p>
+            <p>Sometimes it's the design's fault (sized to a single bill instead of real usage data), and occasionally it's underproduction from a failed component. An audit separates the causes in about an hour: production data tells us if the system is healthy; consumption data tells us if your life outgrew it. The fix ranges from mode changes and habit shifts (free) to added panels or battery (an investment that beats paying the utility forever). What you shouldn't do is just quietly pay it every year.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="cleaning panels how often diy water soap cost">
+        <button class="acc-q">Panel cleaning: DIY or hire it out?<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>In San Diego's low-rain climate, once a year is right — ideally before summer and after pollen season. The efficiency gain from cleaning is modest; the real benefit is keeping oxidizers and organic growth from degrading the glass over decades. Think of it like washing a car: skip it forever and the paint pays.</p>
+            <p>DIY is fine: de-ionized water, regular soap, soft brush, and <strong>never when panels are hot</strong> (thermal shock cracks glass). If your roof is steep or two stories, hire a cleaner — no efficiency gain is worth a ladder fall. Bundling cleaning with a periodic system inspection is the smart move; you're paying for the trip anyway.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════ 8. RECYCLING & PLANET ═══════════ -->
+<section class="kc-section" id="planet">
+    <div class="kc-head"><span class="kc-icon">♻️</span><h2>Recycling & The Real Environmental Story</h2></div>
+    <p class="kc-desc">For the naysayers and the dreamers both — the honest accounting of what solar takes from the planet and what it gives back.</p>
+
+    <div class="acc" data-tags="panels recyclable 95 percent materials silicon aluminum glass silver circular">
+        <button class="acc-q">Can solar panels really be recycled?<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>Yes — <strong>about 95% of a panel's materials are recyclable</strong>: silicon, aluminum, silver, copper, and glass, all recoverable and rollable into new products. The leading US recycler, SOLARCYCLE, now recovers up to <strong>97% of a panel's value</strong> with a zero-waste process, and recycled aluminum takes 95% less energy than smelting new.</p>
+            <p>The honest caveat: America currently recycles only ~10% of decommissioned panels, because landfilling costs $1-5 per panel while recycling runs $15-45. That gap is closing fast (more below), and it's precisely the problem I'm building my recycling business to attack. Every panel that goes to a landfill is silicon, silver, and aluminum we mine twice for no reason.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="solarcycle recycling company cost growing facilities capacity gigawatts">
+        <button class="acc-q">SOLARCYCLE and the recycling boom — where the industry is right now<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>This is moving faster than almost anyone realizes. SOLARCYCLE launched in 2022 charging $18/panel including shipping; today they run <strong>six US facilities</strong> (Georgia, Illinois, Texas, Nevada, Arizona), recycled over <strong>one million panels in 2025</strong>, are ramping to <strong>two million in 2026</strong>, and their new Georgia plant will scale to 5 gigawatts of panels per year. They're even breaking ground on a 1.1-million-square-foot facility making <strong>recycled solar glass</strong> for American panel manufacturing — panels made from panels. The circle, closing.</p>
+            <p>The economics are the last hurdle: recycling a panel costs ~$20 and yields $10-12 in recovered materials, so subsidies or regulation still bridge the gap. That's changing too — the EPA is finalizing "universal waste" rules for panels (final rule expected 2027), which will streamline recycling nationally. With 4-5 million US panels retiring yearly now and 10+ million projected by 2030, the companies building this infrastructure today are building the next energy supply chain. I intend to be part of it.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="battery recycling lithium redwood materials cobalt nickel recover">
+        <button class="acc-q">What about battery recycling?<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>Lithium-ion batteries are recyclable — and it matters doubly, for the environment and because the materials inside (lithium, cobalt, nickel) are exactly what the next generation of batteries needs. <strong>Redwood Materials</strong> leads the US effort, recovering up to <strong>95% of critical metals</strong> from used batteries, with innovations like solar-powered processing making the loop cleaner still.</p>
+            <p>We're earlier on the curve than panels — home battery recycling infrastructure is still developing, and the EPA is working on streamlined rules. But the timeline works in our favor: batteries installed today have 10-15 years before end-of-life, which is exactly the runway the recycling industry needs to scale. Improper disposal risks fires and wastes irreplaceable materials, so when your battery's day comes, it goes to a recycler. Period.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="environmental impact manufacturing dirty carbon footprint payback honest fossil">
+        <button class="acc-q">"But manufacturing solar is dirty!" — the honest environmental accounting<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>Is the manufacturing process clean? <strong>Absolutely not</strong> — mining, refining, and fabrication all carry real impacts, and pretending otherwise insults your intelligence. Can we make it cleaner? Most definitely, and domestic manufacturing under stricter US environmental standards is doing exactly that.</p>
+            <p>But here's the accounting that matters: a panel pays back its manufacturing energy in <strong>1-3 years</strong>, then produces clean power for another 25+. It's a one-time cost with a 25-year dividend — and at end of life, 95% of it is recoverable. Fossil fuels invert every part of that: fuels that took millennia to form, destroyed instantly with every burn, polluting continuously, recyclable never. When was the last time you heard of an innovation in oil & gas beyond "drill baby drill"? Solar's imperfections are engineering problems on a solving trajectory. Combustion's imperfections are physics.</p>
+        </div>
+    </div>
+
+    <div class="acc" data-tags="solar solution time circular economy future diversify energy give ourselves">
+        <button class="acc-q">The real reason solar matters: it buys us time<span class="a-icon">+</span></button>
+        <div class="acc-a">
+            <p>Solar serves two purposes for our civilization right now: <strong>local power independence</strong> — the grid is old, costs are exploding, and ratepayers deserve a predictable alternative — and what I call <strong>delayed energy generation recycling</strong>. Every solar + battery installation starts a clock: 25-30 years for panels, 10-15 for batteries, to build the recycling chains that turn them into the next generation of themselves.</p>
+            <p>Fossil fuels give us no such clock — every burn is final. Solar, wind, hydro, and geothermal extend our timeline to develop even better answers: longer batteries, more powerful panels, small modular nuclear. I work in this industry because it <strong>thinks forward</strong>. The old way burns something and it's gone. The new way creates possibility. That's the whole belief system, honestly. Everything else on this site is just the math underneath it.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ═══ AUDIT CTA ═══ -->
+<div class="audit-cta">
+    <div class="ac-icon">🔍</div>
+    <h3>Not sure your solar is pulling its weight?</h3>
+    <p>Whether your installer vanished, your true-up surprised you, or you just want proof your system is performing — my Solar Health Audit gives you the real picture. Production, savings, agreement terms, missed rebates. No guesswork, no pitch.</p>
+    <a href="/quote/?option=existing" class="btn-gold">Get My System Audited →</a>
+</div>
+
+</main>
+
+<footer class="page-footer">
+    <div class="container">
+        <p>© 2026 Your Energy Best · San Diego, CA · <a href="/">yourenergybest.com</a> · <a href="tel:7608607862">(760) 860-7862</a></p>
+        <p class="disclaimer">This knowledge center is educational. Program terms, rebate availability, rates, and regulations change — sometimes quickly. Nothing here is tax, legal, or financial advice; confirm current terms in writing with any provider and consult the relevant professionals about your specific situation. Content current as of mid-2026.</p>
+    </div>
+</footer>
+
+<script>
+// ═══ ACCORDIONS ═══
+document.querySelectorAll('.acc-q').forEach(btn => {
+    btn.addEventListener('click', () => btn.parentElement.classList.toggle('open'));
+});
+
+// ═══ SEARCH ═══
+const searchInput = document.getElementById('kcSearch');
+const searchClear = document.getElementById('searchClear');
+const searchCount = document.getElementById('searchCount');
+const noResults = document.getElementById('noResults');
+const allAccs = Array.from(document.querySelectorAll('.acc'));
+const allSections = Array.from(document.querySelectorAll('.kc-section'));
+const catChips = document.getElementById('catChips');
+
+// Build searchable text once
+allAccs.forEach(acc => {
+    acc._search = (
+        acc.querySelector('.acc-q').textContent + ' ' +
+        acc.querySelector('.acc-a').textContent + ' ' +
+        (acc.dataset.tags || '')
+    ).toLowerCase();
+});
+
+function runSearch() {
+    const q = searchInput.value.trim().toLowerCase();
+    searchClear.classList.toggle('show', q.length > 0);
+
+    if (!q) {
+        allAccs.forEach(a => { a.classList.remove('hidden'); a.classList.remove('open'); });
+        allSections.forEach(s => s.style.display = '');
+        document.querySelectorAll('.feature-card,.daves-take,.audit-cta').forEach(el => el.style.display = '');
+        searchCount.classList.remove('show');
+        noResults.classList.remove('show');
+        return;
+    }
+
+    const terms = q.split(/\s+/);
+    let total = 0;
+
+    allAccs.forEach(acc => {
+        const match = terms.every(t => acc._search.includes(t));
+        acc.classList.toggle('hidden', !match);
+        acc.classList.toggle('open', match);   // auto-expand matches
+        if (match) total++;
+    });
+
+    // Hide sections with no visible items
+    allSections.forEach(sec => {
+        const visible = sec.querySelectorAll('.acc:not(.hidden)').length;
+        sec.style.display = visible ? '' : 'none';
+    });
+    // Hide extras while searching
+    document.querySelectorAll('.feature-card,.audit-cta').forEach(el => el.style.display = total ? '' : 'none');
+
+    searchCount.textContent = total ? total + ' answer' + (total===1?'':'s') + ' found' : '';
+    searchCount.classList.toggle('show', total > 0);
+    noResults.classList.toggle('show', total === 0);
+}
+
+searchInput.addEventListener('input', runSearch);
+searchClear.addEventListener('click', () => { searchInput.value=''; runSearch(); searchInput.focus(); });
+
+// Focus search with "/" key
+document.addEventListener('keydown', e => {
+    if (e.key === '/' && document.activeElement !== searchInput) { e.preventDefault(); searchInput.focus(); }
+});
+</script>
+</body>
+</html>

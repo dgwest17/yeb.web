@@ -11,24 +11,9 @@
     .blog-layout { display: grid; grid-template-columns: 1.7fr 0.8fr; gap: var(--space-3xl); align-items: start; }
     @media (max-width: 900px) { .blog-layout { grid-template-columns: 1fr; } }
   </style>
+  <script src="/nav.js" defer></script>
 </head>
 <body>
-
-<nav class="nav" id="mainNav">
-  <div class="container nav__inner">
-    <a href="index.html" class="nav__logo"><img src="img/logo.png" alt="Your Energy Best" /></a>
-    <a href="quote.html" class="nav__cta-mobile">Get Your Custom Quote</a>
-    <button class="nav__toggle" id="navToggle"><span></span><span></span><span></span></button>
-    <ul class="nav__links" id="navLinks">
-      <li><a href="index.html">Home</a></li>
-      <li><a href="quote.html">Get a Quote</a></li>
-      <li><a href="build">Build With Us</a></li>
-      <li><a href="blog.html" class="active">Blog</a></li>
-      <li><a href="quote.html" class="nav__cta-btn">Get Your Custom Quote</a></li>
-    </ul>
-  </div>
-</nav>
-<div class="nav__overlay" id="navOverlay"></div>
 
 <section class="page-hero">
   <div class="container">
@@ -56,9 +41,9 @@
           </a>
         </div>
       </div>
-      <div class="footer__col"><h5>Quick Links</h5><a href="index.html">Home</a><a href="quote.html">Get a Quote</a><a href="build">Build With Us</a><a href="blog.html">Blog</a></div>
+      <div class="footer__col"><h5>Quick Links</h5><a href="index.html">Home</a><a href="/quote/">Get a Quote</a><a href="build">Build With Us</a><a href="blog.html">Blog</a></div>
       <div class="footer__col"><h5>Resources</h5><a href="https://sdcommunitypower.org/solar-battery-savings/" target="_blank" rel="noopener">Battery Rebates (SDCP)</a></div>
-      <div class="footer__col"><h5>Get Started</h5><a href="quote.html">Free Solar Quote</a><a href="build">Join Our Sales Team</a></div>
+      <div class="footer__col"><h5>Get Started</h5><a href="/quote/">Free Solar Quote</a><a href="build">Join Our Sales Team</a></div>
     </div>
     <div class="footer__bottom">
       <span>&copy; 2026 Your Energy Best. All rights reserved.</span>
@@ -68,13 +53,6 @@
 </footer>
 
 <script>
-window.addEventListener('scroll', () => { document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 40); });
-const navToggle = document.getElementById('navToggle');
-const navLinks = document.getElementById('navLinks');
-const navOverlay = document.getElementById('navOverlay');
-navToggle.addEventListener('click', () => { navLinks.classList.toggle('open'); navOverlay.classList.toggle('open'); });
-navOverlay.addEventListener('click', () => { navLinks.classList.remove('open'); navOverlay.classList.remove('open'); });
-navLinks.querySelectorAll('a').forEach(l => l.addEventListener('click', () => { navLinks.classList.remove('open'); navOverlay.classList.remove('open'); }));
 </script>
 <script src="cms.js"></script>
 <script>

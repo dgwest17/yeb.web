@@ -153,7 +153,15 @@
     .audit-faq { padding: 4rem 2rem; background: var(--gray-100); }
     .audit-faq .container { max-width: 760px; }
     
-    .paypal-loading { text-align: center; padding: 1rem; color: var(--slate); font-size: 0.9rem; }
+    .stripe-buy__btn, .stripe-buy__go { width: 100%; padding: 0.9rem 1rem; border: none; border-radius: 50px; font-family: inherit; font-size: 1rem; font-weight: 700; cursor: pointer; background: var(--teal); color: #fff; transition: all 0.3s; }
+    .stripe-buy__btn:hover, .stripe-buy__go:hover { background: var(--teal-dark, #1a8a93); transform: translateY(-1px); }
+    .stripe-buy__go:disabled { background: var(--slate); cursor: not-allowed; transform: none; }
+    .stripe-buy__form { margin-top: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .stripe-buy__form input { padding: 0.7rem 0.9rem; border: 2px solid var(--gray-200, #e5e7eb); border-radius: 10px; font-family: inherit; font-size: 0.95rem; }
+    .stripe-buy__form input:focus { outline: none; border-color: var(--teal); }
+    .stripe-buy__form input.err { border-color: #ef4444; }
+    .stripe-buy__note { font-size: 0.75rem; color: var(--slate); text-align: center; margin: 0.25rem 0 0; }
+    .stripe-paid-banner { background: #06d6a0; color: #fff; padding: 1.25rem; border-radius: 14px; text-align: center; font-weight: 600; max-width: 720px; margin: 1rem auto; }
     
     @media (max-width: 900px) {
       .pricing-grid { grid-template-columns: 1fr; max-width: 420px; }
@@ -187,7 +195,15 @@
         <li>Utility rate comparison</li>
         <li>Email delivery within 48 hours</li>
       </ul>
-      <div id="paypal-basic"></div>
+      <div class="stripe-buy" data-plan="audit-basic" data-name="Basic Solar Audit">
+        <button class="stripe-buy__btn" type="button">Buy Basic Audit — $99</button>
+        <div class="stripe-buy__form" style="display:none">
+          <input type="text" class="sb-name" placeholder="Full name" autocomplete="name">
+          <input type="email" class="sb-email" placeholder="Email address" autocomplete="email">
+          <button class="stripe-buy__go" type="button">Continue to Secure Checkout →</button>
+          <p class="stripe-buy__note">🔒 Secure card payment powered by Stripe</p>
+        </div>
+      </div>
     </div>
     
     <!-- STANDARD (Featured) -->
@@ -205,7 +221,15 @@
         <li>ROI & payback timeline</li>
         <li>30-min consultation call</li>
       </ul>
-      <div id="paypal-standard"></div>
+      <div class="stripe-buy" data-plan="audit-standard" data-name="Standard Solar Audit">
+        <button class="stripe-buy__btn" type="button">Buy Standard Audit — $249</button>
+        <div class="stripe-buy__form" style="display:none">
+          <input type="text" class="sb-name" placeholder="Full name" autocomplete="name">
+          <input type="email" class="sb-email" placeholder="Email address" autocomplete="email">
+          <button class="stripe-buy__go" type="button">Continue to Secure Checkout →</button>
+          <p class="stripe-buy__note">🔒 Secure card payment powered by Stripe</p>
+        </div>
+      </div>
     </div>
     
     <!-- PREMIUM -->
@@ -223,7 +247,15 @@
         <li>60-min in-depth consultation</li>
         <li>$499 credited toward installation</li>
       </ul>
-      <div id="paypal-premium"></div>
+      <div class="stripe-buy" data-plan="audit-premium" data-name="Premium Solar Audit">
+        <button class="stripe-buy__btn" type="button">Buy Premium Audit — $499</button>
+        <div class="stripe-buy__form" style="display:none">
+          <input type="text" class="sb-name" placeholder="Full name" autocomplete="name">
+          <input type="email" class="sb-email" placeholder="Email address" autocomplete="email">
+          <button class="stripe-buy__go" type="button">Continue to Secure Checkout →</button>
+          <p class="stripe-buy__note">🔒 Secure card payment powered by Stripe</p>
+        </div>
+      </div>
     </div>
     
   </div>
@@ -324,102 +356,80 @@ document.querySelectorAll('.faq__q').forEach(btn => {
 });
 </script>
 
-<!--
-  ═══════════════════════════════════════════════════════════
-  PAYPAL INTEGRATION
-  ═══════════════════════════════════════════════════════════
-  
-  To enable payments, you need to:
-  1. Go to https://developer.paypal.com/dashboard/
-  2. Create a "Live" app (or use Sandbox for testing)
-  3. Copy your Client ID
-  4. Replace YOUR_PAYPAL_CLIENT_ID below with your actual Client ID
-  
-  For TESTING (sandbox), use:
-  https://www.paypal.com/sdk/js?client-id=sb&currency=USD
-  
-  For LIVE payments, use:
-  https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=USD
-  ═══════════════════════════════════════════════════════════
--->
 
-<script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD"></script>
+
 <script>
-// PayPal Button Configuration
-const plans = [
-  { container: '#paypal-basic',    amount: '99.00',  name: 'Basic Solar Audit' },
-  { container: '#paypal-standard', amount: '249.00', name: 'Standard Solar Audit' },
-  { container: '#paypal-premium',  amount: '499.00', name: 'Premium Solar Audit' },
-];
+// ═══ Stripe Checkout (all payments run through /stripe-checkout.php) ═══
+document.querySelectorAll('.stripe-buy').forEach(box => {
+  const btn  = box.querySelector('.stripe-buy__btn');
+  const form = box.querySelector('.stripe-buy__form');
+  const go   = box.querySelector('.stripe-buy__go');
 
-plans.forEach(plan => {
-  if (typeof paypal === 'undefined') {
-    document.querySelector(plan.container).innerHTML = '<p class="paypal-loading">⚠️ Payment buttons loading... <br>If this persists, please <a href="tel:7608607862">call us</a> to order.</p>';
-    return;
-  }
-  
-  paypal.Buttons({
-    style: {
-      shape: 'pill',
-      color: 'blue',
-      layout: 'vertical',
-      label: 'pay'
-    },
-    createOrder: function(data, actions) {
-      return actions.order.create({
-        purchase_units: [{
-          description: plan.name,
-          amount: { value: plan.amount }
-        }]
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.stripe-buy__form').forEach(f => f.style.display = 'none');
+    document.querySelectorAll('.stripe-buy__btn').forEach(b => b.style.display = '');
+    btn.style.display = 'none';
+    form.style.display = 'flex';
+    form.querySelector('.sb-name').focus();
+  });
+
+  go.addEventListener('click', async () => {
+    const name  = form.querySelector('.sb-name').value.trim();
+    const email = form.querySelector('.sb-email').value.trim();
+    let ok = true;
+    form.querySelector('.sb-name').classList.toggle('err', !name); if (!name) ok = false;
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    form.querySelector('.sb-email').classList.toggle('err', !emailOk); if (!emailOk) ok = false;
+    if (!ok) return;
+
+    go.disabled = true;
+    go.textContent = 'Redirecting to secure checkout\u2026';
+
+    fetch('/zoho.php', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'lead', source_form: 'AuditPage',
+        name: name, email: email,
+        customer_option: box.dataset.name + ' (checkout started)',
+        lead_source: 'Website - Audit Page' })
+    }).catch(() => {});
+
+    try {
+      const res = await fetch('/stripe-checkout.php', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: box.dataset.plan, planName: box.dataset.name,
+          name: name, email: email })
       });
-    },
-    onApprove: function(data, actions) {
-      return actions.order.capture().then(function(details) {
-        // Payment successful
-        const name = details.payer.name.given_name;
-        const email = details.payer.email_address;
-        
-        // Show success
-        document.querySelector(plan.container).innerHTML = 
-          '<div style="background:#06d6a0;color:white;padding:1rem;border-radius:12px;text-align:center;font-weight:600;">' +
-          '✓ Payment received! Check your email for next steps.</div>';
-        
-        // Send notification to your backend
-        fetch('/zoho.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'lead',
-            name: name,
-            email: email,
-            customer_option: plan.name,
-            source: 'audit_payment',
-            zip: ''
-          })
-        }).catch(() => {});
-        
-        // Also send email notification
-        fetch('/zoho.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'lead',
-            name: name + ' — PAID $' + plan.amount,
-            email: email,
-            phone: '',
-            customer_option: plan.name + ' (PAID)',
-            source: 'audit_payment_' + plan.amount,
-            zip: ''
-          })
-        }).catch(() => {});
-      });
-    },
-    onError: function(err) {
-      console.error('PayPal error:', err);
-      alert('Payment could not be processed. Please try again or call us at (760) 860-7862.');
+      const data = await res.json();
+      if (data.url) { window.location.href = data.url; }
+      else { throw new Error(data.error || 'Checkout failed'); }
+    } catch (err) {
+      console.error('Stripe error:', err);
+      go.disabled = false;
+      go.textContent = 'Continue to Secure Checkout \u2192';
+      alert('Payment could not be started. Please try again or call us at (760) 860-7862.');
     }
-  }).render(plan.container);
+  });
 });
+
+// ═══ Verify payment on return from Stripe ═══
+(function () {
+  const params = new URLSearchParams(location.search);
+  const sid = params.get('session_id');
+  if (!sid) return;
+  fetch('/stripe-verify.php?session_id=' + encodeURIComponent(sid))
+    .then(r => r.json())
+    .then(d => {
+      if (!d.paid) return;
+      const banner = document.createElement('div');
+      banner.className = 'stripe-paid-banner';
+      banner.innerHTML = '\u2713 Payment received \u2014 thank you' + (d.name ? ', ' + d.name.split(' ')[0] : '') +
+        '! Check your email for next steps.' +
+        (d.audit_url ? ' <a href="' + d.audit_url + '" style="color:#fff;text-decoration:underline;font-weight:700;">Open your audit tool \u2192</a>' : '');
+      const hero = document.querySelector('.page-hero') || document.body.firstElementChild;
+      hero.insertAdjacentElement('afterend', banner);
+      banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }).catch(() => {});
+})();
 </script>
 
 </body>

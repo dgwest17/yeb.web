@@ -17,177 +17,10 @@
     .hero__content { display: flex; flex-direction: column; gap: 3rem; }
     .hero__text { order: 1; }
     .hero__visual { order: 2; }
-
-    /* ═══════════════════════════════════════
-       MOBILE NAV — Complete Override
-       ═══════════════════════════════════════ */
-    .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 9999; transition: background 0.3s, padding 0.3s; }
-    .nav__inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; position: relative; }
-
-    .nav__toggle {
-      display: none;
-      background: none; border: none; cursor: pointer;
-      width: 32px; height: 24px; position: relative; z-index: 10001;
-      padding: 0; flex-shrink: 0;
-    }
-    .nav__toggle span {
-      display: block; position: absolute; left: 0; right: 0;
-      height: 2.5px; background: #fff; border-radius: 2px;
-      transition: all 0.3s ease;
-    }
-    .nav__toggle span:nth-child(1) { top: 0; }
-    .nav__toggle span:nth-child(2) { top: 10px; }
-    .nav__toggle span:nth-child(3) { top: 20px; }
-    .nav__toggle.active span:nth-child(1) { top: 10px; transform: rotate(45deg); }
-    .nav__toggle.active span:nth-child(2) { opacity: 0; }
-    .nav__toggle.active span:nth-child(3) { top: 10px; transform: rotate(-45deg); }
-
-    .nav__links {
-      display: flex; list-style: none; gap: 0.25rem; align-items: center;
-      margin: 0; padding: 0;
-    }
-    .nav__links a {
-      color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9rem;
-      font-weight: 500; padding: 0.5rem 0.75rem; border-radius: 6px;
-      transition: color 0.2s, background 0.2s; white-space: nowrap;
-    }
-    .nav__links a:hover, .nav__links a.active { color: #fff; background: rgba(255,255,255,0.08); }
-
-    .nav__phone {
-      display: flex; align-items: center; gap: 0.4rem;
-      color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.85rem;
-      font-weight: 500; white-space: nowrap;
-    }
-    .nav__phone:hover { color: #FFB703; }
-    .nav__phone svg { flex-shrink: 0; }
-    .nav__cta-mobile { display: none; }
-
-    /* Hide phone/CTA list items on desktop */
-    .nav__links-phone, .nav__links-cta { display: none; }
-
-    .nav__overlay {
-      display: none; position: fixed; inset: 0; z-index: 9998;
-      background: rgba(0,0,0,0.6); opacity: 0; transition: opacity 0.3s;
-    }
-    .nav__overlay.open { display: block; opacity: 1; }
-    body.nav-open { overflow: hidden; }
-
-    /* ─── MOBILE ─── */
-    @media (max-width: 900px) {
-      .nav { padding: 0.5rem 1rem !important; }
-      .nav__logo img { height: 50px !important; }
-      .nav__toggle { display: block !important; }
-      .nav__phone span { display: none !important; }
-      .nav__phone { padding: 0.4rem; }
-      .nav__cta-mobile {
-        display: inline-block !important;
-        background: #FFB703; color: #023047;
-        padding: 0.5rem 1rem; border-radius: 100px;
-        font-weight: 700; font-size: 0.8rem; text-decoration: none;
-        white-space: nowrap; margin-right: 0.5rem;
-      }
-
-      /* Slide-out panel */
-      .nav__links {
-        position: fixed !important; top: 0 !important; right: 0 !important;
-        width: 280px !important; max-width: 80vw !important; height: 100vh !important;
-        background: linear-gradient(180deg, #023047 0%, #011627 100%) !important;
-        flex-direction: column !important; align-items: stretch !important;
-        padding: 5rem 1.5rem 2rem !important;
-        gap: 0 !important;
-        transform: translateX(100%) !important;
-        transition: transform 0.35s cubic-bezier(0.16,1,0.3,1) !important;
-        z-index: 10000 !important;
-        box-shadow: -4px 0 30px rgba(0,0,0,0.3);
-        overflow-y: auto !important;
-        display: flex !important;
-      }
-      .nav__links.open { transform: translateX(0) !important; }
-
-      /* Force EVERY item visible */
-      .nav__links li {
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        height: auto !important;
-        overflow: visible !important;
-        border-bottom: 1px solid rgba(255,255,255,0.06);
-        max-height: none !important;
-        position: static !important;
-        width: 100% !important;
-        pointer-events: auto !important;
-      }
-      .nav__links li a {
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        padding: 1rem 0.75rem !important;
-        font-size: 1.05rem !important;
-        border-radius: 0 !important;
-        color: rgba(255,255,255,0.8) !important;
-        text-decoration: none !important;
-        width: 100% !important;
-        height: auto !important;
-        position: static !important;
-        max-height: none !important;
-        pointer-events: auto !important;
-        line-height: 1.4 !important;
-        clip: auto !important;
-        -webkit-clip-path: none !important;
-        clip-path: none !important;
-        transform: none !important;
-      }
-      .nav__links li a:hover,
-      .nav__links li a.active {
-        color: #FFB703 !important;
-        background: rgba(255,183,3,0.06) !important;
-      }
-
-      /* Phone + CTA inside mobile menu */
-      .nav__links-phone, .nav__links-cta { display: block !important; }
-      .nav__links-phone { margin-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.1) !important; }
-      .nav__links-phone a { color: #FFB703 !important; font-weight: 600 !important; }
-      .nav__links-cta { border-bottom: none !important; padding: 0.5rem 0 !important; }
-      .nav__links-cta a {
-        background: #FFB703 !important; color: #023047 !important;
-        font-weight: 700 !important; text-align: center !important;
-        border-radius: 100px !important; padding: 0.85rem 1rem !important;
-        margin-top: 0.5rem !important;
-      }
-    }
   </style>
+  <script src="/nav.js" defer></script>
 </head>
 <body>
-
-<!-- ─── NAVIGATION (with phone number) ─── -->
-<nav class="nav" id="mainNav" role="navigation" aria-label="Main navigation">
-  <div class="container nav__inner">
-    <a href="index.html" class="nav__logo" aria-label="Your Energy Best – Home">
-      <img src="img/logo.png" alt="Your Energy Best" />
-    </a>
-    <a href="tel:7608607862" class="nav__phone" aria-label="Call us">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.12.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.58 2.81.7A2 2 0 0122 16.92z"/></svg>
-      <span>(760) 860-7862</span>
-    </a>
-    <a href="quote.html" class="nav__cta-mobile">Get Your Custom Quote</a>
-    <button class="nav__toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
-      <span></span><span></span><span></span>
-    </button>
-<ul class="nav__links" id="navLinks" role="menubar">
-  <li role="none"><a href="index.html" class="active" role="menuitem">Home</a></li>
-  <li role="none"><a href="options/" role="menuitem">Options</a></li>
-  <li role="none"><a href="services" role="menuitem">Services</a></li>
-  <li role="none"><a href="quote.html" role="menuitem">Get a Quote</a></li>
-  <li role="none"><a href="build" role="menuitem">Build With Us</a></li>
-  <li role="none"><a href="blog.html" role="menuitem">Blog</a></li>
-  <li role="none"><a href="#testimonials" role="menuitem">Testimonials</a></li>
-  <li role="none" class="nav__links-phone"><a href="tel:7608607862" role="menuitem">📞 (760) 860-7862</a></li>
-  <li role="none" class="nav__links-cta"><a href="quote.html" role="menuitem">Get Your Custom Quote →</a></li>
-    </ul>
-  </div>
-</nav>
-<!-- Mobile nav overlay -->
-<div class="nav__overlay" id="navOverlay" aria-hidden="true"></div>
 
 <!-- ─── HERO ─── -->
 <section class="hero">
@@ -208,22 +41,22 @@
     </div>
     <div class="hero__visual anim-fadeUp anim-delay-2">
       <div class="hero__card-grid" id="customer-options">
-        <a href="quote.html?option=new" class="hero__card" data-option="New to Solar">
+        <a href="/quote/?option=new" class="hero__card" data-option="New to Solar">
           <div class="hero__card__icon hero__card__icon--teal">☀️</div>
           <h4>New to Solar?</h4>
           <p>We'll walk you through everything — from design to savings.</p>
         </a>
-        <a href="quote.html?option=existing" class="hero__card" data-option="Already Have Solar">
+        <a href="/quote/?option=existing" class="hero__card" data-option="Already Have Solar">
           <div class="hero__card__icon hero__card__icon--orange">🔋</div>
           <h4>Already Have Solar?</h4>
           <p>Add battery storage and maximize what you already own.</p>
         </a>
-        <a href="quote.html?option=proposal" class="hero__card" data-option="Ready for Proposal">
+        <a href="/quote/?option=proposal" class="hero__card" data-option="Ready for Proposal">
           <div class="hero__card__icon hero__card__icon--green">📋</div>
           <h4>Ready for a Proposal?</h4>
           <p>Get a detailed, no-obligation solar proposal in 48 hours.</p>
         </a>
-        <a href="quote.html?option=financing" class="hero__card" data-option="$0 Down Financing">
+        <a href="/quote/?option=financing" class="hero__card" data-option="$0 Down Financing">
           <div class="hero__card__icon hero__card__icon--teal">💰</div>
           <h4>$0 Down Financing</h4>
           <p>Start saving day one with flexible payment options.</p>
@@ -231,7 +64,7 @@
       </div>
       <!-- Hero savings CTA (Rec #1) -->
       <div class="hero__savings-cta">
-        <a href="quote.html">⚡ See how much you could save on your electric bill →</a>
+        <a href="/quote/">⚡ See how much you could save on your San Diego energy bill →</a>
       </div>
     </div>
   </div>
@@ -288,7 +121,7 @@
     </div>
     <!-- What happens next microcopy (Rec #8) -->
     <div class="next-step-microcopy text-center" style="margin-top: var(--space-xl);">
-      <a href="quote.html" class="btn btn--primary">Get Your Free Quote</a>
+      <a href="/quote/" class="btn btn--primary">Get Your Free Quote</a>
       <p class="microcopy">Takes 30 seconds · No credit check · No commitment</p>
     </div>
   </div>
@@ -346,7 +179,7 @@
       <!-- Rendered by CMS.renderComparison() -->
     </div>
     <div class="text-center" style="margin-top: var(--space-xl);">
-      <a href="quote.html" class="btn btn--primary btn--lg">Lock In Your Rate →</a>
+      <a href="/quote/" class="btn btn--primary btn--lg">Lock In Your Rate →</a>
       <p class="microcopy" style="color: rgba(255,255,255,0.5);">Takes 30 seconds · No credit check · No commitment</p>
     </div>
   </div>
@@ -361,7 +194,7 @@
     <div class="section-head text-center">
       <span class="tag">Our Work</span>
       <h2>Real installations. Real savings.</h2>
-      <p>A look at some of the solar systems we've designed and built across Southern California.</p>
+      <p>A look at some of the solar systems we've designed and built across San Diego.</p>
     </div>
     <div class="gallery-carousel-container" style="overflow:hidden; position:relative;">
       <div style="display:flex; gap:var(--space-md); animation:scroll-gallery 30s linear infinite;" id="cms-gallery"></div>
@@ -425,7 +258,7 @@
     <div id="installMapLeaflet" style="height:500px;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.1);"></div>
     <p class="text-center" style="margin-top:0.75rem;font-size:0.85rem;color:var(--slate);">270+ installations · Click and zoom to explore</p>
     <div class="text-center" style="margin-top: var(--space-lg);">
-      <a href="quote.html" class="btn btn--primary">Join Your Neighbors — Get a Quote</a>
+      <a href="/quote/" class="btn btn--primary">Join Your Neighbors — Get a Quote</a>
       <p class="microcopy">Takes 30 seconds · No credit check · No commitment</p>
     </div>
   </div>
@@ -491,7 +324,7 @@
     <div class="cta-banner">
       <h2>Ride the Wave to Lower Bills</h2>
       <p>Get a free, no-obligation solar quote in under 48 hours. Zero pressure, zero hidden fees.</p>
-      <a href="quote.html" class="btn btn--primary btn--lg">Get Your Free Quote</a>
+      <a href="/quote/" class="btn btn--primary btn--lg">Get Your Free Quote</a>
       <p class="microcopy" style="color: rgba(255,255,255,0.6);">Takes 30 seconds · No credit check · No commitment</p>
     </div>
   </div>
@@ -503,7 +336,7 @@
     <div class="footer__grid">
       <div>
         <img src="img/logo.png" alt="Your Energy Best" class="footer__logo" />
-        <p>Southern California's trusted solar installer. We design, install, and support residential solar and battery systems — with honesty and expertise at every step.</p>
+        <p>San Diego's trusted solar installer. We design, install, and support residential solar and battery systems — with honesty and expertise at every step.</p>
         <div class="footer__contact">
           <a href="tel:7608607862">📞 (760) 860-7862</a>
         </div>
@@ -517,8 +350,8 @@
   <h5>Quick Links</h5>
   <a href="index.html">Home</a>
   <a href="options/">Energy Options</a>
-  <a href="services">Services</a>
-  <a href="quote.html">Get a Quote</a>
+  <a href="services.html">Services</a>
+  <a href="/quote/">Get a Quote</a>
   <a href="build">Build With Us</a>
   <a href="blog.html">Blog</a>
       </div>
@@ -530,7 +363,7 @@
       </div>
       <div class="footer__col">
         <h5>Get Started</h5>
-        <a href="quote.html">Free Solar Quote</a>
+        <a href="/quote/">Free Solar Quote</a>
         <a href="build">Join Our Sales Team</a>
         <a href="tel:7608607862">Call (760) 860-7862</a>
       </div>
@@ -577,7 +410,7 @@
   <div class="incentive-sidebar__countdown">
     <div class="incentive-sidebar__stat"><span id="incentiveDays">--</span><small>days left</small></div>
   </div>
-  <a href="quote.html" class="incentive-sidebar__cta">Check My Savings →</a>
+  <a href="/quote/" class="incentive-sidebar__cta">Check My Savings →</a>
   <p class="incentive-sidebar__fine">Limited time. Subject to federal policy changes.</p>
 </div>
 
@@ -585,7 +418,7 @@
 <div class="sticky-cta" id="stickyCta">
   <div class="sticky-cta__inner">
     <span class="sticky-cta__text">⚡ Ready to save?</span>
-    <a href="quote.html" class="sticky-cta__btn">Get Your Free Quote</a>
+    <a href="/quote/" class="sticky-cta__btn">Get Your Free Quote</a>
     <a href="tel:7608607862" class="sticky-cta__phone">📞 (760) 860-7862</a>
   </div>
 </div>
@@ -593,64 +426,6 @@
 <!-- ─── SCRIPTS ─── -->
 <script src="cms.js"></script>
 <script>
-// ═══════════════════════════════════════════════════════════
-// 1. ENHANCED NAVIGATION — shrink on scroll, body lock, 
-//    animated hamburger, focus trap, accessibility
-// ═══════════════════════════════════════════════════════════
-const nav = document.getElementById('mainNav');
-const navToggle = document.getElementById('navToggle');
-const navLinks = document.getElementById('navLinks');
-const navOverlay = document.getElementById('navOverlay');
-
-// Shrink + scrolled state
-let lastScroll = 0;
-window.addEventListener('scroll', () => {
-  const y = window.scrollY;
-  nav.classList.toggle('scrolled', y > 40);
-  nav.classList.toggle('shrink', y > 120);
-  lastScroll = y;
-}, { passive: true });
-
-// Mobile nav open/close with body scroll lock
-function openNav() {
-  navLinks.classList.add('open');
-  navOverlay.classList.add('open');
-  navToggle.classList.add('active');
-  navToggle.setAttribute('aria-expanded', 'true');
-  navToggle.setAttribute('aria-label', 'Close menu');
-  document.body.classList.add('nav-open');
-  navOverlay.setAttribute('aria-hidden', 'false');
-  // Focus first link
-  const firstLink = navLinks.querySelector('a');
-  if (firstLink) firstLink.focus();
-}
-function closeNav() {
-  navLinks.classList.remove('open');
-  navOverlay.classList.remove('open');
-  navToggle.classList.remove('active');
-  navToggle.setAttribute('aria-expanded', 'false');
-  navToggle.setAttribute('aria-label', 'Open menu');
-  document.body.classList.remove('nav-open');
-  navOverlay.setAttribute('aria-hidden', 'true');
-  navToggle.focus();
-}
-
-navToggle.addEventListener('click', () => {
-  navLinks.classList.contains('open') ? closeNav() : openNav();
-});
-navOverlay.addEventListener('click', closeNav);
-navLinks.querySelectorAll('a').forEach(link => link.addEventListener('click', closeNav));
-
-// Focus trap in mobile nav
-navLinks.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') { closeNav(); return; }
-  if (e.key !== 'Tab') return;
-  const focusable = navLinks.querySelectorAll('a:not([style*="display:none"])');
-  const first = focusable[0], last = focusable[focusable.length - 1];
-  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-});
-
 // ═══════════════════════════════════════════════════════════
 // UTM CAPTURE — store in sessionStorage for form submission
 // ═══════════════════════════════════════════════════════════

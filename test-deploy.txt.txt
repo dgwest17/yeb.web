@@ -1,4 +1,0 @@
-echo "git deploy test" > test-deploy.txt
-git add test-deploy.txt
-git commit -m "test deploy"
-git push

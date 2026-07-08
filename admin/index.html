@@ -1588,7 +1588,7 @@ function renderServicesEditor() {
       <div class="row">
         <div class="field"><label>Price</label><input value="${p.price||''}" oninput="servicesContent.services[${i}].price=this.value"/></div>
         <div class="field"><label>Price Period</label><input value="${p.price_period||''}" oninput="servicesContent.services[${i}].price_period=this.value" placeholder="one-time, /month, /year"/></div>
-        <div class="field"><label>PayPal Price (number)</label><input type="number" value="${p.paypal_price||''}" oninput="servicesContent.services[${i}].paypal_price=parseFloat(this.value)||0"/></div>
+        <div class="field"><label>Price (number, USD — used by Stripe checkout)</label><input type="number" value="${p.paypal_price||''}" oninput="servicesContent.services[${i}].paypal_price=parseFloat(this.value)||0"/></div>
       </div>
       <div class="field"><label>Description</label><textarea data-rich data-compact data-path="servicesContent.services[${i}].description">${p.description||''}</textarea></div>
       <div class="field"><label>Opportunity Type (Zoho)</label><input value="${p.opportunity_type||''}" oninput="servicesContent.services[${i}].opportunity_type=this.value"/></div>

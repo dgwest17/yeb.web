@@ -49,27 +49,9 @@
     @media (max-width: 900px) { .services-grid { grid-template-columns: 1fr; max-width: 420px; } }
     @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
   </style>
+  <script src="/nav.js" defer></script>
 </head>
 <body>
-
-<nav class="nav" id="mainNav" role="navigation">
-  <div class="container nav__inner">
-    <a href="/" class="nav__logo"><img src="/img/logo.png" alt="Your Energy Best" /></a>
-    <a href="tel:7608607862" class="nav__phone" aria-label="Call us">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.12.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.58 2.81.7A2 2 0 0122 16.92z"/></svg>
-      <span>(760) 860-7862</span>
-    </a>
-    <button class="nav__toggle" id="navToggle" aria-label="Open menu"><span></span><span></span><span></span></button>
-    <ul class="nav__links" id="navLinks">
-      <li><a href="/">Home</a></li>
-      <li><a href="/quote.html">Get a Quote</a></li>
-      <li><a href="/build">Build With Us</a></li>
-      <li><a href="tel:7608607862" class="nav__phone-link">📞 (760) 860-7862</a></li>
-      <li><a href="/quote.html" class="nav__cta-btn">Get Your Custom Quote</a></li>
-    </ul>
-  </div>
-</nav>
-<div class="nav__overlay" id="navOverlay"></div>
 
 <section class="services-hero">
   <span class="eyebrow" style="color: var(--teal-light, #5fd4d8);">For Solar Owners</span>
@@ -190,7 +172,7 @@
   <div class="container">
     <div class="footer__grid">
       <div><img src="/img/logo.png" alt="Your Energy Best" class="footer__logo" /><p>San Diego's trusted solar installer.</p><div class="footer__contact"><a href="tel:7608607862">📞 (760) 860-7862</a></div></div>
-      <div class="footer__col"><h5>Quick Links</h5><a href="/">Home</a><a href="/quote.html">Get a Quote</a><a href="/build">Build With Us</a></div>
+      <div class="footer__col"><h5>Quick Links</h5><a href="/">Home</a><a href="/quote/">Get a Quote</a><a href="/build">Build With Us</a></div>
     </div>
     <div class="footer__bottom"><span>&copy; 2026 Your Energy Best. All rights reserved.</span></div>
   </div>
@@ -198,9 +180,6 @@
 
 <script>
 // Nav
-window.addEventListener('scroll', () => { document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 40); }, { passive: true });
-document.getElementById('navToggle').addEventListener('click', () => { document.getElementById('navLinks').classList.toggle('open'); document.getElementById('navOverlay').classList.toggle('open'); });
-document.getElementById('navOverlay').addEventListener('click', () => { document.getElementById('navLinks').classList.remove('open'); document.getElementById('navOverlay').classList.remove('open'); });
 
 let selectedPlan = null, selectedOpp = null, selectedPrice = null, selectedPlanName = null;
 

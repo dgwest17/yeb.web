@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Build With Us – Kinhome Beacons</title>
+  <title>Build With Us – Your Energy Best</title>
   <link rel="icon" type="image/png" href="../img/logo.png" />
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
@@ -404,14 +404,15 @@
       .recruit-form-card { padding: 1.5rem; }
     }
   </style>
+  <script src="/nav.js" defer></script>
 </head>
 <body>
 
 <section class="hero">
   <div class="hero-content">
     <h1 id="build-hero-title">Unlock Your Potential Through Door-to-Door Sales</h1>
-    <p id="build-hero-subtitle">Join our elite sales team in SoCal. Solar & HVAC solutions that change lives — starting with yours.</p>
-    <button class="cta-btn" id="build-cta" onclick="document.getElementById('apply').scrollIntoView({behavior:'smooth'})">Join Our Team</button>
+    <p id="build-hero-subtitle">Join Your Energy Best's elite sales team. Solar & HVAC solutions that change lives — starting with yours.</p>
+    <button class="cta-btn" id="build-cta">Join Our Team</button>
   </div>
 </section>
 
@@ -511,7 +512,7 @@
         <div class="form-section-label">Availability</div>
 
         <div class="form-group">
-          <label class="form-label" id="blitz-label">Can you make our <span id="blitz-dates">June 15-19th</span> Bootcamp in <span id="blitz-location">San Diego</span>?</label>
+          <label class="form-label" id="blitz-label">Can you make our <span id="blitz-dates">March 18–28th</span> Blitz in <span id="blitz-location">San Diego</span>?</label>
           <div class="radio-group">
             <div class="radio-option">
               <input type="radio" name="blitz" id="blitz-yes" value="Yes" />
@@ -528,16 +529,16 @@
 
         <div class="form-group">
           <label class="form-label" for="recruit-why">Why do you think you'd be a good fit?</label>
-          <textarea class="form-textarea" id="recruit-why" placeholder="Tell us what drives you, what you're looking for, and why we should hire you..."></textarea>
+          <textarea class="form-textarea" id="recruit-why" placeholder="Tell us what drives you, what you're looking for, and why Your Energy Best..."></textarea>
         </div>
 
-        <button class="form-submit-btn" id="recruitSubmitBtn" onclick="submitRecruitForm()">
+        <button class="form-submit-btn" id="recruitSubmitBtn" type="button">
           <div class="btn-spinner"></div>
           <span class="btn-text">Submit Application</span>
         </button>
 
         <div class="form-error-msg" id="formErrorMsg">
-          Something went wrong. Please try again or email us at <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="20494e464f60594f5552454e45524759424553540e434f4d">[email&#160;protected]</a></strong>.
+          Something went wrong. Please try again or email us at <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="274e494148675e48525542494255405e454254530944484a">[email&#160;protected]</a></strong>.
         </div>
       </div>
     </div>
@@ -548,7 +549,7 @@
 <section class="videos" id="build-videos" style="display:none;"><h2>Hear From The Team</h2><div class="videos-grid" id="build-videos-grid"></div></section>
 <section class="faq"><h2>Common Questions</h2><div class="faq-container" id="build-faq"></div></section>
 
-<button class="sticky-join-btn" id="stickyJoinBtn" onclick="document.getElementById('apply').scrollIntoView({behavior:'smooth'})">Join Team Waitlist</button>
+<button class="sticky-join-btn" id="stickyJoinBtn">Join Team Waitlist</button>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ─── Sticky button ───
@@ -559,6 +560,7 @@ window.addEventListener('scroll', () => {
 
 // ─── Form submission ───
 async function submitRecruitForm() {
+  console.log('[Build Form] Submit clicked');
   const btn = document.getElementById('recruitSubmitBtn');
   const errorMsg = document.getElementById('formErrorMsg');
   errorMsg.classList.remove('show');
@@ -573,8 +575,11 @@ async function submitRecruitForm() {
   const blitz  = document.querySelector('input[name="blitz"]:checked')?.value || '';
   const why    = document.getElementById('recruit-why').value.trim();
 
+  console.log('[Build Form] Values:', { first, last, phone, email, d2d, sales, blitz });
+
   // Validate
   let valid = true;
+  let firstErrorField = null;
 
   function setError(fieldId, errId, condition) {
     const field = document.getElementById(fieldId);
@@ -582,6 +587,7 @@ async function submitRecruitForm() {
     if (condition) {
       field.classList.add('error');
       err.classList.add('show');
+      if (!firstErrorField) firstErrorField = field;
       valid = false;
     } else {
       field.classList.remove('error');
@@ -596,9 +602,14 @@ async function submitRecruitForm() {
   setError('recruit-d2d',   'err-d2d',   !d2d);
   setError('recruit-sales', 'err-sales', !sales);
 
-  if (!valid) return;
+  if (!valid) {
+    console.log('[Build Form] Validation failed, scrolling to first error');
+    if (firstErrorField) firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
 
   // Submit
+  console.log('[Build Form] Validation passed, submitting...');
   btn.disabled = true;
   btn.classList.add('loading');
 
@@ -617,24 +628,26 @@ async function submitRecruitForm() {
       lead_source:       'Website - Build Page'
     };
 
-    const res = await fetch('../zoho.php', {
+    // Use absolute path so it works from /build/ or /build/index.html
+    const res = await fetch('/zoho.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
 
+    console.log('[Build Form] Response status:', res.status);
     const data = await res.json();
+    console.log('[Build Form] Response data:', data);
 
     if (data.success) {
       document.getElementById('recruitFormInner').style.display = 'none';
       document.getElementById('formSuccess').classList.add('show');
-      // Scroll success into view
       document.getElementById('apply').scrollIntoView({ behavior: 'smooth' });
     } else {
-      throw new Error('Server returned failure');
+      throw new Error(data.error || 'Server returned failure');
     }
   } catch (err) {
-    console.error(err);
+    console.error('[Build Form] Error:', err);
     errorMsg.classList.add('show');
     btn.disabled = false;
     btn.classList.remove('loading');
@@ -647,18 +660,22 @@ async function submitRecruitForm() {
   if (el) el.addEventListener('input', () => el.classList.remove('error'));
 });
 
+// ─── Bind buttons (replaces inline onclick — Cloudflare-safe) ───
+document.getElementById('recruitSubmitBtn').addEventListener('click', submitRecruitForm);
+document.getElementById('stickyJoinBtn').addEventListener('click', () => {
+  document.getElementById('apply').scrollIntoView({ behavior: 'smooth' });
+});
+document.getElementById('build-cta').addEventListener('click', () => {
+  document.getElementById('apply').scrollIntoView({ behavior: 'smooth' });
+});
+
 // ─── Load content.json ───
-// Strip Quill HTML tags and decode entities for plain text
-function strip(html) {
-  if (!html) return '';
-  var d = document.createElement('div');
-  d.innerHTML = String(html);
-  return d.textContent || '';
-}
+// Helper: strip Quill's HTML wrapper tags for plain text fields
+const strip = (html) => html ? html.replace(/<[^>]*>/g, '').trim() : '';
 
 async function loadBuildContent() {
   try {
-    const res = await fetch('../content.json?' + Date.now());
+    const res = await fetch('/content.json?' + Date.now());
     const data = await res.json();
     const b = data.build;
     if (!b) return;
@@ -692,7 +709,7 @@ async function loadBuildContent() {
 
     if (b.gallery) {
       document.getElementById('build-gallery').innerHTML = b.gallery.map(item => 
-        item.url ? `<div class="gallery-item"><img src="${item.url}" alt="${item.caption || 'Team'}" /></div>`
+        item.url ? `<div class="gallery-item"><img src="${item.url}" alt="${strip(item.caption) || 'Team'}" /></div>`
                  : `<div class="gallery-item"><div class="gallery-placeholder">Photo placeholder</div></div>`
       ).join('');
     }
@@ -706,7 +723,7 @@ async function loadBuildContent() {
 
     if (b.faq) {
       document.getElementById('build-faq').innerHTML = b.faq.map((item, i) => `
-        <div class="faq-item"><button class="faq-question" onclick="toggleFaq(${i})">${strip(item.question)}<span class="faq-icon">+</span></button><div class="faq-answer">${item.answer}</div></div>
+        <div class="faq-item"><button class="faq-question" onclick="toggleFaq(${i})">${strip(item.question)}<span class="faq-icon">+</span></button><div class="faq-answer">${item.answer || ''}</div></div>
       `).join('');
     }
   } catch (err) { console.error('Failed to load build content:', err); }
@@ -716,9 +733,9 @@ function toggleFaq(index) {
   const items = document.querySelectorAll('.faq-item');
   items.forEach((item, i) => {
     if (i === index) {
-      item.classList.toggle('open');
+      item.classList.toggle('active');
     } else {
-      item.classList.remove('open');
+      item.classList.remove('active');
     }
   });
 }

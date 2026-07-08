@@ -35,7 +35,7 @@ function set_security_headers() {
     // Referrer policy
     header('Referrer-Policy: strict-origin-when-cross-origin');
     // Content Security Policy — adjust as needed for your CDNs
-    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://unpkg.com https://www.paypal.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https://*.cdninstagram.com https://tile.openstreetmap.org https://*.basemaps.cartocdn.com https://www.paypalobjects.com; connect-src 'self' https://graph.instagram.com https://www.googleapis.com; frame-src https://www.paypal.com https://www.youtube.com https://player.vimeo.com;");
+    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://unpkg.com https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https://*.cdninstagram.com https://tile.openstreetmap.org https://*.basemaps.cartocdn.com; connect-src 'self' https://api.stripe.com https://graph.instagram.com https://www.googleapis.com; frame-src https://checkout.stripe.com https://js.stripe.com https://www.youtube.com https://player.vimeo.com;");
     // Permissions policy
     header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
 }

@@ -13,7 +13,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit; }
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 
-// ─── Credentials loaded from config.php (gitignored — lives ONLY on the server) ───
 $__cfg = file_exists(__DIR__ . '/config.php') ? require __DIR__ . '/config.php' : [];
 define('CLIENT_ID',          $__cfg['zoho_client_id']     ?? '');
 define('CLIENT_SECRET',      $__cfg['zoho_client_secret'] ?? '');

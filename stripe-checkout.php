@@ -15,7 +15,7 @@ if (!$input) { http_response_code(400); echo json_encode(['error' => 'Invalid re
 // Server-side price map — NEVER trust a price from the browser
 $plans = [
   // One-time services
-  'audit'     => ['name' => 'Self-Audit',                     'amount' => 7900,  'mode' => 'payment'],
+  'audit'     => ['name' => 'Self-Audit',                     'amount' => 12900, 'mode' => 'payment'],
   'full'      => ['name' => 'Full Inspection & Audit',        'amount' => 24900, 'mode' => 'payment'],
   // Solar audit tiers (services/audit page)
   'audit-report'     => ['name' => 'Full Audit Report',                    'amount' => 12900, 'mode' => 'payment',      'return' => '/services/audit/'],

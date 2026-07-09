@@ -46,7 +46,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $error = 'Invalid email or password.';
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
+            // Throwable catches PHP fatals (e.g. a config.php parse error) that
+            // Exception alone would miss — those were producing blank 500s.
+            @file_put_contents(__DIR__ . '/login_error.log',
+                date('[Y-m-d H:i:s] ') . get_class($e) . ': ' . $e->getMessage()
+                . ' @ ' . $e->getFile() . ':' . $e->getLine() . "\n", FILE_APPEND);
             $error = 'Connection error. Please try again.';
         }
     } else {

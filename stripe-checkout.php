@@ -16,11 +16,10 @@ if (!$input) { http_response_code(400); echo json_encode(['error' => 'Invalid re
 $plans = [
   // One-time services
   'audit'     => ['name' => 'Self-Audit',                     'amount' => 12900, 'mode' => 'payment'],
-  'full'      => ['name' => 'Full Inspection & Audit',        'amount' => 24900, 'mode' => 'payment'],
+  'full'      => ['name' => 'Full Professional Audit & Evaluation', 'amount' => 24900, 'mode' => 'payment'],
   // Solar audit tiers (services/audit page)
-  'audit-report'     => ['name' => 'Full Audit Report',                    'amount' => 12900, 'mode' => 'payment',      'return' => '/services/audit/'],
-  'audit-inspection' => ['name' => 'Full Audit + In-Person Inspection',    'amount' => 24900, 'mode' => 'payment',      'return' => '/services/audit/'],
-  'audit-annual'     => ['name' => 'Annual Audit & Recommendations Plan',  'amount' => 10900, 'mode' => 'subscription', 'return' => '/services/audit/'],
+  'audit-premium' => ['name' => 'Premium Audit & Inspection',          'amount' => 47900, 'mode' => 'payment',      'return' => '/services/audit/'],
+  'audit-annual'  => ['name' => 'Annual Audit & Recommendations Plan', 'amount' => 10900, 'mode' => 'subscription', 'return' => '/services/audit/'],
   // Annual service plans (auto-renewing yearly subscriptions)
   'basic'     => ['name' => 'Service Plan — Essential',       'amount' => 14900, 'mode' => 'subscription'],
   'plus'      => ['name' => 'Service Plan — Plus',            'amount' => 26900, 'mode' => 'subscription'],

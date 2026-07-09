@@ -37,8 +37,8 @@
 
   // ─── CSS (injected) ───
   var CSS = ''
-  + '.yebnav{position:fixed;top:0;left:0;right:0;z-index:9999;padding:.5rem 2rem;transition:background .3s ease;font-family:"Outfit",-apple-system,BlinkMacSystemFont,sans-serif}'
-  + '.yebnav--scrolled{background:rgba(2,48,71,.95);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 2px 20px rgba(0,0,0,.25)}'
+  + '.yebnav{position:fixed;top:0;left:0;right:0;z-index:9999;padding:.5rem 2rem;background:#FB8500;font-family:"Outfit",-apple-system,BlinkMacSystemFont,sans-serif}'
+  + '.yebnav--scrolled{-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 2px 20px rgba(0,0,0,.25)}'
   + '.yebnav__inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem;position:relative}'
   + '.yebnav__logo img{height:64px;width:auto;display:block;transition:height .3s}'
   + '.yebnav--scrolled .yebnav__logo img{height:52px}'
@@ -153,8 +153,18 @@
     links.querySelectorAll('a').forEach(function (a) { a.addEventListener('click', closeMenu); });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeMenu(); });
 
-    // Scrolled state
-    function onScroll() { nav.classList.toggle('yebnav--scrolled', window.scrollY > 40); }
+    // Scroll-linked color: orange at top, smoothly blends to navy over the first 320px
+    var FROM = [251, 133, 0];   // #FB8500 orange
+    var TO   = [2, 48, 71];     // #023047 navy
+    function lerp(a, b, t) { return Math.round(a + (b - a) * t); }
+    function onScroll() {
+      var t = Math.min(window.scrollY / 320, 1);
+      // ease for a slower, smoother start
+      var e = t * t * (3 - 2 * t);
+      var r = lerp(FROM[0], TO[0], e), g = lerp(FROM[1], TO[1], e), b = lerp(FROM[2], TO[2], e);
+      nav.style.background = 'rgba(' + r + ',' + g + ',' + b + ',' + (0.92 + 0.08 * (1 - e)) + ')';
+      nav.classList.toggle('yebnav--scrolled', t > 0.5);
+    }
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
   }

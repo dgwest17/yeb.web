@@ -173,7 +173,7 @@ a{color:var(--teal-light)}
     <div class="nr-icon">🌊</div>
     <h3>Nothing surfaced for that one</h3>
     <p>That's a great question though — and exactly the kind I answer personally. Ask me directly and I'll get you a straight answer (and probably add it here for the next person).</p>
-    <a href="/quote.html" class="btn-gold" style="font-size:.9rem;padding:.8rem 1.9rem">Ask Dave Directly →</a>
+    <a href="/quote/" class="btn-gold" style="font-size:.9rem;padding:.8rem 1.9rem">Ask Dave Directly →</a>
 </div>
 
 <!-- ═══════════ 1. START HERE ═══════════ -->
@@ -285,11 +285,11 @@ a{color:var(--teal-light)}
     <div class="acc" data-tags="ppa providers compared goodleap lightreach enfin sunrun best reputation">
         <button class="acc-q">PPA providers compared: GoodLeap vs LightReach vs EnFin vs Sunrun<span class="a-icon">+</span></button>
         <div class="acc-a">
-            <p><strong>GoodLeap — my pick for reputation.</strong> Best-regarded name in the space, been around since 2003, US-based support that actually answers, clean digital process, fair year-5 buyouts, transferable agreements. Runs a touch pricier, and their loans carry dealer fees (their only real complaint — and industry-standard). Best for: people who'll pay slightly more for take-care-of-you service.</p>
+            <p><strong>GoodLeap — my pick for reputation.</strong> Best-regarded name in the space, US-based support that actually answers, clean digital process, fair year-5 buyouts, transferable agreements. Runs a touch pricier, and their loans carry dealer fees (their only real complaint — and industry-standard). Best for: people who'll pay slightly more for take-care-of-you service.</p>
             <p><strong>LightReach — rock solid.</strong> Only lends through vetted installers, which kept them healthy while competitors cratered. Solar + battery in ONE agreement — the strongest structure under net billing. Best for: NEM 3.0 homeowners who want one payment covering everything.</p>
             <p><strong>EnFin — good price, weak service.</strong> Often the most competitive pricing, backed by Qcells, flexible credit (~600+). But the customer-service reputation is genuinely rough — read the reviews yourself. Best for: price-driven buyers with a strong installer who won't need financier hand-holding.</p>
-            <p><strong>Sunrun — big and pricey.</strong> The giant; strong production guarantee. But consistently among the most expensive (~$4.50/W whereas the rest of the industry is 20-40% less), service doesn't match the size, and buyouts only at certain years. Best for: brand-over-price buyers, not wanting any optionality.</p>
-            <p>With any PPA, who <strong>backs</strong> the agreement matters more than the logo on the proposal. Ask: "Who owns this agreement, and do they follow through?" If you can't find consistent evidence, that's your answer.</p>
+            <p><strong>Sunrun — big and pricey.</strong> The giant; will exist in 25 years, strong ~95% production guarantee. But consistently among the most expensive (~$4.50/W financed), service doesn't match the size, and buyouts only at certain years. Best for: brand-over-price buyers, full stop.</p>
+            <p>With any PPA, who <strong>backs</strong> the agreement matters more than the logo on the proposal. Ask: "Who owns this agreement, and who backs them?" If your rep can't answer, that's your answer.</p>
         </div>
     </div>
 
@@ -447,7 +447,7 @@ a{color:var(--teal-light)}
         <div class="acc-a">
             <p>I'll be straight with you: I don't publish battery pricing anymore, because every home is genuinely different — backup needs, panel compatibility, electrical configuration, and which rebates you qualify for swing the number by thousands. Ballpark for battery-only projects after incentives: <strong>$15,000-$18,000 per battery</strong>, but the SDCP rebate, CEA's $0-down program, and VPP payments can transform that math completely.</p>
             <p>What I'll say with confidence: battery pricing is only going <strong>up</strong>. Materials are constrained, demand is exploding, and every VPP program launched makes storage more valuable. Adding a battery retroactively also always costs more than including it with solar. If a battery is in your future, the cheapest day to do it is today.</p>
-            <a class="mini-cta" href="/quote.html?option=existing">Get real numbers for your home →</a>
+            <a class="mini-cta" href="/quote/?option=existing">Get real numbers for your home →</a>
         </div>
     </div>
 </section>
@@ -548,7 +548,7 @@ a{color:var(--teal-light)}
         <div class="acc-a">
             <p>An audit answers the question most solar owners can't: <strong>"Is this thing actually working for me?"</strong> Six data points tell the whole story: year-over-year consumption, year-over-year production, install date, current utility rates, your solar payment, and any true-up costs.</p>
             <p>From those, the math falls out: yearly consumption × current utility rate = what you'd pay without solar. Subtract your annualized solar payments and true-ups = your <em>real</em> savings. Compare production to consumption = whether you're over- or under-producing, and whether usage changes (new EV? teenager with a gaming rig?) have outgrown your design. My audit also reviews your agreement terms against what's fair and flags rebates you're leaving unclaimed — SDCP funds, VPP enrollment, the works. If you've had solar 2+ years and never checked, you're overdue.</p>
-            <a class="mini-cta" href="/quote.html?option=existing">Request your audit →</a>
+            <a class="mini-cta" href="/services/audit/">Request your audit →</a>
         </div>
     </div>
 
@@ -620,7 +620,7 @@ a{color:var(--teal-light)}
     <div class="ac-icon">🔍</div>
     <h3>Not sure your solar is pulling its weight?</h3>
     <p>Whether your installer vanished, your true-up surprised you, or you just want proof your system is performing — my Solar Health Audit gives you the real picture. Production, savings, agreement terms, missed rebates. No guesswork, no pitch.</p>
-    <a href="/quote.html?option=existing" class="btn-gold">Get My System Audited →</a>
+    <a href="/services/audit/" class="btn-gold">Get My System Audited →</a>
 </div>
 
 </main>
@@ -693,6 +693,13 @@ function runSearch() {
 }
 
 searchInput.addEventListener('input', runSearch);
+
+// Category chips: clear any active search so the target section is visible, then jump
+catChips.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+        if (searchInput.value) { searchInput.value = ''; runSearch(); }
+    });
+});
 searchClear.addEventListener('click', () => { searchInput.value=''; runSearch(); searchInput.focus(); });
 
 // Category chips clear any active search, then jump

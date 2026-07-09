@@ -18,9 +18,9 @@ $plans = [
   'audit'     => ['name' => 'Self-Audit',                     'amount' => 7900,  'mode' => 'payment'],
   'full'      => ['name' => 'Full Inspection & Audit',        'amount' => 24900, 'mode' => 'payment'],
   // Solar audit tiers (services/audit page)
-  'audit-basic'    => ['name' => 'Basic Solar Audit',    'amount' => 9900,  'mode' => 'payment', 'return' => '/services/audit/'],
-  'audit-standard' => ['name' => 'Standard Solar Audit', 'amount' => 24900, 'mode' => 'payment', 'return' => '/services/audit/'],
-  'audit-premium'  => ['name' => 'Premium Solar Audit',  'amount' => 49900, 'mode' => 'payment', 'return' => '/services/audit/'],
+  'audit-report'     => ['name' => 'Full Audit Report',                    'amount' => 12900, 'mode' => 'payment',      'return' => '/services/audit/'],
+  'audit-inspection' => ['name' => 'Full Audit + In-Person Inspection',    'amount' => 24900, 'mode' => 'payment',      'return' => '/services/audit/'],
+  'audit-annual'     => ['name' => 'Annual Audit & Recommendations Plan',  'amount' => 10900, 'mode' => 'subscription', 'return' => '/services/audit/'],
   // Annual service plans (auto-renewing yearly subscriptions)
   'basic'     => ['name' => 'Service Plan — Essential',       'amount' => 14900, 'mode' => 'subscription'],
   'plus'      => ['name' => 'Service Plan — Plus',            'amount' => 26900, 'mode' => 'subscription'],

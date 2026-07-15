@@ -44,28 +44,64 @@ function set_security_headers() {
 // 3. ADMIN AUTHENTICATION
 // ============================================================
 
-// Admin credentials — loaded from config.php (gitignored, lives ONLY on the server)
+// Admin auth — Supabase-backed (SolarHealth project)
 // In config.php set:
-//   'admin_username'      => 'admin',
-//   'admin_password_hash' => '$2y$10$....'   // generate with: php -r "echo password_hash('YOUR_PASSWORD', PASSWORD_BCRYPT);"
+//   'supabase_url'          => 'https://YOURPROJECT.supabase.co',
+//   'supabase_anon_key'     => 'eyJ...',          // Settings → API → anon public key
+//   'admin_allowed_emails'  => ['you@yourenergybest.com'],  // ONLY these emails may enter the CMS
 $__sec_cfg = file_exists(__DIR__ . '/config.php') ? require __DIR__ . '/config.php' : [];
-define('ADMIN_USERNAME',      $__sec_cfg['admin_username']      ?? 'admin');
-define('ADMIN_PASSWORD_HASH', $__sec_cfg['admin_password_hash'] ?? '');
+define('SUPABASE_URL',      rtrim($__sec_cfg['supabase_url'] ?? '', '/'));
+define('SUPABASE_ANON_KEY', $__sec_cfg['supabase_anon_key'] ?? '');
+$GLOBALS['ADMIN_ALLOWED_EMAILS'] = array_map('strtolower', $__sec_cfg['admin_allowed_emails'] ?? []);
 
 /**
  * Verify admin login credentials
  */
-function admin_login($username, $password) {
-    // Rate limit check first
+function admin_login($email, $password) {
+    // Rate limit check first (unchanged)
     if (is_rate_limited('admin_login_' . get_client_ip(), 5, 900)) {
         return ['success' => false, 'error' => 'Too many login attempts. Try again in 15 minutes.'];
     }
 
-    if ($username === ADMIN_USERNAME && password_verify($password, ADMIN_PASSWORD_HASH)) {
+    if (SUPABASE_URL === '' || SUPABASE_ANON_KEY === '') {
+        return ['success' => false, 'error' => 'Login not configured (missing Supabase keys in config.php).'];
+    }
+
+    $email = strtolower(trim($email));
+
+    // Allowlist FIRST — SolarHealth customers exist in this Supabase project;
+    // only listed emails may ever reach the CMS, valid password or not.
+    if (!in_array($email, $GLOBALS['ADMIN_ALLOWED_EMAILS'], true)) {
+        record_rate_limit('admin_login_' . get_client_ip());
+        return ['success' => false, 'error' => 'Invalid credentials.'];
+    }
+
+    // Verify credentials against Supabase Auth (password grant)
+    $ch = curl_init(SUPABASE_URL . '/auth/v1/token?grant_type=password');
+    curl_setopt_array($ch, [
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => json_encode(['email' => $email, 'password' => $password]),
+        CURLOPT_HTTPHEADER     => ['Content-Type: application/json', 'apikey: ' . SUPABASE_ANON_KEY],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_TIMEOUT        => 12,
+    ]);
+    $resp = curl_exec($ch);
+    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $err  = curl_error($ch);
+    curl_close($ch);
+
+    if ($err) {
+        return ['success' => false, 'error' => 'Could not reach login service. Try again.'];
+    }
+
+    $data = json_decode($resp, true);
+    if ($code === 200 && !empty($data['access_token'])) {
         session_regenerate_id(true); // Prevent session fixation
         $_SESSION['admin_authenticated'] = true;
         $_SESSION['admin_login_time'] = time();
         $_SESSION['admin_ip'] = get_client_ip();
+        $_SESSION['admin_email'] = $email;
         clear_rate_limit('admin_login_' . get_client_ip());
         return ['success' => true];
     }

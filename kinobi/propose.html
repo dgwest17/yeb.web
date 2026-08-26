@@ -337,7 +337,7 @@ footer a{color:var(--gold);text-decoration:none}
   <!-- 2. YOUR BILL ISN'T YOURS -->
   <section class="section" id="bill" data-sec="bill">
     <span class="eyebrow">The Problem With Your Power Company</span>
-    <h2 class="section-title">YOU'RE ALREADY <span style="color:var(--rage-l)">PAYING FOR SOLAR. WITH NONE OF THE BENEFITS</span></h2>
+    <h2 class="section-title">YOUR BILL <span style="color:var(--rage-l)">ISN'T YOURS.</span></h2>
     <p class="section-sub">Every month you pay for miles of aging wire, corporate executives, and shareholder dividends — before a single electron reaches your home. SDG&E is a <strong style="color:var(--text)">for-profit business</strong> with one goal: extract as much as possible from a captive customer.</p>
     <div style="display:flex;flex-direction:column;gap:0.75rem">
       <div class="bill-bullet"><span class="bill-x">✕</span><div><strong>Delivery &amp; transmission fees</strong> — 50–80% of your bill never pays for actual electricity. It pays for wires, poles, and profit.</div></div>
@@ -581,6 +581,8 @@ const DATA={
   rep:     pd('r','rep','David West'),
   company: pd('co','company','Kinhome'),
   solar_plan: pd('plan','solar_plan',''),  // PPA | Propel | Participate
+  cf:         parseFloat(pd('cf','cf','24')),    // connection fee amount
+  cfOn:       pd('cfo','cfo','0')==='1',          // whether to include it
   created: parseInt(pd('ts','ts','0')),
   slides:  pd('sl','slides','overview,bill,grid,numbers,included,why,comparison,timeline,contact').split(','),
 };
@@ -625,16 +627,21 @@ function recalc(){
     a.push((a[i-1]||0)+(m||0)*12); return a;
   },[]) : null;
 
-  // Savings = utility bills avoided minus solar payments made
-  // Through term: util cumul - solar cumul
-  // After term: solar payment = $0, so savings accelerate
-  const savings30 = solCumul30 ? utilCumul30[29] - solCumul30[29] : 0;
-  const savingsAtTerm = solCumul30 ? utilCumul30[T-1] - solCumul30[T-1] : 0;
+  // Connection fee — flat monthly cost post-solar (utility still charges for grid access)
+  const CF = DATA.cfOn ? (DATA.cf||0) : 0;
+  // Cumulative connection fee over 30 years
+  const cfCumul30 = YEARS_30.map(y => CF * 12 * y);
+  // Solar cumulative WITH connection fee factored in (reduces net savings)
+  const solCumulWithCF = solCumul30 ? solCumul30.map((v,i) => v + cfCumul30[i]) : null;
+
+  // Savings = utility bills avoided minus solar payments minus connection fee
+  const savings30 = solCumulWithCF ? utilCumul30[29] - solCumulWithCF[29] : 0;
+  const savingsAtTerm = solCumulWithCF ? utilCumul30[T-1] - solCumulWithCF[T-1] : 0;
 
   let be=null;
-  if(solCumul30){
+  if(solCumulWithCF){
     for(let i=0;i<30;i++){
-      if(utilCumul30[i]>solCumul30[i]){be=i+1;break}
+      if(utilCumul30[i]>solCumulWithCF[i]){be=i+1;break}
     }
   }
   const fmt=v=>v>=1000?'$'+Math.round(v/1000)+'K':'$'+Math.round(v);
@@ -644,12 +651,10 @@ function recalc(){
   set('ov-total',  '$'+Math.round(utilCumul30[T-1]).toLocaleString());
   set('n-util-total', fmt(utilCumul30[T-1]));
   set('n-util-end', '$'+Math.round(utilMo30[T-1])+'/mo');
-  set('n-breakeven', be?'Yr '+be:(solCumul30?T+'+':'—'));
-  // Show 30yr savings in the headline metric
-  set('n-savings', solCumul30 ? fmt(savings30) : '—');
+  set('n-breakeven', be?'Yr '+be:(solCumulWithCF?T+'+':'—'));
+  set('n-savings', solCumulWithCF ? fmt(savings30) : '—');
   set('n-rate-used', (rate*100).toFixed(0)+'%');
-  // Update savings label to reflect 30yr
-  set('n-savings-lbl', '30yr Savings');
+  set('n-savings-lbl', '30yr Savings'+(CF?' (incl. connection fee)':''));
 
   // Chart
   if(propChart){
@@ -657,9 +662,14 @@ function recalc(){
     if(propMode==='kwh'){
       propChart.data.datasets[0].data = utilKwh30.map(v=>+v.toFixed(4));
       propChart.data.datasets[1].data = solKwh30.map(v=>v===null?null:+v.toFixed(4));
+      propChart.data.datasets[2].data = [];
+      propChart.data.datasets[2].hidden = true;
     } else {
       propChart.data.datasets[0].data = utilMo30.map(v=>Math.round(v));
       propChart.data.datasets[1].data = solMo30.map(v=>v===null?null:+v.toFixed(2));
+      // Connection fee flat line
+      propChart.data.datasets[2].data = CF > 0 ? YEARS_30.map(()=>CF) : [];
+      propChart.data.datasets[2].hidden = CF === 0;
     }
     propChart.update('none');
   }
@@ -676,22 +686,21 @@ function recalc(){
     pts.forEach(yr=>{
       const idx=yr-1;
       const uA=utilCumul30[idx];
-      const sA=solCumul30 ? utilCumul30[idx]-solCumul30[idx] : null;
+      const sA=solCumulWithCF ? utilCumul30[idx]-solCumulWithCF[idx] : null;
       const c=sA!==null&&sA>=0?'var(--green-l)':'var(--rage-l)';
       const ss=sA===null?'—':(sA>=0?'+':'')+'$'+Math.round(Math.abs(sA)).toLocaleString();
-      // Mark the term-end year
       const isTermEnd = yr===T && T!==30;
       const yearLabel = isTermEnd ? `Yr ${yr} ★` : `Yr ${yr}`;
       mEl.innerHTML+=`<div class="ml-row"><div class="ml-year" style="font-size:0.7rem">${yearLabel}</div><div class="ml-util">$${Math.round(uA).toLocaleString()}</div><div class="ml-solar" style="color:${c}">${ss}</div></div>`;
     });
 
-    // Footer note
     if(T<30){
       let note = `★ = Solar end-date (Year ${T}). After this, $0 solar payment — savings accelerate.`;
-      if(T<25){
-        note += ` No prepayment penalty.`;
-      }
+      if(T<25){ note += ` No prepayment penalty.`; }
       mEl.innerHTML+=`<div style="font-size:0.65rem;color:var(--dim);padding-top:6px;line-height:1.5">${note}</div>`;
+    }
+    if(CF>0){
+      mEl.innerHTML+=`<div style="font-size:0.78rem;color:var(--muted);padding:0.6rem 0.75rem;margin-top:0.75rem;background:rgba(255,255,255,0.04);border-left:2px solid rgba(200,168,75,0.35);border-radius:0 4px 4px 0;line-height:1.6">⚡ <em>Savings estimates include est. <strong style="color:var(--gold)">$${CF}/month</strong> connection fee + extra utility costs still owed post-solar</em></div>`;
     }
   }
 }
@@ -776,7 +785,8 @@ function init(){
         type:'line',
         data:{labels:YEARS_30.map(y=>'Yr'+y),datasets:[
           {label:DATA.utility,data:[],borderColor:'#E74C3C',borderWidth:2.5,pointRadius:0,tension:0.3,fill:false,spanGaps:false},
-          {label:'Solar',    data:[],borderColor:'#2ECC71',borderWidth:2,  pointRadius:0,tension:0.1,fill:false,borderDash:[5,3],spanGaps:false}
+          {label:'Solar',    data:[],borderColor:'#2ECC71',borderWidth:2,  pointRadius:0,tension:0.1,fill:false,borderDash:[5,3],spanGaps:false},
+          {label:'Connection Fee',data:[],borderColor:'rgba(160,160,160,0.7)',borderWidth:1.5,pointRadius:0,tension:0,fill:false,borderDash:[4,4],spanGaps:true,hidden:!DATA.cfOn}
         ]},
         options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
           plugins:{legend:{display:false}},

@@ -1275,6 +1275,23 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
       </select>
     </div>
 
+    <!-- Connection Fee -->
+    <div style="padding:0.75rem 1rem;background:#F0EDE6;border:1px solid rgba(0,0,0,0.1);border-radius:8px;margin-bottom:1rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem">
+        <div style="font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:#6b5f48;font-weight:700">Utility Connection Fee</div>
+        <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer;font-size:0.78rem;color:#3d3020;font-weight:600">
+          <input type="checkbox" id="pm-cf-on" checked style="accent-color:#C8A84B;width:15px;height:15px;cursor:pointer">
+          Include in proposal
+        </label>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.5rem">
+        <span style="font-size:0.82rem;color:#6b5f48">$</span>
+        <input type="number" class="pm-input" id="pm-cf" value="24" style="width:90px;font-size:0.9rem">
+        <span style="font-size:0.78rem;color:#6b5f48">/mo — flat utility delivery fee post-solar</span>
+      </div>
+      <div style="font-size:0.68rem;color:#8a7a62;margin-top:0.4rem">When included: shows as a grey dashed line on the chart and reduces savings estimates</div>
+    </div>
+
     <!-- Slide selector -->
     <div style="margin-bottom:1.1rem">
       <div style="font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:#5a4f38;margin-bottom:0.5rem">Sections to include</div>
@@ -1748,12 +1765,12 @@ body.day-mode #theme-btn{background:rgba(255,255,255,0.5);border-color:rgba(0,0,
       <div class="pillar">
         <span class="p-icon">🏆</span>
         <h3 id="cp1-title">Industry-Leading Warranty</h3>
-        <p id="cp1-body">25 years on panels, inverters, and labor. No other company in the industry backs their work like this. If anything fails, it's on us — not you.</p>
+        <p id="cp1-body">25 years on panels, inverters, and labor. No other company in San Diego backs their work like this. If anything fails, it's on us — not you.</p>
       </div>
       <div class="pillar">
         <span class="p-icon">💳</span>
-        <h3 id="cp2-title">Multiple Verticals</h3>
-        <p id="cp2-body">We work with the top solar lenders in the country. Best rates and the ability to offer other services like HVAC and Roofing.</p>
+        <h3 id="cp2-title">A-Rated Financing Partner</h3>
+        <p id="cp2-body">We work with the top solar lenders in the country. Best rates, clean contracts, no hidden balloon payments, no predatory terms.</p>
       </div>
       <div class="pillar">
         <span class="p-icon">🔬</span>
@@ -3508,6 +3525,8 @@ function generateFromPresentation() {
   const rep     = document.getElementById('pm-rep')?.value            || 'David West';
   const company = document.getElementById('pm-company')?.value        || 'Kinhome';
   const plan    = document.getElementById('pm-plan')?.value             || '';
+  const cfOn    = document.getElementById('pm-cf-on')?.checked ?? true;
+  const cfAmt   = document.getElementById('pm-cf')?.value               || '24';
 
   const ALL_SECS = ['overview','bill','grid','numbers','included','why','comparison','timeline','contact'];
   const unchecked = ALL_SECS.filter(s => {
@@ -3522,6 +3541,7 @@ function generateFromPresentation() {
   const p = { n:name, u:utility, b:bill, k:kwh, s:solar, sk:skwh,
               v:vpp, t:term, bat:battery, r:rep, co:company, ts:Date.now() };
   if(plan) p.plan=plan;
+  if(cfOn && parseFloat(cfAmt) > 0){ p.cf = cfAmt; p.cfo = '1'; }
   if (secs) p.sl = secs;
   const url = base + '?' + new URLSearchParams(p).toString();
 

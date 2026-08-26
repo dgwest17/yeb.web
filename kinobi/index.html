@@ -3497,6 +3497,14 @@ function openCreateProposal() {
   const termSel = document.getElementById('pm-term');
   if (termSel) { for (let o of termSel.options) { if (o.value === term) { o.selected=true; break; } } }
 
+  // Pre-fill connection fee from presentation
+  const cfVal = document.getElementById('inp-connfee')?.value || '24';
+  const cfChecked = document.getElementById('inp-connfee-on')?.checked ?? true;
+  const pmCf = document.getElementById('pm-cf');
+  const pmCfOn = document.getElementById('pm-cf-on');
+  if (pmCf) pmCf.value = cfVal;
+  if (pmCfOn) pmCfOn.checked = cfChecked;
+
   // Pre-fill customer name
   const savedName = localStorage.getItem('kinobi-customer-name') || '';
   const nameEl = document.getElementById('pm-name');

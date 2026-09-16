@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Energy Options — Your Energy Best</title>
-<meta name="description" content="Compare 5 energy paths for your home. Utility, Prepaid Power, Power Purchase, Battery Lease, and Cash Purchase.">
+<meta name="description" content="Compare 5 energy paths for your home. Utility, Energy Service Agreement, Power Purchase, Battery Lease, and Cash Purchase.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -150,6 +150,67 @@ body{font-family:var(--body);background:var(--navy-deep);color:#fff;-webkit-font
 .options-cta-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(255,183,3,0.4)}
 .options-cta-hint{font-size:.85rem;color:var(--text-muted);margin-top:.75rem}
 
+/* ═══ COMPARISON TABLE ═══ */
+.compare-wrap{margin-top:4rem;padding-top:3rem;border-top:1px solid rgba(255,255,255,0.07)}
+.compare-intro{text-align:center;margin-bottom:1.75rem}
+.compare-heading{font-family:var(--heading);font-size:clamp(1.6rem,3.5vw,2.3rem);font-weight:300;color:var(--text);line-height:1.2;margin-top:.4rem}
+.compare-sub{font-size:.8rem;color:var(--text-muted);margin-top:.6rem}
+@media(min-width:900px){.compare-sub{display:none}}
+
+.compare-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--r);border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02)}
+.compare-scroll::-webkit-scrollbar{height:6px}
+.compare-scroll::-webkit-scrollbar-track{background:rgba(255,255,255,0.03)}
+.compare-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:3px}
+
+.compare-table{width:100%;border-collapse:collapse;min-width:820px;font-family:var(--body)}
+.compare-table th{
+    padding:1rem .75rem;text-align:center;font-size:.82rem;font-weight:600;color:var(--teal-light);
+    border-bottom:1px solid rgba(255,255,255,0.1);background:rgba(33,158,188,0.06);
+    vertical-align:top;line-height:1.3;
+}
+.compare-table th span{display:block;font-size:.68rem;font-weight:400;color:var(--text-muted);margin-top:.2rem;text-transform:none;letter-spacing:0}
+.compare-table th.ct-utility{color:#fca5a5;background:rgba(239,71,111,0.06)}
+.compare-table th.ct-feature{text-align:left;color:var(--text-light);background:rgba(255,255,255,0.03);min-width:190px;position:sticky;left:0;z-index:2}
+
+.compare-table td{
+    padding:.85rem .75rem;text-align:center;border-bottom:1px solid rgba(255,255,255,0.04);
+    font-size:.85rem;color:var(--text-light);vertical-align:middle;
+}
+.compare-table td.ct-feature{
+    text-align:left;font-weight:500;color:var(--text);background:rgba(255,255,255,0.03);
+    position:sticky;left:0;z-index:1;border-right:1px solid rgba(255,255,255,0.06);
+}
+.compare-table td.ct-feature small{display:block;font-size:.7rem;font-weight:400;color:var(--text-muted);margin-top:.15rem;line-height:1.3}
+.compare-table td.ct-utility{background:rgba(239,71,111,0.03)}
+.compare-table tbody tr:hover td{background:rgba(255,255,255,0.03)}
+.compare-table tbody tr:hover td.ct-feature{background:rgba(255,255,255,0.055)}
+.compare-table tbody tr:last-child td{border-bottom:none}
+
+.compare-table td small{display:block;font-size:.68rem;color:var(--text-muted);margin-top:.25rem;line-height:1.25}
+
+.ck{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;font-size:.85rem;font-weight:700;line-height:1}
+.ck.yes{background:rgba(6,214,160,0.15);color:var(--green)}
+.ck.no{background:rgba(239,71,111,0.15);color:var(--coral)}
+.ck.maybe{background:rgba(255,183,3,0.15);color:var(--gold)}
+
+.compare-legend{display:flex;gap:1.25rem;justify-content:center;flex-wrap:wrap;margin-top:1.25rem;font-size:.78rem;color:var(--text-muted)}
+.compare-legend span{display:inline-flex;align-items:center;gap:.35rem}
+.compare-legend .ck{width:19px;height:19px;font-size:.7rem}
+.compare-note{text-align:center;font-size:.75rem;color:var(--text-muted);margin-top:1rem;max-width:560px;margin-left:auto;margin-right:auto;line-height:1.5}
+
+@media(max-width:768px){
+    .compare-wrap{margin-top:3rem;padding-top:2.25rem}
+    .compare-table{min-width:760px}
+    .compare-table th{padding:.75rem .5rem;font-size:.75rem}
+    .compare-table th span{font-size:.62rem}
+    .compare-table th.ct-feature{min-width:160px}
+    .compare-table td{padding:.7rem .5rem;font-size:.78rem}
+    .compare-table td.ct-feature small{font-size:.65rem}
+    .compare-table td small{font-size:.63rem}
+    .ck{width:21px;height:21px;font-size:.78rem}
+    .compare-legend{gap:.85rem;font-size:.72rem}
+}
+
 /* ═══════════════════════════════════════
    FORM SECTION
    ═══════════════════════════════════════ */
@@ -275,6 +336,125 @@ canvas{width:100%!important;height:auto!important}
             <a href="#assessment" class="options-cta-btn">See Your Recommendation →</a>
             <p class="options-cta-hint">Answer a few quick questions — we'll suggest the best fit for you</p>
         </div>
+
+        <!-- ═══ COMPARISON TABLE ═══ -->
+        <div class="compare-wrap">
+            <div class="compare-intro">
+                <p class="section-label">Side by Side</p>
+                <h3 class="compare-heading">How the options stack up</h3>
+                <p class="compare-sub">Swipe to see all options →</p>
+            </div>
+            <div class="compare-scroll">
+                <table class="compare-table">
+                    <thead>
+                        <tr>
+                            <th class="ct-feature">Feature</th>
+                            <th class="ct-utility">Utility<span>Current Provider</span></th>
+                            <th>Energy Service Agreement<span>ESA — $0 Down Solar</span></th>
+                            <th>Power Purchase<span>$0 Down PPA</span></th>
+                            <th>Battery Lease<span>Storage / VPP</span></th>
+                            <th>Cash Purchase<span>Own Outright</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="ct-feature">$0 Down<small>No upfront cost to start</small></td>
+                            <td class="ct-utility"><span class="ck yes">✓</span></td>
+                            <td><span class="ck yes">✓</span></td>
+                            <td><span class="ck yes">✓</span></td>
+                            <td><span class="ck maybe">~</span><small>Varies by program</small></td>
+                            <td><span class="ck no">✕</span><small>Full cost upfront</small></td>
+                        </tr>
+                        <tr>
+                            <td class="ct-feature">Federal Incentives<small>Federal credit eligibility</small></td>
+                            <td class="ct-utility"><span class="ck no">✕</span></td>
+                            <td><span class="ck yes">✓</span><small>Passed on upfront</small></td>
+                            <td><span class="ck yes">✓</span><small>Owner claims it</small></td>
+                            <td><span class="ck maybe">~</span><small>Program dependent</small></td>
+                            <td><span class="ck no">✕</span></td>
+                        </tr>
+                        <tr>
+                            <td class="ct-feature">Battery Warranty<small>Coverage on storage</small></td>
+                            <td class="ct-utility"><span class="ck no">✕</span></td>
+                            <td><span class="ck maybe">~</span><small>Manufacturers</small></td>
+                            <td><span class="ck yes">✓</span><small>25 years</small></td>
+                            <td><span class="ck yes">✓</span><small>Full coverage</small></td>
+                            <td><span class="ck maybe">~</span><small>Manufacturer only</small></td>
+                        </tr>
+                        <tr>
+                            <td class="ct-feature">Flexible Payoff<small>Pay off early, no penalty</small></td>
+                            <td class="ct-utility"><span class="ck no">✕</span><small>Pay forever</small></td>
+                            <td><span class="ck yes">✓</span><small>No prepay penalty</small></td>
+                            <td><span class="ck no">✕</span><small>Term contract</small></td>
+                            <td><span class="ck no">✕</span><small>Lease term</small></td>
+                            <td><span class="ck yes">✓</span><small>Already paid</small></td>
+                        </tr>
+                        <tr>
+                            <td class="ct-feature">No Interest or Debt<small>Nothing financed on your credit</small></td>
+                            <td class="ct-utility"><span class="ck yes">✓</span><small>Monthly bill only</small></td>
+                            <td><span class="ck no">✕</span><small>Financed — interest applies</small></td>
+                            <td><span class="ck yes">✓</span><small>No debt</small></td>
+                            <td><span class="ck yes">✓</span><small>Lease, not a loan</small></td>
+                            <td><span class="ck yes">✓</span><small>Paid outright</small></td>
+                        </tr>
+                        <tr>
+                            <td class="ct-feature">Day 1 Savings<small>Lower bill immediately</small></td>
+                            <td class="ct-utility"><span class="ck no">✕</span></td>
+                            <td><span class="ck yes">✓</span></td>
+                            <td><span class="ck yes">✓</span><small>Best day 1</small></td>
+                            <td><span class="ck maybe">~</span><small>Depends on rates</small></td>
+                            <td><span class="ck yes">✓</span><small>No payment at all</small></td>
+                        </tr>
+                        <tr>
+                            <td class="ct-feature">Long-Term Savings<small>Total savings over 25 yrs</small></td>
+                            <td class="ct-utility"><span class="ck no">✕</span><small>Rates climb 5–8%/yr</small></td>
+                            <td><span class="ck yes">✓</span><small>Best long term</small></td>
+                            <td><span class="ck maybe">~</span><small>Annual escalator</small></td>
+                            <td><span class="ck maybe">~</span><small>Limited w/o solar</small></td>
+                            <td><span class="ck yes">✓</span><small>Maximum return</small></td>
+                        </tr>
+                        <tr>
+                            <td class="ct-feature">You Own the System<small>Equity in your home</small></td>
+                            <td class="ct-utility"><span class="ck no">✕</span></td>
+                            <td><span class="ck yes">✓</span><small>You own it after year 5</small></td>
+                            <td><span class="ck no">✕</span></td>
+                            <td><span class="ck no">✕</span></td>
+                            <td><span class="ck yes">✓</span></td>
+                        </tr>
+                        <tr>
+                            <td class="ct-feature">Maintenance Included<small>Repairs &amp; monitoring</small></td>
+                            <td class="ct-utility"><span class="ck yes">✓</span><small>Utility handles grid</small></td>
+                            <td><span class="ck maybe">~</span><small>Warranty covered</small></td>
+                            <td><span class="ck yes">✓</span><small>Fully included</small></td>
+                            <td><span class="ck yes">✓</span><small>Fully included</small></td>
+                            <td><span class="ck no">✕</span><small>Your responsibility</small></td>
+                        </tr>
+                        <tr>
+                            <td class="ct-feature">Backup Power<small>Keeps lights on in outage</small></td>
+                            <td class="ct-utility"><span class="ck no">✕</span></td>
+                            <td><span class="ck maybe">~</span><small>With battery add-on</small></td>
+                            <td><span class="ck maybe">~</span><small>With battery add-on</small></td>
+                            <td><span class="ck yes">✓</span><small>Core feature</small></td>
+                            <td><span class="ck maybe">~</span><small>With battery add-on</small></td>
+                        </tr>
+                        <tr>
+                            <td class="ct-feature">Protection from Rate Hikes<small>Locked or reduced rates</small></td>
+                            <td class="ct-utility"><span class="ck no">✕</span><small>Fully exposed</small></td>
+                            <td><span class="ck yes">✓</span><small>Fixed payment</small></td>
+                            <td><span class="ck maybe">~</span><small>Below utility rate</small></td>
+                            <td><span class="ck maybe">~</span><small>Shifts usage</small></td>
+                            <td><span class="ck yes">✓</span><small>No bill at all</small></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="compare-legend">
+                <span><span class="ck yes">✓</span> Included</span>
+                <span><span class="ck maybe">~</span> Varies / Partial</span>
+                <span><span class="ck no">✕</span> Not included</span>
+            </div>
+            <p class="compare-note">Individual results vary by home, usage, credit, and program availability. Your consultant will confirm exact terms.</p>
+        </div>
     </div>
 </section>
 
@@ -398,7 +578,7 @@ canvas{width:100%!important;height:auto!important}
         <div class="rec-card">
             <p class="rec-eyebrow">Based on what you shared</p>
             <h2 class="rec-title">Here's a strong starting point:</h2>
-            <div class="rec-highlight"><h3 class="rec-option">Prepaid Power</h3><p class="rec-aka">Financing Option</p></div>
+            <div class="rec-highlight"><h3 class="rec-option">Energy Service Agreement</h3><p class="rec-aka">Financing Option</p></div>
             <div class="rec-reasons" id="recReasons"></div>
             <div class="rec-features">
                 <div class="rec-feature"><span class="rec-feature-icon">💵</span><span>$0 down options available</span></div>
@@ -659,9 +839,9 @@ async function init() {
     } else {
         // Hardcoded fallback — your 5 cards
         renderCards([
-            {number:'01',title:'Utility',aka:'Stay with Your Current Provider',pros:['Get your power','Familiar billing — nothing changes'],tradeoffs:['Rates increase 5–8% per year on average','No protection from rate hikes','No home value increase','No backup during outages','No tax credits or incentives'],fit:"you haven't explored alternatives yet. Most homeowners start here — the question is whether staying makes sense as rates keep climbing.",bg_image:'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=800&q=60'},
-            {number:'02',title:'Prepaid Power',aka:'Fixed $0 Down Solar Payment',pros:['$0 down, no prepayment penalty','Federal incentives apply if eligible','Day 1 Savings','Most Long Term Savings'],tradeoffs:['Credit approval required','Less day-one savings'],fit:"you want to start saving immediately without a large upfront investment, and you'd rather build equity in your own energy system instead of paying a utility company.",bg_image:'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&q=60'},
-            {number:'03',title:'Power Purchase',aka:'$0 Down PPA',pros:['$0 down, $0 maintenance','Lower rate than the utility company','No system ownership responsibilities','Monitoring and repairs included','Best Day 1 Savings'],tradeoffs:["You don't own the system",'Annual rate escalator','Less long-term savings'],fit:"you want a hands-off experience with no upfront cost, and you're comfortable paying less than the utility without owning the equipment.",bg_image:'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&q=60'},
+            {number:'01',title:'Utility',aka:'Stay with Your Current Provider',pros:['Get your power','Familiar billing — nothing changes'],tradeoffs:['Rates increase 5–8% per year on average','No protection from rate hikes','No home value increase','No backup during outages','No federal credits or incentives'],fit:"you haven't explored alternatives yet. Most homeowners start here — the question is whether staying makes sense as rates keep climbing.",bg_image:'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=800&q=60'},
+            {number:'02',title:'Energy Service Agreement',aka:'ESA — $0 Down Solar',pros:['$0 down, no prepayment penalty','Clear ownership transfer','Large federal incentives if qualified','Most Long Term Savings'],tradeoffs:['Credit approval required','Interest'],fit:"you want to start saving immediately without a large upfront investment, and you'd rather build equity in your own energy system instead of paying a utility company.",bg_image:'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&q=60'},
+            {number:'03',title:'Power Purchase',aka:'$0 Down PPA',pros:['$0 down, $0 monitoring and repairs included','Lower rate than the utility company','No system ownership responsibilities','No debt','Best Day 1 Savings'],tradeoffs:["You don't own the system",'Annual rate escalator','Less long-term savings'],fit:"you want a hands-off experience with no upfront cost, and you're comfortable paying less than the utility without owning the equipment.",bg_image:'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&q=60'},
             {number:'04',title:'Home Battery Lease',aka:'Virtual Power Plant / Storage',pros:['Backup power during outages','No upfront cost in some programs','Time-of-use optimization','Can pair with existing solar'],tradeoffs:['Monthly lease payment','Limited energy offset without solar','Program availability varies by area'],fit:"you already have solar or want backup power, and you're in an area with time-of-use rates where shifting usage makes a real difference.",bg_image:'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=800&q=60'},
             {number:'05',title:'Cash Purchase',aka:'Outright Ownership',pros:['Maximum long-term savings','No monthly payments'],tradeoffs:['Large upfront investment','Capital tied up in the home','Maintenance responsibility is yours',"Can't claim federal incentives"],fit:"you have available capital, plan to stay in your home long-term, and want the highest overall return on your investment.",bg_image:'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=800&q=60'}
         ]);

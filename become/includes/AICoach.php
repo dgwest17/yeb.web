@@ -181,14 +181,12 @@ class AICoach {
     public function indexAllContent() {
         try { $this->db->prepare("DELETE FROM knowledge_base WHERE source_type='segment'")->execute(); } catch (Exception $e) { return 0; }
         try {
-            $s = $this->db->prepare("SELECT s.id, s.title, s.content_html, s.customer_quote, s.rep_response, s.tip, m.title AS mt, f.title AS ft FROM segments s JOIN modules m ON s.module_id=m.id JOIN folders f ON m.folder_id=f.id WHERE s.is_active=1 AND m.is_active=1");
+            $s = $this->db->prepare("SELECT s.id, s.title, s.content_html, s.customer_quote, s.rep_response, s.tip, s.segment_type, m.title AS mt, f.title AS ft FROM segments s JOIN modules m ON s.module_id=m.id JOIN folders f ON m.folder_id=f.id WHERE s.is_active=1 AND m.is_active=1");
             $s->execute(); $segs = $s->fetchAll();
         } catch (Exception $e) { return 0; }
         $count = 0;
         foreach ($segs as $seg) {
-            $t = $seg['ft'] . ' > ' . $seg['mt'] . ' > ' . $seg['title'];
-            $txt = trim(strip_tags($seg['content_html']));
-            if (strlen($txt) > 10) { $this->ins('segment', $seg['id'], $t, $txt); $count++; }
+            $count += $this->indexOneSegment($seg);
         }
         return $count;
     }
@@ -199,9 +197,76 @@ class AICoach {
             $s = $this->db->prepare("SELECT s.*, m.title AS mt, f.title AS ft FROM segments s JOIN modules m ON s.module_id=m.id JOIN folders f ON m.folder_id=f.id WHERE s.id=?");
             $s->execute(array($segId)); $seg = $s->fetch();
         } catch (Exception $e) { return; }
-        if (!$seg) return;
-        $txt = trim(strip_tags($seg['content_html']));
-        if (strlen($txt) > 10) $this->ins('segment', $segId, $seg['ft'] . ' > ' . $seg['mt'] . ' > ' . $seg['title'], $txt);
+        if ($seg) $this->indexOneSegment($seg);
+    }
+
+    private function indexOneSegment($seg) {
+        $path = $seg['ft'] . ' > ' . $seg['mt'] . ' > ' . $seg['title'];
+        $count = 0;
+
+        // 1. Main content (with chunking for long text)
+        $txt = trim(strip_tags(isset($seg['content_html']) ? $seg['content_html'] : ''));
+        if (strlen($txt) > 10) {
+            $chunks = $this->chunkText($txt, 1000);
+            foreach ($chunks as $i => $chunk) {
+                $this->ins('segment', $seg['id'], $path, $chunk);
+                $count++;
+            }
+        }
+
+        // 2. Dialogue / conversation examples (customer quote + rep response + tip)
+        $dialogue = '';
+        if (!empty($seg['customer_quote'])) $dialogue .= "Customer says: " . $seg['customer_quote'] . "\n";
+        if (!empty($seg['rep_response'])) $dialogue .= "Rep should respond: " . $seg['rep_response'] . "\n";
+        if (!empty($seg['tip'])) $dialogue .= "Pro tip: " . $seg['tip'] . "\n";
+        $dialogue = trim($dialogue);
+        if (strlen($dialogue) > 10) {
+            $this->ins('segment', $seg['id'], $path . ' (dialogue)', $dialogue);
+            $count++;
+        }
+
+        // 3. If it's a quiz, try to index the questions/answers
+        if (isset($seg['segment_type']) && $seg['segment_type'] === 'quiz' && !empty($seg['customer_quote'])) {
+            $quizData = json_decode($seg['customer_quote'], true);
+            if (is_array($quizData)) {
+                $quizText = '';
+                foreach ($quizData as $q) {
+                    if (isset($q['question'])) {
+                        $quizText .= "Quiz Q: " . $q['question'] . "\n";
+                        if (isset($q['correct'])) $quizText .= "Correct answer: " . $q['correct'] . "\n";
+                    }
+                }
+                $quizText = trim($quizText);
+                if (strlen($quizText) > 10) {
+                    $this->ins('segment', $seg['id'], $path . ' (quiz)', $quizText);
+                    $count++;
+                }
+            }
+        }
+
+        return $count;
+    }
+
+    private function chunkText($text, $maxLen) {
+        if (strlen($text) <= $maxLen) return array($text);
+        $paragraphs = preg_split('/\n{2,}/', $text);
+        $chunks = array();
+        $current = '';
+        foreach ($paragraphs as $p) {
+            $p = trim($p);
+            if ($p === '') continue;
+            if (strlen($current) + strlen($p) > $maxLen && $current !== '') {
+                $chunks[] = trim($current);
+                $current = '';
+            }
+            $current .= $p . "\n\n";
+        }
+        if (trim($current) !== '') $chunks[] = trim($current);
+        // If no paragraph breaks, just split by sentences
+        if (count($chunks) === 0 && strlen($text) > $maxLen) {
+            $chunks = array(substr($text, 0, $maxLen), substr($text, $maxLen));
+        }
+        return $chunks;
     }
 
     private function ins($type, $id, $title, $text) {

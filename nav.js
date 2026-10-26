@@ -12,6 +12,24 @@
 (function () {
   'use strict';
 
+  // ─── Campaign attribution — every page loads nav.js, so capture here ───
+  // UTMs + outside referrer go to sessionStorage; forms and Stripe checkout
+  // read them with window.yebAttribution() so Zoho knows where a lead came from.
+  var ATTR_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'referrer'];
+  try {
+    var qs = new URLSearchParams(location.search);
+    ATTR_KEYS.forEach(function (k) { var v = qs.get(k); if (v) sessionStorage.setItem(k, v); });
+    // First outside referrer wins — returning from checkout.stripe.com mustn't overwrite it
+    if (document.referrer && document.referrer.indexOf(location.hostname) === -1 && !sessionStorage.getItem('referrer')) {
+      sessionStorage.setItem('referrer', document.referrer);
+    }
+  } catch (e) {}
+  window.yebAttribution = function () {
+    var out = {};
+    try { ATTR_KEYS.forEach(function (k) { var v = sessionStorage.getItem(k); if (v) out[k] = v; }); } catch (e) {}
+    return out;
+  };
+
   // ─── EDIT ME: menu order ───
   var LINKS = [
     { label: 'Home',             href: '/' },

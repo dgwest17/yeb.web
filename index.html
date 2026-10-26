@@ -36,30 +36,29 @@
       <span class="eyebrow">San Diego's Solar & Energy Experts</span>
       <h1><span class="title-white" id="home-title-part1">Surf Into</span> <em class="title-orange" id="home-title-part2">Energy Freedom</em></h1>
       <p id="home-subtitle">Ride the wave to lower bills — solar, batteries, and HVAC with $0 down options for eligible San Diego homes.</p>
-      <!-- Accordion trigger -->
-      <button class="customer-accordion-trigger" id="accordionTrigger">Start Your Process</button>
     </div>
     <div class="hero__visual anim-fadeUp anim-delay-2">
-      <div class="hero__card-grid" id="customer-options">
-        <a href="/quote/?option=new" class="hero__card" data-option="New to Solar">
-          <div class="hero__card__icon hero__card__icon--teal">☀️</div>
-          <h4>New to Solar?</h4>
-          <p>We'll walk you through everything — from design to savings.</p>
+      <!-- The four ways in, visible without a click: learn, quote, existing solar, talk -->
+      <div class="hero__card-grid open" id="customer-options">
+        <a href="/knowledge/" class="hero__card" data-option="Learn">
+          <div class="hero__card__icon hero__card__icon--teal">📘</div>
+          <h4>Learning About Solar?</h4>
+          <p>Plain answers on cost, batteries, and the 2026 tax credit change. No sales pitch.</p>
         </a>
-        <a href="/quote/?option=existing" class="hero__card" data-option="Already Have Solar">
+        <a href="/quote/?option=new" class="hero__card" data-option="New to Solar">
+          <div class="hero__card__icon hero__card__icon--green">📋</div>
+          <h4>Want a Quote?</h4>
+          <p>Solar, battery, or both. Four quick questions, then a real person follows up.</p>
+        </a>
+        <a href="https://app.lumaria.energy/" class="hero__card" data-option="Already Have Solar">
           <div class="hero__card__icon hero__card__icon--orange">🔋</div>
           <h4>Already Have Solar?</h4>
-          <p>Add battery storage and maximize what you already own.</p>
+          <p>See what your system is really doing in the free Lumaria app — savings, rates, and what's ahead.</p>
         </a>
-        <a href="/quote/?option=proposal" class="hero__card" data-option="Ready for Proposal">
-          <div class="hero__card__icon hero__card__icon--green">📋</div>
-          <h4>Ready for a Proposal?</h4>
-          <p>Get a detailed, no-obligation solar proposal in 48 hours.</p>
-        </a>
-        <a href="/quote/?option=financing" class="hero__card" data-option="$0 Down Financing">
-          <div class="hero__card__icon hero__card__icon--teal">💰</div>
-          <h4>$0 Down Financing</h4>
-          <p>Start saving day one with flexible payment options.</p>
+        <a href="tel:7608607862" class="hero__card" data-option="Talk">
+          <div class="hero__card__icon hero__card__icon--teal">📞</div>
+          <h4>Rather Just Talk?</h4>
+          <p>Call or text Dave at (760) 860-7862.</p>
         </a>
       </div>
       <!-- Hero savings CTA (Rec #1) -->
@@ -256,7 +255,7 @@
       <p>We've installed in neighborhoods across the county — maybe even on your street.</p>
     </div>
     <div id="installMapLeaflet" style="height:500px;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.1);"></div>
-    <p class="text-center" style="margin-top:0.75rem;font-size:0.85rem;color:var(--slate);">270+ installations · Click and zoom to explore</p>
+    <p class="text-center" id="installMapCount" style="margin-top:0.75rem;font-size:0.85rem;color:var(--slate);">Click and zoom to explore</p>
     <div class="text-center" style="margin-top: var(--space-lg);">
       <a href="/quote/" class="btn btn--primary">Join Your Neighbors — Get a Quote</a>
       <p class="microcopy">Takes 30 seconds · No credit check · No commitment</p>
@@ -358,8 +357,10 @@
       <div class="footer__col">
         <h5>Resources</h5>
         <a href="https://sdcommunitypower.org/solar-battery-savings/" target="_blank" rel="noopener">Battery Rebates (SDCP)</a>
-        <a href="#">Solar Tax Credits</a>
-        <a href="#">How Solar Works</a>
+        <a href="/knowledge/#incentives">Solar Tax Credits</a>
+        <a href="/knowledge/#start">How Solar Works</a>
+        <a href="/services/audit/">Solar Audit</a>
+        <a href="https://app.lumaria.energy/">Lumaria App (Solar Owners)</a>
       </div>
       <div class="footer__col">
         <h5>Get Started</h5>
@@ -400,18 +401,18 @@
 
 <!-- ─── INCENTIVE SIDEBAR (slide-in) ─── -->
 <div class="incentive-tab" id="incentiveTab" onclick="document.getElementById('incentiveSidebar').classList.add('open')">
-  <span>⚡ 30% OFF</span>
+  <span>⚡ 2026 CREDIT</span>
 </div>
 <div class="incentive-sidebar" id="incentiveSidebar">
   <button class="incentive-sidebar__close" onclick="this.parentElement.classList.remove('open')">✕</button>
-  <div class="incentive-sidebar__badge">⚡ TIME-SENSITIVE</div>
-  <h3>Federal Incentives END 2027</h3>
-  <p>Start your project now to get <strong>30%+ off</strong> any solar or battery system through the Federal Investment Tax Credit.</p>
+  <div class="incentive-sidebar__badge">⚡ WHAT CHANGED IN 2026</div>
+  <h3>The homeowner tax credit is gone</h3>
+  <p>The 30% residential credit ended Dec 31, 2025 — cash and loan buyers get <strong>no federal credit</strong> in 2026. The ~30% now flows only through programs where a company owns the system (PPA, prepaid, lease) and passes it to you as a lower price. That credit is scheduled to end in 2027.</p>
   <div class="incentive-sidebar__countdown">
-    <div class="incentive-sidebar__stat"><span id="incentiveDays">--</span><small>days left</small></div>
+    <div class="incentive-sidebar__stat"><span id="incentiveDays">--</span><small>days left on the owner credit</small></div>
   </div>
-  <a href="/quote/" class="incentive-sidebar__cta">Check My Savings →</a>
-  <p class="incentive-sidebar__fine">Limited time. Subject to federal policy changes.</p>
+  <a href="/knowledge/#financing" class="incentive-sidebar__cta">How it works now →</a>
+  <p class="incentive-sidebar__fine">Federal rules can change. We'll confirm what applies to your home.</p>
 </div>
 
 <!-- ─── STICKY BOTTOM CTA BAR (Rec #6) ─── -->
@@ -426,33 +427,7 @@
 <!-- ─── SCRIPTS ─── -->
 <script src="cms.js"></script>
 <script>
-// ═══════════════════════════════════════════════════════════
-// UTM CAPTURE — store in sessionStorage for form submission
-// ═══════════════════════════════════════════════════════════
-(function() {
-  const params = new URLSearchParams(window.location.search);
-  ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'].forEach(k => {
-    const v = params.get(k);
-    if (v) sessionStorage.setItem(k, v);
-  });
-  // Also store referring page
-  if (document.referrer && !document.referrer.includes(window.location.hostname)) {
-    sessionStorage.setItem('referrer', document.referrer);
-  }
-})();
-
-// Customer options accordion (all screen sizes)
-const accordionBtn = document.getElementById('accordionTrigger');
-const cardGrid = document.getElementById('customer-options');
-let closedText = 'Start Your Process';
-let openText = 'What option best describes how we can help you?';
-if (accordionBtn) {
-  accordionBtn.addEventListener('click', function() {
-    const isOpen = cardGrid.classList.toggle('open');
-    this.classList.toggle('expanded', isOpen);
-    this.textContent = isOpen ? openText : closedText;
-  });
-}
+// UTM capture lives in /nav.js (every page); forms read sessionStorage
 
 // Sticky CTA bar — show after scrolling past hero
 const stickyCta = document.getElementById('stickyCta');
@@ -512,7 +487,8 @@ function renderInstallMap() {
         if (data.success && data.pins) {
           initLeafletMap(data.pins);
           // Update count
-          const countEl = document.querySelector('#install-map .text-center p');
+          // (was '#install-map .text-center p', which hit the section intro and showed two different counts)
+          const countEl = document.getElementById('installMapCount');
           if (countEl) countEl.textContent = data.count + '+ installations · Click and zoom to explore';
         } else {
           initLeafletMap(FALLBACK_PINS);
@@ -672,10 +648,21 @@ CMS.load().then(() => {
     if (CMS.data.home.hero_title_part1) document.getElementById('home-title-part1').textContent = strip(CMS.data.home.hero_title_part1);
     if (CMS.data.home.hero_title_part2) document.getElementById('home-title-part2').textContent = strip(CMS.data.home.hero_title_part2);
     if (CMS.data.home.hero_subtitle) document.getElementById('home-subtitle').textContent = strip(CMS.data.home.hero_subtitle);
-    if (CMS.data.home.about_text) document.getElementById('about-text').textContent = strip(CMS.data.home.about_text);
+    if (CMS.data.home.about_text) {
+      // Keep the editor's paragraphs (strip() alone ran them together) and fix
+      // escapes saved as literal text ("—" showing instead of an em dash)
+      const about = document.getElementById('about-text');
+      const paras = String(CMS.data.home.about_text)
+        .replace(/\\u([0-9a-fA-F]{4})/g, (_, h) => String.fromCharCode(parseInt(h, 16)))
+        .split(/<\/p>/i).map(p => strip(p)).filter(Boolean);
+      about.replaceWith(...paras.map((t, i) => {
+        const el = document.createElement('p');
+        if (i === 0) el.id = 'about-text';
+        el.textContent = t;
+        return el;
+      }));
+    }
     if (CMS.data.home.referral_text) document.getElementById('referral-text').textContent = strip(CMS.data.home.referral_text);
-    if (CMS.data.home.accordion_btn_closed) { closedText = strip(CMS.data.home.accordion_btn_closed); accordionBtn.textContent = closedText; }
-    if (CMS.data.home.accordion_btn_open) { openText = strip(CMS.data.home.accordion_btn_open); }
   }
 
   // Stats with animation

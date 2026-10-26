@@ -56,9 +56,19 @@
 </script>
 <script src="cms.js"></script>
 <script>
+// Same rule as blog-feed.php's post_id(): the saved id, else date + title.
+// Lets Lumaria Beacons (and anyone sharing a post) link to blog.html?p=<id>.
+function postId(p) {
+  if (p.id) return String(p.id).replace(/[^a-z0-9-]/gi, '');
+  const d = document.createElement('div'); d.innerHTML = p.title || '';
+  return ((p.date || '') + '-' + d.textContent).replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase().slice(0, 70);
+}
 CMS.load().then(() => {
-  const posts = CMS.data.blog_posts || [];
-  if (posts.length === 1) { CMS.renderBlogArticle('cms-blog', 0); }
+  const posts = [...(CMS.data.blog_posts || [])].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const want = new URLSearchParams(location.search).get('p');
+  const linked = want ? posts.findIndex(p => postId(p) === want) : -1;
+  if (linked >= 0) { CMS.renderBlogArticle('cms-blog', linked); }
+  else if (posts.length === 1) { CMS.renderBlogArticle('cms-blog', 0); }
   else { CMS.renderBlogIndex('cms-blog'); }
 });
 </script>

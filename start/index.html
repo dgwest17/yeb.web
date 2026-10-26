@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Start Here — Your Energy Best</title>
+<meta name="description" content="Learn how solar works in 2026, get a no-pressure quote, or see what your existing solar system is really doing with the free Lumaria app. San Diego.">
+<link rel="icon" type="image/png" href="/img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="/nav.js" defer></script>
+<!--
+  /start/ — the one link for ads. Three doors, no forms, no pop-ups.
+  Add ?for=owners, ?for=quote or ?for=learn to put that door first.
+  nav.js captures the ad's UTMs, so a quote request sent from here still
+  carries the campaign into Zoho. The app link forwards the same UTMs.
+-->
+<style>
+  :root { --navy:#011627; --navy2:#023047; --teal:#219EBC; --sky:#8ECAE6; --gold:#FFB703; --green:#06D6A0; --ink:#E8F1F5; --soft:rgba(232,241,245,.72); }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--navy); color: var(--ink); font-family: "Outfit", -apple-system, sans-serif; line-height: 1.55; }
+  main { max-width: 980px; margin: 0 auto; padding: 7rem 1rem 3rem; }
+  h1 { font-family: "Cormorant Garamond", Georgia, serif; font-weight: 600; font-size: clamp(2.2rem, 6vw, 3.4rem); line-height: 1.1; }
+  .lede { color: var(--soft); font-size: 1.1rem; margin: .9rem 0 2.2rem; max-width: 40rem; }
+  .doors { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  @media (max-width: 760px) { .doors { grid-template-columns: 1fr; } }
+  .door { display: flex; flex-direction: column; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12);
+          border-radius: 16px; padding: 1.4rem 1.3rem; color: inherit; text-decoration: none; transition: border-color .2s, transform .2s; }
+  .door:hover, .door:focus-visible { border-color: var(--sky); transform: translateY(-2px); outline: none; }
+  .door .who { font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; color: var(--sky); }
+  .door h2 { font-family: "Cormorant Garamond", Georgia, serif; font-weight: 600; font-size: 1.65rem; margin: .35rem 0 .5rem; }
+  .door p { color: var(--soft); font-size: .95rem; flex: 1; }
+  .door .go { margin-top: 1.1rem; font-weight: 600; color: var(--gold); }
+  .door.app { border-color: rgba(6,214,160,.45); }
+  .door.app .go { color: var(--green); }
+  .sub { display: block; margin-top: .55rem; font-size: .85rem; color: var(--soft); }
+  .sub a { color: var(--sky); }
+  .note { margin-top: 2.2rem; padding: 1rem 1.2rem; border-left: 3px solid var(--gold); background: rgba(255,183,3,.06); border-radius: 0 10px 10px 0; color: var(--soft); font-size: .95rem; }
+  .note strong { color: var(--ink); }
+  .talk { margin-top: 2rem; color: var(--soft); }
+  .talk a { color: var(--gold); font-weight: 600; text-decoration: none; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Solar in San Diego, without the sales pitch.</h1>
+  <p class="lede">Pick the one that fits. Nothing here asks for your phone number until you want a quote.</p>
+
+  <div class="doors">
+    <a class="door" data-for="learn" href="/knowledge/">
+      <span class="who">Just curious</span>
+      <h2>Learn how it works</h2>
+      <p>Costs, batteries, financing, and what changed in 2026 — straight answers from a local installer.</p>
+      <span class="go">Read the Knowledge Center →</span>
+    </a>
+
+    <a class="door" data-for="quote" href="/quote/?option=new">
+      <span class="who">Thinking about solar or a battery</span>
+      <h2>Get a quote</h2>
+      <p>Four quick questions. A real person reviews your home and follows up — no credit check, no obligation.</p>
+      <span class="go">Start my quote →</span>
+    </a>
+
+    <a class="door app" data-for="owners" id="appDoor" href="https://app.lumaria.energy/">
+      <span class="who">Already have solar</span>
+      <h2>Check your system</h2>
+      <p>The free Lumaria app shows what your panels are really saving, where your rates are heading, and what's ahead for your system.</p>
+      <span class="go">Open the Lumaria app →</span>
+    </a>
+  </div>
+  <span class="sub">Want a person to go through your system with you? <a href="/services/audit/">See our solar audits</a>.</span>
+
+  <p class="note"><strong>Heads up on 2026:</strong> the homeowner federal tax credit ended Dec 31, 2025. Buying with cash or a loan no longer gets 30% back. The credit still exists through programs where a company owns the system (PPA, prepaid, lease) — <a href="/knowledge/#financing" style="color:var(--sky)">here's how that works</a>.</p>
+
+  <p class="talk">Rather just talk? <a href="tel:7608607862">Call or text (760) 860-7862</a></p>
+</main>
+<script>
+  // ?for=owners | quote | learn puts that ad's door first (it's the one on screen on a phone)
+  (function () {
+    var want = new URLSearchParams(location.search).get('for');
+    var el = document.querySelector('.door[data-for="' + want + '"]');
+    if (el) el.parentNode.insertBefore(el, el.parentNode.firstChild);
+  })();
+  // Forward the ad's UTMs to the app so Lumaria can see where a sign-up came from
+  (function () {
+    var door = document.getElementById('appDoor');
+    try {
+      var qs = new URLSearchParams(location.search), out = new URLSearchParams();
+      ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'].forEach(function (k) {
+        var v = qs.get(k) || sessionStorage.getItem(k); if (v) out.set(k, v);
+      });
+      if (String(out)) door.href = 'https://app.lumaria.energy/?' + out;
+    } catch (e) {}
+  })();
+</script>
+</body>
+</html>

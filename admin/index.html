@@ -931,7 +931,7 @@ function renderCustomerOptions() {
   `).join('');
   upgradeTextareasToRich(document.getElementById('home-customer-options'));
 }
-function addCustomerOption() { addToArray('home.customer_options', {icon:'☀️', title:'', description:'', link:'quote.html'}); }
+function addCustomerOption() { addToArray('home.customer_options', {icon:'☀️', title:'', description:'', link:'/quote/'}); }
 
 function renderHomeGallery() {
   const g = content.gallery || [];
@@ -1068,6 +1068,9 @@ function renderBlogPosts() {
       <div class="field"><label>Date</label><input type="date" value="${p.date||''}" oninput="content.blog_posts[${i}].date=this.value"/></div>
       <div class="field"><label>Read Time</label><input value="${p.readtime||''}" oninput="content.blog_posts[${i}].readtime=this.value" placeholder="5 min read"/></div>
     </div>
+    <div class="field"><label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;">
+      <input type="checkbox" style="width:auto;" ${p.beacon === false ? '' : 'checked'} onchange="content.blog_posts[${i}].beacon=this.checked"/>
+      Also post to Lumaria Beacons (members see it under "From the Admiral")</label></div>
     <div class="field"><label>Body</label>
       <textarea data-rich data-tall data-path="content.blog_posts[${i}].body">${p.body||''}</textarea></div></div>
   `).join('');
@@ -1077,7 +1080,8 @@ function renderBlogPosts() {
 function addBlogPost() {
   if (!content.blog_posts) content.blog_posts = [];
   syncFieldsToContent();
-  content.blog_posts.push({ title: '', tag: '', date: new Date().toISOString().split('T')[0], readtime: '5 min read', body: '' });
+  // id stays fixed when the title is edited, so Lumaria Beacons doesn't see a "new" post
+  content.blog_posts.push({ id: 'b' + Date.now().toString(36), title: '', tag: '', date: new Date().toISOString().split('T')[0], readtime: '5 min read', body: '', beacon: true });
   renderBlogPosts();
 }
 
@@ -2101,7 +2105,7 @@ saveContent = async function() {
   content.rebate_alert.quote_link_text = safeGet('rebate-quote-link', content.rebate_alert.quote_link_text);
   content.rebate_alert.quote_modal_text = safeGet('rebate-modal-text', content.rebate_alert.quote_modal_text);
   content.rebate_alert.links = [
-    { label: safeGet('rebate-home-link', content.rebate_alert.home_link_text) || 'See what you qualify for', url: 'quote.html', external: false },
+    { label: safeGet('rebate-home-link', content.rebate_alert.home_link_text) || 'See what you qualify for', url: '/quote/', external: false },
     { label: 'SD Community Power Rebates', url: 'https://sdcommunitypower.org/solar-battery-savings/', external: true }
   ];
 

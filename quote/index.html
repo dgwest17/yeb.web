@@ -257,16 +257,7 @@
 // Spam timing — record when page loaded
 const _pageLoadTs = Math.floor(Date.now() / 1000);
 
-// ─── UTM CAPTURE ───
-(function() {
-  const params = new URLSearchParams(window.location.search);
-  ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'].forEach(k => {
-    const v = params.get(k); if (v) sessionStorage.setItem(k, v);
-  });
-  if (document.referrer && !document.referrer.includes(window.location.hostname)) {
-    sessionStorage.setItem('referrer', document.referrer);
-  }
-})();
+// UTM capture lives in /nav.js (every page); the submit handler reads sessionStorage
 
 // ─── STATE ───
 let selectedOption  = null;

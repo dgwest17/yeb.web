@@ -6,7 +6,7 @@
 window.CMS = {};
 
 window.CMS.load = async function() {
-  const res = await fetch('content.json?' + Date.now());
+  const res = await fetch('/content.json?' + Date.now()); // absolute: pages live in folders (/quote/)
   window.CMS.data = await res.json();
   return window.CMS.data;
 };
@@ -265,7 +265,7 @@ window.CMS.renderRebate = function(containerId) {
   } else {
     // Fallback: build links from legacy fields
     if (r.home_link_text) {
-      linksHtml += `<a href="quote.html" style="color:var(--orange);font-weight:600;">${strip(r.home_link_text)}</a>`;
+      linksHtml += `<a href="/quote/" style="color:var(--orange);font-weight:600;">${strip(r.home_link_text)}</a>`;
     }
   }
 
@@ -342,14 +342,14 @@ window.CMS.renderBlogArticle = function(containerId, index) {
         <div style="background:var(--cream); border-radius:var(--radius); padding:var(--space-lg) var(--space-xl); margin-top:var(--space-xl); text-align:center;">
           <h3 style="font-family:var(--font-display); font-weight:400; margin-bottom:.3rem;">Ready to see what solar could save you?</h3>
           <p style="font-size:.88rem; margin-bottom:var(--space-md); color:var(--slate);">Get a free, no-obligation quote tailored to your home.</p>
-          <a href="quote.html" class="btn btn--primary">Get Your Free Quote</a>
+          <a href="/quote/" class="btn btn--primary">Get Your Free Quote</a>
         </div>
       </article>
       <aside style="display:flex; flex-direction:column; gap:var(--space-xl);">
         <div style="background:var(--cream); border-radius:var(--radius); padding:var(--space-lg);">
           <h4 style="margin-bottom:var(--space-sm); color:var(--navy);">💰 Don't Miss Out on Incentives</h4>
           <p style="font-size:.85rem; margin:0; color:var(--slate);">Battery rebates and federal tax credits are available now — but funds are limited.</p>
-          <a href="quote.html" class="btn btn--primary btn--sm" style="margin-top:var(--space-md); width:100%; justify-content:center; display:inline-flex;">Get a Quote</a>
+          <a href="/quote/" class="btn btn--primary btn--sm" style="margin-top:var(--space-md); width:100%; justify-content:center; display:inline-flex;">Get a Quote</a>
         </div>
         <div style="background:var(--cream); border-radius:var(--radius); padding:var(--space-lg);">
           <h4 style="margin-bottom:var(--space-sm); color:var(--navy);">🔋 Battery Rebate Resources</h4>

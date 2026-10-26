@@ -1,6 +1,10 @@
 <?php
-// save.php — Save content files with automatic backup + server-side login
+// save.php — Save content files with automatic backup
 // Handles: content.json, train-content.json, services-content.json
+// Requires a logged-in admin session (admin-auth.php) + the CSRF token
+// the admin page already sends as X-CSRF-Token.
+
+require_once __DIR__ . '/security-config.php';
 
 header('Content-Type: application/json');
 
@@ -10,9 +14,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// Password loaded from config.php (gitignored — lives ONLY on the server)
-$__cfg = file_exists(__DIR__ . '/config.php') ? require __DIR__ . '/config.php' : [];
-define('ADMIN_PASSWORD', $__cfg['admin_save_password'] ?? '');
+require_admin_auth();
+validate_csrf();
 
 $input = file_get_contents('php://input');
 $data = json_decode($input, true);
@@ -20,17 +23,6 @@ $data = json_decode($input, true);
 if ($data === null) {
     http_response_code(400);
     echo json_encode(['error' => 'Invalid JSON']);
-    exit;
-}
-
-// Handle login check
-if (isset($data['action']) && $data['action'] === 'login') {
-    if (ADMIN_PASSWORD !== '' && isset($data['password']) && $data['password'] === ADMIN_PASSWORD) {
-        echo json_encode(['success' => true]);
-    } else {
-        http_response_code(401);
-        echo json_encode(['success' => false, 'error' => 'Invalid password']);
-    }
     exit;
 }
 

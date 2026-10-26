@@ -31,6 +31,12 @@ if (!isset($targets[$target])) {
     exit;
 }
 
+// Rep accounts and the portal password are admin-only; only the admin page reads these
+if ($target === 'train' || $target === 'train-users') {
+    require_once __DIR__ . '/security-config.php';
+    require_admin_auth();
+}
+
 $file = __DIR__ . '/' . $targets[$target];
 
 if (!file_exists($file)) {

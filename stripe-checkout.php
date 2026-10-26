@@ -12,19 +12,8 @@ require_once __DIR__ . '/config.php'; // must define STRIPE_SECRET_KEY and AUDIT
 $input = json_decode(file_get_contents('php://input'), true);
 if (!$input) { http_response_code(400); echo json_encode(['error' => 'Invalid request']); exit; }
 
-// Server-side price map — NEVER trust a price from the browser
-$plans = [
-  // One-time services
-  'audit'     => ['name' => 'Self-Audit',                     'amount' => 12900, 'mode' => 'payment'],
-  'full'      => ['name' => 'Full Professional Audit & Evaluation', 'amount' => 24900, 'mode' => 'payment'],
-  // Solar audit tiers (services/audit page)
-  'audit-premium' => ['name' => 'Premium Audit & Inspection',          'amount' => 47900, 'mode' => 'payment',      'return' => '/services/audit/'],
-  'audit-annual'  => ['name' => 'Annual Audit & Recommendations Plan', 'amount' => 10900, 'mode' => 'subscription', 'return' => '/services/audit/'],
-  // Annual service plans (auto-renewing yearly subscriptions)
-  'basic'     => ['name' => 'Service Plan — Essential',       'amount' => 14900, 'mode' => 'subscription'],
-  'plus'      => ['name' => 'Service Plan — Plus',            'amount' => 26900, 'mode' => 'subscription'],
-  'totalcare' => ['name' => 'Service Plan — Total Care',      'amount' => 46500, 'mode' => 'subscription'],
-];
+// Server-side price map — NEVER trust a price from the browser. Prices live in plans.php only.
+$plans = require __DIR__ . '/plans.php';
 
 $planKey = $input['plan'] ?? '';
 if (!isset($plans[$planKey])) { http_response_code(400); echo json_encode(['error' => 'Unknown plan']); exit; }
@@ -33,6 +22,13 @@ $email = filter_var($input['email'] ?? '', FILTER_VALIDATE_EMAIL);
 if (!$email) { http_response_code(400); echo json_encode(['error' => 'Invalid email']); exit; }
 
 $origin = 'https://yourenergybest.com';
+// Send the customer back to the page they bought from (allowlisted), else the plan's default
+$returnPath = in_array($input['return'] ?? '', ['/services/', '/services/audit/'], true)
+  ? $input['return'] : ($plan['return'] ?? '/services/');
+// Zoho Opportunity_Type when the page didn't send one (the audit page doesn't)
+$defaultOpp = $plan['mode'] === 'subscription' && strpos($planKey, 'audit') !== 0
+  ? 'Solar Owner – Under Service Plan' : 'Solar Owner – Audit / Review';
+
 $params = [
   'mode' => $plan['mode'],
   'customer_email' => $email,
@@ -40,17 +36,23 @@ $params = [
   'line_items[0][price_data][product_data][name]' => $plan['name'],
   'line_items[0][price_data][unit_amount]' => $plan['amount'],
   'line_items[0][quantity]' => 1,
-  'success_url' => $origin . ($plan['return'] ?? '/services/') . '?session_id={CHECKOUT_SESSION_ID}&plan=' . $planKey,
-  'cancel_url'  => $origin . ($plan['return'] ?? '/services/') . '?canceled=1',
+  'success_url' => $origin . $returnPath . '?session_id={CHECKOUT_SESSION_ID}&plan=' . $planKey,
+  'cancel_url'  => $origin . $returnPath . '?canceled=1',
   'metadata[plan]'  => $planKey,
   'metadata[name]'  => substr($input['name']  ?? '', 0, 100),
   'metadata[phone]' => substr($input['phone'] ?? '', 0, 30),
   'metadata[zip]'   => substr($input['zip']   ?? '', 0, 10),
-  'metadata[opp]'   => substr($input['opp']   ?? '', 0, 100),
+  'metadata[opp]'   => substr(($input['opp'] ?? '') ?: $defaultOpp, 0, 100),
 ];
+// Campaign attribution (captured site-wide by nav.js) rides along to Zoho on payment
+foreach (['utm_source', 'utm_medium', 'utm_campaign', 'referrer'] as $k) {
+  if (!empty($input[$k])) $params["metadata[$k]"] = substr($input[$k], 0, 200);
+}
 
 if ($plan['mode'] === 'subscription') {
   $params['line_items[0][price_data][recurring][interval]'] = 'year';
+  // Lets the webhook name the plan on renewals, failed cards, and cancellations
+  $params['subscription_data[metadata][plan]'] = $planKey;
 }
 
 $ch = curl_init('https://api.stripe.com/v1/checkout/sessions');

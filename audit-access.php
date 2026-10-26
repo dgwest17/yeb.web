@@ -6,7 +6,7 @@
  */
 require_once __DIR__ . '/config.php'; // AUDIT_ACCESS_SECRET
 
-$AUDIT_TOOL_URL = '/audit.html'; // <-- change to your auditing tool entry page
+$AUDIT_TOOL_URL = 'https://app.lumaria.energy/'; // the audit tool is the Lumaria app (was /audit.html, a 404)
 
 function deny($msg) {
   http_response_code(403);

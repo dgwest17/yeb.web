@@ -34,3 +34,21 @@ reviews_cache.json
 # OS files
 .DS_Store
 Thumbs.db
+
+# ── Server-only files (Hostinger auto-deploys this repo into public_html) ──
+# Anything the live site writes for itself must be ignored here: if a file with
+# the same path is ever committed, the server's `git pull` refuses to overwrite
+# it and every later deploy silently stops.
+options-content.json
+instagram_token.txt
+spam_blocked.log
+*.log
+logs/
+rate-limits/
+.stripe_processed/
+.api_rate_limit
+uploads/
+become/uploads/
+img/gallery-*
+img/form-bg.png
+become/test-*.php

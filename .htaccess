@@ -27,6 +27,16 @@ Options -Indexes
     Require all denied
 </FilesMatch>
 
+# Dotfiles hold credentials (.zoho_refresh_token, .instagram_token, ...)
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+# Lead backups (customer names/emails/phones), rep accounts, portal settings, a stray token copy
+<FilesMatch "(\.csv|^train-users\.json|^train-content\.json|^map-pins-base\.json|^instagram_token\.txt)$">
+    Require all denied
+</FilesMatch>
+
 # Protect backup directory
 <DirectoryMatch "backups">
     Require all denied

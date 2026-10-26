@@ -57,8 +57,14 @@ function blockSpam($reason, $input) {
     exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $spamCheck = json_decode(file_get_contents('php://input'), true);
+// Server-to-server calls (stripe-lib.php) sign the body; they skip the spam layers
+// so a paying customer is never silently dropped as "gibberish".
+$__raw = file_get_contents('php://input');
+$__isInternal = defined('AUDIT_ACCESS_SECRET') && AUDIT_ACCESS_SECRET !== ''
+    && hash_equals(hash_hmac('sha256', $__raw, AUDIT_ACCESS_SECRET), $_SERVER['HTTP_X_YEB_INTERNAL'] ?? '');
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$__isInternal) {
+    $spamCheck = json_decode($__raw, true);
     if ($spamCheck) {
         // Layer 1: Honeypot — hidden fields bots fill
         if (!empty($spamCheck['website']) || !empty($spamCheck['company_url']))
@@ -210,11 +216,15 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$input = json_decode(file_get_contents('php://input'), true);
+$input = json_decode($__raw, true);
 if (!$input) { http_response_code(400); echo json_encode(['error' => 'Invalid JSON']); exit; }
 
+// Timeline notes and the 'note' action are server-to-server only
+$zohoNote = $__isInternal && is_array($input['zoho_note'] ?? null) ? $input['zoho_note'] : null;
+if (($input['action'] ?? '') === 'note' && !$__isInternal) { http_response_code(400); echo json_encode(['error' => 'Invalid action']); exit; }
+
 // Strip spam-filter fields before processing
-unset($input['website'], $input['company_url'], $input['_ts']);
+unset($input['website'], $input['company_url'], $input['_ts'], $input['zoho_note']);
 
 $action = $input['action'] ?? 'lead';
 $sourceForm = $input['source_form'] ?? ($action === 'newsletter' ? 'NewsletterPopup' : 'QuoteWizard');
@@ -225,7 +235,7 @@ if ($isTest) { logDebug("=== TEST MODE ==="); $sourceForm .= '_TEST'; }
 logDebug("━━━ Received [{$sourceForm}]: " . json_encode($input));
 
 saveLocalBackup($input, $sourceForm);
-sendNotification($input, $sourceForm);
+sendNotification($zohoNote ? $input + ['event' => $zohoNote['title'] . ' — ' . $zohoNote['content']] : $input, $sourceForm);
 
 $traceId = 'WebLead:' . date('Ymd-His') . '-' . substr(md5(uniqid()), 0, 6);
 $accessToken = getAccessToken();
@@ -236,6 +246,33 @@ if (!$accessToken) {
 }
 
 $email = trim($input['email'] ?? '');
+
+function addLeadNote($leadId, $note, $accessToken) {
+    if (!$leadId || !$note) return;
+    $r = zohoRequest('POST', ZOHO_API_BASE . "/Leads/{$leadId}/Notes", $accessToken, ['data' => [[
+        'Note_Title' => substr($note['title'] ?? 'Note', 0, 120),
+        'Note_Content' => $note['content'] ?? '',
+    ]]]);
+    if ($r['code'] !== 200 && $r['code'] !== 201) logDebug("Note on lead {$leadId} failed [{$r['code']}]");
+}
+
+// ═══ NOTE HANDLER (server-to-server: Stripe renewals, failed cards, cancellations) ═══
+// Adds to the existing lead's timeline without overwriting its fields.
+// No matching lead yet → falls through and creates one, then the note lands on it.
+if ($action === 'note') {
+    if ($email === '') {
+        logStructured($sourceForm, 'note_no_email', $input);
+        echo json_encode(['success' => true, 'note' => 'No email — emailed only', 'trace' => $traceId]); exit;
+    }
+    $search = zohoRequest('GET', ZOHO_API_BASE . '/Leads/search?email=' . urlencode($email), $accessToken);
+    if ($search['code'] === 200 && !empty($search['body']['data'])) {
+        $leadId = $search['body']['data'][0]['id'];
+        addLeadNote($leadId, $zohoNote, $accessToken);
+        logStructured($sourceForm, 'note', $input, $leadId);
+        echo json_encode(['success' => true, 'zoho_id' => $leadId, 'action' => 'noted', 'trace' => $traceId]); exit;
+    }
+    $action = 'lead';
+}
 
 // ═══ RECRUIT HANDLER ═══
 if ($action === 'recruit') {
@@ -312,6 +349,7 @@ logDebug("Lead payload: " . json_encode($leadData));
 $result = upsertLead($leadData, $accessToken, $email);
 
 if ($result['success']) {
+    addLeadNote($result['id'], $zohoNote, $accessToken);
     logStructured($sourceForm, 'success', $input, $result['id']);
     echo json_encode(['success'=>true,'zoho_id'=>$result['id'],'action'=>$result['action'],'trace'=>$traceId]);
 } else {

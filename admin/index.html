@@ -132,8 +132,6 @@
     <button class="tab" onclick="switchTab('build', this)">🚀 Build Page</button>
     <button class="tab" onclick="switchTab('quote', this)">📝 Quote Page</button>
     <button class="tab" onclick="switchTab('blog', this)">📰 Blog</button>
-    <button class="tab" onclick="switchTab('train', this)">🏄 Train</button>
-    <button class="tab" onclick="switchTab('train-users', this)">👥 Users</button>
     <button class="tab" onclick="switchTab('options', this)">⚡ Options Page</button>
     <button class="tab" onclick="switchTab('services', this)">🔧 Services</button>
     <button class="tab" onclick="switchTab('global', this)">⚙️ Global Settings</button>
@@ -240,36 +238,6 @@
         <div class="section-header"><h3>Blog Posts</h3></div>
         <div id="blog-list"></div>
         <button class="btn btn-add" onclick="addBlogPost()">+ New Blog Post</button>
-      </div>
-    </div>
-
-    <!-- TRAIN TAB -->
-    <div id="tab-train" class="tab-panel">
-      <div class="section-card">
-        <div class="section-header"><h3>Training Portal Settings</h3></div>
-        <div class="row">
-          <div class="field"><label>Portal Password (simple gate)</label><input type="text" id="train-password" /></div>
-        </div>
-      </div>
-      <div class="section-card">
-        <div class="section-header">
-          <h3>Manuals & Content</h3>
-          <button class="btn btn-add btn-sm" onclick="addManual()">+ Add Manual</button>
-        </div>
-        <p style="font-size:0.85rem;color:#666;margin-bottom:1rem;">Click a manual to expand its levels, folders, and modules. Add content using the Quote/Response/Tip pattern.</p>
-        <div id="train-manuals"></div>
-      </div>
-    </div>
-
-    <!-- TRAIN USERS TAB -->
-    <div id="tab-train-users" class="tab-panel">
-      <div class="section-card">
-        <div class="section-header">
-          <h3>Training Portal Users</h3>
-          <button class="btn btn-add btn-sm" onclick="addTrainUser()">+ Add Rep</button>
-        </div>
-        <p style="font-size:0.85rem;color:#666;margin-bottom:1rem;">Manage rep accounts for the training portal at <strong>/become</strong>. All reps log in with their username + the portal password.</p>
-        <div id="train-users-list"></div>
       </div>
     </div>
 
@@ -611,7 +579,7 @@ function upgradeTextareasToRich(containerEl) {
 
 /**
  * Set a value deep in an object using a dot-bracket path like
- * "content.faq[0].answer" or "trainContent.manuals[0].folders[1].description"
+ * "content.faq[0].answer" or "optionsContent.cards[1].title"
  */
 function setNestedValue(path, value) {
   if (!path) return;
@@ -622,8 +590,6 @@ function setNestedValue(path, value) {
   if (root === 'content') obj = content;
   else if (root === 'optionsContent') obj = optionsContent;
   else if (root === 'servicesContent') obj = servicesContent;
-  else if (root === 'trainContent') obj = trainContent;
-  else if (root === 'trainUsers') obj = trainUsers;
   else obj = window[root];
 
   if (obj === undefined) return;
@@ -649,8 +615,6 @@ function getNestedValue(path) {
   if (root === 'content') obj = content;
   else if (root === 'optionsContent') obj = optionsContent;
   else if (root === 'servicesContent') obj = servicesContent;
-  else if (root === 'trainContent') obj = trainContent;
-  else if (root === 'trainUsers') obj = trainUsers;
   else obj = window[root];
 
   for (let i = 1; i < parts.length; i++) {
@@ -1251,22 +1215,9 @@ function downloadBackup() {
 }
 
 // ═══════════════════════════════════════════════════════════
-// TRAIN CONTENT EDITOR
+// SERVICES + OPTIONS CONTENT (loaded alongside content.json)
 // ═══════════════════════════════════════════════════════════
-let trainContent = {};
 let servicesContent = {};
-let trainUsers = {};
-
-// Load train + services + users content alongside main content
-async function loadTrainContent() {
-  try {
-    const res = await fetch('/load-content.php?target=train&t=' + Date.now());
-    trainContent = await res.json();
-  } catch(e) {
-    trainContent = { manuals: [], settings: { portal_password: 'Become' } };
-  }
-  renderTrainEditor();
-}
 
 async function loadServicesContent() {
   try {
@@ -1278,23 +1229,11 @@ async function loadServicesContent() {
   renderServicesEditor();
 }
 
-async function loadTrainUsers() {
-  try {
-    const res = await fetch('/load-content.php?target=train-users&t=' + Date.now());
-    trainUsers = await res.json();
-  } catch(e) {
-    trainUsers = { users: [] };
-  }
-  renderTrainUsers();
-}
-
-// Override loadContent to also load train + services
+// Override loadContent to also load services + options
 const _origLoadContent = loadContent;
 loadContent = async function() {
   await _origLoadContent();
-  await loadTrainContent();
   await loadServicesContent();
-  await loadTrainUsers();
   await loadOptionsContent();
   renderDiffCards();
 };
@@ -1348,304 +1287,6 @@ function removeDiffCard(i) {
   if (!confirm('Delete this card?')) return;
   content.home.differentiators.cards.splice(i, 1);
   renderDiffCards();
-}
-
-// ─── TRAIN EDITOR ───
-function renderTrainEditor() {
-  const el = document.getElementById('train-manuals');
-  if (!el) return;
-  
-  const pw = trainContent.settings?.portal_password || 'Become';
-  document.getElementById('train-password').value = pw;
-  
-  const manuals = trainContent.manuals || [];
-  el.innerHTML = manuals.map((m, mi) => `
-    <div class="manual-block">
-      <div class="manual-header" onclick="toggleManual(${mi})">
-        <h4>${m.icon||'📘'} ${m.title||'Manual'}</h4>
-        <div style="display:flex;gap:0.5rem;align-items:center;">
-          <span style="font-size:0.8rem;opacity:0.7;">${(m.folders||[]).length} levels</span>
-          <span class="manual-toggle" id="manual-toggle-${mi}">▶</span>
-        </div>
-      </div>
-      <div class="manual-body" id="manual-body-${mi}">
-        <div class="row" style="margin-bottom:1rem;">
-          <div class="field"><label>Manual Title</label><textarea data-rich data-compact data-path="trainContent.manuals[${mi}].title">${m.title||''}</textarea></div>
-          <div class="field"><label>Icon</label><input value="${m.icon||''}" oninput="trainContent.manuals[${mi}].icon=this.value" style="width:60px;"/></div>
-        </div>
-        <div class="field" style="margin-bottom:1rem;"><label>Description</label><textarea data-rich data-compact data-path="trainContent.manuals[${mi}].description">${m.description||''}</textarea></div>
-        
-        <h5 style="margin-bottom:0.5rem;color:#023047;">Levels / Folders</h5>
-        <div id="manual-${mi}-folders">
-          ${(m.folders||[]).map((f, fi) => renderLevelBlock(mi, fi, f)).join('')}
-        </div>
-        <button class="btn btn-add btn-sm" onclick="addLevel(${mi})">+ Add Level</button>
-      </div>
-    </div>
-  `).join('');
-  // Upgrade all rich textareas in train panel after render
-  setTimeout(() => upgradeTextareasToRich(document.getElementById('train-manuals')), 50);
-}
-
-function renderLevelBlock(mi, fi, folder) {
-  const levelDisplay = folder.level !== undefined ? `Level ${folder.level/10}` : '';
-  const modules = folder.modules || [];
-  const subfolders = folder.folders || [];
-  
-  return `
-    <div class="level-block">
-      <div class="level-header" onclick="toggleLevel('lvl-${mi}-${fi}')">
-        <h5>${folder.title || 'Untitled Level'} <span style="font-size:0.75rem;color:#64748b;">(${modules.length} modules)</span></h5>
-        <div class="item-actions">
-          <button class="btn btn-sm btn-up" onclick="event.stopPropagation();moveLevel(${mi},${fi},-1)">↑</button>
-          <button class="btn btn-sm btn-down" onclick="event.stopPropagation();moveLevel(${mi},${fi},1)">↓</button>
-          <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();removeLevel(${mi},${fi})">✕</button>
-        </div>
-      </div>
-      <div class="level-body" id="lvl-${mi}-${fi}">
-        <div class="row">
-          <div class="field"><label>Title</label><textarea data-rich data-compact data-path="trainContent.manuals[${mi}].folders[${fi}].title">${folder.title||''}</textarea></div>
-          <div class="field" style="flex:0 0 100px"><label>Level (x10)</label><input type="number" value="${folder.level||0}" oninput="trainContent.manuals[${mi}].folders[${fi}].level=parseInt(this.value)||0"/><div class="hint">15 = Level 1.5</div></div>
-        </div>
-        <div class="field"><label>Description</label><textarea data-rich data-compact data-path="trainContent.manuals[${mi}].folders[${fi}].description">${folder.description||''}</textarea></div>
-        
-        <h6 style="margin:0.75rem 0 0.5rem;color:#023047;">Modules</h6>
-        ${modules.map((mod, modi) => renderModuleBlock(mi, fi, modi, mod)).join('')}
-        <button class="btn btn-add btn-sm" onclick="addModule(${mi},${fi})" style="margin-bottom:0.5rem;">+ Add Module</button>
-        
-        ${subfolders.length > 0 ? '<h6 style="margin:0.75rem 0 0.5rem;color:#023047;">Sub-folders</h6>' : ''}
-        ${subfolders.map((sf, sfi) => `<div style="margin-left:1rem;">${renderSubfolderBlock(mi, fi, sfi, sf)}</div>`).join('')}
-        <button class="btn btn-sm" style="background:#8ECAE6;color:#023047;margin-top:0.25rem;" onclick="addSubfolder(${mi},${fi})">+ Sub-folder</button>
-      </div>
-    </div>`;
-}
-
-function renderSubfolderBlock(mi, fi, sfi, sf) {
-  return `
-    <div class="level-block" style="border-left-color:#FFB703;">
-      <div class="level-header" onclick="toggleLevel('sf-${mi}-${fi}-${sfi}')">
-        <h5>📁 ${sf.title||'Sub-folder'} <span style="font-size:0.75rem;color:#64748b;">(${(sf.modules||[]).length} modules)</span></h5>
-        <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();removeSubfolder(${mi},${fi},${sfi})">✕</button>
-      </div>
-      <div class="level-body" id="sf-${mi}-${fi}-${sfi}">
-        <div class="field"><label>Folder Title</label><textarea data-rich data-compact data-path="trainContent.manuals[${mi}].folders[${fi}].folders[${sfi}].title">${sf.title||''}</textarea></div>
-        ${(sf.modules||[]).map((mod, modi) => renderSubModuleBlock(mi, fi, sfi, modi, mod)).join('')}
-        <button class="btn btn-add btn-sm" onclick="addSubModule(${mi},${fi},${sfi})">+ Add Module</button>
-      </div>
-    </div>`;
-}
-
-function renderModuleBlock(mi, fi, modi, mod) {
-  const typeClass = `badge-${mod.type||'lesson'}`;
-  return `
-    <div class="module-block">
-      <div class="module-title-row">
-        <h6><span class="badge ${typeClass}">${mod.type||'lesson'}</span> ${mod.title||'Untitled Module'}</h6>
-        <div class="item-actions">
-          <button class="btn btn-sm btn-up" onclick="moveModule(${mi},${fi},${modi},-1)">↑</button>
-          <button class="btn btn-sm btn-down" onclick="moveModule(${mi},${fi},${modi},1)">↓</button>
-          <button class="btn btn-sm btn-danger" onclick="removeModule(${mi},${fi},${modi})">✕</button>
-        </div>
-      </div>
-      <div class="row">
-        <div class="field"><label>Title</label><textarea data-rich data-compact data-path="trainContent.manuals[${mi}].folders[${fi}].modules[${modi}].title">${mod.title||''}</textarea></div>
-        <div class="field" style="flex:0 0 120px"><label>Type</label>
-          <select oninput="trainContent.manuals[${mi}].folders[${fi}].modules[${modi}].type=this.value" style="width:100%;padding:0.5rem;border:2px solid #e0e0e0;border-radius:6px;">
-            <option value="lesson" ${mod.type==='lesson'?'selected':''}>Lesson</option>
-            <option value="quiz" ${mod.type==='quiz'?'selected':''}>Quiz</option>
-            <option value="passoff" ${mod.type==='passoff'?'selected':''}>Passoff</option>
-          </select></div>
-      </div>
-      <div class="field"><label>Description</label><textarea data-rich data-compact data-path="trainContent.manuals[${mi}].folders[${fi}].modules[${modi}].description">${mod.description||''}</textarea></div>
-      <div class="field"><label>Next Step Guidance</label><textarea data-rich data-compact data-path="trainContent.manuals[${mi}].folders[${fi}].modules[${modi}].next_step">${mod.next_step||''}</textarea></div>
-      
-      <details style="margin-top:0.5rem;"><summary style="cursor:pointer;font-weight:600;font-size:0.85rem;color:#219EBC;">Sections (${(mod.sections||[]).length}) — Quote / Response / Tip</summary>
-      <div style="padding:0.5rem 0;">
-        ${(mod.sections||[]).map((s, si) => `
-          <div class="section-block">
-            <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:0.25rem;">
-              <small style="color:#64748b;">Section ${si+1}</small>
-              <div class="item-actions">
-                <button class="btn btn-sm btn-up" onclick="moveSection(${mi},${fi},${modi},${si},-1)">↑</button>
-                <button class="btn btn-sm btn-down" onclick="moveSection(${mi},${fi},${modi},${si},1)">↓</button>
-                <button class="btn btn-sm btn-danger" onclick="removeSection(${mi},${fi},${modi},${si})">✕</button>
-              </div>
-            </div>
-            <div class="field"><label><strong>Customer Quote</strong></label><textarea data-rich data-compact data-path="trainContent.manuals[${mi}].folders[${fi}].modules[${modi}].sections[${si}].customer_quote">${s.customer_quote||''}</textarea></div>
-            <div class="field"><label>Rep Response</label><textarea data-rich data-compact data-path="trainContent.manuals[${mi}].folders[${fi}].modules[${modi}].sections[${si}].rep_response">${s.rep_response||''}</textarea></div>
-            <div class="field"><label><em>Tip (optional)</em></label><textarea data-rich data-compact data-path="trainContent.manuals[${mi}].folders[${fi}].modules[${modi}].sections[${si}].tip">${s.tip||''}</textarea></div>
-          </div>
-        `).join('')}
-        <button class="btn btn-add btn-sm" onclick="addSection(${mi},${fi},${modi})">+ Add Section</button>
-      </div></details>
-      
-      <details style="margin-top:0.25rem;"><summary style="cursor:pointer;font-weight:600;font-size:0.85rem;color:#219EBC;">Videos (${(mod.videos||[]).length})</summary>
-      <div style="padding:0.5rem 0;">
-        ${(mod.videos||[]).map((v, vi) => `
-          <div class="video-item">
-            <input value="${v.url||''}" oninput="trainContent.manuals[${mi}].folders[${fi}].modules[${modi}].videos[${vi}].url=this.value" placeholder="YouTube/Vimeo URL"/>
-            <input value="${v.title||''}" oninput="trainContent.manuals[${mi}].folders[${fi}].modules[${modi}].videos[${vi}].title=this.value" placeholder="Title" style="flex:0.5;"/>
-            <button class="btn btn-sm btn-danger" onclick="removeVideo(${mi},${fi},${modi},${vi})">✕</button>
-          </div>
-        `).join('')}
-        <button class="btn btn-add btn-sm" onclick="addVideo(${mi},${fi},${modi})">+ Add Video</button>
-      </div></details>
-    </div>`;
-}
-
-function renderSubModuleBlock(mi, fi, sfi, modi, mod) {
-  // Simplified version for sub-folder modules
-  return `
-    <div class="module-block">
-      <div class="module-title-row">
-        <h6><span class="badge badge-${mod.type||'lesson'}">${mod.type||'lesson'}</span> ${mod.title||'Untitled'}</h6>
-        <button class="btn btn-sm btn-danger" onclick="removeSubModule(${mi},${fi},${sfi},${modi})">✕</button>
-      </div>
-      <div class="field"><label>Title</label><textarea data-rich data-compact data-path="trainContent.manuals[${mi}].folders[${fi}].folders[${sfi}].modules[${modi}].title">${mod.title||''}</textarea></div>
-      <div class="field"><label>Description</label><textarea data-rich data-compact data-path="trainContent.manuals[${mi}].folders[${fi}].folders[${sfi}].modules[${modi}].description">${mod.description||''}</textarea></div>
-      
-      <details style="margin-top:0.5rem;"><summary style="cursor:pointer;font-weight:600;font-size:0.85rem;color:#219EBC;">Sections (${(mod.sections||[]).length})</summary>
-      <div style="padding:0.5rem 0;">
-        ${(mod.sections||[]).map((s, si) => `
-          <div class="section-block">
-            <div class="field"><label><strong>Customer Quote</strong></label><textarea data-rich data-compact data-path="trainContent.manuals[${mi}].folders[${fi}].folders[${sfi}].modules[${modi}].sections[${si}].customer_quote">${s.customer_quote||''}</textarea></div>
-            <div class="field"><label>Rep Response</label><textarea data-rich data-compact data-path="trainContent.manuals[${mi}].folders[${fi}].folders[${sfi}].modules[${modi}].sections[${si}].rep_response">${s.rep_response||''}</textarea></div>
-            <div class="field"><label><em>Tip</em></label><textarea data-rich data-compact data-path="trainContent.manuals[${mi}].folders[${fi}].folders[${sfi}].modules[${modi}].sections[${si}].tip">${s.tip||''}</textarea></div>
-          </div>
-        `).join('')}
-        <button class="btn btn-add btn-sm" onclick="addSubSection(${mi},${fi},${sfi},${modi})">+ Add Section</button>
-      </div></details>
-      
-      <details><summary style="cursor:pointer;font-weight:600;font-size:0.85rem;color:#219EBC;">Videos (${(mod.videos||[]).length})</summary>
-      <div style="padding:0.5rem 0;">
-        ${(mod.videos||[]).map((v, vi) => `
-          <div class="video-item">
-            <input value="${v.url||''}" oninput="trainContent.manuals[${mi}].folders[${fi}].folders[${sfi}].modules[${modi}].videos[${vi}].url=this.value" placeholder="YouTube/Vimeo URL"/>
-            <button class="btn btn-sm btn-danger" onclick="removeSubVideo(${mi},${fi},${sfi},${modi},${vi})">✕</button>
-          </div>
-        `).join('')}
-        <button class="btn btn-add btn-sm" onclick="addSubVideo(${mi},${fi},${sfi},${modi})">+ Add Video</button>
-      </div></details>
-    </div>`;
-}
-
-// ─── Train Toggle/CRUD helpers ───
-function toggleManual(mi) {
-  const body = document.getElementById('manual-body-' + mi);
-  const toggle = document.getElementById('manual-toggle-' + mi);
-  body.classList.toggle('open');
-  toggle.classList.toggle('open');
-}
-function toggleLevel(id) {
-  document.getElementById(id)?.classList.toggle('open');
-}
-
-function addManual() {
-  trainContent.manuals.push({ id: 'new-' + Date.now(), title: 'New Manual', description: '', icon: '📘', folders: [] });
-  renderTrainEditor();
-}
-function addLevel(mi) {
-  if (!trainContent.manuals[mi].folders) trainContent.manuals[mi].folders = [];
-  const existingLevels = trainContent.manuals[mi].folders.map(f => f.level || 0);
-  const nextLevel = existingLevels.length > 0 ? Math.max(...existingLevels) + 10 : 0;
-  trainContent.manuals[mi].folders.push({ id: 'lvl-' + Date.now(), title: 'New Level', level: nextLevel, description: '', folders: [], modules: [] });
-  renderTrainEditor();
-}
-function moveLevel(mi, fi, dir) {
-  const arr = trainContent.manuals[mi].folders;
-  const j = fi + dir;
-  if (j < 0 || j >= arr.length) return;
-  [arr[fi], arr[j]] = [arr[j], arr[fi]];
-  renderTrainEditor();
-}
-function removeLevel(mi, fi) {
-  if (!confirm('Delete this entire level and all its modules?')) return;
-  trainContent.manuals[mi].folders.splice(fi, 1);
-  renderTrainEditor();
-}
-
-function addModule(mi, fi) {
-  if (!trainContent.manuals[mi].folders[fi].modules) trainContent.manuals[mi].folders[fi].modules = [];
-  trainContent.manuals[mi].folders[fi].modules.push({ id: 'mod-' + Date.now(), title: 'New Module', type: 'lesson', level_required: trainContent.manuals[mi].folders[fi].level || 0, description: '', next_step: '', sections: [], videos: [] });
-  renderTrainEditor();
-}
-function moveModule(mi, fi, modi, dir) {
-  const arr = trainContent.manuals[mi].folders[fi].modules;
-  const j = modi + dir;
-  if (j < 0 || j >= arr.length) return;
-  [arr[modi], arr[j]] = [arr[j], arr[modi]];
-  renderTrainEditor();
-}
-function removeModule(mi, fi, modi) {
-  if (!confirm('Delete this module?')) return;
-  trainContent.manuals[mi].folders[fi].modules.splice(modi, 1);
-  renderTrainEditor();
-}
-
-function addSubfolder(mi, fi) {
-  if (!trainContent.manuals[mi].folders[fi].folders) trainContent.manuals[mi].folders[fi].folders = [];
-  trainContent.manuals[mi].folders[fi].folders.push({ id: 'sf-' + Date.now(), title: 'New Sub-folder', modules: [] });
-  renderTrainEditor();
-}
-function removeSubfolder(mi, fi, sfi) {
-  if (!confirm('Delete this sub-folder?')) return;
-  trainContent.manuals[mi].folders[fi].folders.splice(sfi, 1);
-  renderTrainEditor();
-}
-function addSubModule(mi, fi, sfi) {
-  if (!trainContent.manuals[mi].folders[fi].folders[sfi].modules) trainContent.manuals[mi].folders[fi].folders[sfi].modules = [];
-  trainContent.manuals[mi].folders[fi].folders[sfi].modules.push({ id: 'mod-' + Date.now(), title: 'New Module', type: 'lesson', description: '', sections: [], videos: [] });
-  renderTrainEditor();
-}
-function removeSubModule(mi, fi, sfi, modi) {
-  if (!confirm('Delete this module?')) return;
-  trainContent.manuals[mi].folders[fi].folders[sfi].modules.splice(modi, 1);
-  renderTrainEditor();
-}
-
-function addSection(mi, fi, modi) {
-  const mod = trainContent.manuals[mi].folders[fi].modules[modi];
-  if (!mod.sections) mod.sections = [];
-  mod.sections.push({ customer_quote: '', rep_response: '', tip: '' });
-  renderTrainEditor();
-}
-function moveSection(mi, fi, modi, si, dir) {
-  const arr = trainContent.manuals[mi].folders[fi].modules[modi].sections;
-  const j = si + dir;
-  if (j < 0 || j >= arr.length) return;
-  [arr[si], arr[j]] = [arr[j], arr[si]];
-  renderTrainEditor();
-}
-function removeSection(mi, fi, modi, si) {
-  trainContent.manuals[mi].folders[fi].modules[modi].sections.splice(si, 1);
-  renderTrainEditor();
-}
-function addSubSection(mi, fi, sfi, modi) {
-  const mod = trainContent.manuals[mi].folders[fi].folders[sfi].modules[modi];
-  if (!mod.sections) mod.sections = [];
-  mod.sections.push({ customer_quote: '', rep_response: '', tip: '' });
-  renderTrainEditor();
-}
-
-function addVideo(mi, fi, modi) {
-  const mod = trainContent.manuals[mi].folders[fi].modules[modi];
-  if (!mod.videos) mod.videos = [];
-  mod.videos.push({ url: '', title: '' });
-  renderTrainEditor();
-}
-function removeVideo(mi, fi, modi, vi) {
-  trainContent.manuals[mi].folders[fi].modules[modi].videos.splice(vi, 1);
-  renderTrainEditor();
-}
-function addSubVideo(mi, fi, sfi, modi) {
-  const mod = trainContent.manuals[mi].folders[fi].folders[sfi].modules[modi];
-  if (!mod.videos) mod.videos = [];
-  mod.videos.push({ url: '', title: '' });
-  renderTrainEditor();
-}
-function removeSubVideo(mi, fi, sfi, modi, vi) {
-  trainContent.manuals[mi].folders[fi].folders[sfi].modules[modi].videos.splice(vi, 1);
-  renderTrainEditor();
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -2049,90 +1690,7 @@ function collectOptionsContent() {
 }
 
 // ═══════════════════════════════════════════════════════════
-// TRAIN USERS EDITOR
-// ═══════════════════════════════════════════════════════════
-function renderTrainUsers() {
-  const el = document.getElementById('train-users-list');
-  if (!el) return;
-  const users = trainUsers.users || [];
-  
-  // Build level options from train content
-  const levels = [];
-  const builder = (trainContent.manuals || []).find(m => m.id === 'builder');
-  if (builder) {
-    (builder.folders || []).forEach(f => {
-      levels.push({ value: f.level || 0, label: f.title || 'Level ' + (f.level||0)/10 });
-    });
-  }
-  if (levels.length === 0) {
-    for (let l = 0; l <= 90; l += 10) levels.push({ value: l, label: 'Level ' + l/10 });
-  }
-  
-  el.innerHTML = users.length === 0 
-    ? '<p style="color:#666;font-style:italic;">No reps added yet. Click "+ Add Rep" to create a user.</p>'
-    : users.map((u, i) => {
-      const initials = ((u.first_name||'')[0] || '') + ((u.last_name||'')[0] || '');
-      const levelOpts = levels.map(l => 
-        `<option value="${l.value}" ${(u.unlocked_level||0) === l.value ? 'selected' : ''}>${l.label}</option>`
-      ).join('');
-      
-      return `
-      <div class="user-card">
-        <div class="user-card__avatar">${initials.toUpperCase()}</div>
-        <div class="user-card__info">
-          <div class="user-card__name">${u.first_name||''} ${u.last_name||''}</div>
-          <div class="user-card__username">@${u.username||''}</div>
-        </div>
-        <div class="user-card__fields">
-          <input value="${u.first_name||''}" placeholder="First" style="width:90px;" oninput="trainUsers.users[${i}].first_name=this.value"/>
-          <input value="${u.last_name||''}" placeholder="Last" style="width:90px;" oninput="trainUsers.users[${i}].last_name=this.value"/>
-          <input value="${u.username||''}" placeholder="Email" style="width:100px;" oninput="trainUsers.users[${i}].username=this.value"/>
-          <select oninput="trainUsers.users[${i}].role=this.value">
-            <option value="rep" ${u.role==='rep'?'selected':''}>Rep</option>
-            <option value="trainer" ${u.role==='trainer'?'selected':''}>Trainer</option>
-            <option value="admin" ${u.role==='admin'?'selected':''}>Admin</option>
-          </select>
-          <input value="${u.password && !u.password.startsWith('$2y$') ? u.password : ''}" placeholder="${u.password && u.password.startsWith('$2y$') ? '(encrypted)' : 'Custom pw (or uses portal pw)'}" style="width:140px;font-size:0.8rem;" oninput="trainUsers.users[${i}].password=this.value" type="text"/>
-          <label style="font-size:0.8rem;color:#666;">Level:</label>
-          <select class="user-card__level-input" oninput="trainUsers.users[${i}].unlocked_level=parseInt(this.value)">
-            ${levelOpts}
-          </select>
-          <button class="btn btn-sm btn-danger" onclick="removeTrainUser(${i})">✕</button>
-        </div>
-      </div>`;
-    }).join('');
-}
-
-function addTrainUser() {
-  if (!trainUsers.users) trainUsers.users = [];
-  const id = 'user-' + Date.now();
-  trainUsers.users.push({
-    id: id,
-    username: '',
-    first_name: '',
-    last_name: '',
-    role: 'rep',
-    unlocked_level: 0,
-    created_at: new Date().toISOString().split('T')[0]
-  });
-  renderTrainUsers();
-  // Focus the first name field of the new user
-  setTimeout(() => {
-    const cards = document.querySelectorAll('.user-card');
-    const last = cards[cards.length - 1];
-    if (last) last.querySelector('input')?.focus();
-  }, 50);
-}
-
-function removeTrainUser(i) {
-  const u = trainUsers.users[i];
-  if (!confirm(`Remove ${u.first_name||''} ${u.last_name||''} (@${u.username||''})? They won't be able to log in anymore.`)) return;
-  trainUsers.users.splice(i, 1);
-  renderTrainUsers();
-}
-
-// ═══════════════════════════════════════════════════════════
-// EXPANDED SAVE — saves content.json + train-content.json + services-content.json
+// EXPANDED SAVE — saves content.json + services-content.json + options-content.json
 // ═══════════════════════════════════════════════════════════
 const _origSaveContent = saveContent;
 saveContent = async function() {
@@ -2213,10 +1771,6 @@ saveContent = async function() {
   content.testimonials.rating = document.getElementById('testimonials-rating')?.value || content.testimonials.rating || '5.0';
   content.testimonials.total_reviews = document.getElementById('testimonials-total')?.value || content.testimonials.total_reviews || '';
 
-  // 2) Train content
-  trainContent.settings = trainContent.settings || {};
-  trainContent.settings.portal_password = safeGet('train-password', trainContent.settings.portal_password) || 'Become';
-
   // 3) Services content
   servicesContent.hero = servicesContent.hero || {};
   servicesContent.hero.title = safeGet('svc-hero-title', servicesContent.hero.title);
@@ -2241,23 +1795,11 @@ saveContent = async function() {
     console.log('💾 content.json response:', j1);
     if (!j1.success) throw new Error('content.json: ' + (j1.error || 'failed'));
 
-    // Save train-content.json
-    const r2 = await fetch('/save.php', { method: 'POST', headers: authHeaders, body: JSON.stringify({ ...trainContent, _save_target: 'train' }) });
-    const j2 = await r2.json();
-    console.log('💾 train-content.json response:', j2);
-    if (!j2.success) throw new Error('train-content.json: ' + (j2.error || 'failed'));
-
     // Save services-content.json
     const r3 = await fetch('/save.php', { method: 'POST', headers: authHeaders, body: JSON.stringify({ ...servicesContent, _save_target: 'services' }) });
     const j3 = await r3.json();
     console.log('💾 services-content.json response:', j3);
     if (!j3.success) throw new Error('services-content.json: ' + (j3.error || 'failed'));
-
-    // Save train-users.json
-    const r4 = await fetch('/save.php', { method: 'POST', headers: authHeaders, body: JSON.stringify({ ...trainUsers, _save_target: 'train-users' }) });
-    const j4 = await r4.json();
-    console.log('💾 train-users.json response:', j4);
-    if (!j4.success) throw new Error('train-users.json: ' + (j4.error || 'failed'));
 
     // Save options-content.json
     const r5 = await fetch('/save.php', { method: 'POST', headers: authHeaders, body: JSON.stringify({ ...optionsContent, _save_target: 'options' }) });
@@ -2308,9 +1850,9 @@ async function loadConnections() {
     if (s.stray_files && s.stray_files.length) {
       stray.style.display = 'block';
       stray.innerHTML = '';
-      stray.append('⚠️ Leftover token copy on the server: ' + s.stray_files.join(', ') + ' ');
+      stray.append('⚠️ Leftovers on the server that git cannot remove: ' + s.stray_files.join(', ') + ' ');
       const b = document.createElement('button');
-      b.className = 'btn btn-sm btn-danger'; b.textContent = 'Delete it';
+      b.className = 'btn btn-sm btn-danger'; b.textContent = 'Delete them';
       b.addEventListener('click', () => connSave('cleanup', {}));
       stray.append(b);
     } else stray.style.display = 'none';

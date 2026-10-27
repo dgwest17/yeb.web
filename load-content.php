@@ -6,9 +6,7 @@
  * 
  * Usage:
  *   GET ?target=content         → content.json
- *   GET ?target=train           → train-content.json
  *   GET ?target=services        → services-content.json
- *   GET ?target=train-users     → train-users.json
  *   GET ?target=options         → options-content.json
  */
 
@@ -19,9 +17,7 @@ $target = $_GET['target'] ?? '';
 
 $targets = [
     'content'     => 'content.json',
-    'train'       => 'train-content.json',
     'services'    => 'services-content.json',
-    'train-users' => 'train-users.json',
     'options'     => 'options-content.json',
 ];
 
@@ -31,21 +27,13 @@ if (!isset($targets[$target])) {
     exit;
 }
 
-// Rep accounts and the portal password are admin-only; only the admin page reads these
-if ($target === 'train' || $target === 'train-users') {
-    require_once __DIR__ . '/security-config.php';
-    require_admin_auth();
-}
-
 $file = __DIR__ . '/' . $targets[$target];
 
 if (!file_exists($file)) {
     // Return empty defaults
     $defaults = [
         'content' => '{}',
-        'train' => '{"manuals":[],"settings":{"portal_password":"Become"}}',
         'services' => '{"hero":{"title":"","subtitle":""},"services":[]}',
-        'train-users' => '{"users":[]}',
         'options' => '{}',
     ];
     echo $defaults[$target] ?? '{}';

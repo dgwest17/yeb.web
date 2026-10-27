@@ -1,6 +1,6 @@
 <?php
 // save.php — Save content files with automatic backup
-// Handles: content.json, train-content.json, services-content.json
+// Handles: content.json, services-content.json, options-content.json
 // Requires a logged-in admin session (admin-auth.php) + the CSRF token
 // the admin page already sends as X-CSRF-Token.
 
@@ -32,9 +32,7 @@ unset($data['_save_target']);
 
 $fileMap = [
     'content'  => __DIR__ . '/content.json',
-    'train'    => __DIR__ . '/train-content.json',
     'services' => __DIR__ . '/services-content.json',
-    'train-users' => __DIR__ . '/train-users.json',
     'options'  => __DIR__ . '/options-content.json',
 ];
 

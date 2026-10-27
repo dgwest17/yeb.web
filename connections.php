@@ -10,7 +10,7 @@
  *   POST {action:'zoho', code}            → trades a Zoho Self Client grant code for a refresh token
  *   POST {action:'stripe_webhook', secret}→ saves the webhook signing secret (whsec_...)
  *   POST {action:'google', key, place_id} → saves the Google Places key + place id (reviews)
- *   POST {action:'cleanup'}               → deletes stray token copies (instagram_token.txt)
+ *   POST {action:'cleanup'}               → deletes leftovers git can't remove (see $STRAY)
  */
 require_once __DIR__ . '/security-config.php';
 header('Content-Type: application/json');
@@ -24,7 +24,18 @@ $F = [
   'gkey'      => __DIR__ . '/.google_api_key',
   'gplace'    => __DIR__ . '/.google_place_id',
 ];
-$STRAY = [__DIR__ . '/instagram_token.txt'];
+// Leftovers git can't remove (never committed): a stray token copy, and what Become
+// and Kinobi wrote on the server — uploads, test scripts, logs, rep account files.
+// Become's lesson files were copied into Lumaria's Quiver before it was retired.
+$STRAY = [__DIR__ . '/instagram_token.txt', __DIR__ . '/become', __DIR__ . '/kinobi',
+          __DIR__ . '/train-content.json', __DIR__ . '/train-users.json'];
+
+function remove_path($p) {
+  if (is_link($p) || is_file($p)) return @unlink($p);
+  if (!is_dir($p)) return false;
+  foreach (array_diff(scandir($p), ['.', '..']) as $e) remove_path($p . '/' . $e);
+  return @rmdir($p);
+}
 
 function http($method, $url, $headers = [], $body = null) {
   $ch = curl_init($url);
@@ -136,7 +147,7 @@ switch ($in['action'] ?? '') {
 
   case 'cleanup':
     $gone = [];
-    foreach ($STRAY as $f) if (file_exists($f) && @unlink($f)) $gone[] = basename($f);
+    foreach ($STRAY as $f) if (file_exists($f) && remove_path($f)) $gone[] = basename($f);
     out(['ok' => true, 'deleted' => $gone]);
 
   default:

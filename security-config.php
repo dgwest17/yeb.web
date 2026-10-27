@@ -52,7 +52,11 @@ function set_security_headers() {
 $__sec_cfg = file_exists(__DIR__ . '/config.php') ? require __DIR__ . '/config.php' : [];
 define('SUPABASE_URL',      rtrim($__sec_cfg['supabase_url'] ?? '', '/'));
 define('SUPABASE_ANON_KEY', $__sec_cfg['supabase_anon_key'] ?? '');
-$GLOBALS['ADMIN_ALLOWED_EMAILS'] = array_map('strtolower', $__sec_cfg['admin_allowed_emails'] ?? []);
+// Who may sign into /admin/. Not a secret, so it lives here (deployed with the
+// site) as well as in config.php. Each email still needs a Supabase account.
+const ADMIN_EMAILS = ['dwest@yourenergybest.com', 'dwestsolarbest@gmail.com'];
+$GLOBALS['ADMIN_ALLOWED_EMAILS'] = array_values(array_unique(array_map('strtolower',
+    array_merge(ADMIN_EMAILS, $__sec_cfg['admin_allowed_emails'] ?? []))));
 
 /**
  * Verify admin login credentials

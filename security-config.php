@@ -107,7 +107,11 @@ function admin_login($email, $password) {
     }
 
     record_rate_limit('admin_login_' . get_client_ip());
-    return ['success' => false, 'error' => 'Invalid credentials.'];
+    // The email is on the allowlist, so say what Supabase actually objected to
+    // ("Email not confirmed", "Invalid login credentials") — a generic message
+    // here left the owner locked out with no idea why.
+    $why = $data['error_description'] ?? $data['msg'] ?? $data['message'] ?? $data['error'] ?? "HTTP $code";
+    return ['success' => false, 'error' => 'Supabase said: ' . $why];
 }
 
 /**

@@ -82,6 +82,23 @@ switch ($action) {
         echo json_encode(['csrf_token' => csrf_token()]);
         break;
 
+    // ─── LOGIN TROUBLESHOOTING (no secrets) ───
+    // GET ?action=status[&email=...] → is login set up, which Supabase project,
+    // is this email allowed, and how long until this IP may try again.
+    case 'status':
+        $email = strtolower(trim($_GET['email'] ?? ''));
+        $rl = RATE_LIMIT_DIR . md5('admin_login_' . get_client_ip()) . '.json';
+        $tries = file_exists($rl) ? array_values(array_filter((json_decode(file_get_contents($rl), true)['attempts'] ?? []), fn($t) => $t > time() - 900)) : [];
+        echo json_encode([
+            'supabase_configured' => SUPABASE_URL !== '' && SUPABASE_ANON_KEY !== '',
+            'supabase_project'    => parse_url(SUPABASE_URL, PHP_URL_HOST) ?: null,
+            'allowlist_size'      => count($GLOBALS['ADMIN_ALLOWED_EMAILS']),
+            'email_allowed'       => $email === '' ? null : in_array($email, $GLOBALS['ADMIN_ALLOWED_EMAILS'], true),
+            'failed_tries_15min'  => count($tries),
+            'locked_for_seconds'  => count($tries) >= 5 ? max(0, min($tries) + 900 - time()) : 0,
+        ]);
+        break;
+
     default:
         http_response_code(400);
         echo json_encode(['error' => 'Invalid action']);

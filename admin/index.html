@@ -1,1884 +1,775 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Panel – Your Energy Best</title>
-  <!-- Quill Rich Text Editor -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css" rel="stylesheet">
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; }
-    .login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #023047 0%, #126782 100%); }
-    .login-box { background: white; padding: 3rem; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); width: 100%; max-width: 400px; }
-    .login-box h2 { margin-bottom: 1.5rem; color: #023047; }
-    .login-box input { width: 100%; padding: 0.75rem; border: 2px solid #ddd; border-radius: 6px; font-size: 1rem; margin-bottom: 1rem; }
-    .login-box button { width: 100%; padding: 0.75rem; background: #219EBC; color: white; border: none; border-radius: 6px; font-size: 1rem; font-weight: 600; cursor: pointer; }
-    .login-box button:hover { background: #126782; }
-    .login-box .error { color: #EF476F; font-size: 0.9rem; margin-bottom: 1rem; display: none; }
-    .admin-header { background: #023047; color: white; padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); flex-wrap: wrap; gap: 0.5rem; }
-    .admin-header h1 { font-size: 1.5rem; font-weight: 700; }
-    .tabs { display: flex; background: white; border-bottom: 2px solid #ddd; overflow-x: auto; }
-    .tab { padding: 1rem 2rem; border: none; background: none; cursor: pointer; font-size: 1rem; font-weight: 500; color: #666; border-bottom: 3px solid transparent; white-space: nowrap; }
-    .tab:hover { background: #f9f9f9; }
-    .tab.active { color: #219EBC; border-bottom-color: #219EBC; }
-    .admin-content { max-width: 1400px; margin: 0 auto; padding: 2rem; padding-bottom: 5rem; }
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
-    .section-card { background: white; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 2px solid #f0f0f0; }
-    .section-header h3 { font-size: 1.1rem; color: #023047; }
-    .field { margin-bottom: 1rem; }
-    .field label { display: block; font-weight: 600; color: #333; margin-bottom: 0.4rem; font-size: 0.9rem; }
-    .field input, .field textarea { width: 100%; padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 1rem; font-family: inherit; }
-    .field input:focus, .field textarea:focus { outline: none; border-color: #219EBC; }
-    .field textarea { min-height: 100px; resize: vertical; }
-    .item-card { background: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 6px; padding: 1rem; margin-bottom: 1rem; }
-    .item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
-    .item-header h4 { font-size: 0.95rem; color: #023047; }
-    .item-actions { display: flex; gap: 0.5rem; }
-    .btn { padding: 0.5rem 1rem; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
-    .btn-primary { background: #219EBC; color: white; }
-    .btn-primary:hover { background: #126782; }
-    .btn-add { background: #06D6A0; color: white; padding: 0.6rem 1.2rem; margin-top: 0.5rem; }
-    .btn-add:hover { background: #05b888; }
-    .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.85rem; }
-    .btn-danger { background: #EF476F; color: white; }
-    .btn-up, .btn-down { background: #FFB703; color: white; }
-    .img-preview { width: 100%; max-height: 200px; object-fit: cover; border-radius: 6px; margin-top: 0.5rem; }
-    .upload-btn { display: inline-block; padding: 0.5rem 1rem; background: #8ECAE6; color: #023047; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
-    .upload-btn:hover { background: #6fb8d4; }
-    input[type="file"] { display: none; }
-    .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
-    .hint { font-size: 0.85rem; color: #666; margin-top: 0.25rem; }
-    .hidden { display: none; }
-    .save-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 1rem 2rem; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); display: flex; justify-content: center; gap: 1rem; z-index: 1000; }
-    .save-bar button { padding: 0.75rem 2rem; font-size: 1rem; }
-    /* Train admin editor styles */
-    .manual-block { border: 2px solid #219EBC; border-radius: 10px; margin-bottom: 1.5rem; overflow: hidden; }
-    .manual-header { background: linear-gradient(135deg, #023047, #126782); color: white; padding: 1rem 1.25rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-    .manual-header h4 { font-size: 1.05rem; margin: 0; }
-    .manual-header .manual-toggle { font-size: 1.2rem; transition: transform 0.2s; }
-    .manual-header .manual-toggle.open { transform: rotate(90deg); }
-    .manual-body { display: none; padding: 1rem; background: #f9fafb; }
-    .manual-body.open { display: block; }
-    .level-block { border-left: 3px solid #219EBC; margin-bottom: 1rem; padding-left: 1rem; background: white; border-radius: 0 8px 8px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-    .level-header { padding: 0.75rem 0.5rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-    .level-header h5 { color: #023047; font-size: 0.95rem; margin: 0; }
-    .level-body { display: none; padding: 0.5rem; }
-    .level-body.open { display: block; }
-    .module-block { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 6px; padding: 0.75rem; margin-bottom: 0.75rem; }
-    .module-block .module-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
-    .module-block .module-title-row h6 { font-size: 0.9rem; color: #023047; margin: 0; }
-    .section-block { background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 0.75rem; margin-bottom: 0.5rem; }
-    .section-block .quote-field { font-weight: 700; }
-    .section-block .tip-field { font-style: italic; color: #666; }
-    .video-item { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; }
-    .video-item input { flex: 1; }
-    .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
-    .badge-lesson { background: #dbeafe; color: #1e40af; }
-    .badge-quiz { background: #fef3c7; color: #92400e; }
-    .badge-passoff { background: #d1fae5; color: #065f46; }
-    .badge-checkpoint { background: #fce7f3; color: #9d174d; }
-    /* Services editor */
-    .svc-card { background: #f9f9f9; border: 2px solid #e0e0e0; border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem; }
-    /* User card */
-    .user-card { background: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
-    .user-card__avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #219EBC, #126782); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; }
-    .user-card__info { flex: 1; min-width: 140px; }
-    .user-card__name { font-weight: 700; font-size: 0.95rem; color: #023047; }
-    .user-card__username { font-size: 0.8rem; color: #666; }
-    .user-card__fields { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
-    .user-card__fields select, .user-card__fields input { padding: 0.35rem 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.85rem; }
-    .user-card__fields select { width: 100px; }
-    .user-card__level-input { width: 70px !important; text-align: center; }
-    .svc-features { margin-top: 0.5rem; }
-    .svc-feature-row { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.4rem; }
-    .svc-feature-row input { flex: 1; }
-    /* Quill rich text editor overrides */
-    .rich-editor-wrap { border: 2px solid #e0e0e0; border-radius: 6px; overflow: hidden; margin-bottom: 0.5rem; }
-    .rich-editor-wrap:focus-within { border-color: #219EBC; }
-    .rich-editor-wrap .ql-toolbar { background: #f9f9f9; border: none; border-bottom: 1px solid #e0e0e0; padding: 4px 8px; }
-    .rich-editor-wrap .ql-container { border: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 1rem; }
-    .rich-editor-wrap .ql-editor { min-height: 80px; padding: 0.75rem; }
-    .rich-editor-wrap .ql-editor p { margin-bottom: 0.5em; }
-    .rich-editor-wrap.compact .ql-editor { min-height: 40px; }
-    .rich-editor-wrap.tall .ql-editor { min-height: 180px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Website Editor — Your Energy Best</title>
+<link rel="icon" type="image/png" href="/img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!--
+  /admin/ — the website editor.
+
+  HOW IT'S BUILT: everything editable is listed once, in PAGES below — each
+  field says which file and path it saves to, and where it shows on the site.
+  The editor draws itself from that list, so a field only appears here if a
+  page actually reads it. To make something new editable: wire it on the page
+  (read it from content.json / options-content.json / services-content.json),
+  then add one line to PAGES.
+
+  Saving goes through save.php (admin session + CSRF token); every save keeps
+  the previous version in /backups, which History can put back.
+  The previous editor is at /admin/classic.html until this one has settled in.
+-->
+<style>
+  :root { --navy:#023047; --navy2:#011627; --teal:#219EBC; --sky:#8ECAE6; --gold:#FFB703; --orange:#FB8500;
+          --green:#06A77D; --red:#C0392B; --ink:#1d2b36; --soft:#5b6b77; --line:#e3e8ec; --bg:#f4f6f8; --card:#fff; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--ink); font-family: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 16px; line-height: 1.5; }
+  button { font: inherit; cursor: pointer; }
+  input, textarea, select { font: inherit; color: inherit; }
+  a { color: var(--teal); }
+  .hidden { display: none !important; }
+
+  /* Login */
+  .login { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 16px;
+           background: linear-gradient(135deg, var(--navy2), var(--navy) 60%, #0b5f7a); }
+  .login form { width: 100%; max-width: 380px; background: #fff; border-radius: 14px; padding: 28px; box-shadow: 0 20px 50px rgba(0,0,0,.25); }
+  .login h1 { margin: 0 0 4px; font-size: 1.35rem; color: var(--navy); }
+  .login p { margin: 0 0 18px; color: var(--soft); font-size: .92rem; }
+  .login input { width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 9px; margin-bottom: 10px; }
+  .login button { width: 100%; padding: 12px; border: 0; border-radius: 9px; background: var(--teal); color: #fff; font-weight: 600; }
+  .login .err { color: var(--red); font-size: .9rem; min-height: 1.3em; margin: 4px 0 8px; }
+
+  /* Shell */
+  header.top { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 12px; padding: 10px 20px;
+               background: var(--navy); color: #fff; }
+  header.top h1 { font-size: 1.05rem; margin: 0; font-weight: 600; flex: 1; }
+  header.top a, header.top button { color: #fff; background: rgba(255,255,255,.1); border: 0; border-radius: 8px; padding: 7px 12px; font-size: .88rem; text-decoration: none; }
+  .shell { display: grid; grid-template-columns: 220px 1fr; max-width: 1200px; margin: 0 auto; }
+  nav.side { position: sticky; top: 52px; align-self: start; padding: 18px 12px; display: flex; flex-direction: column; gap: 2px; }
+  nav.side .grp { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--soft); margin: 14px 10px 4px; }
+  nav.side button { text-align: left; background: none; border: 0; border-radius: 8px; padding: 9px 12px; color: var(--ink); font-size: .95rem; }
+  nav.side button:hover { background: #e8eef2; }
+  nav.side button.on { background: var(--navy); color: #fff; }
+  main { padding: 20px 20px 120px; min-width: 0; }
+  .page-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+  .page-head h2 { margin: 0; font-size: 1.5rem; color: var(--navy); }
+  .page-head a { font-weight: 600; text-decoration: none; }
+  .intro { color: var(--soft); margin: -6px 0 16px; font-size: .95rem; }
+
+  @media (max-width: 820px) {
+    .shell { grid-template-columns: 1fr; }
+    nav.side { position: sticky; top: 52px; z-index: 15; flex-direction: row; overflow-x: auto; padding: 8px 12px; background: var(--bg); border-bottom: 1px solid var(--line); }
+    nav.side .grp { display: none; }
+    nav.side button { white-space: nowrap; flex: 0 0 auto; }
+    main { padding: 16px 16px 130px; }
+    header.top { padding: 10px 16px; }
+  }
+
+  /* Sections */
+  .sec { background: var(--card); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 16px; }
+  .sec > .hd { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .sec > .hd h3 { margin: 0; font-size: 1.05rem; flex: 1; min-width: 180px; }
+  .sec > .hd .where { font-size: .8rem; color: var(--soft); }
+  .sec > .hd a.view { font-size: .85rem; font-weight: 600; text-decoration: none; white-space: nowrap; }
+  .sec > .bd { padding: 16px 18px; }
+  .note { font-size: .88rem; color: var(--soft); background: #f6f9fb; border-left: 3px solid var(--sky); padding: 8px 12px; border-radius: 0 8px 8px 0; margin: 0 0 14px; }
+  .note.warn { border-color: var(--gold); background: #fff8e8; }
+
+  /* Fields */
+  .f { margin-bottom: 14px; }
+  .f:last-child { margin-bottom: 0; }
+  .f > label { display: block; font-weight: 600; font-size: .9rem; margin-bottom: 4px; }
+  .f > .help { font-size: .82rem; color: var(--soft); margin: -2px 0 6px; }
+  .f input[type=text], .f input[type=url], .f input[type=number], .f input[type=date], .f textarea {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+  .f textarea { resize: vertical; min-height: 70px; line-height: 1.5; }
+  .f input:focus, .f textarea:focus, .rich .area:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px rgba(33,158,188,.15); }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .row.r3 { grid-template-columns: 1fr 1fr 1fr; }
+  @media (max-width: 600px) { .row, .row.r3 { grid-template-columns: 1fr; } }
+  .toggle { display: flex; align-items: center; gap: 8px; font-weight: 500; font-size: .92rem; cursor: pointer; }
+  .toggle input { width: 18px; height: 18px; }
+  .unit { display: flex; align-items: center; gap: 6px; } .unit input { max-width: 120px; }
+
+  .rich { border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+  .rich .tb { display: flex; gap: 2px; padding: 4px; border-bottom: 1px solid var(--line); background: #fafbfc; border-radius: 8px 8px 0 0; }
+  .rich .tb button { border: 0; background: none; border-radius: 6px; padding: 4px 9px; font-size: .9rem; color: var(--ink); }
+  .rich .tb button:hover { background: #e8eef2; }
+  .rich .area { min-height: 90px; padding: 10px 12px; border-radius: 0 0 8px 8px; }
+  .rich .area p { margin: 0 0 .6em; } .rich .area ul, .rich .area ol { margin: 0 0 .6em; padding-left: 1.3em; }
+  .rich.tall .area { min-height: 260px; }
+
+  /* Lists */
+  .items { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+  .item { border: 1px solid var(--line); border-radius: 10px; background: #fbfcfd; }
+  .item > .ih { display: flex; align-items: center; gap: 6px; padding: 8px 10px 8px 14px; cursor: pointer; user-select: none; }
+  .item > .ih .t { flex: 1; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+  .item > .ih .t small { color: var(--soft); font-weight: 400; margin-left: 6px; }
+  .item > .ib { padding: 4px 14px 14px; border-top: 1px solid var(--line); background: #fff; border-radius: 0 0 10px 10px; }
+  .item:not(.open) > .ib { display: none; }
+  .ibtn { border: 1px solid var(--line); background: #fff; border-radius: 7px; padding: 3px 9px; font-size: .85rem; color: var(--ink); }
+  .ibtn:hover { border-color: var(--teal); }
+  .ibtn.del:hover { border-color: var(--red); color: var(--red); }
+  .add { border: 1px dashed var(--teal); background: #f2fafc; color: var(--teal); border-radius: 9px; padding: 9px 14px; font-weight: 600; }
+
+  .imgs { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 10px; }
+  .img { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #fff; }
+  .img .ph { aspect-ratio: 4/3; background: #eef2f5 center/cover no-repeat; }
+  .img .ph.logo { background-size: contain; background-color: #fff; }
+  .img input { width: 100%; border: 0; border-top: 1px solid var(--line); padding: 6px 8px; font-size: .85rem; }
+  .img .ctl { display: flex; gap: 4px; padding: 6px; justify-content: flex-end; }
+  .upload { display: inline-flex; align-items: center; gap: 8px; }
+  .upload input { display: none; }
+
+  /* Save bar */
+  .bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: #fff; border-top: 1px solid var(--line);
+         box-shadow: 0 -6px 20px rgba(0,0,0,.06); padding: 10px 20px calc(10px + env(safe-area-inset-bottom)); }
+  .bar .in { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .bar .st { flex: 1; font-size: .92rem; color: var(--soft); min-width: 180px; }
+  .bar .st b { color: var(--ink); }
+  .bar .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--green); margin-right: 6px; }
+  .bar.dirty .dot { background: var(--gold); }
+  .btn { border: 0; border-radius: 9px; padding: 10px 18px; font-weight: 600; }
+  .btn.pri { background: var(--teal); color: #fff; } .btn.pri:disabled { background: #b7cbd3; cursor: default; }
+  .btn.sec2 { background: #eef2f5; color: var(--ink); }
+  .btn.danger { background: #fdecea; color: var(--red); }
+
+  .toast { position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%); background: var(--navy); color: #fff; padding: 10px 18px;
+           border-radius: 10px; z-index: 60; font-size: .95rem; box-shadow: 0 8px 24px rgba(0,0,0,.2); opacity: 0; transition: opacity .2s; pointer-events: none; }
+  .toast.show { opacity: 1; } .toast.bad { background: var(--red); }
+
+  .modal { position: fixed; inset: 0; z-index: 70; background: rgba(1,22,39,.55); display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .modal .box { background: #fff; border-radius: 14px; padding: 22px; max-width: 460px; width: 100%; }
+  .modal h4 { margin: 0 0 8px; font-size: 1.1rem; } .modal p { margin: 0 0 16px; color: var(--soft); }
+  .modal .acts { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+
+  /* Connections + History */
+  .pill { font-size: .78rem; font-weight: 700; padding: 3px 10px; border-radius: 50px; background: #eee; color: #555; white-space: nowrap; }
+  .pill.ok { background: #d1fae5; color: #065f46; } .pill.bad { background: #fee2e2; color: #991b1b; } .pill.warn { background: #fff4e5; color: #a15c00; }
+  .steps { margin: 0 0 12px 1.2rem; padding: 0; font-size: .9rem; color: #33424d; line-height: 1.7; }
+  details.how > summary { cursor: pointer; font-weight: 600; font-size: .9rem; margin-bottom: 8px; }
+  .msg { margin-left: 10px; font-size: .9rem; }
+  table.hist { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  table.hist td { padding: 8px 6px; border-top: 1px solid var(--line); }
+  table.hist td:last-child { text-align: right; white-space: nowrap; }
+  code { background: #eef2f5; padding: 1px 5px; border-radius: 4px; font-size: .88em; }
+</style>
 </head>
 <body>
 
-<div id="loginScreen" class="login-screen">
-  <div class="login-box">
-    <h2>🔐 Admin Login</h2>
-    <div class="error" id="loginError">Incorrect credentials. Please try again.</div>
-    <input type="text" id="usernameInput" placeholder="Email" onkeypress="if(event.key==='Enter')document.getElementById('passwordInput').focus()" style="margin-bottom:0.5rem;" />
-    <input type="password" id="passwordInput" placeholder="Password" onkeypress="if(event.key==='Enter')login()" />
-    <button onclick="login()">Login</button>
-  </div>
+<div class="login" id="login">
+  <form id="loginForm" autocomplete="on">
+    <h1>Website Editor</h1>
+    <p>Sign in with your lumaria account.</p>
+    <input type="email" id="loginEmail" placeholder="Email" autocomplete="username" required>
+    <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password" required>
+    <div class="err" id="loginErr"></div>
+    <button type="submit" id="loginBtn">Sign in</button>
+  </form>
 </div>
 
-<div id="adminInterface" class="hidden">
-  <div class="admin-header">
-    <h1>⚡ Your Energy Best Admin</h1>
-    <div style="display:flex; gap:1rem; flex-wrap:wrap;">
-      <button class="btn btn-primary" onclick="downloadBackup()" style="background:#8ECAE6; color:#023047;">📥 Backup</button>
-      <button class="btn btn-primary" onclick="adminLogout()">Logout</button>
-    </div>
-  </div>
+<header class="top">
+  <h1>⚡ Website Editor</h1>
+  <a href="/" target="_blank" rel="noopener">View site ↗</a>
+  <button type="button" id="logoutBtn">Sign out</button>
+</header>
 
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('home', this)">🏠 Home Page</button>
-    <button class="tab" onclick="switchTab('build', this)">🚀 Build Page</button>
-    <button class="tab" onclick="switchTab('quote', this)">📝 Quote Page</button>
-    <button class="tab" onclick="switchTab('blog', this)">📰 Blog</button>
-    <button class="tab" onclick="switchTab('options', this)">⚡ Options Page</button>
-    <button class="tab" onclick="switchTab('services', this)">🔧 Services</button>
-    <button class="tab" onclick="switchTab('global', this)">⚙️ Global Settings</button>
-    <button class="tab" onclick="switchTab('connections', this); loadConnections();">🔌 Connections</button>
-  </div>
-
-  <div class="admin-content">
-    <!-- HOME TAB -->
-    <div id="tab-home" class="tab-panel active">
-      <div class="section-card">
-        <div class="section-header"><h3>Hero Section</h3></div>
-        <div class="field"><label>Eyebrow Text</label><div class="rich-editor-wrap compact"><div id="home-eyebrow" class="rich-edit"></div></div></div>
-        <div class="field"><label>Hero Title - First Part (White)</label><div class="rich-editor-wrap compact"><div id="home-title-part1" class="rich-edit"></div></div></div>
-        <div class="field"><label>Hero Title - Second Part (Orange)</label><div class="rich-editor-wrap compact"><div id="home-title-part2" class="rich-edit"></div></div></div>
-        <div class="field"><label>Subtitle</label><div class="rich-editor-wrap"><div id="home-subtitle" class="rich-edit"></div></div></div>
-      </div>
-      <div class="section-card">
-        <div class="section-header"><h3>Homepage Option Cards</h3></div>
-        <p style="font-size:0.85rem;color:#666;margin:0;">The four cards under the hero (Learn · Quote · Already have solar → Lumaria app · Call) are set in <code>index.html</code>, so they always point to the right places. They aren't edited here.</p>
-      </div>
-      <!-- Hidden: the homepage no longer reads these (kept so older save code finds its elements) -->
-      <div class="section-card" style="display:none;">
-        <div id="home-customer-options"></div>
-      </div>
-      <div class="section-card" style="display:none;">
-        <div class="section-header"><h3>"Start Your Process" Accordion Button</h3></div>
-        <div class="field"><label>Button Text (before click)</label><div class="rich-editor-wrap compact"><div id="accordion-btn-closed" class="rich-edit"></div></div></div>
-        <div class="field"><label>Button Text (after click / expanded)</label><div class="rich-editor-wrap compact"><div id="accordion-btn-open" class="rich-edit"></div></div></div>
-      </div>
-      <div class="section-card">
-        <div class="section-header"><h3>Gallery</h3></div>
-        <label class="upload-btn">📤 Upload Photos<input type="file" accept="image/*" multiple onchange="uploadImages(event,'gallery')" /></label>
-        <div id="home-gallery" style="margin-top:1rem;"></div>
-      </div>
-      <div class="section-card">
-        <div class="section-header"><h3>Manufacturers / Equipment Partners</h3></div>
-        <label class="upload-btn">📤 Upload Logos<input type="file" accept="image/*" multiple onchange="uploadImages(event,'manufacturers')" /></label>
-        <div id="manufacturers-list" style="margin-top:1rem;"></div>
-      </div>
-      <div class="section-card">
-        <div class="section-header"><h3>About Section</h3></div>
-        <div class="field"><label>About Text</label><div class="rich-editor-wrap"><div id="home-about" class="rich-edit"></div></div></div>
-        <div class="field"><label>Referral Text</label><div class="rich-editor-wrap"><div id="home-referral" class="rich-edit"></div></div></div>
-      </div>
-      <div class="section-card">
-        <div class="section-header"><h3>"What Makes Us Different" Section</h3></div>
-        <div class="field"><label>Section Title</label><div class="rich-editor-wrap compact"><div id="diff-title" class="rich-edit"></div></div></div>
-        <div class="field"><label>Section Subtitle</label><div class="rich-editor-wrap compact"><div id="diff-subtitle" class="rich-edit"></div></div></div>
-        <div id="diff-cards"></div>
-        <button class="btn btn-add" onclick="addDiffCard()">+ Add Card</button>
-      </div>
-    </div>
-
-    <!-- BUILD TAB -->
-    <div id="tab-build" class="tab-panel">
-      <div class="section-card">
-        <div class="section-header"><h3>Hero Section</h3></div>
-        <div class="field"><label>Hero Title</label><div class="rich-editor-wrap compact"><div id="build-hero-title" class="rich-edit"></div></div></div>
-        <div class="field"><label>Hero Subtitle</label><div class="rich-editor-wrap"><div id="build-hero-subtitle" class="rich-edit"></div></div></div>
-        <div class="field"><label>CTA Button Text</label><div class="rich-editor-wrap compact"><div id="build-cta-text" class="rich-edit"></div></div></div>
-      </div>
-      <div class="section-card">
-        <div class="section-header"><h3>"Why Door-to-Door?" Section</h3></div>
-        <div class="field"><label>Section Title</label><div class="rich-editor-wrap compact"><div id="build-section-title" class="rich-edit"></div></div></div>
-        <div class="field"><label>Section Text</label><div class="rich-editor-wrap"><div id="build-section-text" class="rich-edit"></div></div></div>
-      </div>
-      <div class="section-card">
-        <div class="section-header"><h3>Benefits Cards</h3></div>
-        <div id="build-benefits"></div>
-        <button class="btn btn-add" onclick="addToArray('build.benefits',{icon:'✨',title:'',text:''})">+ Add Benefit</button>
-      </div>
-      <div class="section-card">
-        <div class="section-header"><h3>Team Gallery</h3></div>
-        <label class="upload-btn">📤 Upload Photos<input type="file" accept="image/*" multiple onchange="uploadImages(event,'build.gallery')" /></label>
-        <div id="build-gallery" style="margin-top:1rem;"></div>
-      </div>
-      <div class="section-card">
-        <div class="section-header"><h3>YouTube Videos</h3></div>
-        <div id="build-videos"></div>
-        <button class="btn btn-add" onclick="addToArray('build.videos',{youtube_id:'',title:'',context:'recruiting'})">+ Add Video</button>
-      </div>
-      <div class="section-card">
-        <div class="section-header"><h3>FAQ</h3></div>
-        <div id="build-faq"></div>
-        <button class="btn btn-add" onclick="addToArray('build.faq',{question:'',answer:''})">+ Add Question</button>
-      </div>
-    </div>
-
-    <!-- QUOTE TAB -->
-    <div id="tab-quote" class="tab-panel">
-      <div class="section-card">
-        <div class="section-header"><h3>Quote Page Content</h3></div>
-        <div class="field"><label>Hero Eyebrow</label><div class="rich-editor-wrap compact"><div id="quote-eyebrow" class="rich-edit"></div></div></div>
-        <div class="field"><label>Hero Title</label><div class="rich-editor-wrap compact"><div id="quote-title" class="rich-edit"></div></div></div>
-        <div class="field"><label>Hero Subtitle</label><div class="rich-editor-wrap"><div id="quote-subtitle" class="rich-edit"></div></div></div>
-        <div class="field"><label>Form Title</label><div class="rich-editor-wrap compact"><div id="quote-form-title" class="rich-edit"></div></div></div>
-        <div class="field"><label>Success Message</label><div class="rich-editor-wrap compact"><div id="quote-success" class="rich-edit"></div></div></div>
-      </div>
-    </div>
-
-    <!-- BLOG TAB -->
-    <div id="tab-blog" class="tab-panel">
-      <div class="section-card">
-        <div class="section-header"><h3>Blog Posts</h3></div>
-        <div id="blog-list"></div>
-        <button class="btn btn-add" onclick="addBlogPost()">+ New Blog Post</button>
-      </div>
-    </div>
-
-    <!-- OPTIONS TAB (content built dynamically by renderOptionsEditor) -->
-    <div id="tab-options" class="tab-panel">
-      <div class="section-card" style="text-align:center;padding:3rem;">
-        <p style="color:#666;">Click this tab to load Options page editor...</p>
-      </div>
-    </div>
-
-    <!-- SERVICES TAB -->
-    <div id="tab-services" class="tab-panel">
-      <div class="section-card">
-        <div class="section-header"><h3>Services Page Hero</h3></div>
-        <div class="field"><label>Page Title</label><div class="rich-editor-wrap compact"><div id="svc-hero-title" class="rich-edit"></div></div></div>
-        <div class="field"><label>Page Subtitle</label><div class="rich-editor-wrap"><div id="svc-hero-subtitle" class="rich-edit"></div></div></div>
-      </div>
-      <div class="section-card">
-        <div class="section-header"><h3>Plans &amp; Prices</h3></div>
-        <p style="font-size:0.85rem;color:#666;margin:0;">Prices live in <code>plans.php</code> — the same list Stripe charges from — and show on /services/ and /services/audit/ automatically. Change a price there (one line) and both pages and checkout update together.</p>
-      </div>
-      <!-- Hidden: /services/ never read this list; prices come from plans.php -->
-      <div class="section-card" style="display:none;">
-        <div id="svc-plans"></div>
-      </div>
-    </div>
-
-    <!-- CONNECTIONS TAB — status + new tokens for outside services (connections.php) -->
-    <div id="tab-connections" class="tab-panel">
-      <div class="section-card">
-        <div class="section-header"><h3>Connections</h3> <button class="btn btn-sm" style="background:#eee;" onclick="loadConnections()">↻ Re-check</button></div>
-        <p style="font-size:0.85rem;color:#666;margin:0;">Tokens you paste here are checked with the service first, then saved on the server. They're never shown again, never go into GitHub, and can't be downloaded from the website.</p>
-        <div id="conn-stray" style="display:none;margin-top:1rem;padding:0.8rem 1rem;background:#fff4e5;border-radius:6px;font-size:0.9rem;"></div>
-      </div>
-
-      <div class="section-card">
-        <div class="section-header"><h3>📸 Instagram (homepage feed)</h3> <span id="conn-instagram-status" class="conn-pill">…</span></div>
-        <details style="font-size:0.88rem;color:#444;margin-bottom:0.8rem;"><summary style="cursor:pointer;font-weight:600;">How to get a new token</summary>
-          <ol style="margin:0.6rem 0 0 1.2rem;line-height:1.7;">
-            <li><b>Cut off the old one first.</b> In the Instagram app: Settings → <i>Apps and websites</i> → remove your website's app. That kills every token it ever issued, including the one that was public.</li>
-            <li>Go to <a href="https://developers.facebook.com/apps/" target="_blank" rel="noopener">developers.facebook.com/apps</a> → your app → <i>Instagram</i> → <i>API setup with Instagram login</i>.</li>
-            <li>Under <i>Generate access tokens</i>, add or reconnect <b>@energy.best.ca</b> and click <i>Generate token</i>. Log in when asked.</li>
-            <li>Copy the token and paste it below. It lasts 60 days and the site renews it by itself.</li>
-          </ol></details>
-        <div class="field"><input id="conn-ig-token" type="password" autocomplete="off" placeholder="Paste the Instagram access token"/></div>
-        <button class="btn btn-add" onclick="connSave('instagram', {token: connVal('conn-ig-token')})">Check &amp; save</button>
-        <span id="conn-instagram-msg" class="conn-msg"></span>
-      </div>
-
-      <div class="section-card">
-        <div class="section-header"><h3>📇 Zoho CRM (leads, install map)</h3> <span id="conn-zoho-status" class="conn-pill">…</span></div>
-        <details style="font-size:0.88rem;color:#444;margin-bottom:0.8rem;"><summary style="cursor:pointer;font-weight:600;">How to get a new connection</summary>
-          <ol style="margin:0.6rem 0 0 1.2rem;line-height:1.7;">
-            <li>Go to <a href="https://api-console.zoho.com/" target="_blank" rel="noopener">api-console.zoho.com</a> and open the client the website already uses (its Client ID is the one in config.php — usually <i>Self Client</i>).</li>
-            <li>Open the <i>Generate Code</i> tab. Scope: <code>ZohoCRM.modules.ALL,ZohoCRM.coql.READ</code> · Time: 10 minutes · Description: <i>website</i> → <i>Create</i>.</li>
-            <li>Copy the code and paste it below <b>within 10 minutes</b>. Each code works once.</li>
-            <li>The old token that was public can't be used without your client secret (which never leaked), but once this one works you can remove older authorizations under <a href="https://accounts.zoho.com/home#sessions/userconnectedapps" target="_blank" rel="noopener">Zoho Accounts → Connected Apps</a>.</li>
-          </ol></details>
-        <div class="field"><input id="conn-zoho-code" type="password" autocomplete="off" placeholder="Paste the grant code (1000.xxxx…)"/></div>
-        <button class="btn btn-add" onclick="connSave('zoho', {code: connVal('conn-zoho-code')})">Connect</button>
-        <span id="conn-zoho-msg" class="conn-msg"></span>
-      </div>
-
-      <div class="section-card">
-        <div class="section-header"><h3>💳 Stripe (payments → Zoho)</h3> <span id="conn-stripe-status" class="conn-pill">…</span></div>
-        <details style="font-size:0.88rem;color:#444;margin-bottom:0.8rem;"><summary style="cursor:pointer;font-weight:600;">How to turn on the webhook</summary>
-          <ol style="margin:0.6rem 0 0 1.2rem;line-height:1.7;">
-            <li>In <a href="https://dashboard.stripe.com/webhooks" target="_blank" rel="noopener">Stripe → Developers → Webhooks</a> click <i>Add endpoint</i>.</li>
-            <li>Endpoint URL: <code id="conn-webhook-url">https://yourenergybest.com/stripe-webhook.php</code></li>
-            <li>Events: <code>checkout.session.completed</code>, <code>checkout.session.async_payment_succeeded</code>, <code>invoice.paid</code>, <code>invoice.payment_failed</code>, <code>customer.subscription.deleted</code> → <i>Add endpoint</i>.</li>
-            <li>On the endpoint page, <i>Reveal</i> the signing secret (starts with <code>whsec_</code>) and paste it below.</li>
-            <li>Back in Stripe, <i>Send test event</i> → it should show a 200.</li>
-          </ol></details>
-        <div class="field"><input id="conn-whsec" type="password" autocomplete="off" placeholder="whsec_…"/></div>
-        <button class="btn btn-add" onclick="connSave('stripe_webhook', {secret: connVal('conn-whsec')})">Save signing secret</button>
-        <span id="conn-stripe_webhook-msg" class="conn-msg"></span>
-      </div>
-
-      <div class="section-card">
-        <div class="section-header"><h3>⭐ Google Reviews (rating on the homepage)</h3> <span id="conn-google-status" class="conn-pill">…</span></div>
-        <p style="font-size:0.85rem;color:#a15c00;margin:0 0 0.6rem;">Until this is set, the homepage shows a fixed "5.0 · 194 reviews" instead of your live numbers.</p>
-        <details style="font-size:0.88rem;color:#444;margin-bottom:0.8rem;"><summary style="cursor:pointer;font-weight:600;">How to connect</summary>
-          <ol style="margin:0.6rem 0 0 1.2rem;line-height:1.7;">
-            <li>In <a href="https://console.cloud.google.com/apis/library/places.googleapis.com" target="_blank" rel="noopener">Google Cloud</a>, enable <i>Places API (New)</i>.</li>
-            <li><i>APIs &amp; Services → Credentials → Create credentials → API key</i>. Restrict it to <i>Places API (New)</i>.</li>
-            <li>Find your Place ID with Google's <a href="https://developers.google.com/maps/documentation/places/web-service/place-id" target="_blank" rel="noopener">Place ID Finder</a> (search your business name).</li>
-          </ol></details>
-        <div class="row">
-          <div class="field"><input id="conn-gkey" type="password" autocomplete="off" placeholder="API key"/></div>
-          <div class="field"><input id="conn-gplace" autocomplete="off" placeholder="Place ID (ChIJ…)"/></div>
-        </div>
-        <button class="btn btn-add" onclick="connSave('google', {key: connVal('conn-gkey'), place_id: connVal('conn-gplace')})">Check &amp; save</button>
-        <span id="conn-google-msg" class="conn-msg"></span>
-      </div>
-    </div>
-    <style>
-      .conn-pill { font-size: 0.78rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 50px; background: #eee; color: #555; }
-      .conn-pill.ok { background: #d1fae5; color: #065f46; }
-      .conn-pill.bad { background: #fee2e2; color: #991b1b; }
-      .conn-pill.warn { background: #fff4e5; color: #a15c00; }
-      .conn-msg { margin-left: 0.8rem; font-size: 0.88rem; }
-    </style>
-
-    <!-- GLOBAL TAB -->
-    <div id="tab-global" class="tab-panel">
-      <div class="section-card">
-        <div class="section-header"><h3>Stats Bar</h3></div>
-        <div class="row">
-          <div class="field"><label>Savings</label><input type="text" id="stats-savings" /></div>
-          <div class="field"><label>Savings Label</label><div class="rich-editor-wrap compact"><div id="stats-savings-label" class="rich-edit"></div></div></div>
-        </div>
-        <div class="row">
-          <div class="field"><label>Hours</label><input type="text" id="stats-hours" /></div>
-          <div class="field"><label>Hours Label</label><div class="rich-editor-wrap compact"><div id="stats-hours-label" class="rich-edit"></div></div></div>
-        </div>
-        <div class="row">
-          <div class="field"><label>Installations</label><input type="text" id="stats-installations" /></div>
-          <div class="field"><label>Installations Label</label><div class="rich-editor-wrap compact"><div id="stats-installations-label" class="rich-edit"></div></div></div>
-        </div>
-        <div class="row">
-          <div class="field"><label>Customers</label><input type="text" id="stats-customers" /></div>
-          <div class="field"><label>Customers Label</label><div class="rich-editor-wrap compact"><div id="stats-customers-label" class="rich-edit"></div></div></div>
-        </div>
-      </div>
-      <div class="section-card">
-        <div class="section-header"><h3>Testimonials</h3></div>
-        <div id="global-testimonials"></div>
-        <button class="btn btn-add" onclick="addTestimonial()">+ Add Testimonial</button>
-      </div>
-      <div class="section-card">
-        <div class="section-header"><h3>FAQ</h3></div>
-        <div id="global-faq"></div>
-        <button class="btn btn-add" onclick="addToArray('faq',{question:'',answer:''})">+ Add Question</button>
-      </div>
-      <div class="section-card">
-        <div class="section-header"><h3>Rebate / Urgency Alert</h3></div>
-        <div class="field"><label>Heading</label><div class="rich-editor-wrap compact"><div id="rebate-heading" class="rich-edit"></div></div></div>
-        <div class="field"><label>Text</label><div class="rich-editor-wrap"><div id="rebate-text" class="rich-edit"></div></div></div>
-        <div class="row">
-          <div class="field"><label>Home Page Link Text</label><div class="rich-editor-wrap compact"><div id="rebate-home-link" class="rich-edit"></div></div></div>
-          <div class="field"><label>Quote Page Link Text</label><div class="rich-editor-wrap compact"><div id="rebate-quote-link" class="rich-edit"></div></div></div>
-        </div>
-        <div class="field"><label>Modal Popup Text (Quote Page)</label><div class="rich-editor-wrap compact"><div id="rebate-modal-text" class="rich-edit"></div></div></div>
-      </div>
-      <div class="section-card">
-        <div class="section-header"><h3>Contact Information</h3></div>
-        <div class="row">
-          <div class="field"><label>Phone Number</label><input type="text" id="contact-phone" /></div>
-          <div class="field"><label>Email</label><input type="text" id="contact-email" /></div>
-        </div>
-      </div>
-      <div class="section-card">
-        <div class="section-header"><h3>Utilities vs Solar Comparison Table</h3></div>
-        <div class="row">
-          <div class="field"><label>Section Title</label><div class="rich-editor-wrap compact"><div id="comp-title" class="rich-edit"></div></div></div>
-          <div class="field"><label>Subtitle</label><div class="rich-editor-wrap compact"><div id="comp-subtitle" class="rich-edit"></div></div></div>
-        </div>
-        <div class="row">
-          <div class="field"><label>Utility Column Header</label><div class="rich-editor-wrap compact"><div id="comp-col-utility" class="rich-edit"></div></div></div>
-          <div class="field"><label>Solar Column Header</label><div class="rich-editor-wrap compact"><div id="comp-col-solar" class="rich-edit"></div></div></div>
-        </div>
-        <p style="font-size:0.85rem;color:#666;margin:0.5rem 0;">Comparison Rows:</p>
-        <div id="comp-rows"></div>
-        <button class="btn btn-add" onclick="addCompRow()">+ Add Row</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Save bar -->
-  <div class="save-bar">
-    <button class="btn btn-primary" id="saveBtn" onclick="saveContent()">💾 Save All Changes</button>
-  </div>
+<div class="shell">
+  <nav class="side" id="nav"></nav>
+  <main id="main"></main>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
-<script>
-// ═══════════════════════════════════════════════════════════
-// RICH TEXT EDITOR SYSTEM (Quill.js)
-// ═══════════════════════════════════════════════════════════
-
-// Registry of all active Quill editors: { elementId: quillInstance }
-const richEditors = {};
-
-// Toolbar config — bold, italic, underline, size, color, lists, links, clean
-const RICH_TOOLBAR = [
-  ['bold', 'italic', 'underline', 'strike'],
-  [{ 'size': ['small', false, 'large', 'huge'] }],
-  [{ 'color': [] }, { 'background': [] }],
-  [{ 'header': [1, 2, 3, false] }],
-  [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-  [{ 'align': [] }],
-  ['link'],
-  ['clean']
-];
-
-// Compact toolbar for smaller fields (customer quotes, tips, descriptions)
-const COMPACT_TOOLBAR = [
-  ['bold', 'italic', 'underline'],
-  [{ 'size': ['small', false, 'large'] }],
-  [{ 'color': [] }],
-  [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-  ['link', 'clean']
-];
-
-/**
- * Initialize a Quill editor on a div element.
- * @param {string} id - Element ID
- * @param {string} initialContent - HTML content to load
- * @param {Function} onChange - Callback with (html) on change
- * @param {object} opts - { compact: bool, tall: bool }
- * @returns {Quill} instance
- */
-function initRichEditor(id, initialContent, onChange, opts = {}) {
-  const el = document.getElementById(id);
-  if (!el) return null;
-
-  // Destroy existing editor if re-initializing
-  if (richEditors[id]) {
-    delete richEditors[id];
-    // Quill doesn't have a clean destroy — the container gets re-rendered by our render functions
-  }
-
-  const quill = new Quill('#' + id, {
-    theme: 'snow',
-    modules: { toolbar: opts.compact ? COMPACT_TOOLBAR : RICH_TOOLBAR },
-    placeholder: opts.placeholder || 'Type here...'
-  });
-
-  // Set initial content
-  if (initialContent) {
-    // If content looks like plain text (no HTML tags), wrap in <p>
-    if (initialContent && !initialContent.includes('<')) {
-      quill.root.innerHTML = '<p>' + initialContent.replace(/\n/g, '</p><p>') + '</p>';
-    } else {
-      quill.root.innerHTML = initialContent;
-    }
-  }
-
-  // Wrap container for styling
-  const wrap = el.closest('.rich-editor-wrap');
-  if (wrap) {
-    if (opts.compact) wrap.classList.add('compact');
-    if (opts.tall) wrap.classList.add('tall');
-  }
-
-  // On change callback
-  if (onChange) {
-    quill.on('text-change', () => {
-      const html = quill.root.innerHTML;
-      // Quill uses <p><br></p> for empty — normalize
-      const clean = html === '<p><br></p>' ? '' : html;
-      onChange(clean);
-    });
-  }
-
-  richEditors[id] = quill;
-  return quill;
-}
-
-/**
- * Get HTML content from a rich editor or fall back to input value
- */
-function getRichVal(id) {
-  if (richEditors[id]) {
-    const html = richEditors[id].root.innerHTML;
-    return html === '<p><br></p>' ? '' : html;
-  }
-  // Fallback to regular input
-  const el = document.getElementById(id);
-  return el ? el.value : '';
-}
-
-/**
- * Set content in a rich editor or fall back to input value
- */
-function setRichVal(id, val) {
-  if (richEditors[id]) {
-    richEditors[id].root.innerHTML = val || '';
-    return;
-  }
-  // Fallback to regular input
-  const el = document.getElementById(id);
-  if (el) el.value = val || '';
-}
-
-/**
- * Initialize all static rich editors (the ones in the HTML, not dynamic)
- */
-function initStaticEditors() {
-  document.querySelectorAll('.rich-edit').forEach(el => {
-    if (richEditors[el.id]) return; // Already initialized
-    
-    const wrap = el.closest('.rich-editor-wrap');
-    const isCompact = wrap && wrap.classList.contains('compact');
-    const isTall = wrap && wrap.classList.contains('tall');
-    
-    // Get existing content (setVal may have put content here before init)
-    const existingContent = el.innerHTML || '';
-    
-    initRichEditor(el.id, existingContent, null, { compact: isCompact, tall: isTall });
-  });
-}
-
-/**
- * Convert a dynamically-rendered textarea into a rich editor.
- * Call this after innerHTML rendering for dynamic sections.
- * 
- * Usage in render functions:
- *   After setting innerHTML, call:
- *     upgradeTextareasToRich(containerEl);
- * 
- * The textarea must have: data-rich="true" and data-path="content.faq[0].answer"
- */
-function upgradeTextareasToRich(containerEl) {
-  if (!containerEl) return;
-  containerEl.querySelectorAll('textarea[data-rich]').forEach(ta => {
-    const uid = 'rte-' + Math.random().toString(36).substr(2, 9);
-    const path = ta.getAttribute('data-path');
-    // Read content from the actual data object, not the textarea value
-    // (textarea innerHTML breaks when it contains HTML tags from Quill)
-    const content = path ? getNestedValue(path) : (ta.value || '');
-    const isCompact = ta.hasAttribute('data-compact');
-    const isTall = ta.hasAttribute('data-tall');
-
-    // Create rich editor div to replace textarea
-    const wrap = document.createElement('div');
-    wrap.className = 'rich-editor-wrap' + (isCompact ? ' compact' : '') + (isTall ? ' tall' : '');
-    const editorDiv = document.createElement('div');
-    editorDiv.id = uid;
-    wrap.appendChild(editorDiv);
-    ta.parentNode.replaceChild(wrap, ta);
-
-    initRichEditor(uid, content, (html) => {
-      // Use the data-path to set the value on the correct object
-      setNestedValue(path, html);
-    }, { compact: isCompact });
-  });
-}
-
-/**
- * Set a value deep in an object using a dot-bracket path like
- * "content.faq[0].answer" or "optionsContent.cards[1].title"
- */
-function setNestedValue(path, value) {
-  if (!path) return;
-  const parts = path.replace(/\[(\d+)\]/g, '.$1').split('.');
-  // Resolve the root variable — check known local vars first, then window
-  const root = parts[0];
-  let obj;
-  if (root === 'content') obj = content;
-  else if (root === 'optionsContent') obj = optionsContent;
-  else if (root === 'servicesContent') obj = servicesContent;
-  else obj = window[root];
-
-  if (obj === undefined) return;
-  for (let i = 1; i < parts.length - 1; i++) {
-    const key = isNaN(parts[i]) ? parts[i] : parseInt(parts[i]);
-    if (obj[key] === undefined) return;
-    obj = obj[key];
-  }
-  const lastKey = isNaN(parts[parts.length-1]) ? parts[parts.length-1] : parseInt(parts[parts.length-1]);
-  obj[lastKey] = value;
-}
-
-/**
- * Get a value from a nested object using a dot-bracket path like
- * "content.build.faq[0].answer"
- */
-function getNestedValue(path) {
-  if (!path) return '';
-  const parts = path.replace(/\[(\d+)\]/g, '.$1').split('.');
-  // Resolve the root variable — check known local vars first, then window
-  const root = parts[0];
-  let obj;
-  if (root === 'content') obj = content;
-  else if (root === 'optionsContent') obj = optionsContent;
-  else if (root === 'servicesContent') obj = servicesContent;
-  else obj = window[root];
-
-  for (let i = 1; i < parts.length; i++) {
-    if (obj === undefined || obj === null) return '';
-    const key = isNaN(parts[i]) ? parts[i] : parseInt(parts[i]);
-    obj = obj[key];
-  }
-  return obj !== undefined && obj !== null ? String(obj) : '';
-}
-</script>
+<div class="bar" id="bar">
+  <div class="in">
+    <div class="st" id="status"><span class="dot"></span>Loading…</div>
+    <button class="btn sec2 hidden" id="discardBtn" type="button">Discard changes</button>
+    <button class="btn pri" id="publishBtn" type="button" disabled>Publish</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
 
 <script>
-let content = {};
-let csrfToken = null;
+'use strict';
+/* ═══════════════════════════════════════════════════════════════════
+   PAGES — every editable thing on the site, in the order it appears.
+   file: which JSON it lives in (content | options | services)
+   path: where in that file ('home.hero_subtitle', 'faq')
+   type: text (one line) · para (paragraphs) · rich (bold/links/lists) · url ·
+         number · date · toggle · lines (one per line → list) ·
+         images · list (repeating items with their own fields)
+   ═══════════════════════════════════════════════════════════════════ */
+const PAGES = [
+  { id: 'home', group: 'Pages', label: 'Homepage', url: '/', sections: [
+    { title: 'Top of the page', anchor: '', fields: [
+      { path: 'home.hero_eyebrow', type: 'text', label: 'Small label above the headline' },
+      { row: [
+        { path: 'home.hero_title_part1', type: 'text', label: 'Headline — white part' },
+        { path: 'home.hero_title_part2', type: 'text', label: 'Headline — orange part' } ] },
+      { path: 'home.hero_subtitle', type: 'para', label: 'Line under the headline' } ],
+      note: 'The four buttons under it (Learn · Quote · Already have solar → lumaria app · Call) are set in the page code so they always point to the right places.' },
+    { title: 'Numbers bar', fields: [
+      { row3: [ { path: 'stats.savings', type: 'text', label: 'Number 1' }, { path: 'stats.savings_label', type: 'text', label: 'Label 1' } ] },
+      { row3: [ { path: 'stats.hours', type: 'text', label: 'Number 2' }, { path: 'stats.hours_label', type: 'text', label: 'Label 2' } ] },
+      { row3: [ { path: 'stats.installations', type: 'text', label: 'Number 3' }, { path: 'stats.installations_label', type: 'text', label: 'Label 3' } ] },
+      { row3: [ { path: 'stats.customers', type: 'text', label: 'Number 4' }, { path: 'stats.customers_label', type: 'text', label: 'Label 4' } ] } ],
+      note: 'The install map below counts real installs from Zoho on its own — keep "Installations" close to it.' },
+    { title: 'How it works (3 steps)', anchor: 'how-it-works', fields: [
+      { path: 'home.process_steps', type: 'list', fixed: true, titleKey: 'title', fields: [
+        { key: 'title', type: 'text', label: 'Step name' }, { key: 'description', type: 'para', label: 'Description' } ] } ] },
+    { title: 'What makes us different', anchor: 'why-yeb', fields: [
+      { path: 'home.differentiators.title', type: 'text', label: 'Heading', help: 'Leave blank to keep "What Makes Us Different".' },
+      { path: 'home.differentiators.subtitle', type: 'text', label: 'Line under the heading' },
+      { path: 'home.differentiators.cards', type: 'list', titleKey: 'title', addLabel: 'Add a card', blank: { icon: '⭐', title: '', description: '' }, fields: [
+        { row: [ { key: 'icon', type: 'text', label: 'Emoji' }, { key: 'title', type: 'text', label: 'Title' } ] },
+        { key: 'description', type: 'para', label: 'Text' } ] } ] },
+    { title: 'Utilities vs. going solar (comparison)', fields: [
+      { path: 'comparison.title', type: 'text', label: 'Heading' },
+      { path: 'comparison.subtitle', type: 'text', label: 'Line under the heading' },
+      { row: [ { path: 'comparison.col_utility', type: 'text', label: 'Left column name' }, { path: 'comparison.col_solar', type: 'text', label: 'Right column name' } ] } ],
+      note: 'The rows of numbers are in the page code.' },
+    { title: 'Photos of our work', anchor: '', fields: [ { path: 'gallery', type: 'images', label: 'Photos' } ] },
+    { title: 'Equipment logos', fields: [ { path: 'manufacturers', type: 'images', logo: true, label: 'Logos', help: 'Scroll across the "Trusted equipment" strip. Transparent PNGs look best.' } ] },
+    { title: 'About Dave', fields: [
+      { path: 'home.about_text', type: 'para', label: 'About text', help: 'Leave a blank line between paragraphs.' },
+      { path: 'home.referral_text', type: 'para', label: 'Referral program text' } ] },
+    { title: 'FAQ', fields: [
+      { path: 'faq', type: 'list', titleKey: 'question', addLabel: 'Add a question', blank: { question: '', answer: '' }, fields: [
+        { key: 'question', type: 'text', label: 'Question' }, { key: 'answer', type: 'rich', label: 'Answer' } ] } ] }
+  ]},
+  { id: 'shared', group: 'Pages', label: 'Shared blocks', url: '/', intro: 'These show on more than one page.', sections: [
+    { title: 'Rebate alert', where: 'Homepage + Quote page', fields: [
+      { path: 'rebate_alert.heading', type: 'text', label: 'Heading' },
+      { path: 'rebate_alert.text', type: 'rich', label: 'Text' },
+      { path: 'rebate_alert.links', type: 'list', titleKey: 'label', addLabel: 'Add a link', blank: { label: '', url: '', external: false }, fields: [
+        { row: [ { key: 'label', type: 'text', label: 'Link text' }, { key: 'url', type: 'url', label: 'Goes to', help: 'A page here (/quote/) or a full https:// address' } ] },
+        { key: 'external', type: 'toggle', label: 'Opens another website (new tab)' } ] },
+      { path: 'rebate_alert.quote_modal_text', type: 'para', label: 'Pop-up text on the Quote page' } ] },
+    { title: 'Customer reviews', where: 'Homepage + Quote page', fields: [
+      { row: [ { path: 'testimonials.rating', type: 'text', label: 'Star rating shown' }, { path: 'testimonials.total_reviews', type: 'text', label: 'Number of reviews shown' } ] },
+      { path: 'testimonials.items', type: 'list', titleKey: 'name', subKey: 'role', addLabel: 'Add a review', blank: { name: '', role: '', initials: '', text: '' }, fields: [
+        { row3: [ { key: 'name', type: 'text', label: 'Name' }, { key: 'role', type: 'text', label: 'Under the name', help: 'e.g. Carlsbad Homeowner' }, { key: 'initials', type: 'text', label: 'Initials (avatar)' } ] },
+        { key: 'text', type: 'para', label: 'Review' } ] } ],
+      note: 'Once Google Reviews is connected (Connections), the live rating and count replace the two numbers above.' }
+  ]},
+  { id: 'quote', group: 'Pages', label: 'Get a Quote', url: '/quote/', sections: [
+    { title: 'Quote page', fields: [
+      { path: 'quote.hero_eyebrow', type: 'text', label: 'Small label above the headline' },
+      { path: 'quote.hero_title', type: 'text', label: 'Headline' },
+      { path: 'quote.hero_subtitle', type: 'para', label: 'Line under the headline' },
+      { path: 'quote.form_title', type: 'text', label: 'Question above the four choices', help: 'e.g. "What brings you here?"' },
+      { path: 'quote.success_message', type: 'text', label: 'Heading after someone submits', help: 'The booking calendar appears right under it.' } ] }
+  ]},
+  { id: 'options', group: 'Pages', label: 'Energy Options', url: '/options/', file: 'options', sections: [
+    { title: 'Top of the page', fields: [
+      { path: 'hero.eyebrow', type: 'text', label: 'Small label' }, { path: 'hero.title', type: 'text', label: 'Headline' },
+      { path: 'hero.sub', type: 'para', label: 'Line under the headline' }, { path: 'hero.cta', type: 'text', label: 'Button text' } ],
+      note: 'Blank fields keep the text built into the page.' },
+    { title: 'The option cards', anchor: 'options', fields: [
+      { path: 'section.label', type: 'text', label: 'Small label above the cards' }, { path: 'section.heading', type: 'text', label: 'Heading above the cards' },
+      { path: 'cards', type: 'list', titleKey: 'title', subKey: 'aka', addLabel: 'Add an option', blank: { number: '', title: '', aka: '', pros: [], tradeoffs: [], fit: '', bg_image: '' }, fields: [
+        { row3: [ { key: 'number', type: 'text', label: 'Number (01)' }, { key: 'title', type: 'text', label: 'Name' }, { key: 'aka', type: 'text', label: 'Also called' } ] },
+        { row: [ { key: 'pros', type: 'lines', label: 'Good things', help: 'One per line' }, { key: 'tradeoffs', type: 'lines', label: 'Trade-offs', help: 'One per line' } ] },
+        { key: 'fit', type: 'para', label: 'Best fit if…', help: 'Finishes the sentence "This is a good fit if…"' },
+        { key: 'bg_image', type: 'url', label: 'Background photo link' } ] } ],
+      note: 'The side-by-side table and the 9 quiz questions are in the page code — ask Claude to change those.' },
+    { title: 'Quiz intro', anchor: 'assessment', fields: [
+      { path: 'form.label', type: 'text', label: 'Small label' }, { path: 'form.heading', type: 'text', label: 'Heading' }, { path: 'form.sub', type: 'para', label: 'Line under it' } ] },
+    { title: 'Booking box & savings math', fields: [
+      { path: 'cta.title', type: 'text', label: 'Heading' }, { path: 'cta.sub', type: 'para', label: 'Text' },
+      { row: [ { path: 'cta.btn', type: 'text', label: 'Button text' }, { path: 'cta.calendly_url', type: 'url', label: 'Booking link', help: 'Must start with https://calendly.com/ — blank uses calendly.com/yourenergybest' } ] },
+      { row: [ { path: 'calc.reduction', type: 'number', unit: '%', label: 'Assumed bill reduction' }, { path: 'calc.escalation', type: 'number', unit: '% / yr', label: 'Assumed utility rate increase' } ] } ] },
+    { title: 'Page footer', fields: [ { path: 'footer.text', type: 'text', label: 'Footer line' }, { path: 'footer.disclaimer', type: 'para', label: 'Disclaimer' } ] }
+  ]},
+  { id: 'services', group: 'Pages', label: 'Services & Audit', url: '/services/', file: 'services', sections: [
+    { title: 'Services page', fields: [
+      { path: 'hero.title', type: 'text', label: 'Headline', help: 'Blank keeps "Solar Services".' },
+      { path: 'hero.subtitle', type: 'para', label: 'Line under the headline' } ], prices: true }
+  ]},
+  { id: 'build', group: 'Pages', label: 'Build With Us', url: '/build/', sections: [
+    { title: 'Top of the page', fields: [
+      { path: 'build.hero.title', type: 'text', label: 'Headline' }, { path: 'build.hero.subtitle', type: 'para', label: 'Line under the headline' },
+      { path: 'build.cta_text', type: 'text', label: 'Button text' } ] },
+    { title: 'Why door-to-door', fields: [
+      { path: 'build.section_title', type: 'text', label: 'Heading' }, { path: 'build.section_text', type: 'para', label: 'Text' },
+      { path: 'build.benefits', type: 'list', titleKey: 'title', addLabel: 'Add a benefit', blank: { icon: '⭐', title: '', text: '' }, fields: [
+        { row: [ { key: 'icon', type: 'text', label: 'Emoji' }, { key: 'title', type: 'text', label: 'Title' } ] }, { key: 'text', type: 'para', label: 'Text' } ] } ] },
+    { title: 'Team photos', fields: [ { path: 'build.gallery', type: 'images', label: 'Photos', help: 'With no photos, the "See Us In Action" section is hidden.' } ] },
+    { title: 'Videos', fields: [
+      { path: 'build.videos', type: 'list', titleKey: 'title', addLabel: 'Add a video', blank: { youtube_id: '', title: '', context: 'recruiting' }, fields: [
+        { key: 'youtube_id', type: 'url', label: 'YouTube link', help: 'Paste the normal YouTube link' }, { key: 'title', type: 'text', label: 'Title under the video' } ] } ] },
+    { title: 'Application form', anchor: 'apply', fields: [
+      { row: [ { path: 'build.form.heading', type: 'text', label: 'Section heading' }, { path: 'build.form.subheading', type: 'text', label: 'Line under it' } ] },
+      { row: [ { path: 'build.form.title', type: 'text', label: 'Form title' }, { path: 'build.form.subtitle', type: 'text', label: 'Form subtitle' } ] },
+      { row: [ { path: 'build.form.blitz_dates', type: 'text', label: 'Blitz dates' }, { path: 'build.form.blitz_location', type: 'text', label: 'Blitz location' } ] },
+      { row: [ { path: 'build.form.submit_btn', type: 'text', label: 'Submit button' }, { path: 'build.form.success_msg', type: 'text', label: 'Message after applying' } ] } ],
+      note: 'Blank fields keep the text built into the page.' },
+    { title: 'FAQ', fields: [
+      { path: 'build.faq', type: 'list', titleKey: 'question', addLabel: 'Add a question', blank: { question: '', answer: '' }, fields: [
+        { key: 'question', type: 'text', label: 'Question' }, { key: 'answer', type: 'rich', label: 'Answer' } ] } ] }
+  ]},
+  { id: 'blog', group: 'Pages', label: 'Blog', url: '/blog.html', blog: true }
+];
+const FILES = { content: 'content', options: 'options', services: 'services' };
+const PAGE_URL = 'https://yourenergybest.com';
 
-// ─── Login (server-side auth via admin-auth.php) ───
-async function login() {
-  const username = document.getElementById('usernameInput').value.trim();
-  const pw = document.getElementById('passwordInput').value;
-  const errorEl = document.getElementById('loginError');
+/* ─── State ─── */
+let CSRF = null;
+const files = {};          // name → { data, snap }
+let current = 'home';
+const open = new Set();    // list items expanded (by path#index)
 
-  if (!username || !pw) {
-    errorEl.textContent = 'Please enter both username and password.';
-    errorEl.style.display = 'block';
-    return;
+/* ─── Small helpers ─── */
+const $ = (s, el = document) => el.querySelector(s);
+function h(tag, attrs, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v == null || v === false) continue;
+    if (k === 'class') el.className = v;
+    else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else if (k === 'html') el.innerHTML = v;
+    else el.setAttribute(k, v === true ? '' : v);
   }
+  for (const c of kids.flat()) if (c != null && c !== false) el.append(c.nodeType ? c : document.createTextNode(String(c)));
+  return el;
+}
+const getP = (o, p) => p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o);
+function setP(o, p, v) { const ks = p.split('.'); let a = o; ks.slice(0, -1).forEach((k) => { if (a[k] == null || typeof a[k] !== 'object') a[k] = {}; a = a[k]; }); a[ks.at(-1)] = v; }
+function toast(msg, bad) { const t = $('#toast'); t.textContent = msg; t.className = 'toast show' + (bad ? ' bad' : ''); clearTimeout(t._t); t._t = setTimeout(() => { t.className = 'toast'; }, 2600); }
+function ask(title, text, buttons) {
+  return new Promise((done) => {
+    const m = h('div', { class: 'modal' }, h('div', { class: 'box' }, h('h4', {}, title), h('p', {}, text),
+      h('div', { class: 'acts' }, buttons.map((b) => h('button', { class: 'btn ' + (b.cls || 'sec2'), type: 'button', onclick: () => { m.remove(); done(b.value); } }, b.label)))));
+    document.body.append(m);
+  });
+}
 
-  try {
-    const res = await fetch('/admin-auth.php?action=login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password: pw })
-    });
-    const result = await res.json();
-    if (result.success) {
-      csrfToken = result.csrf_token;
-      document.getElementById('loginScreen').classList.add('hidden');
-      document.getElementById('adminInterface').classList.remove('hidden');
-      loadContent();
-    } else {
-      errorEl.textContent = result.error || 'Login failed.';
-      errorEl.style.display = 'block';
-      document.getElementById('passwordInput').value = '';
+/** Stored text may be old editor HTML ("<p>…</p>") or have "—" saved as letters. Show it as plain text. */
+function toPlain(v) {
+  if (v == null) return '';
+  let s = String(v).replace(/\\u([0-9a-fA-F]{4})/g, (_, x) => String.fromCharCode(parseInt(x, 16)));
+  if (!/<[a-z/][^>]*>|&[a-z#0-9]+;/i.test(s)) return s;
+  s = s.replace(/<\/p>\s*<p[^>]*>/gi, '\n\n').replace(/<br\s*\/?>/gi, '\n').replace(/<li[^>]*>/gi, '• ').replace(/<\/li>/gi, '\n');
+  const d = document.createElement('div'); d.innerHTML = s;
+  return d.textContent.replace(/\n{3,}/g, '\n\n').trim();
+}
+/** Rich text: keep only simple formatting and safe links. */
+function cleanRich(html) {
+  const ok = new Set(['P', 'BR', 'STRONG', 'B', 'EM', 'I', 'U', 'A', 'UL', 'OL', 'LI', 'H3', 'H4']);
+  const d = document.createElement('div'); d.innerHTML = html;
+  (function walk(n) {
+    for (const el of [...n.children]) {
+      if (!ok.has(el.tagName)) { if (/^(SCRIPT|STYLE|IFRAME)$/.test(el.tagName)) el.remove(); else { el.replaceWith(...el.childNodes); } continue; }
+      for (const a of [...el.attributes]) if (!(el.tagName === 'A' && a.name === 'href')) el.removeAttribute(a.name);
+      if (el.tagName === 'A' && !/^(https?:|mailto:|tel:|\/)/i.test(el.getAttribute('href') || '')) el.removeAttribute('href');
+      walk(el);
     }
-  } catch(e) {
-    errorEl.textContent = 'Connection error. Please try again.';
-    errorEl.style.display = 'block';
-  }
+  })(d);
+  d.querySelectorAll('div').forEach((x) => x.replaceWith(...x.childNodes));
+  return d.innerHTML.replace(/<p><br><\/p>/g, '').trim();
 }
+const imgSrc = (u) => !u ? '' : /^(https?:)?\/\//.test(u) || u.startsWith('/') ? u : '/' + u;
 
-// ─── Check if already logged in on page load ───
-async function checkSession() {
+/* ─── Session ─── */
+async function api(url, opts = {}) {
+  const r = await fetch(url, opts);
+  if (r.status === 403) { showLogin('Your session ended — sign in again. Your unpublished edits are kept.'); throw new Error('signed out'); }
+  return r;
+}
+function showLogin(msg) { $('#login').classList.remove('hidden'); $('#loginErr').textContent = msg || ''; setTimeout(() => $('#loginEmail').focus(), 50); }
+$('#loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = $('#loginBtn'); btn.disabled = true; btn.textContent = 'Signing in…'; $('#loginErr').textContent = '';
   try {
-    const res = await fetch('/admin-auth.php?action=check');
-    const data = await res.json();
-    if (data.authenticated) {
-      csrfToken = data.csrf_token;
-      document.getElementById('loginScreen').classList.add('hidden');
-      document.getElementById('adminInterface').classList.remove('hidden');
-      loadContent();
-    }
-  } catch(e) { /* stay on login screen */ }
-}
-document.addEventListener('DOMContentLoaded', checkSession);
-
-async function adminLogout() {
-  try { await fetch('/admin-auth.php?action=logout', { method: 'POST' }); } catch(e) {}
-  csrfToken = null;
-  document.getElementById('loginScreen').classList.remove('hidden');
-  document.getElementById('adminInterface').classList.add('hidden');
-}
-
-function switchTab(tab, btn) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  document.getElementById('tab-' + tab).classList.add('active');
-}
-
-// ─── Load Content (via PHP proxy since .htaccess blocks direct .json access) ───
-async function loadContent() {
-  const res = await fetch('/load-content.php?target=content&t=' + Date.now());
-  content = await res.json();
-  renderAll();
-}
-
-// ─── Render All Fields ───
-function renderAll() {
-  const h = content.home || {};
-  setVal('home-eyebrow', h.hero_eyebrow);
-  setVal('home-title-part1', h.hero_title_part1);
-  setVal('home-title-part2', h.hero_title_part2);
-  setVal('home-subtitle', h.hero_subtitle);
-  setVal('home-about', h.about_text);
-  setVal('home-referral', h.referral_text);
-  setVal('accordion-btn-closed', h.accordion_btn_closed || 'Start Your Process');
-  setVal('accordion-btn-open', h.accordion_btn_open || 'What option best describes how we can help you?');
-
-  const b = content.build || {};
-  setVal('build-hero-title', b.hero?.title);
-  setVal('build-hero-subtitle', b.hero?.subtitle);
-  setVal('build-cta-text', b.cta_text);
-  setVal('build-section-title', b.section_title);
-  setVal('build-section-text', b.section_text);
-
-  const s = content.stats || {};
-  setVal('stats-savings', s.savings);
-  setVal('stats-savings-label', s.savings_label);
-  setVal('stats-hours', s.hours);
-  setVal('stats-hours-label', s.hours_label);
-  setVal('stats-installations', s.installations);
-  setVal('stats-installations-label', s.installations_label);
-  setVal('stats-customers', s.customers);
-  setVal('stats-customers-label', s.customers_label);
-
-  const ra = content.rebate_alert || {};
-  setVal('rebate-heading', ra.heading);
-  setVal('rebate-text', ra.text);
-  setVal('rebate-home-link', ra.home_link_text);
-  setVal('rebate-quote-link', ra.quote_link_text);
-  setVal('rebate-modal-text', ra.quote_modal_text);
-
-  const c = content.contact || {};
-  setVal('contact-phone', c.phone);
-  setVal('contact-email', c.email);
-
-  // Comparison table
-  const comp = content.comparison || {};
-  setVal('comp-title', comp.title || 'California Utilities vs. Going Solar');
-  setVal('comp-subtitle', comp.subtitle || 'Utility rates have increased 40%+ in three years.');
-  setVal('comp-col-utility', comp.col_utility || 'Stay with Utility');
-  setVal('comp-col-solar', comp.col_solar || 'Go Solar');
-  renderCompRows();
-
-  const q = content.quote || {};
-  setVal('quote-eyebrow', q.hero_eyebrow);
-  setVal('quote-title', q.hero_title);
-  setVal('quote-subtitle', q.hero_subtitle);
-  setVal('quote-form-title', q.form_title);
-  setVal('quote-success', q.success_message);
-
-  renderCustomerOptions();
-  renderHomeGallery();
-  renderManufacturers();
-  renderBuildBenefits();
-  renderBuildGallery();
-  renderBuildVideos();
-  renderBuildFaq();
-  renderTestimonials();
-  renderGlobalFaq();
-  renderBlogPosts();
-
-  // Initialize rich text editors on static fields after values are set
-  setTimeout(() => initStaticEditors(), 50);
-}
-
-function setVal(id, val) {
-  if (richEditors[id]) { richEditors[id].root.innerHTML = val || ''; return; }
-  const el = document.getElementById(id);
-  if (!el) return;
-  // If it's a rich-edit div (pre-init), store content as innerHTML for initStaticEditors to pick up
-  if (el.classList && el.classList.contains('rich-edit')) { el.innerHTML = val || ''; return; }
-  // If it's a Quill container (ql-editor inside), find the editor
-  const qlEditor = el.querySelector && el.querySelector('.ql-editor');
-  if (qlEditor) { qlEditor.innerHTML = val || ''; return; }
-  el.value = val || '';
-}
-function getVal(id) {
-  if (richEditors[id]) { const h = richEditors[id].root.innerHTML; return h === '<p><br></p>' ? '' : h; }
-  const el = document.getElementById(id);
-  if (!el) return '';
-  // If it's a rich-edit div (pre-init), return innerHTML
-  if (el.classList && el.classList.contains('rich-edit')) return el.innerHTML || '';
-  // If Quill was initialized but registry lost track
-  const qlEditor = el.querySelector && el.querySelector('.ql-editor');
-  if (qlEditor) { const h = qlEditor.innerHTML; return h === '<p><br></p>' ? '' : h; }
-  return el.value || '';
-}
-
-// ─── Sync text fields back to content (prevents loss on re-render) ───
-function syncTextFields() {
-  // Home
-  if (!content.home) content.home = {};
-  content.home.hero_eyebrow = getVal('home-eyebrow') || content.home.hero_eyebrow;
-  content.home.hero_title_part1 = getVal('home-title-part1') || content.home.hero_title_part1;
-  content.home.hero_title_part2 = getVal('home-title-part2') || content.home.hero_title_part2;
-  content.home.hero_subtitle = getVal('home-subtitle') || content.home.hero_subtitle;
-  content.home.about_text = getVal('home-about') || content.home.about_text;
-  content.home.referral_text = getVal('home-referral') || content.home.referral_text;
-  content.home.accordion_btn_closed = getVal('accordion-btn-closed') || content.home.accordion_btn_closed;
-  content.home.accordion_btn_open = getVal('accordion-btn-open') || content.home.accordion_btn_open;
-
-  // Build
-  if (!content.build) content.build = {};
-  if (!content.build.hero) content.build.hero = {};
-  content.build.hero.title = getVal('build-hero-title') || content.build.hero.title;
-  content.build.hero.subtitle = getVal('build-hero-subtitle') || content.build.hero.subtitle;
-  content.build.cta_text = getVal('build-cta-text') || content.build.cta_text;
-  content.build.section_title = getVal('build-section-title') || content.build.section_title;
-  content.build.section_text = getVal('build-section-text') || content.build.section_text;
-
-  // Stats
-  if (!content.stats) content.stats = {};
-  content.stats.savings = getVal('stats-savings') || content.stats.savings;
-  content.stats.savings_label = getVal('stats-savings-label') || content.stats.savings_label;
-  content.stats.hours = getVal('stats-hours') || content.stats.hours;
-  content.stats.hours_label = getVal('stats-hours-label') || content.stats.hours_label;
-  content.stats.installations = getVal('stats-installations') || content.stats.installations;
-  content.stats.installations_label = getVal('stats-installations-label') || content.stats.installations_label;
-  content.stats.customers = getVal('stats-customers') || content.stats.customers;
-  content.stats.customers_label = getVal('stats-customers-label') || content.stats.customers_label;
-
-  // Rebate
-  if (!content.rebate_alert) content.rebate_alert = {};
-  content.rebate_alert.heading = getVal('rebate-heading') || content.rebate_alert.heading;
-  content.rebate_alert.text = getVal('rebate-text') || content.rebate_alert.text;
-  content.rebate_alert.home_link_text = getVal('rebate-home-link') || content.rebate_alert.home_link_text;
-  content.rebate_alert.quote_link_text = getVal('rebate-quote-link') || content.rebate_alert.quote_link_text;
-  content.rebate_alert.quote_modal_text = getVal('rebate-modal-text') || content.rebate_alert.quote_modal_text;
-
-  // Contact
-  if (!content.contact) content.contact = {};
-  content.contact.phone = getVal('contact-phone') || content.contact.phone;
-  content.contact.email = getVal('contact-email') || content.contact.email;
-
-  // Comparison table
-  if (!content.comparison) content.comparison = {};
-  content.comparison.title = getVal('comp-title') || content.comparison.title;
-  content.comparison.subtitle = getVal('comp-subtitle') || content.comparison.subtitle;
-  content.comparison.col_utility = getVal('comp-col-utility') || content.comparison.col_utility;
-  content.comparison.col_solar = getVal('comp-col-solar') || content.comparison.col_solar;
-  // Comparison rows auto-sync via rich editor data-path
-
-  // Quote
-  if (!content.quote) content.quote = {};
-  content.quote.hero_eyebrow = getVal('quote-eyebrow') || content.quote.hero_eyebrow;
-  content.quote.hero_title = getVal('quote-title') || content.quote.hero_title;
-  content.quote.hero_subtitle = getVal('quote-subtitle') || content.quote.hero_subtitle;
-  content.quote.form_title = getVal('quote-form-title') || content.quote.form_title;
-  content.quote.success_message = getVal('quote-success') || content.quote.success_message;
-
-  // Testimonials rating
-  ensureTestimonials();
-  const ratingEl = document.getElementById('testimonials-rating');
-  const totalEl = document.getElementById('testimonials-total');
-  if (ratingEl) content.testimonials.rating = ratingEl.value || content.testimonials.rating;
-  if (totalEl) content.testimonials.total_reviews = totalEl.value || content.testimonials.total_reviews;
-}
-
-// ─── Sync text fields back to content (prevents loss on re-render) ───
-function syncFieldsToContent() {
-  content.home = content.home || {};
-  content.home.hero_eyebrow = getVal('home-eyebrow') || content.home.hero_eyebrow;
-  content.home.hero_title_part1 = getVal('home-title-part1') || content.home.hero_title_part1;
-  content.home.hero_title_part2 = getVal('home-title-part2') || content.home.hero_title_part2;
-  content.home.hero_subtitle = getVal('home-subtitle') || content.home.hero_subtitle;
-  content.home.about_text = getVal('home-about') || content.home.about_text;
-  content.home.referral_text = getVal('home-referral') || content.home.referral_text;
-  content.home.accordion_btn_closed = getVal('accordion-btn-closed') || content.home.accordion_btn_closed;
-  content.home.accordion_btn_open = getVal('accordion-btn-open') || content.home.accordion_btn_open;
-
-  content.build = content.build || {};
-  if (!content.build.hero) content.build.hero = {};
-  content.build.hero.title = getVal('build-hero-title') || content.build.hero.title;
-  content.build.hero.subtitle = getVal('build-hero-subtitle') || content.build.hero.subtitle;
-  content.build.cta_text = getVal('build-cta-text') || content.build.cta_text;
-  content.build.section_title = getVal('build-section-title') || content.build.section_title;
-  content.build.section_text = getVal('build-section-text') || content.build.section_text;
-
-  content.stats = content.stats || {};
-  content.stats.savings = getVal('stats-savings') || content.stats.savings;
-  content.stats.savings_label = getVal('stats-savings-label') || content.stats.savings_label;
-  content.stats.hours = getVal('stats-hours') || content.stats.hours;
-  content.stats.hours_label = getVal('stats-hours-label') || content.stats.hours_label;
-  content.stats.installations = getVal('stats-installations') || content.stats.installations;
-  content.stats.installations_label = getVal('stats-installations-label') || content.stats.installations_label;
-  content.stats.customers = getVal('stats-customers') || content.stats.customers;
-  content.stats.customers_label = getVal('stats-customers-label') || content.stats.customers_label;
-
-  content.rebate_alert = content.rebate_alert || {};
-  content.rebate_alert.heading = getVal('rebate-heading') || content.rebate_alert.heading;
-  content.rebate_alert.text = getVal('rebate-text') || content.rebate_alert.text;
-  content.rebate_alert.home_link_text = getVal('rebate-home-link') || content.rebate_alert.home_link_text;
-  content.rebate_alert.quote_link_text = getVal('rebate-quote-link') || content.rebate_alert.quote_link_text;
-  content.rebate_alert.quote_modal_text = getVal('rebate-modal-text') || content.rebate_alert.quote_modal_text;
-
-  content.contact = content.contact || {};
-  content.contact.phone = getVal('contact-phone') || content.contact.phone;
-  content.contact.email = getVal('contact-email') || content.contact.email;
-
-  content.quote = content.quote || {};
-  content.quote.hero_eyebrow = getVal('quote-eyebrow') || content.quote.hero_eyebrow;
-  content.quote.hero_title = getVal('quote-title') || content.quote.hero_title;
-  content.quote.hero_subtitle = getVal('quote-subtitle') || content.quote.hero_subtitle;
-  content.quote.form_title = getVal('quote-form-title') || content.quote.form_title;
-  content.quote.success_message = getVal('quote-success') || content.quote.success_message;
-
-  // Testimonials rating/total
-  const ratingEl = document.getElementById('testimonials-rating');
-  const totalEl = document.getElementById('testimonials-total');
-  if (ratingEl && content.testimonials) content.testimonials.rating = ratingEl.value || content.testimonials.rating;
-  if (totalEl && content.testimonials) content.testimonials.total_reviews = totalEl.value || content.testimonials.total_reviews;
-}
-
-// ─── Generic array helpers ───
-function getNestedArray(path) {
-  const keys = path.split('.');
-  let obj = content;
-  for (const k of keys) { if (!obj[k]) obj[k] = (k === keys[keys.length-1]) ? [] : {}; obj = obj[k]; }
-  return obj;
-}
-
-function addToArray(path, item) {
-  syncTextFields();
-  const keys = path.split('.');
-  let obj = content;
-  for (let i = 0; i < keys.length - 1; i++) { if (!obj[keys[i]]) obj[keys[i]] = {}; obj = obj[keys[i]]; }
-  if (!obj[keys[keys.length-1]]) obj[keys[keys.length-1]] = [];
-  obj[keys[keys.length-1]].push(item);
-  syncFieldsToContent();
-  renderAll();
-}
-
-function moveItem(path, idx, dir) {
-  syncTextFields();
-  const keys = path.split('.');
-  let arr = content;
-  for (const k of keys) arr = arr[k];
-  const newIdx = idx + dir;
-  if (newIdx < 0 || newIdx >= arr.length) return;
-  [arr[idx], arr[newIdx]] = [arr[newIdx], arr[idx]];
-  syncFieldsToContent();
-  renderAll();
-}
-
-function removeItem(path, idx) {
-  if (!confirm('Delete this item?')) return;
-  syncTextFields();
-  const keys = path.split('.');
-  let arr = content;
-  for (const k of keys) arr = arr[k];
-  arr.splice(idx, 1);
-  syncFieldsToContent();
-  renderAll();
-}
-
-// ─── Render sections ───
-function renderCustomerOptions() {
-  const opts = content.home?.customer_options || [];
-  document.getElementById('home-customer-options').innerHTML = opts.map((o,i) => `
-    <div class="item-card"><div class="item-header"><h4>${o.title||'Option '+(i+1)}</h4><div class="item-actions">
-      <button class="btn btn-sm btn-up" onclick="moveItem('home.customer_options',${i},-1)">↑</button>
-      <button class="btn btn-sm btn-down" onclick="moveItem('home.customer_options',${i},1)">↓</button>
-      <button class="btn btn-sm btn-danger" onclick="removeItem('home.customer_options',${i})">✕</button>
-    </div></div>
-    <div class="row"><div class="field"><label>Icon</label><input value="${o.icon||''}" oninput="content.home.customer_options[${i}].icon=this.value"/></div>
-    <div class="field"><label>Title</label><textarea data-rich data-compact data-path="content.home.customer_options[${i}].title">${o.title||''}</textarea></div></div>
-    <div class="field"><label>Description</label><textarea data-rich data-compact data-path="content.home.customer_options[${i}].description">${o.description||''}</textarea></div></div>
-  `).join('');
-  upgradeTextareasToRich(document.getElementById('home-customer-options'));
-}
-function addCustomerOption() { addToArray('home.customer_options', {icon:'☀️', title:'', description:'', link:'/quote/'}); }
-
-function renderHomeGallery() {
-  const g = content.gallery || [];
-  document.getElementById('home-gallery').innerHTML = g.map((item,i) => `
-    <div class="item-card"><div class="item-header"><h4>Image ${i+1}</h4><div class="item-actions">
-      <button class="btn btn-sm btn-up" onclick="moveItem('gallery',${i},-1)">↑</button>
-      <button class="btn btn-sm btn-down" onclick="moveItem('gallery',${i},1)">↓</button>
-      <button class="btn btn-sm btn-danger" onclick="removeItem('gallery',${i})">✕</button></div></div>
-    ${item.url?`<img src="${item.url}" class="img-preview"/>`:''}<div class="field"><label>Caption</label><textarea data-rich data-compact data-path="content.gallery[${i}].caption">${item.caption||''}</textarea></div></div>
-  `).join('');
-  upgradeTextareasToRich(document.getElementById('home-gallery'));
-}
-
-function renderManufacturers() {
-  const m = content.manufacturers || [];
-  document.getElementById('manufacturers-list').innerHTML = m.map((item,i) => `
-    <div class="item-card"><div class="item-header"><h4>Logo ${i+1}</h4><div class="item-actions">
-      <button class="btn btn-sm btn-up" onclick="moveItem('manufacturers',${i},-1)">↑</button>
-      <button class="btn btn-sm btn-down" onclick="moveItem('manufacturers',${i},1)">↓</button>
-      <button class="btn btn-sm btn-danger" onclick="removeItem('manufacturers',${i})">✕</button></div></div>
-    ${item.url?`<img src="${item.url}" class="img-preview" style="max-height:80px;object-fit:contain;"/>`:''}<div class="field"><label>Name</label><input value="${item.name||''}" oninput="content.manufacturers[${i}].name=this.value"/></div></div>
-  `).join('');
-}
-
-function renderBuildBenefits() {
-  const b = content.build?.benefits || [];
-  document.getElementById('build-benefits').innerHTML = b.map((item,i) => `
-    <div class="item-card"><div class="item-header"><h4>${item.title||'Benefit '+(i+1)}</h4><div class="item-actions">
-      <button class="btn btn-sm btn-up" onclick="moveItem('build.benefits',${i},-1)">↑</button>
-      <button class="btn btn-sm btn-down" onclick="moveItem('build.benefits',${i},1)">↓</button>
-      <button class="btn btn-sm btn-danger" onclick="removeItem('build.benefits',${i})">✕</button></div></div>
-    <div class="row"><div class="field"><label>Icon</label><input value="${item.icon||''}" oninput="content.build.benefits[${i}].icon=this.value"/></div>
-    <div class="field"><label>Title</label><textarea data-rich data-compact data-path="content.build.benefits[${i}].title">${item.title||''}</textarea></div></div>
-    <div class="field"><label>Description</label><textarea data-rich data-compact data-path="content.build.benefits[${i}].text">${item.text||''}</textarea></div></div>
-  `).join('');
-  upgradeTextareasToRich(document.getElementById('build-benefits'));
-}
-
-function renderBuildGallery() {
-  const g = content.build?.gallery || [];
-  document.getElementById('build-gallery').innerHTML = g.map((item,i) => `
-    <div class="item-card"><div class="item-header"><h4>Photo ${i+1}</h4><div class="item-actions">
-      <button class="btn btn-sm btn-up" onclick="moveItem('build.gallery',${i},-1)">↑</button>
-      <button class="btn btn-sm btn-down" onclick="moveItem('build.gallery',${i},1)">↓</button>
-      <button class="btn btn-sm btn-danger" onclick="removeItem('build.gallery',${i})">✕</button></div></div>
-    ${item.url?`<img src="${item.url}" class="img-preview"/>`:''}</div>
-  `).join('');
-}
-
-function renderBuildVideos() {
-  const v = content.build?.videos || [];
-  document.getElementById('build-videos').innerHTML = v.map((item,i) => `
-    <div class="item-card"><div class="item-header"><h4>${item.title||'Video '+(i+1)}</h4><div class="item-actions">
-      <button class="btn btn-sm btn-up" onclick="moveItem('build.videos',${i},-1)">↑</button>
-      <button class="btn btn-sm btn-down" onclick="moveItem('build.videos',${i},1)">↓</button>
-      <button class="btn btn-sm btn-danger" onclick="removeItem('build.videos',${i})">✕</button></div></div>
-    <div class="row"><div class="field"><label>YouTube ID</label><input value="${item.youtube_id||''}" oninput="content.build.videos[${i}].youtube_id=this.value" placeholder="dQw4w9WgXcQ"/><div class="hint">From youtube.com/watch?v=THIS_PART</div></div>
-    <div class="field"><label>Title</label><textarea data-rich data-compact data-path="content.build.videos[${i}].title">${item.title||''}</textarea></div></div></div>
-  `).join('');
-  upgradeTextareasToRich(document.getElementById('build-videos'));
-}
-
-function renderBuildFaq() {
-  const f = content.build?.faq || [];
-  document.getElementById('build-faq').innerHTML = f.map((item,i) => `
-    <div class="item-card"><div class="item-header"><h4>Q${i+1}</h4><div class="item-actions">
-      <button class="btn btn-sm btn-up" onclick="moveItem('build.faq',${i},-1)">↑</button>
-      <button class="btn btn-sm btn-down" onclick="moveItem('build.faq',${i},1)">↓</button>
-      <button class="btn btn-sm btn-danger" onclick="removeItem('build.faq',${i})">✕</button></div></div>
-    <div class="field"><label>Question</label><textarea data-rich data-compact data-path="content.build.faq[${i}].question">${item.question||''}</textarea></div>
-    <div class="field"><label>Answer</label><textarea data-rich data-compact data-path="content.build.faq[${i}].answer">${item.answer||''}</textarea></div></div>
-  `).join('');
-  upgradeTextareasToRich(document.getElementById('build-faq'));
-}
-
-// ─── Testimonials (uses .items structure) ───
-function renderTestimonials() {
-  const t = content.testimonials || {};
-  const items = t.items || [];
-  const ratingHTML = `<div class="row" style="margin-bottom:1rem;background:#f0f9ff;padding:1rem;border-radius:8px;">
-    <div class="field"><label>Star Rating</label><input id="testimonials-rating" value="${t.rating||'5.0'}" onchange="ensureTestimonials();content.testimonials.rating=this.value"/></div>
-    <div class="field"><label>Total Reviews</label><input id="testimonials-total" value="${t.total_reviews||''}" onchange="ensureTestimonials();content.testimonials.total_reviews=this.value"/></div></div>`;
-  const itemsHTML = items.map((item,i) => `
-    <div class="item-card"><div class="item-header"><h4>${item.name||'Testimonial '+(i+1)}</h4><div class="item-actions">
-      <button class="btn btn-sm btn-up" onclick="moveItem('testimonials.items',${i},-1)">↑</button>
-      <button class="btn btn-sm btn-down" onclick="moveItem('testimonials.items',${i},1)">↓</button>
-      <button class="btn btn-sm btn-danger" onclick="removeItem('testimonials.items',${i})">✕</button></div></div>
-    <div class="row"><div class="field"><label>Name</label><textarea data-rich data-compact data-path="content.testimonials.items[${i}].name">${item.name||''}</textarea></div>
-    <div class="field"><label>Role</label><textarea data-rich data-compact data-path="content.testimonials.items[${i}].role">${item.role||''}</textarea></div>
-    <div class="field"><label>Initials</label><input value="${item.initials||''}" maxlength="2" oninput="content.testimonials.items[${i}].initials=this.value"/></div></div>
-    <div class="field"><label>Quote</label><textarea data-rich data-compact data-path="content.testimonials.items[${i}].text">${item.text||''}</textarea></div></div>
-  `).join('');
-  document.getElementById('global-testimonials').innerHTML = ratingHTML + itemsHTML;
-  upgradeTextareasToRich(document.getElementById('global-testimonials'));
-}
-
-function ensureTestimonials() {
-  if (!content.testimonials || Array.isArray(content.testimonials)) content.testimonials = { rating:'5.0', total_reviews:'0', items: content.testimonials || [] };
-  if (!content.testimonials.items) content.testimonials.items = [];
-}
-function addTestimonial() {
-  ensureTestimonials();
-  syncFieldsToContent();
-  content.testimonials.items.push({name:'', role:'', text:'', initials:''});
-  renderTestimonials();
-}
-
-function renderGlobalFaq() {
-  const f = content.faq || [];
-  document.getElementById('global-faq').innerHTML = f.map((item,i) => `
-    <div class="item-card"><div class="item-header"><h4>Q${i+1}</h4><div class="item-actions">
-      <button class="btn btn-sm btn-up" onclick="moveItem('faq',${i},-1)">↑</button>
-      <button class="btn btn-sm btn-down" onclick="moveItem('faq',${i},1)">↓</button>
-      <button class="btn btn-sm btn-danger" onclick="removeItem('faq',${i})">✕</button></div></div>
-    <div class="field"><label>Question</label><textarea data-rich data-compact data-path="content.faq[${i}].question">${item.question||''}</textarea></div>
-    <div class="field"><label>Answer</label><textarea data-rich data-compact data-path="content.faq[${i}].answer">${item.answer||''}</textarea></div></div>
-  `).join('');
-  upgradeTextareasToRich(document.getElementById('global-faq'));
-}
-
-// ─── Blog Posts ───
-function renderBlogPosts() {
-  const posts = content.blog_posts || [];
-  document.getElementById('blog-list').innerHTML = posts.map((p,i) => `
-    <div class="item-card"><div class="item-header"><h4>${p.title||'Post '+(i+1)}</h4><div class="item-actions">
-      <button class="btn btn-sm btn-up" onclick="moveItem('blog_posts',${i},-1)">↑</button>
-      <button class="btn btn-sm btn-down" onclick="moveItem('blog_posts',${i},1)">↓</button>
-      <button class="btn btn-sm btn-danger" onclick="removeItem('blog_posts',${i})">✕</button></div></div>
-    <div class="row">
-      <div class="field"><label>Title</label><textarea data-rich data-compact data-path="content.blog_posts[${i}].title">${p.title||''}</textarea></div>
-      <div class="field"><label>Tag</label><input value="${p.tag||''}" oninput="content.blog_posts[${i}].tag=this.value" placeholder="Solar Tips"/></div>
-    </div>
-    <div class="row">
-      <div class="field"><label>Date</label><input type="date" value="${p.date||''}" oninput="content.blog_posts[${i}].date=this.value"/></div>
-      <div class="field"><label>Read Time</label><input value="${p.readtime||''}" oninput="content.blog_posts[${i}].readtime=this.value" placeholder="5 min read"/></div>
-    </div>
-    <div class="field"><label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;">
-      <input type="checkbox" style="width:auto;" ${p.beacon === false ? '' : 'checked'} onchange="content.blog_posts[${i}].beacon=this.checked"/>
-      Also post to Lumaria Beacons (members see it under "From the Admiral")</label></div>
-    <div class="field"><label>Body</label>
-      <textarea data-rich data-tall data-path="content.blog_posts[${i}].body">${p.body||''}</textarea></div></div>
-  `).join('');
-  upgradeTextareasToRich(document.getElementById('blog-list'));
-}
-
-function addBlogPost() {
-  if (!content.blog_posts) content.blog_posts = [];
-  syncFieldsToContent();
-  // id stays fixed when the title is edited, so Lumaria Beacons doesn't see a "new" post
-  content.blog_posts.push({ id: 'b' + Date.now().toString(36), title: '', tag: '', date: new Date().toISOString().split('T')[0], readtime: '5 min read', body: '', beacon: true });
-  renderBlogPosts();
-}
-
-// ─── Comparison Table Rows ───
-function renderCompRows() {
-  const rows = (content.comparison && content.comparison.rows) || [
-    { label: 'Monthly Cost', utility: '~$250+ (rising)', solar: '~$150 (locked)' },
-    { label: 'Annual Rate Increase', utility: '~8–10%/yr', solar: '0%' },
-    { label: '10-Year Cost', utility: '~$38,000+', solar: '~$18,000' },
-    { label: 'Own Your Power', utility: '✗', solar: '✓' },
-    { label: 'Home Value Increase', utility: '✗', solar: '+$15–25K' },
-  ];
-  document.getElementById('comp-rows').innerHTML = rows.map((r, i) => `
-    <div class="comp-row-item" style="display:grid;grid-template-columns:1.2fr 1fr 1fr auto;gap:0.5rem;align-items:start;margin-bottom:0.5rem;">
-      <div class="field"><textarea data-rich data-compact data-path="content.comparison.rows[${i}].label">${r.label||''}</textarea></div>
-      <div class="field"><textarea data-rich data-compact data-path="content.comparison.rows[${i}].utility">${r.utility||''}</textarea></div>
-      <div class="field"><textarea data-rich data-compact data-path="content.comparison.rows[${i}].solar">${r.solar||''}</textarea></div>
-      <button class="btn btn-sm" style="flex:0 0 auto;background:#ef4444;color:white;border:none;padding:4px 10px;border-radius:6px;cursor:pointer;margin-top:8px;" onclick="removeCompRow(${i})">✕</button>
-    </div>
-  `).join('');
-  upgradeTextareasToRich(document.getElementById('comp-rows'));
-}
-
-function syncCompRow() {
-  if (!content.comparison) content.comparison = {};
-  if (!content.comparison.rows) content.comparison.rows = [];
-  // Comp rows are now rich editors — read values via data-path / setNestedValue
-  // They auto-sync through data-path, so this is just a safety fallback
-}
-
-function addCompRow() {
-  if (!content.comparison) content.comparison = {};
-  if (!content.comparison.rows) content.comparison.rows = [];
-  content.comparison.rows.push({ label: '', utility: '', solar: '' });
-  renderCompRows();
-}
-
-function removeCompRow(i) {
-  if (!content.comparison) content.comparison = {};
-  if (!content.comparison.rows) return;
-  content.comparison.rows.splice(i, 1);
-  renderCompRows();
-}
-
-// ─── Image Upload (with CSRF) ───
-async function uploadImages(e, targetPath) {
-  for (const file of e.target.files) {
-    const formData = new FormData();
-    formData.append('image', file);
-    formData.append('_csrf_token', csrfToken);
-    const res = await fetch('/upload-image.php', { method: 'POST', body: formData });
-    const result = await res.json();
-    if (result.success) {
-      const keys = targetPath.split('.');
-      let obj = content;
-      for (let i = 0; i < keys.length - 1; i++) { if (!obj[keys[i]]) obj[keys[i]] = {}; obj = obj[keys[i]]; }
-      const lastKey = keys[keys.length-1];
-      if (!obj[lastKey]) obj[lastKey] = [];
-      obj[lastKey].push({ url: result.url, caption: file.name.replace(/\.[^/.]+$/, ''), name: file.name.replace(/\.[^/.]+$/, '') });
-    }
-  }
-  syncTextFields();
-  syncFieldsToContent();
-  renderAll();
-  e.target.value = '';
-}
-
-// ─── Save (placeholder — overridden by expanded save below) ───
-async function saveContent() {
-  // This gets replaced by the expanded multi-target save below
-}
-
-function formatPhone(phone) {
-  const d = phone.replace(/\D/g, '');
-  return d.length === 10 ? `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}` : phone;
-}
-
-function downloadBackup() {
-  const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
-  const blob = new Blob([JSON.stringify(content, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `content-backup-${ts}.json`;
-  a.click();
-  URL.revokeObjectURL(a.href);
-}
-
-// ═══════════════════════════════════════════════════════════
-// SERVICES + OPTIONS CONTENT (loaded alongside content.json)
-// ═══════════════════════════════════════════════════════════
-let servicesContent = {};
-
-async function loadServicesContent() {
-  try {
-    const res = await fetch('/load-content.php?target=services&t=' + Date.now());
-    servicesContent = await res.json();
-  } catch(e) {
-    servicesContent = { hero: { title: '', subtitle: '' }, services: [] };
-  }
-  renderServicesEditor();
-}
-
-// Override loadContent to also load services + options
-const _origLoadContent = loadContent;
-loadContent = async function() {
-  await _origLoadContent();
-  await loadServicesContent();
-  await loadOptionsContent();
-  renderDiffCards();
-};
-
-// ─── Differentiators Editor ───
-function renderDiffCards() {
-  const diff = content.home?.differentiators || {
-    title: 'What Makes Us Different',
-    subtitle: "We're not a national call center. We're your San Diego neighbors.",
-    cards: [
-      { icon: '🏠', title: 'Personalized Design', description: 'Custom-engineered for your roof, your usage, your goals — not a cookie-cutter template.' },
-      { icon: '💰', title: '$0 Down Options', description: 'Multiple financing paths so you start saving from day one — no upfront cost required.' },
-      { icon: '📱', title: 'Transparent Process', description: 'Know exactly where your project stands at every step. No surprises, no runaround.' },
-      { icon: '🤝', title: 'Local San Diego Team', description: 'Real people who live here, work here, and show up. Not a 1-800 number.' }
-    ]
-  };
-  if (!content.home) content.home = {};
-  if (!content.home.differentiators) content.home.differentiators = diff;
-  
-  document.getElementById('diff-title').value = diff.title || '';
-  document.getElementById('diff-subtitle').value = diff.subtitle || '';
-  
-  const cards = diff.cards || [];
-  document.getElementById('diff-cards').innerHTML = cards.map((c, i) => `
-    <div class="item-card"><div class="item-header"><h4>${c.icon||''} ${c.title||'Card '+(i+1)}</h4><div class="item-actions">
-      <button class="btn btn-sm btn-up" onclick="moveDiffCard(${i},-1)">↑</button>
-      <button class="btn btn-sm btn-down" onclick="moveDiffCard(${i},1)">↓</button>
-      <button class="btn btn-sm btn-danger" onclick="removeDiffCard(${i})">✕</button></div></div>
-    <div class="row">
-      <div class="field" style="flex:0 0 80px"><label>Icon</label><input value="${c.icon||''}" oninput="content.home.differentiators.cards[${i}].icon=this.value"/></div>
-      <div class="field"><label>Title</label><textarea data-rich data-compact data-path="content.home.differentiators.cards[${i}].title">${c.title||''}</textarea></div>
-    </div>
-    <div class="field"><label>Description</label><textarea data-rich data-compact data-path="content.home.differentiators.cards[${i}].description">${c.description||''}</textarea></div></div>
-  `).join('');
-  upgradeTextareasToRich(document.getElementById('diff-cards'));
-}
-
-function addDiffCard() {
-  if (!content.home.differentiators.cards) content.home.differentiators.cards = [];
-  content.home.differentiators.cards.push({ icon: '✨', title: '', description: '' });
-  renderDiffCards();
-}
-function moveDiffCard(i, dir) {
-  const arr = content.home.differentiators.cards;
-  const j = i + dir;
-  if (j < 0 || j >= arr.length) return;
-  [arr[i], arr[j]] = [arr[j], arr[i]];
-  renderDiffCards();
-}
-function removeDiffCard(i) {
-  if (!confirm('Delete this card?')) return;
-  content.home.differentiators.cards.splice(i, 1);
-  renderDiffCards();
-}
-
-// ═══════════════════════════════════════════════════════════
-// SERVICES EDITOR
-// ═══════════════════════════════════════════════════════════
-function renderServicesEditor() {
-  const hero = servicesContent.hero || {};
-  document.getElementById('svc-hero-title').value = hero.title || '';
-  document.getElementById('svc-hero-subtitle').value = hero.subtitle || '';
-  
-  const plans = servicesContent.services || [];
-  document.getElementById('svc-plans').innerHTML = plans.map((p, i) => `
-    <div class="svc-card">
-      <div class="item-header" style="margin-bottom:0.75rem;"><h4>${p.icon||''} ${p.title||'Service '+(i+1)}</h4>
-        <div class="item-actions">
-          <button class="btn btn-sm btn-up" onclick="moveSvcPlan(${i},-1)">↑</button>
-          <button class="btn btn-sm btn-down" onclick="moveSvcPlan(${i},1)">↓</button>
-          <button class="btn btn-sm btn-danger" onclick="removeSvcPlan(${i})">✕</button>
-        </div>
-      </div>
-      <div class="row">
-        <div class="field"><label>Title</label><textarea data-rich data-compact data-path="servicesContent.services[${i}].title">${p.title||''}</textarea></div>
-        <div class="field" style="flex:0 0 80px"><label>Icon</label><input value="${p.icon||''}" oninput="servicesContent.services[${i}].icon=this.value"/></div>
-      </div>
-      <div class="row">
-        <div class="field"><label>Price</label><input value="${p.price||''}" oninput="servicesContent.services[${i}].price=this.value"/></div>
-        <div class="field"><label>Price Period</label><input value="${p.price_period||''}" oninput="servicesContent.services[${i}].price_period=this.value" placeholder="one-time, /month, /year"/></div>
-        <div class="field"><label>Price (number, USD — used by Stripe checkout)</label><input type="number" value="${p.paypal_price||''}" oninput="servicesContent.services[${i}].paypal_price=parseFloat(this.value)||0"/></div>
-      </div>
-      <div class="field"><label>Description</label><textarea data-rich data-compact data-path="servicesContent.services[${i}].description">${p.description||''}</textarea></div>
-      <div class="field"><label>Opportunity Type (Zoho)</label><input value="${p.opportunity_type||''}" oninput="servicesContent.services[${i}].opportunity_type=this.value"/></div>
-      
-      <div class="svc-features">
-        <label style="font-weight:600;font-size:0.9rem;">Features</label>
-        ${(p.features||[]).map((f, fi) => `
-          <div class="svc-feature-row">
-            <div style="flex:1;"><textarea data-rich data-compact data-path="servicesContent.services[${i}].features[${fi}]">${f}</textarea></div>
-            <button class="btn btn-sm btn-danger" onclick="removeSvcFeature(${i},${fi})">✕</button>
-          </div>
-        `).join('')}
-        <button class="btn btn-sm" style="background:#06D6A0;color:white;margin-top:0.25rem;" onclick="addSvcFeature(${i})">+ Feature</button>
-      </div>
-    </div>
-  `).join('');
-  upgradeTextareasToRich(document.getElementById('svc-plans'));
-}
-
-function addServicePlan() {
-  if (!servicesContent.services) servicesContent.services = [];
-  servicesContent.services.push({ id: 'svc-' + Date.now(), title: 'New Service', price: '$0', price_period: 'one-time', icon: '⭐', description: '', features: [], opportunity_type: '', paypal_price: 0 });
-  renderServicesEditor();
-}
-function moveSvcPlan(i, dir) {
-  const arr = servicesContent.services;
-  const j = i + dir;
-  if (j < 0 || j >= arr.length) return;
-  [arr[i], arr[j]] = [arr[j], arr[i]];
-  renderServicesEditor();
-}
-function removeSvcPlan(i) {
-  if (!confirm('Delete this service plan?')) return;
-  servicesContent.services.splice(i, 1);
-  renderServicesEditor();
-}
-function addSvcFeature(i) {
-  if (!servicesContent.services[i].features) servicesContent.services[i].features = [];
-  servicesContent.services[i].features.push('');
-  renderServicesEditor();
-}
-function removeSvcFeature(i, fi) {
-  servicesContent.services[i].features.splice(fi, 1);
-  renderServicesEditor();
-}
-
-function removeSvcFeature(i, fi) {
-  servicesContent.services[i].features.splice(fi, 1);
-  renderServicesEditor();
-}
-
-// ═══════════════════════════════════════════════════════════
-// OPTIONS PAGE EDITOR
-// ═══════════════════════════════════════════════════════════
-let optionsContent = {};
-
-async function loadOptionsContent() {
-  const defaults = getDefaultOptionsContent();
-  try {
-    const res = await fetch('/load-content.php?target=options&t=' + Date.now());
-    const data = await res.json();
-    if (!data || !data.cards || data.cards.length === 0) {
-      optionsContent = defaults;
-    } else {
-      optionsContent = data;
-      // Merge in any missing top-level sections from defaults
-      for (const key of Object.keys(defaults)) {
-        if (!optionsContent[key] || (typeof optionsContent[key] === 'object' && !Array.isArray(optionsContent[key]) && Object.keys(optionsContent[key]).length === 0)) {
-          optionsContent[key] = defaults[key];
-        }
-      }
-    }
-  } catch(e) {
-    optionsContent = defaults;
-  }
-  optionsTabReady = false;
-}
-
-let optionsTabReady = false;
-
-// Hook into switchTab to render Options content on first open
-const _origSwitchTab = switchTab;
-switchTab = function(tab, btn) {
-  _origSwitchTab(tab, btn);
-  if (tab === 'options' && !optionsTabReady) {
-    optionsTabReady = true;
-    setTimeout(() => renderOptionsEditor(), 50);
-  }
-};
-
-function getDefaultOptionsContent() {
-  return {
-    hero: { eyebrow: 'Your Energy Best', title: 'Understand Your Energy Options', sub: 'Four paths. One goal — lower energy costs, more control, and a home that works smarter for you.', cta: 'Explore Your Options ↓' },
-    section: { label: 'The Four Paths', heading: 'Every home is different. Here\'s how each option works.' },
-    cards: [
-      { number: '01', title: 'Utility', aka: 'Stay with Your Current Provider', pros: ['No upfront cost or commitment','No equipment or maintenance','Familiar billing — nothing changes'], tradeoffs: ['Rates increase 5–8% per year on average','No protection from rate hikes','No home value increase','No backup during outages','No tax credits or incentives'], fit: 'you haven\'t explored alternatives yet. Most homeowners start here — the question is whether staying makes sense as rates keep climbing.', bg_image: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=800&q=60' },
-      { number: '02', title: 'Prepaid Power', aka: 'Financing / Solar Loan', pros: ['$0 down options available','You own the system from day one','Federal tax credit applies (if eligible)','Potential immediate monthly savings','Increases home value'], tradeoffs: ['Monthly loan payment replaces utility bill','Credit approval required','Longer-term financial commitment'], fit: 'you want to start saving immediately without a large upfront investment, and you\'d rather build equity in your own energy system instead of paying a utility company.', bg_image: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&q=60' },
-      { number: '03', title: 'Power Purchase', aka: 'PPA / Solar Lease', pros: ['$0 down, $0 maintenance','Lower rate than the utility company','No system ownership responsibilities','Monitoring and repairs included'], tradeoffs: ['You don\'t own the system','Annual rate escalator (typically 1–3%)','Long-term contract (20–25 years)','Tax credit goes to the provider'], fit: 'you want a hands-off experience with no upfront cost, and you\'re comfortable paying less than the utility without owning the equipment.', bg_image: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&q=60' },
-      { number: '04', title: 'Home Battery Lease', aka: 'Virtual Power Plant / Storage', pros: ['Backup power during outages','No upfront cost in some programs','Time-of-use optimization','Can pair with existing solar'], tradeoffs: ['Monthly lease payment','Limited energy offset without solar','Program availability varies by area'], fit: 'you already have solar or want backup power, and you\'re in an area with time-of-use rates where shifting usage makes a real difference.', bg_image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=800&q=60' },
-      { number: '05', title: 'Cash Purchase', aka: 'Outright Ownership', pros: ['Maximum long-term savings','No monthly payments','Full federal tax credit (if eligible)','Best ROI over system lifetime','Greatest home value increase'], tradeoffs: ['Large upfront investment ($15k–$35k+)','Capital tied up in the home','Maintenance responsibility is yours'], fit: 'you have available capital, plan to stay in your home long-term, and want the highest overall return on your investment.', bg_image: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=800&q=60' }
-    ],
-    form: { label: 'Personalized Insight', heading: 'Want to see which option may work best for you?', sub: 'Answer a few quick questions. No commitment — just clarity.' },
-    steps: [
-      { question: 'What\'s your average monthly electric bill?', hint: 'Drag the slider or tap a range' },
-      { question: 'What\'s your zip code?', hint: 'Helps us check local programs and rates' },
-      { question: 'Are you a homeowner?', hint: '' },
-      { question: 'How long have you lived in your home?', hint: '' },
-      { question: 'How long do you plan to stay?', hint: '' },
-      { question: 'Any plans that would increase your energy usage?', hint: 'Select all that apply' },
-      { question: 'What would you use more if it didn\'t cost more?', hint: 'Select all that apply' },
-      { question: 'Are you planning any other major home investments?', hint: 'Roof, windows, renovation, etc.' },
-      { question: 'When it comes to financing, do you prefer to…', hint: '' }
-    ],
-    rec: { eyebrow: 'Based on what you shared', title: 'Here\'s a strong starting point:', name: 'Prepaid Power', aka: 'Financing Option', feat1_icon: '💵', feat1_text: '$0 down options available', feat2_icon: '📉', feat2_text: 'Estimated day-one savings around ~20% compared to your current bill <em>(estimate)</em>' },
-    savings: { label: 'Projected Savings', heading: 'What this could look like over time', basis: 'Based on ~20% estimated reduction and 5% annual utility escalation assumption.', disclaimer: 'These projections are estimates based on assumed utility escalation. Actual savings vary based on system size, financing terms, incentives, usage, and eligibility.' },
-    cta: { title: 'Ready to see your real numbers?', sub: 'Book a free consultation. We\'ll design a custom plan for your home — no pressure, no obligation.', btn: 'Get Your Official Quote →', calendly_url: 'https://calendly.com/yourenergybest' },
-    footer: { text: '© 2026 Your Energy Best · San Diego, CA', disclaimer: 'This page is for educational purposes. All savings figures are estimates. Consult a licensed professional for specific financial advice.' },
-    calc: { reduction: 20, escalation: 5 }
-  };
-}
-
-function renderOptionsEditor() {
-  const o = optionsContent;
-  const h = o.hero || {};
-  const sec = o.section || {};
-  const f = o.form || {};
-  const r = o.rec || {};
-  const sv = o.savings || {};
-  const ct = o.cta || {};
-  const ft = o.footer || {};
-  const calc = o.calc || {};
-
-  // Build the entire Options tab HTML dynamically to avoid any Quill conflicts
-  const tab = document.getElementById('tab-options');
-  if (!tab) return;
-
-  // Helper to create a rich field
-  function rf(id, label, val, compact) {
-    return `<div class="field"><label>${label}</label><div class="rich-editor-wrap${compact ? ' compact' : ''}"><div id="${id}" class="rich-edit">${val || ''}</div></div></div>`;
-  }
-  function pf(id, label, val) {
-    return `<div class="field"><label>${label}</label><input id="${id}" value="${(val||'').replace(/"/g,'&quot;')}" /></div>`;
-  }
-
-  tab.innerHTML = `
-    <div class="section-card">
-      <div class="section-header"><h3>Hero Section</h3></div>
-      ${rf('opt-hero-eyebrow','Eyebrow Text', h.eyebrow, true)}
-      ${rf('opt-hero-title','Hero Title', h.title, true)}
-      ${rf('opt-hero-sub','Hero Subtitle', h.sub, false)}
-      ${rf('opt-hero-cta','Hero CTA Button Text', h.cta, true)}
-    </div>
-    <div class="section-card">
-      <div class="section-header"><h3>Options Section Header</h3></div>
-      ${rf('opt-section-label','Section Label', sec.label, true)}
-      ${rf('opt-section-heading','Section Heading', sec.heading, true)}
-    </div>
-    <div class="section-card">
-      <div class="section-header">
-        <h3>Option Cards</h3>
-        <button class="btn btn-add btn-sm" onclick="addOptionCard()">+ Add Option</button>
-      </div>
-      <p style="font-size:0.85rem;color:#666;margin-bottom:1rem;">Each card has a title, subtitle, advantages, trade-offs, and a "fit" description.</p>
-      <div id="opt-cards"></div>
-    </div>
-    <div class="section-card">
-      <div class="section-header"><h3>Form Section Header</h3></div>
-      ${rf('opt-form-label','Section Label', f.label, true)}
-      ${rf('opt-form-heading','Section Heading', f.heading, true)}
-      ${rf('opt-form-sub','Subtitle', f.sub, true)}
-    </div>
-    <div class="section-card">
-      <div class="section-header"><h3>Form Step Questions</h3></div>
-      <p style="font-size:0.85rem;color:#666;margin-bottom:1rem;">Edit the question text and hint for each of the 9 form steps.</p>
-      <div id="opt-steps"></div>
-    </div>
-    <div class="section-card">
-      <div class="section-header"><h3>Results / Recommendation Section</h3></div>
-      ${rf('opt-rec-eyebrow','Recommendation Eyebrow', r.eyebrow, true)}
-      ${rf('opt-rec-title','Recommendation Title', r.title, true)}
-      ${rf('opt-rec-name','Default Recommendation Name', r.name, true)}
-      ${rf('opt-rec-aka','Default Recommendation Subtitle', r.aka, true)}
-      <div class="row">
-        ${pf('opt-rec-feat1-icon','Feature 1 Icon', r.feat1_icon)}
-        ${rf('opt-rec-feat1-text','Feature 1 Text', r.feat1_text, true)}
-      </div>
-      <div class="row">
-        ${pf('opt-rec-feat2-icon','Feature 2 Icon', r.feat2_icon)}
-        ${rf('opt-rec-feat2-text','Feature 2 Text', r.feat2_text, true)}
-      </div>
-    </div>
-    <div class="section-card">
-      <div class="section-header"><h3>Savings Projection Section</h3></div>
-      ${rf('opt-savings-label','Section Label', sv.label, true)}
-      ${rf('opt-savings-heading','Section Heading', sv.heading, true)}
-      ${rf('opt-savings-basis','Basis Text', sv.basis, true)}
-      ${rf('opt-savings-disclaimer','Disclaimer Text', sv.disclaimer, false)}
-    </div>
-    <div class="section-card">
-      <div class="section-header"><h3>CTA / Calendly Section</h3></div>
-      ${rf('opt-cta-title','CTA Title', ct.title, true)}
-      ${rf('opt-cta-sub','CTA Subtitle', ct.sub, true)}
-      ${rf('opt-cta-btn','CTA Button Text', ct.btn, true)}
-      ${pf('opt-calendly-url','Calendly URL', ct.calendly_url)}
-    </div>
-    <div class="section-card">
-      <div class="section-header"><h3>Footer</h3></div>
-      ${rf('opt-footer-text','Footer Copyright Text', ft.text, true)}
-      ${rf('opt-footer-disclaimer','Footer Disclaimer', ft.disclaimer, false)}
-    </div>
-    <div class="section-card">
-      <div class="section-header"><h3>Calculator Settings</h3></div>
-      <div class="row">
-        <div class="field"><label>Savings Reduction Rate (%)</label><input type="number" id="opt-calc-reduction" step="1" min="0" max="100" value="${calc.reduction || 20}" /></div>
-        <div class="field"><label>Escalation Rate (%)</label><input type="number" id="opt-calc-escalation" step="1" min="0" max="100" value="${calc.escalation || 5}" /></div>
-      </div>
-    </div>
-  `;
-
-  renderOptionCards();
-  renderOptionSteps();
-
-  // Initialize all Quill editors on the freshly built tab
-  setTimeout(() => {
-    tab.querySelectorAll('.rich-edit').forEach(el => {
-      if (richEditors[el.id]) return;
-      const wrap = el.closest('.rich-editor-wrap');
-      const isCompact = wrap && wrap.classList.contains('compact');
-      const existingContent = el.innerHTML || '';
-      initRichEditor(el.id, existingContent, null, { compact: isCompact });
-    });
-  }, 30);
-}
-
-// Sync all active Quill editors in Options tab back to optionsContent
-// Called before any re-render to prevent data loss
-function syncOptionsEditors() {
-  // Static fields
-  const h = optionsContent.hero = optionsContent.hero || {};
-  const v = (id) => { if (richEditors[id]) { const h = richEditors[id].root.innerHTML; return h === '<p><br></p>' ? '' : h; } const el = document.getElementById(id); return el ? (el.value || el.innerHTML || '') : ''; };
-  h.eyebrow = v('opt-hero-eyebrow') || h.eyebrow;
-  h.title = v('opt-hero-title') || h.title;
-  h.sub = v('opt-hero-sub') || h.sub;
-  h.cta = v('opt-hero-cta') || h.cta;
-
-  const sec = optionsContent.section = optionsContent.section || {};
-  sec.label = v('opt-section-label') || sec.label;
-  sec.heading = v('opt-section-heading') || sec.heading;
-
-  const f = optionsContent.form = optionsContent.form || {};
-  f.label = v('opt-form-label') || f.label;
-  f.heading = v('opt-form-heading') || f.heading;
-  f.sub = v('opt-form-sub') || f.sub;
-
-  const r = optionsContent.rec = optionsContent.rec || {};
-  r.eyebrow = v('opt-rec-eyebrow') || r.eyebrow;
-  r.title = v('opt-rec-title') || r.title;
-  r.name = v('opt-rec-name') || r.name;
-  r.aka = v('opt-rec-aka') || r.aka;
-  r.feat1_icon = v('opt-rec-feat1-icon') || r.feat1_icon;
-  r.feat1_text = v('opt-rec-feat1-text') || r.feat1_text;
-  r.feat2_icon = v('opt-rec-feat2-icon') || r.feat2_icon;
-  r.feat2_text = v('opt-rec-feat2-text') || r.feat2_text;
-
-  const sv = optionsContent.savings = optionsContent.savings || {};
-  sv.label = v('opt-savings-label') || sv.label;
-  sv.heading = v('opt-savings-heading') || sv.heading;
-  sv.basis = v('opt-savings-basis') || sv.basis;
-  sv.disclaimer = v('opt-savings-disclaimer') || sv.disclaimer;
-
-  const ct = optionsContent.cta = optionsContent.cta || {};
-  ct.title = v('opt-cta-title') || ct.title;
-  ct.sub = v('opt-cta-sub') || ct.sub;
-  ct.btn = v('opt-cta-btn') || ct.btn;
-  ct.calendly_url = v('opt-calendly-url') || ct.calendly_url;
-
-  const ft = optionsContent.footer = optionsContent.footer || {};
-  ft.text = v('opt-footer-text') || ft.text;
-  ft.disclaimer = v('opt-footer-disclaimer') || ft.disclaimer;
-
-  const calc = optionsContent.calc = optionsContent.calc || {};
-  const redEl = document.getElementById('opt-calc-reduction');
-  const escEl = document.getElementById('opt-calc-escalation');
-  if (redEl) calc.reduction = parseFloat(redEl.value) || calc.reduction || 20;
-  if (escEl) calc.escalation = parseFloat(escEl.value) || calc.escalation || 5;
-}
-
-function renderOptionCards() {
-  // Sync all current editor values back to optionsContent before destroying card editors
-  syncOptionsEditors();
-  const cards = optionsContent.cards || [];
-  document.getElementById('opt-cards').innerHTML = cards.map((c, i) => `
-    <div class="svc-card" style="border-color:#219EBC;">
-      <div class="item-header" style="margin-bottom:0.75rem;"><h4>${c.number||''} — ${c.title||'Option '+(i+1)}</h4>
-        <div class="item-actions">
-          <button class="btn btn-sm btn-up" onclick="moveOptCard(${i},-1)">↑</button>
-          <button class="btn btn-sm btn-down" onclick="moveOptCard(${i},1)">↓</button>
-          <button class="btn btn-sm btn-danger" onclick="removeOptCard(${i})">✕</button>
-        </div>
-      </div>
-      <div class="row">
-        <div class="field" style="flex:0 0 80px"><label>Number</label><input value="${c.number||''}" oninput="optionsContent.cards[${i}].number=this.value"/></div>
-        <div class="field"><label>Title</label><textarea data-rich data-compact data-path="optionsContent.cards[${i}].title">${c.title||''}</textarea></div>
-        <div class="field"><label>Subtitle / AKA</label><textarea data-rich data-compact data-path="optionsContent.cards[${i}].aka">${c.aka||''}</textarea></div>
-      </div>
-      <div class="field"><label>Background Image URL</label><input value="${(c.bg_image||'').replace(/"/g,'&quot;')}" oninput="optionsContent.cards[${i}].bg_image=this.value" style="font-size:0.85rem;"/></div>
-      <div class="field"><label>Advantages (Pros)</label>
-        <div class="svc-features" id="opt-pros-${i}">
-          ${(c.pros||[]).map((p, pi) => `
-            <div class="svc-feature-row">
-              <div style="flex:1;"><textarea data-rich data-compact data-path="optionsContent.cards[${i}].pros[${pi}]">${p}</textarea></div>
-              <button class="btn btn-sm btn-danger" onclick="optionsContent.cards[${i}].pros.splice(${pi},1);renderOptionCards();">✕</button>
-            </div>
-          `).join('')}
-          <button class="btn btn-sm" style="background:#06D6A0;color:white;margin-top:0.25rem;" onclick="optionsContent.cards[${i}].pros.push('');renderOptionCards();">+ Advantage</button>
-        </div>
-      </div>
-      <div class="field"><label>Trade-offs</label>
-        <div class="svc-features" id="opt-trade-${i}">
-          ${(c.tradeoffs||[]).map((t, ti) => `
-            <div class="svc-feature-row">
-              <div style="flex:1;"><textarea data-rich data-compact data-path="optionsContent.cards[${i}].tradeoffs[${ti}]">${t}</textarea></div>
-              <button class="btn btn-sm btn-danger" onclick="optionsContent.cards[${i}].tradeoffs.splice(${ti},1);renderOptionCards();">✕</button>
-            </div>
-          `).join('')}
-          <button class="btn btn-sm" style="background:#FFB703;color:#023047;margin-top:0.25rem;" onclick="optionsContent.cards[${i}].tradeoffs.push('');renderOptionCards();">+ Trade-off</button>
-        </div>
-      </div>
-      <div class="field"><label>"This might be right for you if…" Text</label><textarea data-rich data-path="optionsContent.cards[${i}].fit">${c.fit||''}</textarea></div>
-    </div>
-  `).join('');
-  upgradeTextareasToRich(document.getElementById('opt-cards'));
-}
-
-function addOptionCard() {
-  if (!optionsContent.cards) optionsContent.cards = [];
-  const n = String(optionsContent.cards.length + 1).padStart(2, '0');
-  optionsContent.cards.push({ number: n, title: 'New Option', aka: '', pros: [''], tradeoffs: [''], fit: '', bg_image: '' });
-  renderOptionCards();
-}
-function moveOptCard(i, dir) {
-  const arr = optionsContent.cards; const j = i + dir;
-  if (j < 0 || j >= arr.length) return;
-  [arr[i], arr[j]] = [arr[j], arr[i]];
-  renderOptionCards();
-}
-function removeOptCard(i) {
-  if (!confirm('Delete this option card?')) return;
-  optionsContent.cards.splice(i, 1);
-  renderOptionCards();
-}
-
-function renderOptionSteps() {
-  syncOptionsEditors();
-  const steps = optionsContent.steps || [];
-  document.getElementById('opt-steps').innerHTML = steps.map((s, i) => `
-    <div class="item-card" style="border-left:3px solid #219EBC;">
-      <h4 style="margin-bottom:0.5rem;color:#023047;">Step ${i+1}</h4>
-      <div class="field"><label>Question</label><textarea data-rich data-compact data-path="optionsContent.steps[${i}].question">${s.question||''}</textarea></div>
-      <div class="field"><label>Hint Text</label><textarea data-rich data-compact data-path="optionsContent.steps[${i}].hint">${s.hint||''}</textarea></div>
-    </div>
-  `).join('');
-  upgradeTextareasToRich(document.getElementById('opt-steps'));
-}
-
-function collectOptionsContent() {
-  // If the Options tab was never opened, don't collect — the editors don't exist
-  // and we'd overwrite optionsContent with empty strings
-  if (!optionsTabReady) return;
-
-  // Sync from live editors first
-  syncOptionsEditors();
-}
-
-// ═══════════════════════════════════════════════════════════
-// EXPANDED SAVE — saves content.json + services-content.json + options-content.json
-// ═══════════════════════════════════════════════════════════
-const _origSaveContent = saveContent;
-saveContent = async function() {
-  if (!confirm('Save all changes? This will update your live website.')) return;
-  const btn = document.getElementById('saveBtn');
-  btn.textContent = '💾 Saving...';
-  btn.disabled = true;
-
-  // Helper: get value from editor, but never overwrite with empty
-  const safeGet = (id, fallback) => { const v = getVal(id); return (v && v !== '<p><br></p>') ? v : (fallback || ''); };
-
-  // 1) Gather content.json fields
-  content.home = content.home || {};
-  content.home.hero_eyebrow = safeGet('home-eyebrow', content.home.hero_eyebrow);
-  content.home.hero_title_part1 = safeGet('home-title-part1', content.home.hero_title_part1);
-  content.home.hero_title_part2 = safeGet('home-title-part2', content.home.hero_title_part2);
-  content.home.hero_subtitle = safeGet('home-subtitle', content.home.hero_subtitle);
-  content.home.about_text = safeGet('home-about', content.home.about_text);
-  content.home.referral_text = safeGet('home-referral', content.home.referral_text);
-  content.home.accordion_btn_closed = safeGet('accordion-btn-closed', content.home.accordion_btn_closed);
-  content.home.accordion_btn_open = safeGet('accordion-btn-open', content.home.accordion_btn_open);
-  
-  // Differentiators
-  if (content.home.differentiators) {
-    content.home.differentiators.title = safeGet('diff-title', content.home.differentiators.title);
-    content.home.differentiators.subtitle = safeGet('diff-subtitle', content.home.differentiators.subtitle);
-  }
-
-  content.build = content.build || {};
-  if (!content.build.hero) content.build.hero = {};
-  content.build.hero.title = safeGet('build-hero-title', content.build.hero.title);
-  content.build.hero.subtitle = safeGet('build-hero-subtitle', content.build.hero.subtitle);
-  content.build.cta_text = safeGet('build-cta-text', content.build.cta_text);
-  content.build.section_title = safeGet('build-section-title', content.build.section_title);
-  content.build.section_text = safeGet('build-section-text', content.build.section_text);
-
-  content.stats = content.stats || {};
-  content.stats.savings = safeGet('stats-savings', content.stats.savings);
-  content.stats.savings_label = safeGet('stats-savings-label', content.stats.savings_label);
-  content.stats.hours = safeGet('stats-hours', content.stats.hours);
-  content.stats.hours_label = safeGet('stats-hours-label', content.stats.hours_label);
-  content.stats.installations = safeGet('stats-installations', content.stats.installations);
-  content.stats.installations_label = safeGet('stats-installations-label', content.stats.installations_label);
-  content.stats.customers = safeGet('stats-customers', content.stats.customers);
-  content.stats.customers_label = safeGet('stats-customers-label', content.stats.customers_label);
-
-  content.rebate_alert = content.rebate_alert || {};
-  content.rebate_alert.heading = safeGet('rebate-heading', content.rebate_alert.heading);
-  content.rebate_alert.text = safeGet('rebate-text', content.rebate_alert.text);
-  content.rebate_alert.home_link_text = safeGet('rebate-home-link', content.rebate_alert.home_link_text);
-  content.rebate_alert.quote_link_text = safeGet('rebate-quote-link', content.rebate_alert.quote_link_text);
-  content.rebate_alert.quote_modal_text = safeGet('rebate-modal-text', content.rebate_alert.quote_modal_text);
-  content.rebate_alert.links = [
-    { label: safeGet('rebate-home-link', content.rebate_alert.home_link_text) || 'See what you qualify for', url: '/quote/', external: false },
-    { label: 'SD Community Power Rebates', url: 'https://sdcommunitypower.org/solar-battery-savings/', external: true }
-  ];
-
-  content.contact = content.contact || {};
-  content.contact.phone = safeGet('contact-phone', content.contact.phone);
-  content.contact.phone_formatted = formatPhone(safeGet('contact-phone', content.contact.phone));
-  content.contact.email = safeGet('contact-email', content.contact.email);
-
-  content.quote = content.quote || {};
-  content.quote.hero_eyebrow = safeGet('quote-eyebrow', content.quote.hero_eyebrow);
-  content.quote.hero_title = safeGet('quote-title', content.quote.hero_title);
-  content.quote.hero_subtitle = safeGet('quote-subtitle', content.quote.hero_subtitle);
-  content.quote.form_title = safeGet('quote-form-title', content.quote.form_title);
-  content.quote.success_message = safeGet('quote-success', content.quote.success_message);
-
-  // Comparison table
-  content.comparison = content.comparison || {};
-  content.comparison.title = safeGet('comp-title', content.comparison.title);
-  content.comparison.subtitle = safeGet('comp-subtitle', content.comparison.subtitle);
-  content.comparison.col_utility = safeGet('comp-col-utility', content.comparison.col_utility);
-  content.comparison.col_solar = safeGet('comp-col-solar', content.comparison.col_solar);
-
-  ensureTestimonials();
-  content.testimonials.rating = document.getElementById('testimonials-rating')?.value || content.testimonials.rating || '5.0';
-  content.testimonials.total_reviews = document.getElementById('testimonials-total')?.value || content.testimonials.total_reviews || '';
-
-  // 3) Services content
-  servicesContent.hero = servicesContent.hero || {};
-  servicesContent.hero.title = safeGet('svc-hero-title', servicesContent.hero.title);
-  servicesContent.hero.subtitle = safeGet('svc-hero-subtitle', servicesContent.hero.subtitle);
-
-  // 4) Options content
-  collectOptionsContent();
-
-  // Debug: log what we're about to save
-  console.log('💾 Saving content.json — build.faq count:', (content.build?.faq || []).length);
-  console.log('💾 Saving content.json — build.hero.title:', content.build?.hero?.title);
-  console.log('💾 Saving content.json — faq count:', (content.faq || []).length);
-  console.log('💾 Saving options-content.json — cards count:', (optionsContent.cards || []).length);
-
-  let allOk = true;
-  try {
-    const authHeaders = { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken };
-
-    // Save content.json
-    const r1 = await fetch('/save.php', { method: 'POST', headers: authHeaders, body: JSON.stringify({ ...content, _save_target: 'content' }) });
-    const j1 = await r1.json();
-    console.log('💾 content.json response:', j1);
-    if (!j1.success) throw new Error('content.json: ' + (j1.error || 'failed'));
-
-    // Save services-content.json
-    const r3 = await fetch('/save.php', { method: 'POST', headers: authHeaders, body: JSON.stringify({ ...servicesContent, _save_target: 'services' }) });
-    const j3 = await r3.json();
-    console.log('💾 services-content.json response:', j3);
-    if (!j3.success) throw new Error('services-content.json: ' + (j3.error || 'failed'));
-
-    // Save options-content.json
-    const r5 = await fetch('/save.php', { method: 'POST', headers: authHeaders, body: JSON.stringify({ ...optionsContent, _save_target: 'options' }) });
-    const j5 = await r5.json();
-    console.log('💾 options-content.json response:', j5);
-    if (!j5.success) throw new Error('options-content.json: ' + (j5.error || 'failed'));
-
-    btn.textContent = '✓ All Saved!';
-    setTimeout(() => { btn.textContent = '💾 Save All Changes'; btn.disabled = false; }, 2000);
-  } catch (err) {
-    btn.textContent = '✕ Save Failed';
-    btn.disabled = false;
-    alert('Save failed: ' + err.message);
-  }
-};
-
-// ─── Connections tab (connections.php) ───
-function connVal(id) { return (document.getElementById(id).value || '').trim(); }
-function connPill(id, cls, text) {
-  const el = document.getElementById('conn-' + id + '-status');
-  el.className = 'conn-pill ' + cls; el.textContent = text;
-}
-async function loadConnections() {
-  ['instagram', 'zoho', 'stripe', 'google'].forEach(k => connPill(k, '', 'Checking…'));
-  try {
-    const r = await fetch('/connections.php');
-    if (r.status === 403) { alert('Session expired. Please log in again.'); return; }
-    const s = await r.json();
-    const ig = s.instagram;
-    if (!ig.configured) connPill('instagram', 'bad', 'Not connected');
-    else if (ig.ok) connPill('instagram', 'ok', 'Working · @' + (ig.account || '?') + ' · saved ' + ig.saved_days_ago + 'd ago');
-    else connPill('instagram', 'bad', 'Broken — ' + (ig.error || 'token rejected'));
-
-    const z = s.zoho;
-    if (!z.client_configured) connPill('zoho', 'bad', 'Client ID/secret missing in config.php');
-    else if (!z.configured) connPill('zoho', 'bad', 'Not connected');
-    else connPill('zoho', z.ok ? 'ok' : 'bad', z.ok ? 'Working' : 'Broken — reconnect');
-
-    const st = s.stripe;
-    if (!st.secret_key) connPill('stripe', 'bad', 'No secret key in config.php');
-    else if (!st.ok) connPill('stripe', 'bad', 'Stripe rejected the secret key');
-    else connPill('stripe', st.webhook_secret ? 'ok' : 'warn',
-      (st.live ? 'Live' : 'TEST mode') + (st.account ? ' · ' + st.account : '') + (st.webhook_secret ? ' · webhook on' : ' · webhook not set up'));
-
-    connPill('google', s.google.configured ? 'ok' : 'warn', s.google.configured ? 'Connected' : 'Not connected');
-
-    const stray = document.getElementById('conn-stray');
-    if (s.stray_files && s.stray_files.length) {
-      stray.style.display = 'block';
-      stray.innerHTML = '';
-      stray.append('⚠️ Leftovers on the server that git cannot remove: ' + s.stray_files.join(', ') + ' ');
-      const b = document.createElement('button');
-      b.className = 'btn btn-sm btn-danger'; b.textContent = 'Delete them';
-      b.addEventListener('click', () => connSave('cleanup', {}));
-      stray.append(b);
-    } else stray.style.display = 'none';
-  } catch (e) { console.error('connections', e); }
-}
-async function connSave(action, data) {
-  const msg = document.getElementById('conn-' + action + '-msg');
-  if (msg) { msg.style.color = '#666'; msg.textContent = 'Checking…'; }
-  try {
-    const r = await fetch('/connections.php', {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
-      body: JSON.stringify({ action, ...data })
-    });
-    if (r.status === 403) { alert('Session expired. Please log in again.'); return; }
+    const r = await fetch('/admin-auth.php?action=login', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: $('#loginEmail').value.trim(), password: $('#loginPass').value }) });
     const j = await r.json();
-    if (msg) {
-      msg.style.color = j.ok ? '#065f46' : '#991b1b';
-      msg.textContent = j.ok ? '✓ Saved' + (j.account ? ' — ' + j.account : '') + (j.reviews ? ' · ' + j.rating + '★, ' + j.reviews + ' reviews' : '') : (j.error || 'Failed');
+    if (!j.success) { $('#loginErr').textContent = j.error || 'Sign-in failed.'; return; }
+    CSRF = j.csrf_token; $('#loginPass').value = ''; $('#login').classList.add('hidden');
+    if (!files.content) await loadAll();
+  } catch (err) { $('#loginErr').textContent = 'Could not reach the server.'; }
+  finally { btn.disabled = false; btn.textContent = 'Sign in'; }
+});
+$('#logoutBtn').addEventListener('click', async () => {
+  if (isDirty() && await ask('Sign out with unpublished changes?', 'They will be lost.', [{ label: 'Stay', value: false }, { label: 'Sign out', value: true, cls: 'danger' }]) !== true) return;
+  try { await fetch('/admin-auth.php?action=logout', { method: 'POST' }); } catch (e) {}
+  location.reload();
+});
+
+/* ─── Load / publish ─── */
+async function fetchFile(name) { const r = await api('/load-content.php?target=' + name + '&t=' + Date.now()); return r.json(); }
+async function loadAll() {
+  for (const name of Object.keys(FILES)) { const data = await fetchFile(name); files[name] = { data, snap: JSON.stringify(data) }; }
+  const fromHash = location.hash.slice(1);
+  if (PAGES.some((p) => p.id === fromHash) || ['connections', 'history'].includes(fromHash)) current = fromHash;
+  renderNav(); render(); updateBar();
+}
+const dirtyFiles = () => Object.keys(files).filter((n) => JSON.stringify(files[n].data) !== files[n].snap);
+const isDirty = () => dirtyFiles().length > 0;
+function updateBar() {
+  const d = dirtyFiles();
+  $('#bar').classList.toggle('dirty', d.length > 0);
+  $('#publishBtn').disabled = d.length === 0;
+  $('#discardBtn').classList.toggle('hidden', d.length === 0);
+  $('#status').innerHTML = d.length ? '<span class="dot"></span><b>Unpublished changes</b> — visitors still see the old version.'
+    : '<span class="dot"></span>Everything is published' + (files._savedAt ? ' · last publish ' + files._savedAt : '') + '.';
+}
+async function publish() {
+  const d = dirtyFiles(); if (!d.length) return;
+  const btn = $('#publishBtn'); btn.disabled = true; btn.textContent = 'Publishing…';
+  try {
+    for (const name of d) {
+      // Someone (another tab, device, or the classic editor) published since this was opened?
+      const live = await fetchFile(name);
+      if (JSON.stringify(live) !== files[name].snap) {
+        const what = { content: 'Homepage / Quote / Build / Blog content', options: 'Energy Options page', services: 'Services page' }[name];
+        const go = await ask('This changed somewhere else', `The ${what} was published from another tab or device after you opened the editor. Publishing now replaces those changes with yours.`,
+          [{ label: 'Cancel', value: false }, { label: 'Publish mine anyway', value: true, cls: 'danger' }]);
+        if (!go) { btn.textContent = 'Publish'; updateBar(); return; }
+      }
+      const r = await api('/save.php', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF },
+        body: JSON.stringify({ ...files[name].data, _save_target: name }) });
+      const j = await r.json();
+      if (!j.success) throw new Error(j.error || 'Save failed');
+      files[name].snap = JSON.stringify(files[name].data);
     }
-    if (j.ok) {
-      document.querySelectorAll('#tab-connections input').forEach(i => { i.value = ''; });
-      loadConnections();
-    }
-  } catch (e) { if (msg) { msg.style.color = '#991b1b'; msg.textContent = 'Could not reach the server.'; } }
+    files._savedAt = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    toast('Published — it\'s live now.');
+  } catch (e) { if (e.message !== 'signed out') toast('Not published: ' + e.message, true); }
+  btn.textContent = 'Publish'; updateBar();
+}
+$('#publishBtn').addEventListener('click', publish);
+$('#discardBtn').addEventListener('click', async () => {
+  if (await ask('Discard your changes?', 'Everything goes back to what\'s live now.', [{ label: 'Keep editing', value: false }, { label: 'Discard', value: true, cls: 'danger' }]) !== true) return;
+  for (const n of Object.keys(FILES)) files[n].data = JSON.parse(files[n].snap);
+  render(); updateBar();
+});
+document.addEventListener('keydown', (e) => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); publish(); } });
+window.addEventListener('beforeunload', (e) => { if (isDirty()) { e.preventDefault(); e.returnValue = ''; } });
+const changed = () => updateBar();
+
+/* ─── Navigation ─── */
+function renderNav() {
+  const nav = $('#nav'); nav.innerHTML = '';
+  let grp = null;
+  const items = [...PAGES, { id: 'connections', group: 'Settings', label: 'Connections' }, { id: 'history', group: 'Settings', label: 'History' }];
+  for (const p of items) {
+    if (p.group !== grp) { grp = p.group; nav.append(h('div', { class: 'grp' }, grp)); }
+    nav.append(h('button', { type: 'button', class: p.id === current ? 'on' : '', onclick: () => { current = p.id; history.replaceState(null, '', '#' + p.id); renderNav(); render(); window.scrollTo(0, 0); } }, p.label));
+  }
+}
+function render() {
+  const main = $('#main'); main.innerHTML = '';
+  if (current === 'connections') return renderConnections(main);
+  if (current === 'history') return renderHistory(main);
+  const page = PAGES.find((p) => p.id === current);
+  const file = page.file || 'content';
+  main.append(h('div', { class: 'page-head' }, h('h2', {}, page.label), h('a', { href: page.url, target: '_blank', rel: 'noopener' }, 'Open this page ↗')));
+  if (page.intro) main.append(h('p', { class: 'intro' }, page.intro));
+  if (page.blog) return renderBlog(main);
+  for (const sec of page.sections) {
+    const view = page.url + (sec.anchor ? '#' + sec.anchor : '');
+    const bd = h('div', { class: 'bd' });
+    if (sec.note) bd.append(h('p', { class: 'note' }, sec.note));
+    for (const f of sec.fields) bd.append(field(file, f, files[file].data, ''));
+    if (sec.prices) bd.append(pricesBox());
+    main.append(h('section', { class: 'sec' },
+      h('div', { class: 'hd' }, h('h3', {}, sec.title), sec.where ? h('span', { class: 'where' }, 'Shows on: ' + sec.where) : null,
+        h('a', { class: 'view', href: view, target: '_blank', rel: 'noopener' }, 'See it ↗')), bd));
+  }
 }
 
+/* ─── Fields ─── */
+function field(file, f, obj, base) {
+  if (f.row || f.row3) return h('div', { class: 'row' + (f.row3 ? ' r3' : '') }, (f.row || f.row3).map((x) => field(file, x, obj, base)));
+  const path = f.path || f.key;
+  const id = 'f' + Math.random().toString(36).slice(2, 9);
+  const wrap = h('div', { class: 'f' });
+  if (f.type !== 'toggle' && f.type !== 'list' && f.type !== 'images') wrap.append(h('label', { for: id }, f.label));
+  else if (f.type !== 'toggle') wrap.append(h('label', {}, f.label || ''));
+  if (f.help) wrap.append(h('div', { class: 'help' }, f.help));
+  const val = getP(obj, path);
+  const set = (v) => { setP(obj, path, v); changed(); };
+
+  switch (f.type) {
+    case 'text': case 'url': case 'date': {
+      const el = h('input', { id, type: f.type === 'date' ? 'date' : f.type === 'url' ? 'url' : 'text', value: f.type === 'text' ? toPlain(val) : (val || '') });
+      el.addEventListener('input', () => set(el.value));
+      wrap.append(el); break;
+    }
+    case 'number': {
+      const el = h('input', { id, type: 'number', step: 'any', value: val ?? '' });
+      el.addEventListener('input', () => set(el.value === '' ? '' : Number(el.value)));
+      wrap.append(f.unit ? h('div', { class: 'unit' }, el, h('span', {}, f.unit)) : el); break;
+    }
+    case 'para': {
+      const el = h('textarea', { id, rows: 3 }); el.value = toPlain(val);
+      const grow = () => { el.style.height = 'auto'; el.style.height = Math.min(600, el.scrollHeight + 2) + 'px'; };
+      el.addEventListener('input', () => { set(el.value); grow(); });
+      wrap.append(el); requestAnimationFrame(grow); break;
+    }
+    case 'lines': {
+      const el = h('textarea', { id, rows: 4 }); el.value = (Array.isArray(val) ? val : []).map(toPlain).join('\n');
+      el.addEventListener('input', () => set(el.value.split('\n').map((s) => s.trim()).filter(Boolean)));
+      wrap.append(el); break;
+    }
+    case 'toggle': {
+      const el = h('input', { id, type: 'checkbox' }); el.checked = !!val;
+      el.addEventListener('change', () => set(el.checked));
+      wrap.append(h('label', { class: 'toggle', for: id }, el, f.label)); break;
+    }
+    case 'rich': wrap.append(richEditor(val, (html) => set(html), f.tall)); break;
+    case 'images': wrap.append(imageList(obj, path, !!f.logo)); break;
+    case 'list': wrap.append(listEditor(file, obj, path, f)); break;
+  }
+  return wrap;
+}
+
+function richEditor(val, onChange, tall) {
+  const area = h('div', { class: 'area', contenteditable: 'true' });
+  area.innerHTML = cleanRich(String(val || '').replace(/\\u([0-9a-fA-F]{4})/g, (_, x) => String.fromCharCode(parseInt(x, 16))));
+  if (!area.innerHTML.trim()) area.innerHTML = '<p><br></p>';
+  const cmd = (c, v) => { area.focus(); document.execCommand(c, false, v); emit(); };
+  const emit = () => onChange(cleanRich(area.innerHTML));
+  area.addEventListener('input', emit);
+  area.addEventListener('paste', (e) => { e.preventDefault(); document.execCommand('insertText', false, (e.clipboardData || window.clipboardData).getData('text/plain')); });
+  const tb = h('div', { class: 'tb' },
+    h('button', { type: 'button', title: 'Bold', onmousedown: (e) => e.preventDefault(), onclick: () => cmd('bold') }, h('b', {}, 'B')),
+    h('button', { type: 'button', title: 'Italic', onmousedown: (e) => e.preventDefault(), onclick: () => cmd('italic') }, h('i', {}, 'I')),
+    h('button', { type: 'button', title: 'Bulleted list', onmousedown: (e) => e.preventDefault(), onclick: () => cmd('insertUnorderedList') }, '• List'),
+    h('button', { type: 'button', title: 'Link', onmousedown: (e) => e.preventDefault(), onclick: () => {
+      const u = prompt('Link to (a page like /quote/ or a full https:// address):'); if (u) cmd('createLink', u.trim()); } }, '🔗 Link'),
+    h('button', { type: 'button', title: 'Remove formatting', onmousedown: (e) => e.preventDefault(), onclick: () => { cmd('removeFormat'); cmd('unlink'); } }, 'Clear'));
+  return h('div', { class: 'rich' + (tall ? ' tall' : '') }, tb, area);
+}
+
+function listEditor(file, obj, path, f) {
+  if (!Array.isArray(getP(obj, path))) setP(obj, path, []);
+  const box = h('div');
+  const draw = () => {
+    const arr = getP(obj, path); box.innerHTML = '';
+    const items = h('div', { class: 'items' });
+    arr.forEach((it, i) => {
+      const key = file + ':' + path + '#' + i;
+      const title = toPlain(it[f.titleKey]) || '(untitled)';
+      const sub = f.subKey ? toPlain(it[f.subKey]) : '';
+      const move = (d) => { const j = i + d; if (j < 0 || j >= arr.length) return; [arr[i], arr[j]] = [arr[j], arr[i]]; open.delete(key); changed(); draw(); };
+      const head = h('div', { class: 'ih', onclick: (e) => { if (e.target.closest('button')) return; open.has(key) ? open.delete(key) : open.add(key); draw(); } },
+        h('span', { class: 't' }, (open.has(key) ? '▾ ' : '▸ ') + title, sub ? h('small', {}, sub) : null),
+        f.fixed ? null : h('button', { class: 'ibtn', type: 'button', title: 'Move up', onclick: () => move(-1) }, '↑'),
+        f.fixed ? null : h('button', { class: 'ibtn', type: 'button', title: 'Move down', onclick: () => move(1) }, '↓'),
+        f.fixed ? null : h('button', { class: 'ibtn del', type: 'button', title: 'Remove', onclick: async () => {
+          if (await ask('Remove "' + title + '"?', 'It disappears from the site when you publish.', [{ label: 'Keep it', value: false }, { label: 'Remove', value: true, cls: 'danger' }]) !== true) return;
+          arr.splice(i, 1); open.clear(); changed(); draw(); } }, '✕'));
+      const body = h('div', { class: 'ib' });
+      if (open.has(key)) for (const sf of f.fields) body.append(field(file, sf, it, ''));
+      // keep the header title current while typing
+      body.addEventListener('input', () => { head.querySelector('.t').firstChild.textContent = '▾ ' + (toPlain(it[f.titleKey]) || '(untitled)'); });
+      items.append(h('div', { class: 'item' + (open.has(key) ? ' open' : '') }, head, body));
+    });
+    box.append(items);
+    if (!f.fixed) box.append(h('button', { class: 'add', type: 'button', onclick: () => {
+      arr.push(JSON.parse(JSON.stringify(f.blank || {}))); open.add(file + ':' + path + '#' + (arr.length - 1)); changed(); draw(); } }, '+ ' + (f.addLabel || 'Add')));
+  };
+  draw();
+  return box;
+}
+
+function imageList(obj, path, logo) {
+  if (!Array.isArray(getP(obj, path))) setP(obj, path, []);
+  const box = h('div');
+  const draw = () => {
+    const arr = getP(obj, path); box.innerHTML = '';
+    const grid = h('div', { class: 'imgs' });
+    arr.forEach((it, i) => {
+      const cap = h('input', { type: 'text', placeholder: logo ? 'Brand name' : 'Caption', value: toPlain(logo ? (it.name || it.caption) : (it.caption || it.name)) });
+      cap.addEventListener('input', () => { if (logo) it.name = cap.value; else it.caption = cap.value; changed(); });
+      const move = (d) => { const j = i + d; if (j < 0 || j >= arr.length) return; [arr[i], arr[j]] = [arr[j], arr[i]]; changed(); draw(); };
+      grid.append(h('div', { class: 'img' }, h('div', { class: 'ph' + (logo ? ' logo' : ''), style: `background-image:url("${imgSrc(it.url).replace(/"/g, '%22')}")` }), cap,
+        h('div', { class: 'ctl' },
+          h('button', { class: 'ibtn', type: 'button', onclick: () => move(-1) }, '←'), h('button', { class: 'ibtn', type: 'button', onclick: () => move(1) }, '→'),
+          h('button', { class: 'ibtn del', type: 'button', onclick: async () => {
+            if (await ask('Remove this image?', 'It disappears from the site when you publish.', [{ label: 'Keep', value: false }, { label: 'Remove', value: true, cls: 'danger' }]) !== true) return;
+            arr.splice(i, 1); changed(); draw(); } }, '✕'))));
+    });
+    const input = h('input', { type: 'file', accept: 'image/*', multiple: true });
+    const label = h('label', { class: 'add upload' }, input, '+ Upload images');
+    input.addEventListener('change', async () => {
+      const list = [...input.files]; input.value = '';
+      for (let k = 0; k < list.length; k++) {
+        label.lastChild.textContent = ` Uploading ${k + 1} of ${list.length}…`;
+        const fd = new FormData(); fd.append('image', list[k]); fd.append('_csrf_token', CSRF);
+        try {
+          const r = await api('/upload-image.php', { method: 'POST', body: fd });
+          const j = await r.json();
+          if (!j.success) { toast(list[k].name + ': ' + (j.error || 'upload failed'), true); continue; }
+          const nm = list[k].name.replace(/\.[^.]+$/, '');
+          arr.push({ url: j.url, caption: nm, name: nm }); changed();
+        } catch (e) { break; }
+      }
+      draw();
+    });
+    box.append(grid, label);
+  };
+  draw();
+  return box;
+}
+
+function pricesBox() {
+  const box = h('div', { class: 'note' }, 'Loading prices…');
+  fetch('/plans.php').then((r) => r.json()).then((p) => {
+    box.innerHTML = '';
+    box.append(h('div', {}, h('b', {}, 'Prices'), ' — these come from plans.php (the same list Stripe charges from), so the pages and checkout always match. To change one, ask Claude or edit plans.php.'));
+    const ul = h('ul', { style: 'margin:6px 0 0 1.1rem;padding:0' });
+    for (const k in p) ul.append(h('li', {}, `${p[k].name}: $${p[k].price}${p[k].recurring ? '/year' : ''}`));
+    box.append(ul);
+  }).catch(() => { box.textContent = 'Prices come from plans.php.'; });
+  return box;
+}
+
+/* ─── Blog ─── */
+function renderBlog(main) {
+  const c = files.content.data;
+  if (!Array.isArray(c.blog_posts)) c.blog_posts = [];
+  const posts = c.blog_posts;
+  main.append(h('p', { class: 'intro' }, 'Posts appear on the blog, newest first. With "Also post to lumaria" on, members see it in the app under Beacons → "From the Admiral".'));
+  main.append(h('button', { class: 'add', type: 'button', style: 'margin-bottom:14px', onclick: () => {
+    posts.unshift({ id: 'b' + Date.now().toString(36), title: '', tag: '', date: new Date().toISOString().slice(0, 10), readtime: '3 min read', body: '', beacon: true });
+    open.add('blog:' + posts[0].id); changed(); render(); } }, '+ New post'));
+  if (!posts.length) main.append(h('div', { class: 'sec' }, h('div', { class: 'bd' }, h('p', { style: 'margin:0;color:var(--soft)' }, 'No posts yet — the blog shows "Coming soon" until the first one is published.'))));
+  const order = [...posts].sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  for (const p of order) {
+    const key = 'blog:' + (p.id || p.title);
+    const isOpen = open.has(key);
+    const live = JSON.parse(files.content.snap).blog_posts || [];
+    const published = p.id && live.some((x) => x.id === p.id);
+    const hd = h('div', { class: 'hd', style: 'cursor:pointer', onclick: (e) => { if (e.target.closest('a,button')) return; isOpen ? open.delete(key) : open.add(key); render(); } },
+      h('h3', {}, (isOpen ? '▾ ' : '▸ ') + (toPlain(p.title) || '(untitled post)')),
+      h('span', { class: 'where' }, (p.date || '') + (p.beacon === false ? '' : ' · also in lumaria')),
+      published ? h('a', { class: 'view', href: '/blog.html?p=' + encodeURIComponent(p.id), target: '_blank', rel: 'noopener' }, 'See it ↗') : h('span', { class: 'where' }, 'not published yet'));
+    const bd = h('div', { class: 'bd' + (isOpen ? '' : ' hidden') });
+    if (isOpen) {
+      if (!p.id) { p.id = 'b' + Date.now().toString(36); }
+      bd.append(
+        field('content', { path: 'title', type: 'text', label: 'Title' }, p),
+        field('content', { row3: [ { path: 'tag', type: 'text', label: 'Topic tag', help: 'e.g. Batteries, Rates, Repairs' }, { path: 'date', type: 'date', label: 'Date' }, { path: 'readtime', type: 'text', label: 'Read time' } ] }, p),
+        field('content', { path: 'body', type: 'rich', tall: true, label: 'Post' }, p),
+        h('div', { class: 'f' }, (() => { const cb = h('input', { type: 'checkbox' }); cb.checked = p.beacon !== false;
+          cb.addEventListener('change', () => { p.beacon = cb.checked; changed(); });
+          return h('label', { class: 'toggle' }, cb, 'Also post to lumaria (Beacons → From the Admiral)'); })()),
+        h('button', { class: 'btn danger', type: 'button', onclick: async () => {
+          if (await ask('Delete this post?', 'It comes off the blog and out of lumaria when you publish.', [{ label: 'Keep it', value: false }, { label: 'Delete', value: true, cls: 'danger' }]) !== true) return;
+          posts.splice(posts.indexOf(p), 1); changed(); render(); } }, 'Delete post'));
+    }
+    main.append(h('section', { class: 'sec' }, hd, bd));
+  }
+}
+
+/* ─── History (backups.php) ─── */
+async function renderHistory(main) {
+  main.append(h('div', { class: 'page-head' }, h('h2', {}, 'History')));
+  main.append(h('p', { class: 'intro' }, 'Every publish keeps the version before it (the last 10 of each). Restoring puts that version live — and keeps today\'s, so you can undo the restore too.'));
+  const box = h('div'); main.append(box); box.textContent = 'Loading…';
+  try {
+    const list = await (await api('/backups.php')).json();
+    box.innerHTML = '';
+    const names = { content: 'Homepage, Quote, Build, Blog & shared blocks', options: 'Energy Options page', services: 'Services page' };
+    for (const k of ['content', 'options', 'services']) {
+      const t = h('table', { class: 'hist' });
+      if (!list[k].length) t.append(h('tr', {}, h('td', {}, 'No earlier versions yet.')));
+      for (const b of list[k]) {
+        const when = new Date(b.at).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+        t.append(h('tr', {}, h('td', {}, when), h('td', {},
+          h('a', { href: '/backups.php?file=' + encodeURIComponent(b.file), target: '_blank', rel: 'noopener', style: 'margin-right:12px' }, 'View'),
+          h('button', { class: 'ibtn', type: 'button', onclick: () => restore(b, when) }, 'Restore'))));
+      }
+      box.append(h('section', { class: 'sec' }, h('div', { class: 'hd' }, h('h3', {}, names[k])), h('div', { class: 'bd' }, t)));
+    }
+  } catch (e) { if (e.message !== 'signed out') box.textContent = 'Could not load history.'; }
+}
+async function restore(b, when) {
+  if (isDirty()) { toast('Publish or discard your current changes first.', true); return; }
+  if (await ask('Restore the version from ' + when + '?', 'It goes live right away. What\'s live now is kept in History.', [{ label: 'Cancel', value: false }, { label: 'Restore', value: true, cls: 'danger' }]) !== true) return;
+  const r = await api('/backups.php', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF }, body: JSON.stringify({ action: 'restore', file: b.file }) });
+  const j = await r.json();
+  if (!j.ok) return toast(j.error || 'Restore failed', true);
+  const data = await fetchFile(j.restored); files[j.restored] = { data, snap: JSON.stringify(data) };
+  toast('Restored — live now.'); render(); updateBar();
+}
+
+/* ─── Connections (connections.php) ─── */
+function renderConnections(main) {
+  main.append(h('div', { class: 'page-head' }, h('h2', {}, 'Connections'), h('button', { class: 'btn sec2', type: 'button', onclick: () => render() }, '↻ Re-check')));
+  main.append(h('p', { class: 'intro' }, 'What the site talks to. Tokens you paste are checked with the service first, then saved on the server — never shown again, never in GitHub, and not downloadable.'));
+  const stray = h('div', { class: 'note warn hidden' }); main.append(stray);
+  const card = (key, title, how, inputs, action, btnLabel) => {
+    const pill = h('span', { class: 'pill', id: 'pill-' + key }, 'Checking…');
+    const msg = h('span', { class: 'msg' });
+    const save = h('button', { class: 'btn pri', type: 'button', onclick: async () => {
+      const data = {}; for (const i of inputs) data[i.name] = i.el.value.trim();
+      msg.style.color = 'var(--soft)'; msg.textContent = 'Checking…';
+      try {
+        const r = await api('/connections.php', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF }, body: JSON.stringify({ action, ...data }) });
+        const j = await r.json();
+        msg.style.color = j.ok ? 'var(--green)' : 'var(--red)';
+        msg.textContent = j.ok ? '✓ Saved' + (j.account ? ' — ' + j.account : '') + (j.reviews ? ` · ${j.rating}★, ${j.reviews} reviews` : '') : (j.error || 'Failed');
+        if (j.ok) { inputs.forEach((i) => { i.el.value = ''; }); loadStatus(); }
+      } catch (e) {}
+    } }, btnLabel);
+    main.append(h('section', { class: 'sec' }, h('div', { class: 'hd' }, h('h3', {}, title), pill),
+      h('div', { class: 'bd' }, h('details', { class: 'how' }, h('summary', {}, 'How to get it'), h('ol', { class: 'steps', html: how })),
+        ...inputs.map((i) => h('div', { class: 'f' }, i.el)), h('div', {}, save, msg))));
+  };
+  const inp = (name, ph, secret = true) => ({ name, el: h('input', { type: secret ? 'password' : 'text', placeholder: ph, autocomplete: 'off', style: 'width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px' }) });
+  card('instagram', '📸 Instagram (homepage feed)',
+    '<li><b>Cut off the old token first:</b> in the Instagram app → Settings → <i>Apps and websites</i> → remove your website\'s app.</li><li>Open <a href="https://developers.facebook.com/apps/" target="_blank" rel="noopener">developers.facebook.com/apps</a> → your app → <i>Instagram</i> → <i>API setup with Instagram login</i>.</li><li>Under <i>Generate access tokens</i>, connect <b>@energy.best.ca</b> → <i>Generate token</i>.</li><li>Paste it below. It lasts 60 days and the site renews it by itself.</li>',
+    [inp('token', 'Instagram access token')], 'instagram', 'Check & save');
+  card('zoho', '📇 Zoho CRM (leads, install map)',
+    '<li>Open <a href="https://api-console.zoho.com/" target="_blank" rel="noopener">api-console.zoho.com</a> → the client the website uses (usually <i>Self Client</i>).</li><li><i>Generate Code</i> tab → Scope <code>ZohoCRM.modules.ALL,ZohoCRM.coql.READ</code> · 10 minutes · <i>Create</i>.</li><li>Paste the code below within 10 minutes (each works once).</li>',
+    [inp('code', 'Grant code (1000.…)')], 'zoho', 'Connect');
+  card('stripe', '💳 Stripe (payments → Zoho)',
+    '<li><a href="https://dashboard.stripe.com/webhooks" target="_blank" rel="noopener">Stripe → Developers → Webhooks</a> → <i>Add endpoint</i>.</li><li>URL: <code>https://yourenergybest.com/stripe-webhook.php</code></li><li>Events: <code>checkout.session.completed</code>, <code>checkout.session.async_payment_succeeded</code>, <code>invoice.paid</code>, <code>invoice.payment_failed</code>, <code>customer.subscription.deleted</code>.</li><li>Reveal the signing secret (<code>whsec_…</code>) and paste it below, then <i>Send test event</i> in Stripe.</li>',
+    [inp('secret', 'whsec_…')], 'stripe_webhook', 'Save signing secret');
+  card('google', '⭐ Google Reviews (homepage rating)',
+    '<li>In <a href="https://console.cloud.google.com/apis/library/places.googleapis.com" target="_blank" rel="noopener">Google Cloud</a>, enable <i>Places API (New)</i>.</li><li><i>Credentials → Create credentials → API key</i>, restricted to Places API (New).</li><li>Find your Place ID with the <a href="https://developers.google.com/maps/documentation/places/web-service/place-id" target="_blank" rel="noopener">Place ID Finder</a>.</li>',
+    [inp('key', 'API key'), inp('place_id', 'Place ID (ChIJ…)', false)], 'google', 'Check & save');
+
+  async function loadStatus() {
+    try {
+      const s = await (await api('/connections.php')).json();
+      const set = (k, cls, text) => { const p = $('#pill-' + k); if (p) { p.className = 'pill ' + cls; p.textContent = text; } };
+      const ig = s.instagram;
+      set('instagram', !ig.configured ? 'bad' : ig.ok ? 'ok' : 'bad', !ig.configured ? 'Not connected' : ig.ok ? `Working · @${ig.account} · saved ${ig.saved_days_ago}d ago` : 'Broken — ' + (ig.error || 'token rejected'));
+      const z = s.zoho;
+      set('zoho', !z.client_configured || !z.configured || !z.ok ? 'bad' : 'ok', !z.client_configured ? 'Client ID/secret missing in config.php' : !z.configured ? 'Not connected' : z.ok ? 'Working' : 'Broken — reconnect');
+      const st = s.stripe;
+      set('stripe', !st.secret_key || !st.ok ? 'bad' : st.webhook_secret ? 'ok' : 'warn', !st.secret_key ? 'No secret key in config.php' : !st.ok ? 'Stripe rejected the key'
+        : (st.live ? 'Live' : 'TEST mode') + (st.account ? ' · ' + st.account : '') + (st.webhook_secret ? ' · webhook on' : ' · webhook not set up'));
+      set('google', s.google.configured ? 'ok' : 'warn', s.google.configured ? 'Connected' : 'Not connected — showing fixed numbers');
+      if (s.stray_files && s.stray_files.length) {
+        stray.classList.remove('hidden'); stray.innerHTML = '';
+        stray.append('Leftovers on the server that git cannot remove: ' + s.stray_files.join(', ') + ' ',
+          h('button', { class: 'ibtn del', type: 'button', onclick: async () => {
+            const r = await api('/connections.php', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF }, body: JSON.stringify({ action: 'cleanup' }) });
+            const j = await r.json(); toast(j.ok ? 'Deleted: ' + (j.deleted.join(', ') || 'nothing') : 'Cleanup failed', !j.ok); loadStatus(); } }, 'Delete them'));
+      } else stray.classList.add('hidden');
+    } catch (e) {}
+  }
+  loadStatus();
+}
+
+/* ─── Start ─── */
+(async () => {
+  try {
+    const r = await fetch('/admin-auth.php?action=check');
+    const j = await r.json();
+    if (j.authenticated) { CSRF = j.csrf_token; $('#login').classList.add('hidden'); await loadAll(); }
+    else showLogin();
+  } catch (e) { showLogin('Could not reach the server.'); }
+})();
 </script>
 </body>
 </html>

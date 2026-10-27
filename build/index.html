@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Build With Us – Kinhome Beacons</title>
+  <title>Build With Us – lumaria Beacons</title>
   <link rel="icon" type="image/png" href="../img/logo.png" />
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
@@ -411,7 +411,7 @@
 <section class="hero">
   <div class="hero-content">
     <h1 id="build-hero-title">Unlock Your Potential Through Door-to-Door Sales</h1>
-    <p id="build-hero-subtitle">Join Kinhome's elite sales team. Solar & HVAC solutions that change lives — starting with yours.</p>
+    <p id="build-hero-subtitle">Join lumaria's elite sales team. Solar + Battery solutions that change lives — starting with yours.</p>
     <button class="cta-btn" id="build-cta">Join Our Team</button>
   </div>
 </section>
@@ -529,7 +529,7 @@
 
         <div class="form-group">
           <label class="form-label" for="recruit-why">Why do you think you'd be a good fit?</label>
-          <textarea class="form-textarea" id="recruit-why" placeholder="Tell us what drives you, what you're looking for, and why Kinhome..."></textarea>
+          <textarea class="form-textarea" id="recruit-why" placeholder="Tell us what drives you, what you're looking for, and why lumaria..."></textarea>
         </div>
 
         <button class="form-submit-btn" id="recruitSubmitBtn" type="button">
@@ -707,17 +707,23 @@ async function loadBuildContent() {
       `).join('');
     }
 
-    if (b.gallery) {
-      document.getElementById('build-gallery').innerHTML = b.gallery.map(item => 
-        item.url ? `<div class="gallery-item"><img src="${item.url}" alt="${strip(item.caption) || 'Team'}" /></div>`
-                 : `<div class="gallery-item"><div class="gallery-placeholder">Photo placeholder</div></div>`
-      ).join('');
+    // Team photos; with none uploaded, hide the section instead of showing an empty "See Us In Action"
+    const photos = (b.gallery || []).filter(item => item.url);
+    const gallery = document.getElementById('build-gallery');
+    if (photos.length) {
+      gallery.innerHTML = photos.map(item =>
+        `<div class="gallery-item"><img src="${item.url}" alt="${strip(item.caption) || 'Team'}" loading="lazy" /></div>`).join('');
+    } else {
+      gallery.closest('section').style.display = 'none';
     }
 
-    if (b.videos && b.videos.length > 0) {
+    // A video may be saved as an ID or as a full YouTube link — embed needs the ID
+    const ytId = (v) => (String(v || '').match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([\w-]{11})/) || [])[1] || String(v || '').trim();
+    const vids = (b.videos || []).filter(v => ytId(v.youtube_id));
+    if (vids.length > 0) {
       document.getElementById('build-videos').style.display = 'block';
-      document.getElementById('build-videos-grid').innerHTML = b.videos.map(v => `
-        <div class="video-card"><iframe src="https://www.youtube.com/embed/${v.youtube_id}" frameborder="0" allowfullscreen></iframe><div class="video-title">${strip(v.title)}</div></div>
+      document.getElementById('build-videos-grid').innerHTML = vids.map(v => `
+        <div class="video-card"><iframe src="https://www.youtube.com/embed/${encodeURIComponent(ytId(v.youtube_id))}" frameborder="0" allowfullscreen></iframe><div class="video-title">${strip(v.title)}</div></div>
       `).join('');
     }
 

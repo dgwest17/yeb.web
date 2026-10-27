@@ -369,9 +369,9 @@ canvas{width:100%!important;height:auto!important}
                             <td class="ct-feature">Federal Incentives<small>Federal credit eligibility</small></td>
                             <td class="ct-utility"><span class="ck no">✕</span></td>
                             <td><span class="ck yes">✓</span><small>Passed on upfront</small></td>
-                            <td><span class="ck yes">✓</span><small>Owner claims it</small></td>
+                            <td><span class="ck yes">✓</span><small>Built into your rate (the company claims it)</small></td>
                             <td><span class="ck maybe">~</span><small>Program dependent</small></td>
-                            <td><span class="ck no">✕</span></td>
+                            <td><span class="ck no">✕</span><small>Ended for homeowners in 2026</small></td>
                         </tr>
                         <tr>
                             <td class="ct-feature">Battery Warranty<small>Coverage on storage</small></td>
@@ -403,7 +403,7 @@ canvas{width:100%!important;height:auto!important}
                             <td><span class="ck yes">✓</span></td>
                             <td><span class="ck yes">✓</span><small>Best day 1</small></td>
                             <td><span class="ck maybe">~</span><small>Depends on rates</small></td>
-                            <td><span class="ck yes">✓</span><small>No payment at all</small></td>
+                            <td><span class="ck maybe">~</span><small>Bill drops, after paying the full cost upfront</small></td>
                         </tr>
                         <tr>
                             <td class="ct-feature">Long-Term Savings<small>Total savings over 25 yrs</small></td>
@@ -622,7 +622,7 @@ canvas{width:100%!important;height:auto!important}
 const CONFIG = {
     savingsReductionRate: 0.20,
     escalationRate: 0.05,
-    calendlyUrl: 'https://calendly.com/YOUR_LINK_HERE',
+    calendlyUrl: 'https://calendly.com/yourenergybest',   // Admin → Options → Booking link overrides
     totalSteps: 9,
 };
 
@@ -846,7 +846,20 @@ async function init() {
             {number:'05',title:'Cash Purchase',aka:'Outright Ownership',pros:['Maximum long-term savings','No monthly payments'],tradeoffs:['Large upfront investment','Capital tied up in the home','Maintenance responsibility is yours',"Can't claim federal incentives"],fit:"you have available capital, plan to stay in your home long-term, and want the highest overall return on your investment.",bg_image:'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=800&q=60'}
         ]);
     }
+    if (content) applyOptionsText(content);
     stepper.init();
+}
+
+// Headings, booking link and footer from Admin → Options. A blank field keeps the text in the HTML.
+function applyOptionsText(c) {
+    const set = (sel, v) => { const el = document.querySelector(sel); if (el && v && String(v).trim()) el.textContent = String(v).trim(); };
+    const h = c.hero || {}, s = c.section || {}, f = c.form || {}, cta = c.cta || {}, ft = c.footer || {};
+    set('.hero-eyebrow', h.eyebrow); set('.hero-title', h.title); set('.hero-sub', h.sub); set('.hero-cta-gold', h.cta);
+    set('#options .section-label', s.label); set('#options .section-heading', s.heading);
+    set('.form-intro .section-label', f.label); set('.form-intro .section-heading', f.heading); set('.form-intro .form-sub', f.sub);
+    set('.cta-title', cta.title); set('.cta-sub', cta.sub); set('#ctaBtn', cta.btn);
+    if (cta.calendly_url && /^https:\/\/calendly\.com\//.test(cta.calendly_url.trim())) CONFIG.calendlyUrl = cta.calendly_url.trim();
+    set('.page-footer p:first-child', ft.text); set('.page-footer .footer-note', ft.disclaimer);
 }
 init();
 window.addEventListener('resize',()=>{if(document.getElementById('results').style.display!=='none'){const s=savings.calc(state.get('monthlyBill'),20);chart.render(s.bd);}});

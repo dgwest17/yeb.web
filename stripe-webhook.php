@@ -10,8 +10,8 @@
  *   URL:    https://yourenergybest.com/stripe-webhook.php
  *   Events: checkout.session.completed, checkout.session.async_payment_succeeded,
  *           invoice.paid, invoice.payment_failed, customer.subscription.deleted
- * Then add the signing secret to config.php, above `return [`:
- *   define('STRIPE_WEBHOOK_SECRET', 'whsec_...');
+ * Then paste the signing secret (whsec_...) in Admin → Connections, which saves
+ * it to .stripe_webhook_secret. (define('STRIPE_WEBHOOK_SECRET', ...) in config.php also works.)
  */
 header('Content-Type: application/json');
 require_once __DIR__ . '/config.php';
@@ -19,7 +19,8 @@ require_once __DIR__ . '/stripe-lib.php';
 
 function done($code, $msg) { http_response_code($code); echo json_encode(['received' => $code < 300, 'msg' => $msg]); exit; }
 
-if (!defined('STRIPE_WEBHOOK_SECRET') || STRIPE_WEBHOOK_SECRET === '') done(500, 'Webhook secret not configured');
+$whsec = defined('STRIPE_WEBHOOK_SECRET') ? STRIPE_WEBHOOK_SECRET : trim(@file_get_contents(__DIR__ . '/.stripe_webhook_secret') ?: '');
+if ($whsec === '') done(500, 'Webhook secret not configured');
 
 // ─── Verify the Stripe-Signature header (t=...,v1=...) ───
 $body = file_get_contents('php://input');
@@ -31,7 +32,7 @@ foreach (explode(',', $sigHeader) as $part) {
   if ($k === 'v1') $sigs[] = $v;
 }
 if (!$ts || !$sigs || abs(time() - $ts) > 300) done(400, 'Bad signature header');
-$expected = hash_hmac('sha256', $ts . '.' . $body, STRIPE_WEBHOOK_SECRET);
+$expected = hash_hmac('sha256', $ts . '.' . $body, $whsec);
 $valid = false;
 foreach ($sigs as $sig) { if (hash_equals($expected, $sig)) { $valid = true; break; } }
 if (!$valid) done(400, 'Signature mismatch');

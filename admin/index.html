@@ -137,6 +137,7 @@
     <button class="tab" onclick="switchTab('options', this)">⚡ Options Page</button>
     <button class="tab" onclick="switchTab('services', this)">🔧 Services</button>
     <button class="tab" onclick="switchTab('global', this)">⚙️ Global Settings</button>
+    <button class="tab" onclick="switchTab('connections', this); loadConnections();">🔌 Connections</button>
   </div>
 
   <div class="admin-content">
@@ -150,11 +151,14 @@
         <div class="field"><label>Subtitle</label><div class="rich-editor-wrap"><div id="home-subtitle" class="rich-edit"></div></div></div>
       </div>
       <div class="section-card">
-        <div class="section-header"><h3>Customer Option Cards</h3></div>
-        <div id="home-customer-options"></div>
-        <button class="btn btn-add" onclick="addCustomerOption()">+ Add Option</button>
+        <div class="section-header"><h3>Homepage Option Cards</h3></div>
+        <p style="font-size:0.85rem;color:#666;margin:0;">The four cards under the hero (Learn · Quote · Already have solar → Lumaria app · Call) are set in <code>index.html</code>, so they always point to the right places. They aren't edited here.</p>
       </div>
-      <div class="section-card">
+      <!-- Hidden: the homepage no longer reads these (kept so older save code finds its elements) -->
+      <div class="section-card" style="display:none;">
+        <div id="home-customer-options"></div>
+      </div>
+      <div class="section-card" style="display:none;">
         <div class="section-header"><h3>"Start Your Process" Accordion Button</h3></div>
         <div class="field"><label>Button Text (before click)</label><div class="rich-editor-wrap compact"><div id="accordion-btn-closed" class="rich-edit"></div></div></div>
         <div class="field"><label>Button Text (after click / expanded)</label><div class="rich-editor-wrap compact"><div id="accordion-btn-open" class="rich-edit"></div></div></div>
@@ -284,13 +288,90 @@
         <div class="field"><label>Page Subtitle</label><div class="rich-editor-wrap"><div id="svc-hero-subtitle" class="rich-edit"></div></div></div>
       </div>
       <div class="section-card">
-        <div class="section-header">
-          <h3>Service Plans</h3>
-          <button class="btn btn-add btn-sm" onclick="addServicePlan()">+ Add Service</button>
-        </div>
+        <div class="section-header"><h3>Plans &amp; Prices</h3></div>
+        <p style="font-size:0.85rem;color:#666;margin:0;">Prices live in <code>plans.php</code> — the same list Stripe charges from — and show on /services/ and /services/audit/ automatically. Change a price there (one line) and both pages and checkout update together.</p>
+      </div>
+      <!-- Hidden: /services/ never read this list; prices come from plans.php -->
+      <div class="section-card" style="display:none;">
         <div id="svc-plans"></div>
       </div>
     </div>
+
+    <!-- CONNECTIONS TAB — status + new tokens for outside services (connections.php) -->
+    <div id="tab-connections" class="tab-panel">
+      <div class="section-card">
+        <div class="section-header"><h3>Connections</h3> <button class="btn btn-sm" style="background:#eee;" onclick="loadConnections()">↻ Re-check</button></div>
+        <p style="font-size:0.85rem;color:#666;margin:0;">Tokens you paste here are checked with the service first, then saved on the server. They're never shown again, never go into GitHub, and can't be downloaded from the website.</p>
+        <div id="conn-stray" style="display:none;margin-top:1rem;padding:0.8rem 1rem;background:#fff4e5;border-radius:6px;font-size:0.9rem;"></div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header"><h3>📸 Instagram (homepage feed)</h3> <span id="conn-instagram-status" class="conn-pill">…</span></div>
+        <details style="font-size:0.88rem;color:#444;margin-bottom:0.8rem;"><summary style="cursor:pointer;font-weight:600;">How to get a new token</summary>
+          <ol style="margin:0.6rem 0 0 1.2rem;line-height:1.7;">
+            <li><b>Cut off the old one first.</b> In the Instagram app: Settings → <i>Apps and websites</i> → remove your website's app. That kills every token it ever issued, including the one that was public.</li>
+            <li>Go to <a href="https://developers.facebook.com/apps/" target="_blank" rel="noopener">developers.facebook.com/apps</a> → your app → <i>Instagram</i> → <i>API setup with Instagram login</i>.</li>
+            <li>Under <i>Generate access tokens</i>, add or reconnect <b>@energy.best.ca</b> and click <i>Generate token</i>. Log in when asked.</li>
+            <li>Copy the token and paste it below. It lasts 60 days and the site renews it by itself.</li>
+          </ol></details>
+        <div class="field"><input id="conn-ig-token" type="password" autocomplete="off" placeholder="Paste the Instagram access token"/></div>
+        <button class="btn btn-add" onclick="connSave('instagram', {token: connVal('conn-ig-token')})">Check &amp; save</button>
+        <span id="conn-instagram-msg" class="conn-msg"></span>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header"><h3>📇 Zoho CRM (leads, install map)</h3> <span id="conn-zoho-status" class="conn-pill">…</span></div>
+        <details style="font-size:0.88rem;color:#444;margin-bottom:0.8rem;"><summary style="cursor:pointer;font-weight:600;">How to get a new connection</summary>
+          <ol style="margin:0.6rem 0 0 1.2rem;line-height:1.7;">
+            <li>Go to <a href="https://api-console.zoho.com/" target="_blank" rel="noopener">api-console.zoho.com</a> and open the client the website already uses (its Client ID is the one in config.php — usually <i>Self Client</i>).</li>
+            <li>Open the <i>Generate Code</i> tab. Scope: <code>ZohoCRM.modules.ALL,ZohoCRM.coql.READ</code> · Time: 10 minutes · Description: <i>website</i> → <i>Create</i>.</li>
+            <li>Copy the code and paste it below <b>within 10 minutes</b>. Each code works once.</li>
+            <li>The old token that was public can't be used without your client secret (which never leaked), but once this one works you can remove older authorizations under <a href="https://accounts.zoho.com/home#sessions/userconnectedapps" target="_blank" rel="noopener">Zoho Accounts → Connected Apps</a>.</li>
+          </ol></details>
+        <div class="field"><input id="conn-zoho-code" type="password" autocomplete="off" placeholder="Paste the grant code (1000.xxxx…)"/></div>
+        <button class="btn btn-add" onclick="connSave('zoho', {code: connVal('conn-zoho-code')})">Connect</button>
+        <span id="conn-zoho-msg" class="conn-msg"></span>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header"><h3>💳 Stripe (payments → Zoho)</h3> <span id="conn-stripe-status" class="conn-pill">…</span></div>
+        <details style="font-size:0.88rem;color:#444;margin-bottom:0.8rem;"><summary style="cursor:pointer;font-weight:600;">How to turn on the webhook</summary>
+          <ol style="margin:0.6rem 0 0 1.2rem;line-height:1.7;">
+            <li>In <a href="https://dashboard.stripe.com/webhooks" target="_blank" rel="noopener">Stripe → Developers → Webhooks</a> click <i>Add endpoint</i>.</li>
+            <li>Endpoint URL: <code id="conn-webhook-url">https://yourenergybest.com/stripe-webhook.php</code></li>
+            <li>Events: <code>checkout.session.completed</code>, <code>checkout.session.async_payment_succeeded</code>, <code>invoice.paid</code>, <code>invoice.payment_failed</code>, <code>customer.subscription.deleted</code> → <i>Add endpoint</i>.</li>
+            <li>On the endpoint page, <i>Reveal</i> the signing secret (starts with <code>whsec_</code>) and paste it below.</li>
+            <li>Back in Stripe, <i>Send test event</i> → it should show a 200.</li>
+          </ol></details>
+        <div class="field"><input id="conn-whsec" type="password" autocomplete="off" placeholder="whsec_…"/></div>
+        <button class="btn btn-add" onclick="connSave('stripe_webhook', {secret: connVal('conn-whsec')})">Save signing secret</button>
+        <span id="conn-stripe_webhook-msg" class="conn-msg"></span>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header"><h3>⭐ Google Reviews (rating on the homepage)</h3> <span id="conn-google-status" class="conn-pill">…</span></div>
+        <p style="font-size:0.85rem;color:#a15c00;margin:0 0 0.6rem;">Until this is set, the homepage shows a fixed "5.0 · 194 reviews" instead of your live numbers.</p>
+        <details style="font-size:0.88rem;color:#444;margin-bottom:0.8rem;"><summary style="cursor:pointer;font-weight:600;">How to connect</summary>
+          <ol style="margin:0.6rem 0 0 1.2rem;line-height:1.7;">
+            <li>In <a href="https://console.cloud.google.com/apis/library/places.googleapis.com" target="_blank" rel="noopener">Google Cloud</a>, enable <i>Places API (New)</i>.</li>
+            <li><i>APIs &amp; Services → Credentials → Create credentials → API key</i>. Restrict it to <i>Places API (New)</i>.</li>
+            <li>Find your Place ID with Google's <a href="https://developers.google.com/maps/documentation/places/web-service/place-id" target="_blank" rel="noopener">Place ID Finder</a> (search your business name).</li>
+          </ol></details>
+        <div class="row">
+          <div class="field"><input id="conn-gkey" type="password" autocomplete="off" placeholder="API key"/></div>
+          <div class="field"><input id="conn-gplace" autocomplete="off" placeholder="Place ID (ChIJ…)"/></div>
+        </div>
+        <button class="btn btn-add" onclick="connSave('google', {key: connVal('conn-gkey'), place_id: connVal('conn-gplace')})">Check &amp; save</button>
+        <span id="conn-google-msg" class="conn-msg"></span>
+      </div>
+    </div>
+    <style>
+      .conn-pill { font-size: 0.78rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 50px; background: #eee; color: #555; }
+      .conn-pill.ok { background: #d1fae5; color: #065f46; }
+      .conn-pill.bad { background: #fee2e2; color: #991b1b; }
+      .conn-pill.warn { background: #fff4e5; color: #a15c00; }
+      .conn-msg { margin-left: 0.8rem; font-size: 0.88rem; }
+    </style>
 
     <!-- GLOBAL TAB -->
     <div id="tab-global" class="tab-panel">
@@ -2192,6 +2273,70 @@ saveContent = async function() {
     alert('Save failed: ' + err.message);
   }
 };
+
+// ─── Connections tab (connections.php) ───
+function connVal(id) { return (document.getElementById(id).value || '').trim(); }
+function connPill(id, cls, text) {
+  const el = document.getElementById('conn-' + id + '-status');
+  el.className = 'conn-pill ' + cls; el.textContent = text;
+}
+async function loadConnections() {
+  ['instagram', 'zoho', 'stripe', 'google'].forEach(k => connPill(k, '', 'Checking…'));
+  try {
+    const r = await fetch('/connections.php');
+    if (r.status === 403) { alert('Session expired. Please log in again.'); return; }
+    const s = await r.json();
+    const ig = s.instagram;
+    if (!ig.configured) connPill('instagram', 'bad', 'Not connected');
+    else if (ig.ok) connPill('instagram', 'ok', 'Working · @' + (ig.account || '?') + ' · saved ' + ig.saved_days_ago + 'd ago');
+    else connPill('instagram', 'bad', 'Broken — ' + (ig.error || 'token rejected'));
+
+    const z = s.zoho;
+    if (!z.client_configured) connPill('zoho', 'bad', 'Client ID/secret missing in config.php');
+    else if (!z.configured) connPill('zoho', 'bad', 'Not connected');
+    else connPill('zoho', z.ok ? 'ok' : 'bad', z.ok ? 'Working' : 'Broken — reconnect');
+
+    const st = s.stripe;
+    if (!st.secret_key) connPill('stripe', 'bad', 'No secret key in config.php');
+    else if (!st.ok) connPill('stripe', 'bad', 'Stripe rejected the secret key');
+    else connPill('stripe', st.webhook_secret ? 'ok' : 'warn',
+      (st.live ? 'Live' : 'TEST mode') + (st.account ? ' · ' + st.account : '') + (st.webhook_secret ? ' · webhook on' : ' · webhook not set up'));
+
+    connPill('google', s.google.configured ? 'ok' : 'warn', s.google.configured ? 'Connected' : 'Not connected');
+
+    const stray = document.getElementById('conn-stray');
+    if (s.stray_files && s.stray_files.length) {
+      stray.style.display = 'block';
+      stray.innerHTML = '';
+      stray.append('⚠️ Leftover token copy on the server: ' + s.stray_files.join(', ') + ' ');
+      const b = document.createElement('button');
+      b.className = 'btn btn-sm btn-danger'; b.textContent = 'Delete it';
+      b.addEventListener('click', () => connSave('cleanup', {}));
+      stray.append(b);
+    } else stray.style.display = 'none';
+  } catch (e) { console.error('connections', e); }
+}
+async function connSave(action, data) {
+  const msg = document.getElementById('conn-' + action + '-msg');
+  if (msg) { msg.style.color = '#666'; msg.textContent = 'Checking…'; }
+  try {
+    const r = await fetch('/connections.php', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+      body: JSON.stringify({ action, ...data })
+    });
+    if (r.status === 403) { alert('Session expired. Please log in again.'); return; }
+    const j = await r.json();
+    if (msg) {
+      msg.style.color = j.ok ? '#065f46' : '#991b1b';
+      msg.textContent = j.ok ? '✓ Saved' + (j.account ? ' — ' + j.account : '') + (j.reviews ? ' · ' + j.rating + '★, ' + j.reviews + ' reviews' : '') : (j.error || 'Failed');
+    }
+    if (j.ok) {
+      document.querySelectorAll('#tab-connections input').forEach(i => { i.value = ''; });
+      loadConnections();
+    }
+  } catch (e) { if (msg) { msg.style.color = '#991b1b'; msg.textContent = 'Could not reach the server.'; } }
+}
+
 </script>
 </body>
 </html>

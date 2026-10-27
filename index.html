@@ -697,7 +697,33 @@ CMS.load().then(() => {
   
   // Comparison table (CMS-driven)
   renderComparison(CMS.data);
-  
+
+  // "What Makes Us Different" — Admin → Home Page. The HTML cards are only the fallback.
+  const diff = CMS.data.home && CMS.data.home.differentiators;
+  if (diff) {
+    const why = document.getElementById('why-yeb');
+    if (strip(diff.title)) why.querySelector('.section-head h2').textContent = strip(diff.title);
+    if (strip(diff.subtitle)) why.querySelector('.section-head p').textContent = strip(diff.subtitle);
+    const cards = (diff.cards || []).filter(c => strip(c.title));
+    if (cards.length) {
+      const grid = why.querySelector('.diff-grid');
+      grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(210px, 1fr))';
+      grid.innerHTML = cards.map(c => `
+        <div class="diff-card">
+          <div class="diff-card__icon">${esc(c.icon || '')}</div>
+          <h4>${esc(strip(c.title))}</h4>
+          ${String(c.description || '').split(/<\/p>/i).map(p => strip(p)).filter(Boolean).map(p => `<p>${esc(p)}</p>`).join('')}
+        </div>`).join('');
+    }
+  }
+
+  // Equipment logos — Admin → Home Page → Manufacturers. Doubled for the seamless scroll.
+  const logos = (CMS.data.manufacturers || []).filter(m => m.url);
+  if (logos.length) {
+    const one = logos.map(m => `<span><img src="/${esc(String(m.url).replace(/^\/+/, ''))}" alt="${esc(strip(m.name || m.caption || 'Equipment partner'))}" loading="lazy" style="height:36px;width:auto;display:block;"></span>`).join('');
+    document.getElementById('partnersTrack').innerHTML = one + one;
+  }
+
   // Install map
   renderInstallMap();
   

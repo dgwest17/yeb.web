@@ -446,6 +446,8 @@ CMS.load().then(() => {
     if (CMS.data.quote.hero_eyebrow)  document.getElementById('quote-eyebrow').innerHTML  = CMS.data.quote.hero_eyebrow;
     if (CMS.data.quote.hero_title)    document.getElementById('quote-title').innerHTML    = CMS.data.quote.hero_title;
     if (CMS.data.quote.hero_subtitle) document.getElementById('quote-subtitle').innerHTML = CMS.data.quote.hero_subtitle;
+    if (strip(CMS.data.quote.form_title)) document.getElementById('customer-form').textContent = strip(CMS.data.quote.form_title);
+    if (strip(CMS.data.quote.success_message)) document.querySelector('#wizardSuccess h3').textContent = strip(CMS.data.quote.success_message);
   }
   CMS.renderRebate('quote-rebate-section');
   CMS.renderTestimonialsGlobal('quote-testimonials', 6);

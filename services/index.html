@@ -55,8 +55,8 @@
 
 <section class="services-hero">
   <span class="eyebrow" style="color: var(--teal-light, #5fd4d8);">For Solar Owners</span>
-  <h1>Solar Services</h1>
-  <p>Already have solar? Get an audit, schedule repairs, or sign up for a yearly maintenance plan.</p>
+  <h1 id="svc-title">Solar Services</h1>
+  <p id="svc-subtitle">Already have solar? Get an audit, schedule repairs, or sign up for a yearly maintenance plan.</p>
 </section>
 
 <section class="services-section" id="servicesSection">
@@ -316,6 +316,14 @@ function sendToZoho(paymentNote) {
     })
     .catch(err => console.error('Verify error:', err));
 })();
+</script>
+<script>
+// Hero text from Admin → Services (blank fields keep the text above)
+fetch("/load-content.php?target=services").then(r => r.json()).then(s => {
+  const plain = (h) => { const d = document.createElement("div"); d.innerHTML = h || ""; return d.textContent.trim(); };
+  if (s.hero && plain(s.hero.title)) document.getElementById("svc-title").textContent = plain(s.hero.title);
+  if (s.hero && plain(s.hero.subtitle)) document.getElementById("svc-subtitle").textContent = plain(s.hero.subtitle);
+}).catch(() => {});
 </script>
 <script src="/prices.js" defer></script>
 </body>

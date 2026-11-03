@@ -15,6 +15,8 @@ $PLANS = [
   'full'          => ['name' => 'Full Professional Audit & Evaluation', 'amount' => 24900, 'mode' => 'payment'],
   'audit-premium' => ['name' => 'Premium Audit & Inspection',           'amount' => 47900, 'mode' => 'payment',      'return' => '/services/audit/'],
   'audit-annual'  => ['name' => 'Annual Audit & Recommendations Plan',  'amount' => 10900, 'mode' => 'subscription', 'return' => '/services/audit/'],
+  // /audit/ booking page (waived on /audit-local/ for flyer recipients)
+  'savings-audit' => ['name' => 'Solar Savings Audit',                  'amount' => 14900, 'mode' => 'payment',      'return' => '/audit/'],
   // Annual service plans
   'basic'         => ['name' => 'Service Plan — Essential',             'amount' => 14900, 'mode' => 'subscription'],
   'plus'          => ['name' => 'Service Plan — Plus',                  'amount' => 26900, 'mode' => 'subscription'],

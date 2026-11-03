@@ -1,0 +1,96 @@
+/* audit-book.css — /locals-audit/ and /audit/ (with audit-book.js).
+   Loaded after /style.css: same fonts, colors, buttons and footer as the rest
+   of the site; the hero matches /services/audit/. */
+body { background: var(--gray-100); }
+
+.ab-hero { background: linear-gradient(135deg, var(--navy) 0%, #126782 100%); color: var(--white);
+           padding: 7rem 1.25rem 5.5rem; text-align: center; }
+.ab-hero .eyebrow { display: inline-block; font-size: .75rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
+                    color: var(--teal-light); margin-bottom: .9rem; }
+.ab-hero h1 { color: var(--white); font-size: clamp(2rem, 6vw, 3rem); line-height: 1.12; max-width: 720px; margin: 0 auto .9rem; }
+.ab-hero p { color: rgba(255,255,255,.75); max-width: 600px; margin: 0 auto; font-size: 1.08rem; }
+
+.ab-wrap { max-width: 720px; margin: -3.5rem auto 0; padding: 0 1rem 3rem; position: relative; }
+
+.waived { display: flex; gap: .9rem; align-items: center; background: var(--white); border: 2px solid var(--teal);
+          border-radius: var(--radius); padding: 1rem 1.15rem; margin-bottom: 1.1rem; box-shadow: var(--shadow-md); }
+.waived .big { font-size: 1.9rem; line-height: 1; }
+.waived b { display: block; color: var(--navy); font-size: 1.05rem; }
+.waived span { color: var(--slate); }
+.waived s { color: var(--slate); }
+
+.ab-card { background: var(--white); border: 2px solid var(--gray-200); border-radius: 16px; padding: 1.6rem 1.4rem;
+           margin-bottom: 1.4rem; box-shadow: var(--shadow); }
+.ab-card h2 { font-size: clamp(1.5rem, 4.5vw, 1.9rem); margin-bottom: .4rem; color: var(--navy); }
+.ab-card > p { color: var(--slate); margin-bottom: 1.1rem; }
+
+label.f { display: block; margin-bottom: .85rem; font-weight: 600; font-size: .9rem; color: var(--navy); }
+label.f span { display: block; margin-bottom: .3rem; }
+label.f small { color: var(--slate); font-weight: 400; }
+.ab-card input[type=text], .ab-card input[type=tel], .ab-card input[type=email], .ab-card textarea {
+  width: 100%; padding: .8rem .9rem; border: 2px solid var(--gray-200); border-radius: var(--radius-sm); background: var(--white);
+  color: var(--navy); font: inherit; font-size: 1rem; font-weight: 400; }
+.ab-card input:focus, .ab-card textarea:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px rgba(34,168,179,.15); }
+.ab-card textarea { min-height: 80px; resize: vertical; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
+.zip { display: grid; grid-template-columns: 1fr 110px; gap: .7rem; }
+@media (max-width: 480px) { .two { grid-template-columns: 1fr; } }
+.or { font-size: .85rem; color: var(--slate); margin: -.3rem 0 .9rem; }
+
+.chips { display: flex; flex-wrap: wrap; gap: .45rem; margin: -.4rem 0 .9rem; }
+.chips label { cursor: pointer; }
+.chips input { position: absolute; opacity: 0; pointer-events: none; }
+.chips span { display: inline-block; padding: .5rem .85rem; border-radius: 50px; border: 2px solid var(--gray-200); background: var(--white);
+              color: var(--navy); font-size: .9rem; font-weight: 500; }
+.chips input:checked + span { background: var(--teal); border-color: var(--teal); color: var(--white); }
+.chips input:focus-visible + span { outline: 2px solid var(--orange); }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.err { background: #fdecef; border: 1px solid #f5b5c3; color: #9b1c38; border-radius: var(--radius-sm); padding: .6rem .8rem;
+       margin-bottom: .9rem; font-size: .92rem; }
+.ab-card .btn { width: 100%; justify-content: center; }
+.fine { font-size: .82rem; color: var(--slate); margin-top: .7rem; text-align: center; }
+
+.opts { display: grid; gap: .65rem; }
+.opt { display: flex; align-items: center; gap: .9rem; padding: 1rem 1.1rem; border-radius: var(--radius); border: 2px solid var(--gray-200);
+       background: var(--white); color: var(--navy); text-decoration: none; transition: border-color .2s, transform .2s; }
+.opt:hover, .opt:focus-visible { border-color: var(--teal); transform: translateY(-1px); outline: none; }
+.opt .ic { font-size: 1.5rem; width: 2rem; text-align: center; }
+.opt b { display: block; font-size: 1.02rem; }
+.opt small { color: var(--slate); }
+.opt.main { border-color: var(--orange); background: var(--cream); }
+#calendlyBox { margin-top: 1rem; }
+#calendlyBox iframe { width: 100%; height: 720px; border: 2px solid var(--gray-200); border-radius: var(--radius); background: #fff; }
+#calendlyBox .after { margin-top: .6rem; text-align: center; color: var(--slate); }
+
+.done { text-align: center; }
+.done .check { font-size: 2.6rem; margin-bottom: .3rem; }
+#appPrompt { text-align: left; margin-top: 1.2rem; padding: 1rem 1.1rem; border-radius: var(--radius); background: var(--gray-100); }
+#appPrompt h3 { color: var(--navy); font-size: 1.1rem; margin-bottom: .3rem; }
+#appPrompt p { color: var(--slate); margin: 0; }
+#appPrompt .btn { margin-top: .8rem; }
+
+.ab-section h2 { color: var(--navy); font-size: clamp(1.5rem, 4.5vw, 1.9rem); margin: 2rem 0 1rem; }
+.points { display: grid; grid-template-columns: repeat(3, 1fr); gap: .9rem; margin-bottom: 1.4rem; }
+@media (max-width: 640px) { .points { grid-template-columns: 1fr; } }
+.point { background: var(--white); border-radius: var(--radius); border-top: 3px solid var(--teal); padding: 1rem; box-shadow: var(--shadow); }
+.point .n { font-size: .75rem; font-weight: 700; color: var(--orange); letter-spacing: .1em; }
+.point h3 { color: var(--navy); font-size: 1.05rem; margin: .2rem 0 .3rem; }
+.point p { color: var(--slate); font-size: .93rem; margin: 0; }
+.note { background: var(--white); border-left: 4px solid var(--orange); border-radius: 0 var(--radius) var(--radius) 0; padding: 1rem 1.15rem;
+        margin-bottom: .9rem; box-shadow: var(--shadow); }
+.note h3 { color: var(--navy); font-size: 1.05rem; margin-bottom: .3rem; }
+.note p { color: var(--slate); margin: 0; font-size: .95rem; }
+.note a { color: var(--teal-dark); font-weight: 600; }
+
+.doors { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; margin-bottom: 1.2rem; }
+@media (max-width: 560px) { .doors { grid-template-columns: 1fr; } }
+.door { display: block; padding: 1.15rem; border-radius: 16px; border: 2px solid var(--gray-200); background: var(--white); color: var(--slate);
+        text-decoration: none; box-shadow: var(--shadow-md); transition: border-color .2s; }
+.door:hover { border-color: var(--teal); }
+.door .tag { font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--teal); }
+.door b { display: block; font-family: var(--font-display); font-weight: 400; font-size: 1.4rem; color: var(--navy); margin: .15rem 0 .3rem; }
+.door .price { color: var(--orange-dark); font-weight: 700; }
+
+.contact { text-align: center; margin-top: 2rem; color: var(--slate); }
+.contact a { color: var(--teal-dark); font-weight: 600; text-decoration: none; }
+.legal { font-size: .76rem; color: var(--slate); opacity: .8; margin-top: 1rem; text-align: center; }

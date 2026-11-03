@@ -42,8 +42,8 @@ function isGibberish($str) {
         $vowels = preg_match_all('/[aeiouAEIOU]/', $letters);
         if ($vowels / strlen($letters) < 0.15) return true;
     }
-    // All caps name longer than 3 chars
-    if (strlen($letters) > 3 && $letters === strtoupper($letters) && !preg_match('/^(JR|SR|III|IV|II)$/i', $letters)) return true;
+    // (An all-caps rule used to sit here. Real people type "JANE DOE" on phones,
+    //  and blocked leads get a fake success, so it silently lost real homeowners.)
     return false;
 }
 
@@ -329,6 +329,9 @@ else { $nameParts = ['First' => trim($input['first_name'] ?? '') ?: 'Unknown', '
 $descParts = ["Source: {$sourceForm}", "Trace: {$traceId}"];
 if (!empty($input['customer_option'])) $descParts[] = "Selection: {$input['customer_option']}";
 if (!empty($input['payment_note']))    $descParts[] = "Payment: {$input['payment_note']}";
+if (!empty($input['reason']))          $descParts[] = "Reason: " . (is_array($input['reason']) ? implode(', ', $input['reason']) : $input['reason']);
+if (!empty($input['notes']))           $descParts[] = "Notes: {$input['notes']}";
+if (!empty($input['fee_note']))        $descParts[] = $input['fee_note'];
 foreach (['utm_source','utm_medium','utm_campaign','utm_content','utm_term','referrer'] as $k) {
     if (!empty($input[$k])) $descParts[] = "{$k}: {$input[$k]}";
 }
@@ -340,6 +343,10 @@ $leadData = [
     'Lead_Source'=>$leadSource,'Lead_Status'=>'New','Newsletter_Subscriber'=>true,
     'Description'=>implode(' | ',$descParts),
 ];
+// Home address (the audit booking pages send street / city / zip)
+foreach (['street' => 'Street', 'city' => 'City', 'state' => 'State'] as $in => $zf) {
+    if (!empty($input[$in])) $leadData[$zf] = substr(trim($input[$in]), 0, $zf === 'Street' ? 250 : 100);
+}
 if ($opportunityType) $leadData['Opportunity_Type'] = $opportunityType;
 $bill = $input['monthly_bill'] ?? $input['avg_monthly_bill'] ?? null;
 if ($bill !== null && $bill !== '') { $numBill = floatval(preg_replace('/[^0-9.]/', '', strval($bill))); if ($numBill > 0) $leadData['Avg_Monthly_Bill'] = $numBill; }

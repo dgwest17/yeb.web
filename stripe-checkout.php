@@ -23,7 +23,7 @@ if (!$email) { http_response_code(400); echo json_encode(['error' => 'Invalid em
 
 $origin = 'https://yourenergybest.com';
 // Send the customer back to the page they bought from (allowlisted), else the plan's default
-$returnPath = in_array($input['return'] ?? '', ['/services/', '/services/audit/'], true)
+$returnPath = in_array($input['return'] ?? '', ['/services/', '/services/audit/', '/audit/'], true)
   ? $input['return'] : ($plan['return'] ?? '/services/');
 // Zoho Opportunity_Type when the page didn't send one (the audit page doesn't)
 $defaultOpp = $plan['mode'] === 'subscription' && strpos($planKey, 'audit') !== 0

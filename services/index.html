@@ -16,6 +16,10 @@
     .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; max-width: 1100px; margin: 0 auto; }
     .service-card { background: var(--white); border-radius: 16px; padding: 2.5rem 2rem; text-align: center; border: 3px solid var(--gray-200); cursor: pointer; transition: all 0.3s; position: relative; }
     .service-card:hover { border-color: var(--teal); transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.08); }
+    /* Annual plans not launched yet: shown greyed, not selectable (plans.php has them as launched => false) */
+    .service-card.coming-soon { opacity: .55; filter: grayscale(1); cursor: default; }
+    .service-card.coming-soon:hover { border-color: var(--gray-200); transform: none; box-shadow: none; }
+    .service-card.coming-soon::after { content: "Coming soon"; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--slate); color: var(--white); padding: 0.2rem 1rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; }
     .service-card.selected { border-color: var(--orange); background: rgba(245,158,11,0.03); box-shadow: 0 8px 24px rgba(245,158,11,0.15); }
     .service-card.selected::after { content: "✓ Selected"; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--orange); color: var(--white); padding: 0.2rem 1rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; }
     .service-card__icon { font-size: 2.5rem; margin-bottom: 1rem; }
@@ -107,12 +111,12 @@
   <p style="text-align:center; color:var(--slate); font-size:0.9rem; margin-top:1.25rem;"><em>*Audit fee may be applied toward a new battery or new solar system.</em></p>
 
   <h2 style="text-align:center; color:var(--navy); margin:4rem 0 0.5rem;">Annual Service Plans</h2>
-  <p style="text-align:center; color:var(--slate); margin-bottom:2rem;">Ongoing protection — renews yearly, cancel anytime.</p>
+  <p style="text-align:center; color:var(--slate); margin-bottom:2rem;">Coming soon: yearly plans that keep your system watched and maintained.</p>
   <div class="services-grid">
-    <div class="service-card" data-plan="basic" data-recurring="1" data-opp="Solar Owner – Under Service Plan" data-price="149" data-name="Essential Plan">
+    <div class="service-card coming-soon" aria-disabled="true" data-plan-soon="basic" data-recurring="1" data-opp="Solar Owner – Under Service Plan" data-price="149" data-name="Essential Plan">
       <div class="service-card__icon">🛡️</div>
       <h3>Essential</h3>
-      <div class="service-card__price"><span data-price-of="basic">$149</span> <span>/year</span></div>
+      <div class="service-card__price">Pricing <span>coming soon</span></div>
       <p class="service-card__desc">Your system, professionally watched — every year.</p>
       <ul class="service-card__features">
         <li>Annual on-site inspection</li>
@@ -122,10 +126,10 @@
         <li>10% discount on all services</li>
       </ul>
     </div>
-    <div class="service-card" data-plan="plus" data-recurring="1" data-opp="Solar Owner – Under Service Plan" data-price="269" data-name="Plus Plan">
+    <div class="service-card coming-soon" aria-disabled="true" data-plan-soon="plus" data-recurring="1" data-opp="Solar Owner – Under Service Plan" data-price="269" data-name="Plus Plan">
       <div class="service-card__icon">⚡</div>
       <h3>Plus</h3>
-      <div class="service-card__price"><span data-price-of="plus">$269</span> <span>/year</span></div>
+      <div class="service-card__price">Pricing <span>coming soon</span></div>
       <p class="service-card__desc">Inspection plus hands-on care and zero diagnostic fees.</p>
       <ul class="service-card__features">
         <li>Everything in Essential</li>
@@ -135,10 +139,10 @@
         <li>Post-storm check on request</li>
       </ul>
     </div>
-    <div class="service-card" data-plan="totalcare" data-recurring="1" data-opp="Solar Owner – Under Service Plan" data-price="465" data-name="Total Care Plan">
+    <div class="service-card coming-soon" aria-disabled="true" data-plan-soon="totalcare" data-recurring="1" data-opp="Solar Owner – Under Service Plan" data-price="465" data-name="Total Care Plan">
       <div class="service-card__icon">🏆</div>
       <h3>Total Care</h3>
-      <div class="service-card__price"><span data-price-of="totalcare">$465</span> <span>/year</span></div>
+      <div class="service-card__price">Pricing <span>coming soon</span></div>
       <p class="service-card__desc">Maximum protection — small repairs covered, zero surprises.</p>
       <ul class="service-card__features">
         <li>Everything in Plus</li>

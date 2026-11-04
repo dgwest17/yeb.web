@@ -18,6 +18,7 @@ $plans = require __DIR__ . '/plans.php';
 $planKey = $input['plan'] ?? '';
 if (!isset($plans[$planKey])) { http_response_code(400); echo json_encode(['error' => 'Unknown plan']); exit; }
 $plan  = $plans[$planKey];
+if (($plan['launched'] ?? true) === false) { http_response_code(400); echo json_encode(['error' => 'That plan isn\'t available yet.']); exit; }
 $email = filter_var($input['email'] ?? '', FILTER_VALIDATE_EMAIL);
 if (!$email) { http_response_code(400); echo json_encode(['error' => 'Invalid email']); exit; }
 

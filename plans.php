@@ -17,10 +17,11 @@ $PLANS = [
   'audit-annual'  => ['name' => 'Annual Audit & Recommendations Plan',  'amount' => 10900, 'mode' => 'subscription', 'return' => '/services/audit/'],
   // /audit/ booking page (waived on /audit-local/ for flyer recipients)
   'savings-audit' => ['name' => 'Solar Savings Audit',                  'amount' => 21900, 'mode' => 'payment',      'return' => '/audit/'],
-  // Annual service plans
-  'basic'         => ['name' => 'Service Plan — Essential',             'amount' => 14900, 'mode' => 'subscription'],
-  'plus'          => ['name' => 'Service Plan — Plus',                  'amount' => 26900, 'mode' => 'subscription'],
-  'totalcare'     => ['name' => 'Service Plan — Total Care',            'amount' => 46500, 'mode' => 'subscription'],
+  // Annual service plans — not launched yet: greyed out on /services/ and refused at checkout.
+  // To launch: set 'launched' => true here and rename data-plan-soon back to data-plan on /services/.
+  'basic'         => ['name' => 'Service Plan — Essential',             'amount' => 14900, 'mode' => 'subscription', 'launched' => false],
+  'plus'          => ['name' => 'Service Plan — Plus',                  'amount' => 26900, 'mode' => 'subscription', 'launched' => false],
+  'totalcare'     => ['name' => 'Service Plan — Total Care',            'amount' => 46500, 'mode' => 'subscription', 'launched' => false],
 ];
 
 // Requested directly → public price list as JSON. Included → hand the map to the caller.
@@ -29,6 +30,7 @@ if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__) {
   header('Cache-Control: public, max-age=300');
   $out = [];
   foreach ($PLANS as $key => $p) {
+    if (($p['launched'] ?? true) === false) continue;   // no public price until it launches
     $out[$key] = ['name' => $p['name'], 'price' => $p['amount'] / 100, 'recurring' => $p['mode'] === 'subscription'];
   }
   echo json_encode($out);

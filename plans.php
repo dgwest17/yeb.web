@@ -11,12 +11,12 @@
  */
 $PLANS = [
   // Audit tiers
-  'audit'         => ['name' => 'Self-Audit',                           'amount' => 12900, 'mode' => 'payment'],
-  'full'          => ['name' => 'Full Professional Audit & Evaluation', 'amount' => 24900, 'mode' => 'payment'],
+  // The Self-Audit is free in the lumaria app — there's nothing to buy.
+  'full'          => ['name' => 'Full Professional Audit & Evaluation', 'amount' => 21900, 'mode' => 'payment'],   // same audit as savings-audit
   'audit-premium' => ['name' => 'Premium Audit & Inspection',           'amount' => 47900, 'mode' => 'payment',      'return' => '/services/audit/'],
   'audit-annual'  => ['name' => 'Annual Audit & Recommendations Plan',  'amount' => 10900, 'mode' => 'subscription', 'return' => '/services/audit/'],
   // /audit/ booking page (waived on /audit-local/ for flyer recipients)
-  'savings-audit' => ['name' => 'Solar Savings Audit',                  'amount' => 14900, 'mode' => 'payment',      'return' => '/audit/'],
+  'savings-audit' => ['name' => 'Solar Savings Audit',                  'amount' => 21900, 'mode' => 'payment',      'return' => '/audit/'],
   // Annual service plans
   'basic'         => ['name' => 'Service Plan — Essential',             'amount' => 14900, 'mode' => 'subscription'],
   'plus'          => ['name' => 'Service Plan — Plus',                  'amount' => 26900, 'mode' => 'subscription'],

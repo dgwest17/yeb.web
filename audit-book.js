@@ -1,9 +1,9 @@
 /* audit-book.js — the audit booking flow for /locals-audit/ (flyer QR, fee waived)
-   and /audit/ (standard, $149 or the free lumaria app).
+   and /audit/ (standard, $219 or the free lumaria app).
 
    Step 1  name · address · phone or email · why — sent to Zoho as a Lead right
            away, so David has it whatever they pick next.
-   Step 2  /locals-audit/: book 30 min, text, call, or email (drafts written for them)
+   Step 2  /locals-audit/: book a time, text, call, or email (drafts written for them)
            /audit/:       pay the audit fee then book, or use the free lumaria app
    Done    "get the lumaria app" (or "coming soon" until APP_LIVE is true)
 
@@ -13,12 +13,12 @@
 
   // ─── EDIT ME ───
   var DAVID = { name: 'David', phone: '3039419131', phoneShown: '(303) 941-9131', email: 'dwest@yourenergybest.com' };
-  // One public Calendly event exists today ("Solar Consultation"). Make a 30-min
-  // "Solar Savings Audit" event in Calendly and put its link here.
+  // David's 45-min "Solar Consultation" on purpose: it blocks both calendars for the
+  // full window; the page tells people the audit takes 20–45 min.
   var CALENDLY = 'https://calendly.com/yourenergybest/energy';
   var APP_URL = 'https://www.lumaria.energy/';
   var APP_LIVE = false;          // true once the lumaria app is launched to the public
-  var PLAN = 'savings-audit';    // plans.php — $149
+  var PLAN = 'savings-audit';    // plans.php — $219
 
   var cfg = window.AUDIT_PAGE || { mode: 'local', source: 'LocalsAudit', leadSource: 'Website - Locals Audit' };
   var $ = function (s) { return document.querySelector(s); };

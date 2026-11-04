@@ -1,6 +1,6 @@
 /* prices.js — writes the live price list (/plans.php) into the page.
    Mark any price on a page with data-price-of="<plan key>", e.g.
-     <span data-price-of="audit">$129</span>
+     <span data-price-of="full">$219</span>
    The typed number is the fallback; this replaces it with what Stripe will charge.
    Cards with data-plan + data-price (used in the Zoho note) get the number too. */
 (function () {

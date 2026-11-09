@@ -311,9 +311,10 @@ const PAGES = [
       { path: 'build.faq', type: 'list', titleKey: 'question', addLabel: 'Add a question', blank: { question: '', answer: '' }, fields: [
         { key: 'question', type: 'text', label: 'Question' }, { key: 'answer', type: 'rich', label: 'Answer' } ] } ] }
   ]},
-  { id: 'blog', group: 'Pages', label: 'Blog', url: '/blog.html', blog: true }
+  { id: 'knowledge', group: 'Pages', label: 'Knowledge Center', url: '/knowledge/', knowledge: true },
+  { id: 'blog', group: 'Pages', label: 'Blog & newsletters', url: '/blog.html', blog: true }
 ];
-const FILES = { content: 'content', options: 'options', services: 'services' };
+const FILES = { content: 'content', options: 'options', services: 'services', knowledge: 'knowledge' };
 const PAGE_URL = 'https://yourenergybest.com';
 
 /* ─── State ─── */
@@ -425,7 +426,7 @@ async function publish() {
       // Someone (another tab, device, or the classic editor) published since this was opened?
       const live = await fetchFile(name);
       if (JSON.stringify(live) !== files[name].snap) {
-        const what = { content: 'Homepage / Quote / Build / Blog content', options: 'Energy Options page', services: 'Services page' }[name];
+        const what = { content: 'Homepage / Quote / Build / Blog content', options: 'Energy Options page', services: 'Services page', knowledge: 'Knowledge Center' }[name];
         const go = await ask('This changed somewhere else', `The ${what} was published from another tab or device after you opened the editor. Publishing now replaces those changes with yours.`,
           [{ label: 'Cancel', value: false }, { label: 'Publish mine anyway', value: true, cls: 'danger' }]);
         if (!go) { btn.textContent = 'Publish'; updateBar(); return; }
@@ -470,6 +471,7 @@ function render() {
   main.append(h('div', { class: 'page-head' }, h('h2', {}, page.label), h('a', { href: page.url, target: '_blank', rel: 'noopener' }, 'Open this page ↗')));
   if (page.intro) main.append(h('p', { class: 'intro' }, page.intro));
   if (page.blog) return renderBlog(main);
+  if (page.knowledge) return renderKnowledge(main);
   for (const sec of page.sections) {
     const view = page.url + (sec.anchor ? '#' + sec.anchor : '');
     const bd = h('div', { class: 'bd' });
@@ -514,6 +516,13 @@ function field(file, f, obj, base) {
     case 'lines': {
       const el = h('textarea', { id, rows: 4 }); el.value = (Array.isArray(val) ? val : []).map(toPlain).join('\n');
       el.addEventListener('input', () => set(el.value.split('\n').map((s) => s.trim()).filter(Boolean)));
+      wrap.append(el); break;
+    }
+    case 'select': {
+      const el = h('select', { id, style: 'width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#fff' });
+      for (const o of (typeof f.options === 'function' ? f.options() : f.options)) el.append(h('option', { value: o[0] }, o[1]));
+      el.value = val ?? f.options[0]?.[0] ?? '';
+      el.addEventListener('change', () => { set(el.value); if (f.onChange) f.onChange(el.value); });
       wrap.append(el); break;
     }
     case 'toggle': {
@@ -655,7 +664,8 @@ function renderBlog(main) {
       if (!p.id) { p.id = 'b' + Date.now().toString(36); }
       bd.append(
         field('content', { path: 'title', type: 'text', label: 'Title' }, p),
-        field('content', { row3: [ { path: 'tag', type: 'text', label: 'Topic tag', help: 'e.g. Batteries, Rates, Repairs' }, { path: 'date', type: 'date', label: 'Date' }, { path: 'readtime', type: 'text', label: 'Read time' } ] }, p),
+        field('content', { row3: [ { path: 'kind', type: 'select', label: 'Type', options: [['post', 'Blog post'], ['update', 'Quick update'], ['newsletter', 'Newsletter']] }, { path: 'tag', type: 'text', label: 'Topic tag', help: 'e.g. Batteries, Rates, Repairs' }, { path: 'date', type: 'date', label: 'Date' } ] }, p),
+        field('content', { path: 'readtime', type: 'text', label: 'Read time' }, p),
         field('content', { path: 'body', type: 'rich', tall: true, label: 'Post' }, p),
         h('div', { class: 'f' }, (() => { const cb = h('input', { type: 'checkbox' }); cb.checked = p.beacon !== false;
           cb.addEventListener('change', () => { p.beacon = cb.checked; changed(); });
@@ -668,6 +678,108 @@ function renderBlog(main) {
   }
 }
 
+
+/* ─── Knowledge Center (knowledge.json) — one source for the site and for Luma ─── */
+const kcSlug = (s) => String(s || '').toLowerCase().replace(/&/g, 'and').replace(/['’]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 70).replace(/-$/, '');
+let kcFilter = '';
+function renderKnowledge(main) {
+  const k = files.knowledge.data;
+  k.cats = k.cats || []; k.entries = k.entries || [];
+  const live = JSON.parse(files.knowledge.snap).entries || [];
+  const wasPublished = (e) => live.some((x) => x.id === e.id && x.live !== false);
+  const today = () => new Date().toISOString().slice(0, 10);
+
+  main.append(h('p', { class: 'intro' }, 'Write an answer once. When published, it shows in the Knowledge Center with its own page Google can find. With "Teach Luma" on, Luma in the lumaria app answers from it too. Blog posts and newsletters (Blog tab) reach Luma the same way.'));
+
+  const search = h('input', { type: 'text', placeholder: 'Find an answer…', value: kcFilter, style: 'flex:1;min-width:180px;padding:10px 12px;border:1px solid var(--line);border-radius:8px' });
+  search.addEventListener('input', () => { kcFilter = search.value; draw(); });
+  main.append(h('div', { style: 'display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px' }, search,
+    h('button', { class: 'add', type: 'button', onclick: () => {
+      const id = 'k' + Date.now().toString(36);
+      k.entries.unshift({ id, slug: '', question: '', answer: '', cat: (k.cats[0] || {}).id || 'general', tags: '', audience: 'all', next: 'auto', live: false, luma: true, updated: today() });
+      open.add('kc:' + id); kcFilter = ''; search.value = ''; changed(); draw(); } }, '+ New answer')));
+
+  const box = h('div'); main.append(box);
+
+  function entryFields(e) {
+    const body = h('div');
+    const touch = () => { e.updated = today(); };
+    body.addEventListener('input', touch); body.addEventListener('change', touch);
+    const slugField = h('div', { class: 'f' });
+    const drawSlug = () => {
+      slugField.innerHTML = '';
+      const inp = h('input', { type: 'text', value: e.slug || '' });
+      inp.addEventListener('input', () => { e.slug = kcSlug(inp.value); changed(); });
+      slugField.append(h('label', {}, 'Web address'), h('div', { class: 'help' }, wasPublished(e)
+        ? 'yourenergybest.com/knowledge/' + (e.slug || '…') + '/ — changing it breaks links people already saved or shared.'
+        : 'yourenergybest.com/knowledge/' + (e.slug || '…') + '/ — filled in from the question.'), inp);
+    };
+    body.append(
+      field('knowledge', { path: 'question', type: 'text', label: 'Question', help: 'Write it the way a homeowner would ask it (that\'s what people search for).' }, e),
+      field('knowledge', { path: 'answer', type: 'rich', tall: true, label: 'Answer', help: 'Lead with the direct answer and real numbers in the first sentence — that\'s what Google and AI assistants quote.' }, e),
+      field('knowledge', { row3: [
+        { path: 'cat', type: 'select', label: 'Topic', options: () => k.cats.map((c) => [c.id, (c.icon ? c.icon + ' ' : '') + c.title.replace(/:.*$/, '')]), onChange: () => draw() },
+        { path: 'audience', type: 'select', label: 'Who it\'s for', options: [['all', 'Everyone'], ['shopping', 'Shopping for solar'], ['owners', 'Already has solar']] },
+        { path: 'next', type: 'select', label: 'Next step shown', options: [['auto', 'Automatic'], ['quote', 'Get a quote'], ['audit', 'Book an audit'], ['lumaria', 'lumaria app'], ['none', 'None']] } ] }, e),
+      field('knowledge', { path: 'tags', type: 'text', label: 'Search words', help: 'Other words people might type: "powerwall rebate sdcp backup"' }, e),
+      field('knowledge', { row: [ { path: 'live', type: 'toggle', label: 'Published on the website' }, { path: 'luma', type: 'toggle', label: 'Teach Luma (lumaria app)' } ] }, e),
+      slugField);
+    drawSlug();
+    // a new answer's address follows its question until it's published
+    body.querySelector('input[type=text]').addEventListener('input', () => { if (!wasPublished(e)) { e.slug = kcSlug(e.question); drawSlug(); } });
+    return body;
+  }
+
+  function draw() {
+    box.innerHTML = '';
+    const q = kcFilter.trim().toLowerCase();
+    const match = (e) => !q || [e.question, e.tags, toPlain(e.answer)].join(' ').toLowerCase().includes(q);
+    for (const c of k.cats) {
+      const list = k.entries.filter((e) => e.cat === c.id && match(e));
+      if (q && !list.length) continue;
+      const items = h('div', { class: 'items' });
+      list.forEach((e) => {
+        const key = 'kc:' + e.id;
+        const isOpen = open.has(key);
+        const badges = [e.live === false ? 'draft' : null, e.luma === false ? 'not in Luma' : null].filter(Boolean).join(' · ');
+        const move = (d) => {
+          const same = k.entries.filter((x) => x.cat === c.id);
+          const i = same.indexOf(e), j = i + d;
+          if (j < 0 || j >= same.length) return;
+          const a = k.entries.indexOf(e), b = k.entries.indexOf(same[j]);
+          [k.entries[a], k.entries[b]] = [k.entries[b], k.entries[a]]; changed(); draw();
+        };
+        const head = h('div', { class: 'ih', onclick: (ev) => { if (ev.target.closest('button,a')) return; isOpen ? open.delete(key) : open.add(key); draw(); } },
+          h('span', { class: 't' }, (isOpen ? '▾ ' : '▸ ') + (toPlain(e.question) || '(new answer)'), badges ? h('small', {}, badges) : null),
+          wasPublished(e) && e.slug ? h('a', { class: 'ibtn', href: '/knowledge/' + e.slug + '/', target: '_blank', rel: 'noopener', title: 'See it on the site' }, '↗') : null,
+          h('button', { class: 'ibtn', type: 'button', title: 'Move up', onclick: () => move(-1) }, '↑'),
+          h('button', { class: 'ibtn', type: 'button', title: 'Move down', onclick: () => move(1) }, '↓'),
+          h('button', { class: 'ibtn del', type: 'button', title: 'Delete', onclick: async () => {
+            if (await ask('Delete this answer?', 'It comes off the Knowledge Center and out of Luma when you publish. (To hide it for now, turn off "Published" instead.)',
+              [{ label: 'Keep it', value: false }, { label: 'Delete', value: true, cls: 'danger' }]) !== true) return;
+            k.entries.splice(k.entries.indexOf(e), 1); changed(); draw(); } }, '✕'));
+        const body = h('div', { class: 'ib' });
+        if (isOpen) body.append(entryFields(e));
+        items.append(h('div', { class: 'item' + (isOpen ? ' open' : '') }, head, body));
+      });
+      const intro = h('div', { class: 'hidden' },
+        field('knowledge', { row: [ { path: 'icon', type: 'text', label: 'Emoji' }, { path: 'title', type: 'text', label: 'Topic name' } ] }, c),
+        field('knowledge', { path: 'intro', type: 'para', label: 'Intro under the topic name' }, c));
+      main.append();
+      box.append(h('section', { class: 'sec' },
+        h('div', { class: 'hd' }, h('h3', {}, (c.icon ? c.icon + ' ' : '') + c.title), h('span', { class: 'where' }, list.length + ' answer' + (list.length === 1 ? '' : 's')),
+          h('button', { class: 'ibtn', type: 'button', onclick: () => intro.classList.toggle('hidden') }, 'Edit topic'),
+          h('a', { class: 'view', href: '/knowledge/#' + c.id, target: '_blank', rel: 'noopener' }, 'See it ↗')),
+        h('div', { class: 'bd' }, intro, list.length ? items : h('p', { style: 'margin:0;color:var(--soft)' }, 'No answers in this topic yet.'))));
+    }
+    box.append(h('button', { class: 'add', type: 'button', onclick: () => {
+      const name = prompt('New topic name (e.g. "EV Charging"):'); if (!name) return;
+      let id = kcSlug(name).slice(0, 24) || 'topic'; while (k.cats.some((c) => c.id === id)) id += '-2';
+      k.cats.push({ id, icon: '📌', title: name.trim(), intro: '' }); changed(); draw(); } }, '+ New topic'));
+  }
+  draw();
+}
+
 /* ─── History (backups.php) ─── */
 async function renderHistory(main) {
   main.append(h('div', { class: 'page-head' }, h('h2', {}, 'History')));
@@ -676,8 +788,8 @@ async function renderHistory(main) {
   try {
     const list = await (await api('/backups.php')).json();
     box.innerHTML = '';
-    const names = { content: 'Homepage, Quote, Build, Blog & shared blocks', options: 'Energy Options page', services: 'Services page' };
-    for (const k of ['content', 'options', 'services']) {
+    const names = { content: 'Homepage, Quote, Build, Blog & shared blocks', knowledge: 'Knowledge Center (and Luma)', options: 'Energy Options page', services: 'Services page' };
+    for (const k of ['content', 'knowledge', 'options', 'services']) {
       const t = h('table', { class: 'hist' });
       if (!list[k].length) t.append(h('tr', {}, h('td', {}, 'No earlier versions yet.')));
       for (const b of list[k]) {

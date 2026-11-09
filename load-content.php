@@ -19,6 +19,7 @@ $targets = [
     'content'     => 'content.json',
     'services'    => 'services-content.json',
     'options'     => 'options-content.json',
+    'knowledge'   => 'knowledge.json',
 ];
 
 if (!isset($targets[$target])) {
@@ -28,6 +29,12 @@ if (!isset($targets[$target])) {
 }
 
 $file = __DIR__ . '/' . $targets[$target];
+
+// Knowledge starts from the answers that were written into the old page
+if ($target === 'knowledge' && !file_exists($file) && file_exists(__DIR__ . '/knowledge-seed.json')) {
+    echo file_get_contents(__DIR__ . '/knowledge-seed.json');
+    exit;
+}
 
 if (!file_exists($file)) {
     // Return empty defaults

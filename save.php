@@ -34,6 +34,7 @@ $fileMap = [
     'content'  => __DIR__ . '/content.json',
     'services' => __DIR__ . '/services-content.json',
     'options'  => __DIR__ . '/options-content.json',
+    'knowledge' => __DIR__ . '/knowledge.json',   // Admin → Knowledge (Knowledge Center + Luma)
 ];
 
 if (!isset($fileMap[$target])) {

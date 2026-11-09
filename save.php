@@ -35,6 +35,7 @@ $fileMap = [
     'services' => __DIR__ . '/services-content.json',
     'options'  => __DIR__ . '/options-content.json',
     'knowledge' => __DIR__ . '/knowledge.json',   // Admin → Knowledge (Knowledge Center + Luma)
+    'newsletters' => __DIR__ . '/newsletters.json', // Admin → Newsletters (sent through Zoho Campaigns)
 ];
 
 if (!isset($fileMap[$target])) {

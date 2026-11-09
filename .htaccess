@@ -42,7 +42,7 @@ Options -Indexes
 </FilesMatch>
 
 # Lead backups (customer names/emails/phones), rep accounts, portal settings, a stray token copy
-<FilesMatch "(\.csv|^train-users\.json|^train-content\.json|^map-pins-base\.json|^instagram_token\.txt)$">
+<FilesMatch "(\.csv|^train-users\.json|^train-content\.json|^map-pins-base\.json|^instagram_token\.txt|^knowledge\.json|^newsletters(-zoho)?\.json)$">
     Require all denied
 </FilesMatch>
 

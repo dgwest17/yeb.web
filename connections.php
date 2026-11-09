@@ -8,6 +8,7 @@
  *   GET                                  → status of each connection
  *   POST {action:'instagram', token}      → checks the token with Instagram, saves .instagram_token
  *   POST {action:'zoho', code}            → trades a Zoho Self Client grant code for a refresh token
+ *                                           (scopes: ZohoCRM.modules.ALL, ZohoCRM.coql.READ, ZohoCampaigns.campaign.ALL, ZohoCampaigns.contact.ALL)
  *   POST {action:'stripe_webhook', secret}→ saves the webhook signing secret (whsec_...)
  *   POST {action:'google', key, place_id} → saves the Google Places key + place id (reviews)
  *   POST {action:'cleanup'}               → deletes leftovers git can't remove (see $STRAY)

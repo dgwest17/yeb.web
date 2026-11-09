@@ -20,6 +20,7 @@ $targets = [
     'services'    => 'services-content.json',
     'options'     => 'options-content.json',
     'knowledge'   => 'knowledge.json',
+    'newsletters' => 'newsletters.json',
 ];
 
 if (!isset($targets[$target])) {
@@ -29,6 +30,12 @@ if (!isset($targets[$target])) {
 }
 
 $file = __DIR__ . '/' . $targets[$target];
+
+// Drafts live in these — only the signed-in admin reads them (the public sees /knowledge/ and sent newsletters)
+if ($target === 'newsletters' || $target === 'knowledge') {
+    require_once __DIR__ . '/security-config.php';
+    require_admin_auth();
+}
 
 // Knowledge starts from the answers that were written into the old page
 if ($target === 'knowledge' && !file_exists($file) && file_exists(__DIR__ . '/knowledge-seed.json')) {
@@ -42,6 +49,7 @@ if (!file_exists($file)) {
         'content' => '{}',
         'services' => '{"hero":{"title":"","subtitle":""},"services":[]}',
         'options' => '{}',
+        'newsletters' => '{"settings":{"from_name":"David West","from_email":"dwest@yourenergybest.com"},"items":[]}',
     ];
     echo $defaults[$target] ?? '{}';
     exit;

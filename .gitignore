@@ -55,3 +55,7 @@ become/test-*.php
 
 # Admin → Knowledge saves here (knowledge-seed.json in git is only the starting point)
 knowledge.json
+
+# Admin → Newsletters (drafts, settings) and what Zoho Campaigns reports back
+newsletters.json
+newsletters-zoho.json

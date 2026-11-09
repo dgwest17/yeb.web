@@ -312,9 +312,10 @@ const PAGES = [
         { key: 'question', type: 'text', label: 'Question' }, { key: 'answer', type: 'rich', label: 'Answer' } ] } ] }
   ]},
   { id: 'knowledge', group: 'Pages', label: 'Knowledge Center', url: '/knowledge/', knowledge: true },
-  { id: 'blog', group: 'Pages', label: 'Blog & newsletters', url: '/blog.html', blog: true }
+  { id: 'blog', group: 'Pages', label: 'Blog', url: '/blog.html', blog: true },
+  { id: 'newsletters', group: 'Email', label: 'Newsletters', url: 'https://campaigns.zoho.com/', newsletters: true }
 ];
-const FILES = { content: 'content', options: 'options', services: 'services', knowledge: 'knowledge' };
+const FILES = { content: 'content', options: 'options', services: 'services', knowledge: 'knowledge', newsletters: 'newsletters' };
 const PAGE_URL = 'https://yourenergybest.com';
 
 /* ─── State ─── */
@@ -426,7 +427,7 @@ async function publish() {
       // Someone (another tab, device, or the classic editor) published since this was opened?
       const live = await fetchFile(name);
       if (JSON.stringify(live) !== files[name].snap) {
-        const what = { content: 'Homepage / Quote / Build / Blog content', options: 'Energy Options page', services: 'Services page', knowledge: 'Knowledge Center' }[name];
+        const what = { content: 'Homepage / Quote / Build / Blog content', options: 'Energy Options page', services: 'Services page', knowledge: 'Knowledge Center', newsletters: 'Newsletters' }[name];
         const go = await ask('This changed somewhere else', `The ${what} was published from another tab or device after you opened the editor. Publishing now replaces those changes with yours.`,
           [{ label: 'Cancel', value: false }, { label: 'Publish mine anyway', value: true, cls: 'danger' }]);
         if (!go) { btn.textContent = 'Publish'; updateBar(); return; }
@@ -468,10 +469,11 @@ function render() {
   if (current === 'history') return renderHistory(main);
   const page = PAGES.find((p) => p.id === current);
   const file = page.file || 'content';
-  main.append(h('div', { class: 'page-head' }, h('h2', {}, page.label), h('a', { href: page.url, target: '_blank', rel: 'noopener' }, 'Open this page ↗')));
+  main.append(h('div', { class: 'page-head' }, h('h2', {}, page.label), h('a', { href: page.url, target: '_blank', rel: 'noopener' }, page.newsletters ? 'Open Zoho Campaigns ↗' : 'Open this page ↗')));
   if (page.intro) main.append(h('p', { class: 'intro' }, page.intro));
   if (page.blog) return renderBlog(main);
   if (page.knowledge) return renderKnowledge(main);
+  if (page.newsletters) return renderNewsletters(main);
   for (const sec of page.sections) {
     const view = page.url + (sec.anchor ? '#' + sec.anchor : '');
     const bd = h('div', { class: 'bd' });
@@ -779,6 +781,156 @@ function renderKnowledge(main) {
   draw();
 }
 
+
+/* ─── Newsletters (newsletters.json + newsletters.php → Zoho Campaigns) ─── */
+const NL_TEMPLATES = {
+  monthly: { label: 'Monthly update', blurb: 'A short intro and 2–3 stories', blank: () => ({ greeting: 'Hi there,', intro: '', stories: [{ title: '', text: '', link_label: '', link_url: '' }] }) },
+  alert:   { label: 'Rebate / deadline alert', blurb: 'One urgent item with a deadline', blank: () => ({ headline: '', deadline: '', body: '' }) },
+  tip:     { label: 'Quick tip', blurb: 'One useful idea', blank: () => ({ headline: '', body: '' }) },
+};
+let nlZoho = {};
+const nlKey = () => [...crypto.getRandomValues(new Uint8Array(12))].map((b) => b.toString(16).padStart(2, '0')).join('');
+const nlEsc = (s) => String(s || '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+/** The newsletter as a blog post body (same as newsletter-lib.php's nl_text_html). */
+function nlBlogHtml(n) {
+  let out = '';
+  if (n.template === 'monthly') {
+    out += n.intro || '';
+    for (const s of n.stories || []) { if (s.title) out += '<h3>' + nlEsc(s.title) + '</h3>'; out += s.text || ''; if (s.link_url) out += '<p><a href="' + nlEsc(s.link_url) + '">' + nlEsc(s.link_label || 'Read more') + '</a></p>'; }
+  } else { if (n.template === 'alert' && n.deadline) out += '<p><strong>' + nlEsc(n.deadline) + '</strong></p>'; out += n.body || ''; }
+  if (n.cta_url) out += '<p><a href="' + nlEsc(n.cta_url) + '">' + nlEsc(n.cta_label || 'Learn more') + '</a></p>';
+  return out;
+}
+async function nlCall(action, body) {
+  const r = body ? await api('/newsletters.php', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF }, body: JSON.stringify({ action, ...body }) })
+                 : await api('/newsletters.php?action=' + action);
+  return r.json();
+}
+function renderNewsletters(main) {
+  const d = files.newsletters.data;
+  d.settings = d.settings || {}; d.items = d.items || [];
+  const s = d.settings;
+  main.append(h('p', { class: 'intro' }, 'Write newsletters here from a template; Zoho Campaigns sends them to your list and handles unsubscribes. Turn on "Also post to the blog" and it lands on the blog, in the Knowledge Center feed and in Luma too.'));
+
+  // Settings + one-time Zoho setup
+  const listBox = h('div');
+  const setBody = h('div', { class: 'bd hidden' },
+    h('details', { class: 'how', open: !s.list_key }, h('summary', {}, 'One-time setup in Zoho (about 15 minutes)'), h('ol', { class: 'steps', html:
+      '<li>Open <a href="https://campaigns.zoho.com/" target="_blank" rel="noopener">Zoho Campaigns</a> with the same Zoho account as your CRM (it\'s free up to a list size on most Zoho plans).</li>' +
+      '<li>Settings → Sender details: add and verify <b>dwest@yourenergybest.com</b>, and authenticate your domain (SPF/DKIM) when it asks — that keeps you out of spam.</li>' +
+      '<li>Settings → Integrations → Zoho CRM → Connect. Set up two syncs into one new list (e.g. "Customers & homeowners met"): <b>Contacts</b> = your installed customers, and <b>Leads</b> with Lead Status = <i>Met</i>. Turn on "Sync opt-out status", so anyone who unsubscribes is marked Email Opt Out in CRM.</li>' +
+      '<li>Here: Connections → Zoho → reconnect with the scopes shown there (they now include Zoho Campaigns).</li>' +
+      '<li>Below: pick that list and fill in your mailing address (US law requires one in every marketing email).</li>' })),
+    field('newsletters', { row: [ { path: 'from_name', type: 'text', label: 'From name' }, { path: 'from_email', type: 'text', label: 'From email', help: 'Must be verified in Zoho Campaigns' } ] }, s),
+    field('newsletters', { row: [ { path: 'reply_to', type: 'text', label: 'Replies go to (optional)' }, { path: 'topic_id', type: 'text', label: 'Zoho topic ID (only if Zoho asks for one)' } ] }, s),
+    field('newsletters', { path: 'address', type: 'text', label: 'Mailing address (shown in the footer)', help: 'A street address or PO box — required by law in marketing email.' }, s),
+    listBox);
+  const drawLists = async () => {
+    listBox.innerHTML = '';
+    listBox.append(h('div', { class: 'f' }, h('label', {}, 'Send to this Zoho list'), h('div', { class: 'help' }, 'Loading your Zoho Campaigns lists…')));
+    try {
+      const j = await nlCall('lists');
+      listBox.innerHTML = '';
+      if (!j.ok) { listBox.append(h('p', { class: 'note warn' }, 'Can\'t read your Zoho lists yet: ' + j.error), field('newsletters', { path: 'list_key', type: 'text', label: 'List key (from Zoho: Contacts → Manage Lists → list → Setup)' }, s)); return; }
+      listBox.append(field('newsletters', { path: 'list_key', type: 'select', label: 'Send to this Zoho list',
+        options: [['', '— pick a list —'], ...j.lists.map((l) => [l.key, l.name + ' (' + l.contacts + ' contacts)'])] }, s));
+    } catch (e) {}
+  };
+  main.append(h('section', { class: 'sec' }, h('div', { class: 'hd', style: 'cursor:pointer', onclick: (e) => { if (e.target.closest('a,button')) return; setBody.classList.toggle('hidden'); if (!setBody.classList.contains('hidden') && !listBox.childNodes.length) drawLists(); } },
+    h('h3', {}, '⚙️ Newsletter settings'), h('span', { class: 'where' }, s.list_key && s.address ? 'Ready to send' : 'Needs setup')), setBody));
+
+  // New newsletter
+  main.append(h('div', { style: 'display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 16px' }, ...Object.entries(NL_TEMPLATES).map(([t, def]) =>
+    h('button', { class: 'add', type: 'button', title: def.blurb, onclick: () => {
+      const id = 'nl' + Date.now().toString(36);
+      d.items.unshift(Object.assign({ id, key: nlKey(), template: t, name: '', subject: '', preheader: '', date: new Date().toISOString().slice(0, 10),
+        cta_label: '', cta_url: '', signoff: 'Talk soon,\nDavid West\n(760) 860-7862', also_blog: true }, def.blank()));
+      open.add('nl:' + id); changed(); render(); } }, '+ ' + def.label))));
+
+  const box = h('div'); main.append(box);
+  const statusOf = (n) => {
+    const z = nlZoho[n.id] || {};
+    if (z.report) return 'Sent · ' + z.report.opens + ' opens · ' + z.report.clicks + ' clicks' + (z.report.unsubs ? ' · ' + z.report.unsubs + ' unsubscribed' : '');
+    const label = { draft: 'In Zoho, ready to send', tobereviewed: 'Zoho is reviewing it', review: 'Zoho is reviewing it', reviewed: 'Approved by Zoho — ready to send',
+                    sending: 'Sending…', inprogress: 'Sending…', sent: 'Sent', error: 'Zoho error' }[z.status];
+    if (label) return label;
+    return (JSON.parse(files.newsletters.snap).items || []).some((x) => x.id === n.id) ? 'Draft' : 'Not saved yet';
+  };
+  const draw = () => {
+    box.innerHTML = '';
+    if (!d.items.length) box.append(h('div', { class: 'sec' }, h('div', { class: 'bd' }, h('p', { style: 'margin:0;color:var(--soft)' }, 'No newsletters yet — pick a template above.'))));
+    for (const n of d.items) {
+      const key = 'nl:' + n.id, isOpen = open.has(key);
+      const hd = h('div', { class: 'hd', style: 'cursor:pointer', onclick: (e) => { if (e.target.closest('a,button')) return; isOpen ? open.delete(key) : open.add(key); draw(); } },
+        h('h3', {}, (isOpen ? '▾ ' : '▸ ') + (n.subject || n.name || '(untitled newsletter)')),
+        h('span', { class: 'where' }, (NL_TEMPLATES[n.template] || {}).label + ' · ' + (n.date || '') + ' · ' + statusOf(n)));
+      const bd = h('div', { class: 'bd' + (isOpen ? '' : ' hidden') });
+      if (isOpen) bd.append(...nlEditor(n));
+      box.append(h('section', { class: 'sec' }, hd, bd));
+    }
+  };
+  function nlEditor(n) {
+    const els = [
+      field('newsletters', { row: [ { path: 'subject', type: 'text', label: 'Subject line' }, { path: 'name', type: 'text', label: 'Internal name (only you see it)' } ] }, n),
+      field('newsletters', { row: [ { path: 'preheader', type: 'text', label: 'Preview text', help: 'The grey line inboxes show after the subject' }, { path: 'date', type: 'date', label: 'Date shown' } ] }, n),
+    ];
+    if (n.template === 'monthly') {
+      els.push(field('newsletters', { path: 'greeting', type: 'text', label: 'Greeting' }, n), field('newsletters', { path: 'intro', type: 'rich', label: 'Intro' }, n),
+        field('newsletters', { path: 'stories', type: 'list', label: 'Stories', titleKey: 'title', addLabel: 'Add a story', blank: { title: '', text: '', link_label: '', link_url: '' }, fields: [
+          { key: 'title', type: 'text', label: 'Headline' }, { key: 'text', type: 'rich', label: 'Text' },
+          { row: [ { key: 'link_label', type: 'text', label: 'Button text (optional)' }, { key: 'link_url', type: 'url', label: 'Button link' } ] } ] }, n));
+    } else {
+      els.push(field('newsletters', { path: 'headline', type: 'text', label: 'Headline' }, n));
+      if (n.template === 'alert') els.push(field('newsletters', { path: 'deadline', type: 'text', label: 'Deadline line', help: 'e.g. "SDCP rebate funds expected to run out by mid-January"' }, n));
+      els.push(field('newsletters', { path: 'body', type: 'rich', label: 'Message' }, n));
+    }
+    els.push(
+      field('newsletters', { row: [ { path: 'cta_label', type: 'text', label: 'Main button text', help: 'e.g. Book my free audit' }, { path: 'cta_url', type: 'url', label: 'Main button link', help: 'e.g. https://yourenergybest.com/audit/' } ] }, n),
+      field('newsletters', { path: 'signoff', type: 'para', label: 'Sign-off' }, n),
+      field('newsletters', { path: 'also_blog', type: 'toggle', label: 'When sent, also post it to the blog (and so the Knowledge Center feed and Luma)' }, n));
+
+    const saved = (JSON.parse(files.newsletters.snap).items || []).find((x) => x.id === n.id);
+    const z = nlZoho[n.id] || {};
+    const msg = h('span', { class: 'msg' });
+    const say = (t, ok) => { msg.style.color = ok ? 'var(--green)' : 'var(--red)'; msg.textContent = t; };
+    const ensurePublished = async () => { if (isDirty()) { say('Publishing your changes first…', true); await publish(); } return !isDirty(); };
+    const act = (label, cls, fn) => h('button', { class: 'btn ' + cls, type: 'button', style: 'margin:4px 6px 4px 0', onclick: async (e) => {
+      const b = e.currentTarget; b.disabled = true; try { await fn(); } catch (err) { if (err.message !== 'signed out') say(err.message, false); } b.disabled = false; } }, label);
+
+    const preview = saved ? h('iframe', { src: '/newsletter/view.php?id=' + encodeURIComponent(n.id) + '&k=' + encodeURIComponent(n.key) + '&t=' + Date.now(),
+      title: 'Email preview', style: 'width:100%;height:640px;border:1px solid var(--line);border-radius:10px;background:#eef2f5;margin-top:10px' }) : null;
+    els.push(h('div', { class: 'f', style: 'margin-top:18px' },
+      h('label', {}, 'Preview & send'),
+      h('div', { class: 'help' }, saved ? 'The preview shows the last published version.' + (z.status ? ' Zoho: ' + statusOf(n) + '.' : '') + (z.message ? ' ' + z.message : '') : 'Publish once to see the preview.'),
+      h('div', {},
+        act('Email me a preview', 'sec2', async () => { if (!await ensurePublished()) return; const j = await nlCall('preview', { id: n.id }); j.ok ? say('Sent to ' + j.to, true) : say(j.error, false); }),
+        act(z.campaignKey ? 'Re-create in Zoho' : 'Create in Zoho', 'sec2', async () => { if (!await ensurePublished()) return; const j = await nlCall('create', { id: n.id });
+          if (j.zoho) nlZoho[n.id] = j.zoho; j.ok ? say('Created in Zoho. Send a test from Zoho if you like, then press Send.', true) : say(j.error, false); }),
+        act('Send now', 'pri', async () => {
+          if (await ask('Send "' + (n.subject || 'this newsletter') + '" to your whole list?', 'Zoho sends it to everyone on the list now. This can\'t be undone.', [{ label: 'Not yet', value: false }, { label: 'Send it', value: true, cls: 'danger' }]) !== true) return;
+          if (!await ensurePublished()) return;
+          const j = await nlCall('send', { id: n.id }); if (j.zoho) nlZoho[n.id] = j.zoho;
+          if (!j.ok) return say(j.error, false);
+          say('Sent to Zoho — it\'s going out now.', true);
+          if (n.also_blog) {   // the same newsletter on the blog, the Knowledge Center feed and Luma
+            const c = files.content.data; c.blog_posts = c.blog_posts || [];
+            const post = { id: 'nl-' + n.id, kind: 'newsletter', title: n.subject || n.headline || 'Newsletter', tag: 'Newsletter', date: n.date, readtime: '3 min read', body: nlBlogHtml(n), beacon: true };
+            const i = c.blog_posts.findIndex((p) => p.id === post.id); if (i >= 0) c.blog_posts[i] = post; else c.blog_posts.unshift(post);
+            changed(); await publish();
+          }
+        }),
+        z.campaignKey ? act('Refresh from Zoho', 'sec2', async () => { const j = await nlCall('refresh', { id: n.id }); if (j.zoho) nlZoho[n.id] = j.zoho; j.ok ? (say('Updated: ' + statusOf(n), true)) : say(j.error, false); }) : null,
+        msg),
+      preview,
+      h('button', { class: 'btn danger', type: 'button', style: 'margin-top:12px', onclick: async () => {
+        if (await ask('Delete this newsletter from your log?', 'If it was already sent, it stays sent (and stays in Zoho).', [{ label: 'Keep it', value: false }, { label: 'Delete', value: true, cls: 'danger' }]) !== true) return;
+        d.items.splice(d.items.indexOf(n), 1); changed(); render(); } }, 'Delete')));
+    return els;
+  }
+  draw();
+  nlCall('status').then((j) => { if (j.ok) { nlZoho = j.zoho || {}; draw(); } }).catch(() => {});
+}
+
 /* ─── History (backups.php) ─── */
 async function renderHistory(main) {
   main.append(h('div', { class: 'page-head' }, h('h2', {}, 'History')));
@@ -787,8 +939,8 @@ async function renderHistory(main) {
   try {
     const list = await (await api('/backups.php')).json();
     box.innerHTML = '';
-    const names = { content: 'Homepage, Quote, Build, Blog & shared blocks', knowledge: 'Knowledge Center (and Luma)', options: 'Energy Options page', services: 'Services page' };
-    for (const k of ['content', 'knowledge', 'options', 'services']) {
+    const names = { content: 'Homepage, Quote, Build, Blog & shared blocks', knowledge: 'Knowledge Center (and Luma)', newsletters: 'Newsletters', options: 'Energy Options page', services: 'Services page' };
+    for (const k of ['content', 'knowledge', 'newsletters', 'options', 'services']) {
       const t = h('table', { class: 'hist' });
       if (!list[k].length) t.append(h('tr', {}, h('td', {}, 'No earlier versions yet.')));
       for (const b of list[k]) {
@@ -839,7 +991,7 @@ function renderConnections(main) {
     '<li><b>Cut off the old token first:</b> in the Instagram app → Settings → <i>Apps and websites</i> → remove your website\'s app.</li><li>Open <a href="https://developers.facebook.com/apps/" target="_blank" rel="noopener">developers.facebook.com/apps</a> → your app → <i>Instagram</i> → <i>API setup with Instagram login</i>.</li><li>Under <i>Generate access tokens</i>, connect <b>@energy.best.ca</b> → <i>Generate token</i>.</li><li>Paste it below. It lasts 60 days and the site renews it by itself.</li>',
     [inp('token', 'Instagram access token')], 'instagram', 'Check & save');
   card('zoho', '📇 Zoho CRM (leads, install map)',
-    '<li>Open <a href="https://api-console.zoho.com/" target="_blank" rel="noopener">api-console.zoho.com</a> → the client the website uses (usually <i>Self Client</i>).</li><li><i>Generate Code</i> tab → Scope <code>ZohoCRM.modules.ALL,ZohoCRM.coql.READ</code> · 10 minutes · <i>Create</i>.</li><li>Paste the code below within 10 minutes (each works once).</li>',
+    '<li>Open <a href="https://api-console.zoho.com/" target="_blank" rel="noopener">api-console.zoho.com</a> → the client the website uses (usually <i>Self Client</i>).</li><li><i>Generate Code</i> tab → Scope <code>ZohoCRM.modules.ALL,ZohoCRM.coql.READ,ZohoCampaigns.campaign.ALL,ZohoCampaigns.contact.ALL</code> · 10 minutes · <i>Create</i>.</li><li>Paste the code below within 10 minutes (each works once).</li>',
     [inp('code', 'Grant code (1000.…)')], 'zoho', 'Connect');
   card('stripe', '💳 Stripe (payments → Zoho)',
     '<li><a href="https://dashboard.stripe.com/webhooks" target="_blank" rel="noopener">Stripe → Developers → Webhooks</a> → <i>Add endpoint</i>.</li><li>URL: <code>https://yourenergybest.com/stripe-webhook.php</code></li><li>Events: <code>checkout.session.completed</code>, <code>checkout.session.async_payment_succeeded</code>, <code>invoice.paid</code>, <code>invoice.payment_failed</code>, <code>customer.subscription.deleted</code>.</li><li>Reveal the signing secret (<code>whsec_…</code>) and paste it below, then <i>Send test event</i> in Stripe.</li>',

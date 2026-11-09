@@ -13,12 +13,12 @@ header('Content-Type: application/json');
 require_admin_auth();
 
 $DIR = __DIR__ . '/backups';
-$TARGETS = ['content' => 'content.json', 'services' => 'services-content.json', 'options' => 'options-content.json', 'knowledge' => 'knowledge.json'];
+$TARGETS = ['content' => 'content.json', 'services' => 'services-content.json', 'options' => 'options-content.json', 'knowledge' => 'knowledge.json', 'newsletters' => 'newsletters.json'];
 
 /** "content-2026-10-27-142233.json" → ['content', unix time], or null if it isn't one of ours. */
 function parse_backup($name) {
   global $TARGETS;
-  if (!preg_match('/^(content|services|options|knowledge)-(\d{4})-(\d{2})-(\d{2})-(\d{2})(\d{2})(\d{2})\.json$/', $name, $m)) return null;
+  if (!preg_match('/^(content|services|options|knowledge|newsletters)-(\d{4})-(\d{2})-(\d{2})-(\d{2})(\d{2})(\d{2})\.json$/', $name, $m)) return null;
   if (!isset($TARGETS[$m[1]])) return null;
   return [$m[1], mktime((int)$m[5], (int)$m[6], (int)$m[7], (int)$m[3], (int)$m[4], (int)$m[2])];
 }
@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     readfile("$DIR/$name");
     exit;
   }
-  $out = ['content' => [], 'services' => [], 'options' => [], 'knowledge' => []];
+  $out = ['content' => [], 'services' => [], 'options' => [], 'knowledge' => [], 'newsletters' => []];
   foreach (is_dir($DIR) ? scandir($DIR) : [] as $name) {
     $p = parse_backup($name);
     if ($p) $out[$p[0]][] = ['file' => $name, 'at' => date('c', $p[1]), 'bytes' => filesize("$DIR/$name")];

@@ -48,7 +48,7 @@ $offers = array_values(array_filter([
 ], fn($o) => $o['price'] !== null));
 
 echo json_encode([
-  'updated'  => date('c', max(@filemtime(__DIR__ . '/knowledge.json') ?: 0, @filemtime(__DIR__ . '/knowledge-seed.json') ?: 0, @filemtime(__DIR__ . '/content.json') ?: 0)),
+  'updated'  => date('c', max(@filemtime(__DIR__ . '/knowledge.json') ?: 0, @filemtime(__DIR__ . '/knowledge-seed.json') ?: 0, @filemtime(__DIR__ . '/content.json') ?: 0, @filemtime(__DIR__ . '/plans.php') ?: 0)),
   'business' => ['name' => 'Your Energy Best', 'phone' => '(760) 860-7862', 'email' => 'dwest@yourenergybest.com',
                  'area' => 'San Diego County and South Orange County (San Clemente)', 'site' => KC_BASE . '/'],
   'offers'    => $offers,

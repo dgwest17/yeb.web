@@ -1,0 +1,18 @@
+# yourenergybest.com — search engines and AI assistants are welcome.
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /backups/
+Disallow: /save.php
+Disallow: /connections.php
+Disallow: /backups.php
+Disallow: /admin-auth.php
+Disallow: /load-content.php
+Disallow: /stripe-checkout.php
+Disallow: /stripe-verify.php
+Disallow: /stripe-webhook.php
+Disallow: /audit-access.php
+Disallow: /zoho.php
+Disallow: /locals-audit/
+
+Sitemap: https://yourenergybest.com/sitemap.xml

@@ -15,6 +15,9 @@ RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
 # Clean URL for build page: /build works without /index.html
 RewriteRule ^build/?$ build/index.html [L]
 
+# Sitemap is built live from the pages, Knowledge Center answers and blog posts
+RewriteRule ^sitemap\.xml$ sitemap.php [L]
+
 # Prevent directory browsing
 Options -Indexes
 

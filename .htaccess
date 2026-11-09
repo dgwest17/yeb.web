@@ -18,7 +18,8 @@ RewriteRule ^build/?$ build/index.html [L]
 # Sitemap is built live from the pages, Knowledge Center answers and blog posts
 RewriteRule ^sitemap\.xml$ sitemap.php [L]
 
-# Knowledge Center: each answer lives at /knowledge/<slug>/
+# Knowledge Center: /knowledge/ is index.php (built from Admin → Knowledge); each answer lives at /knowledge/<slug>/
+DirectoryIndex index.php index.html
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^knowledge/([a-z0-9-]+)/?$ knowledge/entry.php?slug=$1 [L,QSA]

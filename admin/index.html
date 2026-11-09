@@ -765,7 +765,6 @@ function renderKnowledge(main) {
       const intro = h('div', { class: 'hidden' },
         field('knowledge', { row: [ { path: 'icon', type: 'text', label: 'Emoji' }, { path: 'title', type: 'text', label: 'Topic name' } ] }, c),
         field('knowledge', { path: 'intro', type: 'para', label: 'Intro under the topic name' }, c));
-      main.append();
       box.append(h('section', { class: 'sec' },
         h('div', { class: 'hd' }, h('h3', {}, (c.icon ? c.icon + ' ' : '') + c.title), h('span', { class: 'where' }, list.length + ' answer' + (list.length === 1 ? '' : 's')),
           h('button', { class: 'ibtn', type: 'button', onclick: () => intro.classList.toggle('hidden') }, 'Edit topic'),

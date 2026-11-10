@@ -1,0 +1,20 @@
+/* landing.css — /solar-quote/, /home-battery/, /solar-audit/, /solar-inspection/ (with style.css + audit-book.css) */
+.lp-cta { text-align: center; }
+.lp-cta .btn { width: auto; display: inline-block; }
+.lp-alt { display: block; margin-top: .8rem; color: var(--teal-dark); font-weight: 600; text-decoration: none; }
+.lp-alt:hover { text-decoration: underline; }
+.lp-cta--end h2 { margin-bottom: 1rem; }
+.lp-sub { color: var(--slate); margin: -.4rem 0 1rem; }
+.lp-sub a { color: var(--teal-dark); font-weight: 600; }
+.lp-terr .lp-cities { color: var(--navy); font-weight: 600; margin: 0 0 .4rem; }
+.lp-local { margin: .5rem 0 0 1.1rem; color: var(--slate); font-size: .93rem; }
+.lp-local li { margin-bottom: .25rem; }
+.lp-faq { padding: 0; margin-bottom: .7rem; }
+.lp-faq summary { cursor: pointer; padding: 1rem 1.2rem; font-weight: 600; color: var(--navy); list-style: none; position: relative; padding-right: 2.6rem; }
+.lp-faq summary::-webkit-details-marker { display: none; }
+.lp-faq summary::after { content: "+"; position: absolute; right: 1.1rem; top: .85rem; font-size: 1.3rem; color: var(--teal); }
+.lp-faq[open] summary::after { content: "–"; }
+.lp-answer { padding: 0 1.2rem; color: var(--slate); line-height: 1.7; }
+.lp-answer p { margin-bottom: .8rem; }
+.lp-answer strong { color: var(--navy); }
+.lp-more { display: inline-block; margin: 0 1.2rem 1rem; color: var(--teal-dark); font-weight: 600; font-size: .9rem; text-decoration: none; }

@@ -19,8 +19,12 @@ $add = function ($path, $file = null, $priority = '0.6') use (&$urls, $BASE) {
 $add('/',                'index.html',                '1.0');
 $add('/quote/',          'quote/index.html',          '0.9');
 $add('/audit/',          'audit/index.html',          '0.9');
-$add('/knowledge/',      'knowledge/index.html',      '0.9');
+$add('/knowledge/',      'knowledge/index.php',       '0.9');
 $add('/services/audit/', 'services/audit/index.html', '0.8');
+$add('/solar-quote/',      'landing.php',               '0.9');
+$add('/home-battery/',     'landing.php',               '0.9');
+$add('/solar-audit/',      'landing.php',               '0.9');
+$add('/solar-inspection/', 'landing.php',               '0.8');
 $add('/services/',       'services/index.html',       '0.7');
 $add('/options/',        'options/index.html',        '0.7');
 $add('/start/',          'start/index.html',          '0.6');

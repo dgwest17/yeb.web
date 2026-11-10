@@ -50,7 +50,7 @@ $PAGES = [
     'alt'  => ['Not sure it pays? Book an audit', '/audit/'],
     'topic' => 'battery',
     'service' => 'Home battery installation (Tesla Powerwall 3, Enphase IQ Battery 10C, FranklinWH)',
-    'faq' => ['do-i-actually-need-a-battery-in-california', 'whats-the-difference-between-net-metering-and-net-billing-nem-3-0', 'will-one-battery-back-up-my-whole-house-the-1-battery-myth',
+    'faq' => ['do-i-actually-need-a-battery-in-california', 'what-does-a-battery-cost-in-2026', 'whats-the-difference-between-net-metering-and-net-billing-nem-3-0', 'will-one-battery-back-up-my-whole-house-the-1-battery-myth',
               'capacity-vs-power-the-highway-analogy-that-makes-batteries-click', 'battery-warranties-the-fine-print-that-actually-matters', 'sdcp-battery-rebate-3-000-to-6-000-per-battery',
               'cea-solar-plus-0-down-no-credit-check', 'sdg-es-secret-1-3-50-kwh-export-window'],
   ],

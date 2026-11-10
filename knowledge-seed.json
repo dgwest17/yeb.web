@@ -185,14 +185,14 @@
    "id": "k11",
    "slug": "whats-a-cca-and-what-are-sdcp-and-cea",
    "question": "What's a CCA — and what are SDCP and CEA?",
-   "answer": "<p>Community Choice Aggregators are locally-controlled, not-for-profit power providers. SDG&E still owns the wires and sends the bill, but the CCA buys the actual electricity — typically cleaner and at competitive rates, with profits reinvested locally instead of paid to shareholders. In our area: <strong>San Diego Community Power (SDCP)</strong> serves much of the region, and <strong>Clean Energy Alliance (CEA)</strong> serves 255,000+ customers in Carlsbad, Del Mar, Escondido, Solana Beach, San Marcos, Oceanside, and Vista.</p>\n<p>Why homeowners should care: CCAs run programs the big utility never would — SDCP's battery rebates ($3,000-$6,000 per battery) and CEA's Solar Plus ($0-down, no-credit-check solar and batteries). Being in CCA territory is an advantage. Use it.</p>",
+   "answer": "<p>Community Choice Aggregators are locally-controlled, not-for-profit power providers. SDG&E still owns the wires and sends the bill, but the CCA buys the actual electricity — typically cleaner and at competitive rates, with profits reinvested locally instead of paid to shareholders. In our area: <strong>San Diego Community Power (SDCP)</strong> serves much of the region, and <strong>Clean Energy Alliance (CEA)</strong> serves 255,000+ customers in Carlsbad, Del Mar, Escondido, Solana Beach, San Marcos, Oceanside, and Vista.</p>\n<p>Why homeowners should care: CCAs run programs the big utility never would — SDCP's battery rebates ($2,000–$6,000 per battery, depending on the project and battery) and CEA's Solar Plus ($0-down, no-credit-check solar and batteries). Being in CCA territory is an advantage. Use it.</p>",
    "cat": "utility",
    "tags": "cca community choice sdcp cea aggregator utility alternative",
    "audience": "all",
    "next": "auto",
    "live": true,
    "luma": true,
-   "updated": "2026-11-09"
+   "updated": "2026-11-10"
   },
   {
    "id": "k12",
@@ -301,15 +301,15 @@
   {
    "id": "k20",
    "slug": "sdcp-battery-rebate-3-000-to-6-000-per-battery",
-   "question": "SDCP Battery Rebate — $3,000 to $6,000 per battery",
-   "answer": "<p>San Diego Community Power's battery program pays <strong>$3,000-$6,000 per battery</strong> depending on your qualifications — and it applies whether you're pairing a battery with brand-new solar or adding one to an existing system.</p>\n<p>The urgency is real: as of mid-2026, roughly <strong>25-40% of program funds remain</strong>, and once they're reserved, they're gone. This is a first-come program, not a permanent entitlement. Verify current status at <a href=\"https://sdcommunitypower.org/solar-battery-savings/\" target=\"_blank\" rel=\"noopener\">sdcommunitypower.org</a> — and if you've been on the fence about a battery, this rebate is the fence-remover.</p>",
+   "question": "SDCP Battery Rebate — $2,000 to $6,000 per battery",
+   "answer": "<p>San Diego Community Power's battery program pays <strong>$2,000–$6,000 per battery</strong>, depending on the type of project and the battery you choose — and it applies whether you're pairing a battery with brand-new solar or adding one to an existing system.</p>\n<p>The urgency is real: as of mid-2026, roughly <strong>25-40% of program funds remain</strong>, and once they're reserved, they're gone. This is a first-come program, not a permanent entitlement. Verify current status at <a href=\"https://sdcommunitypower.org/solar-battery-savings/\" target=\"_blank\" rel=\"noopener\">sdcommunitypower.org</a> — and if you've been on the fence about a battery, this rebate is the fence-remover.</p>",
    "cat": "incentives",
-   "tags": "sdcp battery rebate san diego community power 3000 6000 funds",
+   "tags": "sdcp battery rebate san diego community power 2000 6000 funds",
    "audience": "all",
    "next": "auto",
    "live": true,
    "luma": true,
-   "updated": "2026-11-09"
+   "updated": "2026-11-10"
   },
   {
    "id": "k21",
@@ -380,14 +380,14 @@
    "id": "k26",
    "slug": "do-i-actually-need-a-battery-in-california",
    "question": "Do I actually need a battery in California?",
-   "answer": "<p>Under net billing — yes, for almost everyone. Export credits were cut ~75%, so selling your excess solar to the grid is a losing trade most of the year. A battery stores your own daytime power for your own nighttime use, which is now the whole game. Without one, you'd need to size solar to only ~60-70% of usage and accept a permanent utility bill.</p>\n<p>Batteries also unlock the stackable money: SDCP's $3,000-$6,000 rebate, VPP yearly payments, and those $1-$3.50/kWh August-September export credits. In 2026 California, the battery isn't the add-on. It's the strategy.</p>",
+   "answer": "<p>Under net billing — yes, for almost everyone. Export credits were cut ~75%, so selling your excess solar to the grid is a losing trade most of the year. A battery stores your own daytime power for your own nighttime use, which is now the whole game. Without one, you'd need to size solar to only ~60-70% of usage and accept a permanent utility bill.</p>\n<p>Batteries also unlock the stackable money: SDCP's $2,000–$6,000-per-battery rebate, VPP yearly payments, and those $1-$3.50/kWh August-September export credits. In 2026 California, the battery isn't the add-on. It's the strategy.</p>",
    "cat": "batteries",
    "tags": "need battery california required net billing why storage",
    "audience": "all",
    "next": "auto",
    "live": true,
    "luma": true,
-   "updated": "2026-11-09"
+   "updated": "2026-11-10"
   },
   {
    "id": "k27",
@@ -432,14 +432,14 @@
    "id": "k30",
    "slug": "what-does-a-battery-cost-in-2026",
    "question": "What does a battery cost in 2026?",
-   "answer": "<p>I'll be straight with you: I don't publish battery pricing anymore, because every home is genuinely different — backup needs, panel compatibility, electrical configuration, and which rebates you qualify for swing the number by thousands. Ballpark for battery-only projects after incentives: <strong>$15,000-$18,000 per battery</strong>, but the SDCP rebate, CEA's $0-down program, and VPP payments can transform that math completely.</p>\n<p>What I'll say with confidence: battery pricing is only going <strong>up</strong>. Materials are constrained, demand is exploding, and every VPP program launched makes storage more valuable. Adding a battery retroactively also always costs more than including it with solar. If a battery is in your future, the cheapest day to do it is today.</p>\n<a class=\"mini-cta\" href=\"/quote/?option=existing\">Get real numbers for your home →</a>",
+   "answer": "<p>I'll be straight with you: every home is genuinely different — backup needs, panel compatibility, electrical configuration, and which rebates you qualify for swing the number by thousands. Ballpark for a battery: <strong>about $15,000–$19,000 per battery before any incentives or rebates</strong>, and the SDCP rebate ($2,000–$6,000 per battery), CEA's $0-down program, and VPP payments can transform that math completely.</p>\n<p>What I'll say with confidence: battery pricing is only going <strong>up</strong>. Materials are constrained, demand is exploding, and every VPP program launched makes storage more valuable. Adding a battery retroactively also always costs more than including it with solar. If a battery is in your future, the cheapest day to do it is today.</p>\n<a class=\"mini-cta\" href=\"/quote/?option=existing\">Get real numbers for your home →</a>",
    "cat": "batteries",
    "tags": "battery cost price expensive 15000 18000 quote pricing going up",
    "audience": "all",
    "next": "auto",
    "live": true,
    "luma": true,
-   "updated": "2026-11-09"
+   "updated": "2026-11-10"
   },
   {
    "id": "k31",

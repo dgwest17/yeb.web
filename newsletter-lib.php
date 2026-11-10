@@ -104,7 +104,7 @@ function nl_render($n, $settings, $forZoho = true) {
     . '<tr><td style="background:#f6f9fb;padding:18px 28px;font-size:12px;line-height:1.6;color:#5b6b77;">'
     .   'Your Energy Best · Solar + battery in San Diego &amp; Orange County · <a href="' . NL_BASE . '/" style="color:#5b6b77;">yourenergybest.com</a><br>'
     .   ($address !== '' ? nl_e($address) . '<br>' : '')
-    .   'You\'re getting this because you have solar with us or we\'ve met about your energy. ' . $unsub
+    .   'You\'re getting this because you\'ve worked with us or talked with us about your energy. ' . $unsub
     . '</td></tr></table></td></tr></table></body></html>';
 }
 

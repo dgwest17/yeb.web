@@ -818,7 +818,7 @@ function renderNewsletters(main) {
     h('details', { class: 'how', open: !s.list_key }, h('summary', {}, 'One-time setup in Zoho (about 15 minutes)'), h('ol', { class: 'steps', html:
       '<li>Open <a href="https://campaigns.zoho.com/" target="_blank" rel="noopener">Zoho Campaigns</a> with the same Zoho account as your CRM (it\'s free up to a list size on most Zoho plans).</li>' +
       '<li>Settings → Sender details: add and verify <b>dwest@yourenergybest.com</b>, and authenticate your domain (SPF/DKIM) when it asks — that keeps you out of spam.</li>' +
-      '<li>Settings → Integrations → Zoho CRM → Connect. Set up two syncs into one new list (e.g. "Customers & homeowners met"): <b>Contacts</b> = your installed customers, and <b>Leads</b> with Lead Status = <i>Met</i>. Turn on "Sync opt-out status", so anyone who unsubscribes is marked Email Opt Out in CRM.</li>' +
+      '<li>Settings → Integrations → Zoho CRM → Connect. Set up two syncs into one new list (e.g. "Everyone"): <b>Leads</b> → All Records, and your <b>Energy Projects</b> custom module (Solar_Projects) → All Records. Zoho skips anyone without an email. Turn on "Sync opt-out status" with the <i>Email Opt Out</i> field on both, so anyone who unsubscribes is marked Email Opt Out in CRM and never gets another newsletter.</li>' +
       '<li>Here: Connections → Zoho → reconnect with the scopes shown there (they now include Zoho Campaigns).</li>' +
       '<li>Below: pick that list and fill in your mailing address (US law requires one in every marketing email).</li>' })),
     field('newsletters', { row: [ { path: 'from_name', type: 'text', label: 'From name' }, { path: 'from_email', type: 'text', label: 'From email', help: 'Must be verified in Zoho Campaigns' } ] }, s),

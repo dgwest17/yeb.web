@@ -40,8 +40,8 @@
     { label: 'Build With Us',    href: '/build/' },
     { label: 'Blog',             href: '/blog.html' }
   ];
-  var PHONE_DISPLAY = '(760) 860-7862';
-  var PHONE_TEL     = 'tel:7608607862';
+  var PHONE_DISPLAY = '(760) 454-7868';
+  var PHONE_TEL     = 'tel:7604547868';
   var CTA_LABEL     = 'Get Your Custom Quote';
   var CTA_HREF      = '/quote/';
   var LOGO_SRC      = '/img/logo.png';

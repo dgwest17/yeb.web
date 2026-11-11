@@ -844,7 +844,7 @@ function renderNewsletters(main) {
     h('button', { class: 'add', type: 'button', title: def.blurb, onclick: () => {
       const id = 'nl' + Date.now().toString(36);
       d.items.unshift(Object.assign({ id, key: nlKey(), template: t, name: '', subject: '', preheader: '', date: new Date().toISOString().slice(0, 10),
-        cta_label: '', cta_url: '', signoff: 'Talk soon,\nDavid West\n(760) 860-7862', also_blog: true }, def.blank()));
+        cta_label: '', cta_url: '', signoff: 'Talk soon,\nDavid West\n(760) 454-7868', also_blog: true }, def.blank()));
       open.add('nl:' + id); changed(); render(); } }, '+ ' + def.label))));
 
   const box = h('div'); main.append(box);

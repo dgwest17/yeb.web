@@ -104,7 +104,7 @@ echo '<script type="application/ld+json">' . json_encode($faq, JSON_UNESCAPED_SL
 
 <footer class="page-footer">
     <div class="container">
-        <p>© 2026 Your Energy Best · San Diego, CA · <a href="/">yourenergybest.com</a> · <a href="tel:7608607862">(760) 860-7862</a></p>
+        <p>© 2026 Your Energy Best · San Diego, CA · <a href="/">yourenergybest.com</a> · <a href="tel:7604547868">(760) 454-7868</a></p>
         <p class="disclaimer">This knowledge center is educational. Program terms, rebate availability, rates, and regulations change — sometimes quickly. Nothing here is tax, legal, or financial advice; confirm current terms in writing with any provider and consult the relevant professionals about your specific situation. Content current as of mid-2026.</p>
     </div>
 </footer>

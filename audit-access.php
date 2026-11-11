@@ -10,7 +10,7 @@ $AUDIT_TOOL_URL = 'https://www.lumaria.energy/'; // the audit tool is the Lumari
 
 function deny($msg) {
   http_response_code(403);
-  echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Access Required</title><style>body{font-family:sans-serif;background:#091B2A;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;text-align:center;padding:2rem}a{color:#22A8B3;font-weight:700}</style></head><body><div><h1>🔒 ' . htmlspecialchars($msg) . '</h1><p>Purchase a Solar Health Audit to unlock this tool.</p><p><a href="/services/">View Plans →</a> &nbsp;|&nbsp; <a href="tel:7608607862">(760) 860-7862</a></p></div></body></html>';
+  echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Access Required</title><style>body{font-family:sans-serif;background:#091B2A;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;text-align:center;padding:2rem}a{color:#22A8B3;font-weight:700}</style></head><body><div><h1>🔒 ' . htmlspecialchars($msg) . '</h1><p>Purchase a Solar Health Audit to unlock this tool.</p><p><a href="/services/">View Plans →</a> &nbsp;|&nbsp; <a href="tel:7604547868">(760) 454-7868</a></p></div></body></html>';
   exit;
 }
 

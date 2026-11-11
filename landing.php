@@ -103,7 +103,7 @@ foreach ($CITIES as $t) foreach (array_keys($t['cities']) as $c) $cityNames[] = 
 
 $schema = [
   ['@context' => 'https://schema.org', '@type' => 'Service', 'name' => $P['service'], 'serviceType' => $P['service'], 'url' => $url,
-   'provider' => ['@id' => KC_BASE . '/#business', '@type' => 'LocalBusiness', 'name' => 'Your Energy Best', 'telephone' => '+1-760-860-7862', 'url' => KC_BASE . '/'],
+   'provider' => ['@id' => KC_BASE . '/#business', '@type' => 'LocalBusiness', 'name' => 'Your Energy Best', 'telephone' => '+1-760-454-7868', 'url' => KC_BASE . '/'],
    'areaServed' => array_map(fn($c) => ['@type' => 'Place', 'name' => (stripos($c, 'orange county') !== false ? 'Orange County' : $c) . ', CA'], $cityNames)],
 ];
 if ($faq) $schema[] = ['@context' => 'https://schema.org', '@type' => 'FAQPage', 'mainEntity' => array_map(fn($e) => [
@@ -192,7 +192,7 @@ $priceTag = function ($key, $fallback) { return '<span data-price-of="' . kc_e($
   <div class="ab-card lp-cta lp-cta--end">
     <h2><?= kc_e($P['cta'][0] === 'Get my free quote →' ? 'Ready to see your real numbers?' : 'Ready when you are.') ?></h2>
     <a class="btn btn--primary btn--lg" href="<?= kc_e($P['cta'][1]) ?>"><?= kc_e($P['cta'][0]) ?></a>
-    <p class="contact">Or call or text David · <a href="tel:+17608607862">(760) 860-7862</a></p>
+    <p class="contact">Or call or text David · <a href="tel:+17604547868">(760) 454-7868</a></p>
   </div>
 </main>
 
@@ -202,7 +202,7 @@ $priceTag = function ($key, $fallback) { return '<span data-price-of="' . kc_e($
       <div>
         <img src="/img/logo.png" alt="Your Energy Best" class="footer__logo" />
         <p>Solar + battery in San Diego &amp; Orange County.</p>
-        <div class="footer__contact"><a href="tel:+17608607862">📞 (760) 860-7862</a></div>
+        <div class="footer__contact"><a href="tel:+17604547868">📞 (760) 454-7868</a></div>
       </div>
       <div class="footer__col"><h5>Get started</h5><a href="/quote/">Solar &amp; battery quote</a><a href="/audit/">Solar audit</a><a href="https://www.lumaria.energy/">lumaria app</a></div>
       <div class="footer__col"><h5>Learn</h5><a href="/knowledge/">Knowledge Center</a><a href="/solar-quote/">Solar quotes</a><a href="/home-battery/">Home batteries</a><a href="/solar-audit/">Solar audits</a><a href="/solar-inspection/">Solar inspections</a></div>

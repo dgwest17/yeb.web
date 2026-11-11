@@ -80,7 +80,7 @@ $schema = [
 
 <footer class="page-footer">
   <div class="container">
-    <p>© <?= date('Y') ?> Your Energy Best · San Diego, CA · <a href="/">yourenergybest.com</a> · <a href="tel:7604547868">(760) 454-7868</a></p>
+    <p>© <?= date('Y') ?> Your Energy Best · San Diego, CA · <a href="/">yourenergybest.com</a> · <a href="tel:7604547868">(760) 454-7868</a><span style="opacity:.8;font-size:.9em;white-space:nowrap;"> · 454-SUN8</span></p>
     <p class="disclaimer">This knowledge center is educational. Program terms, rebate availability, rates, and regulations change — sometimes quickly. Nothing here is tax, legal, or financial advice; confirm specifics for your home before you decide.</p>
   </div>
 </footer>

@@ -202,7 +202,7 @@ $priceTag = function ($key, $fallback) { return '<span data-price-of="' . kc_e($
       <div>
         <img src="/img/logo.png" alt="Your Energy Best" class="footer__logo" />
         <p>Solar + battery in San Diego &amp; Orange County.</p>
-        <div class="footer__contact"><a href="tel:+17604547868">📞 (760) 454-7868</a></div>
+        <div class="footer__contact"><a href="tel:+17604547868">📞 (760) 454-7868</a><span style="opacity:.8;font-size:.9em;white-space:nowrap;"> · 454-SUN8</span></div>
       </div>
       <div class="footer__col"><h5>Get started</h5><a href="/quote/">Solar &amp; battery quote</a><a href="/audit/">Solar audit</a><a href="https://www.lumaria.energy/">lumaria app</a></div>
       <div class="footer__col"><h5>Learn</h5><a href="/knowledge/">Knowledge Center</a><a href="/solar-quote/">Solar quotes</a><a href="/home-battery/">Home batteries</a><a href="/solar-audit/">Solar audits</a><a href="/solar-inspection/">Solar inspections</a></div>

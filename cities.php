@@ -19,6 +19,7 @@ return [
       'battery'    => 'SDCP\'s battery rebate applies to new and existing solar. Funding is limited and first come, first served.',
       'audit'      => 'If you already have solar here, the audit checks whether adding a battery could qualify for SDCP\'s rebate.',
       'inspection' => 'Adding a battery later? An inspection first makes sure the system and panel are ready for it.',
+      'repair'     => 'Fixing a system anyway? It\'s a good moment to see whether a battery would qualify for SDCP\'s rebate.',
     ],
   ],
   'cea' => [
@@ -37,6 +38,7 @@ return [
       'battery'    => 'CEA Solar Plus can add a battery for $0 down with no credit check, paid on your utility bill.',
       'audit'      => 'Owners here can add a battery through CEA Solar Plus with $0 down — the audit shows whether it pays.',
       'inspection' => 'Coastal and inland homes wear differently; the inspection covers both.',
+      'repair'     => 'Repairing or replacing equipment? CEA Solar Plus can add a battery at the same time, $0 down.',
     ],
   ],
   'sdge-oc' => [
@@ -47,6 +49,7 @@ return [
       'battery'    => 'SDG&E rates and time-of-use rules apply here (not Edison\'s), which is what makes a battery pay.',
       'audit'      => 'SDG&E bills and true-ups work differently from Edison\'s; the audit reads yours.',
       'inspection' => 'Salt air on the coast: we check mounting and wiring for corrosion.',
+      'repair'     => 'Coastal salt air is a common cause of corroded connectors and failing inverters; we check for it first.',
     ],
   ],
   'sce' => [
@@ -57,6 +60,7 @@ return [
       'battery'    => 'Edison has fewer battery incentives; virtual power plant (VPP) programs are the main one, and they pay you for letting your battery help the grid.',
       'audit'      => 'Edison rate plans differ from SDG&E\'s; the audit checks you\'re on the right one.',
       'inspection' => 'Same independent inspection, wherever your installer was based.',
+      'repair'     => 'Same troubleshooting on Edison systems, wherever your installer was based.',
     ],
   ],
 ];

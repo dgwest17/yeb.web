@@ -1,7 +1,7 @@
 <?php
 /**
- * landing.php — the four search landing pages: /solar-quote/, /home-battery/,
- * /solar-audit/, /solar-inspection/. Each folder's index.php sets $LANDING and
+ * landing.php — the search landing pages: /solar-quote/, /home-battery/,
+ * /solar-audit/, /solar-repair/, /solar-inspection/. Each folder's index.php sets $LANDING and
  * requires this file.
  *
  * What feeds them:
@@ -72,6 +72,25 @@ $PAGES = [
     'service' => 'Independent solar savings audit',
     'faq' => ['what-is-a-solar-health-audit-and-do-i-need-one', 'i-got-a-surprise-true-up-bill-what-happened', 'what-should-i-watch-in-my-monitoring-app-and-when-should-i-worry',
               'what-are-time-of-use-rates-and-why-do-they-matter', 'my-installer-went-out-of-business-am-i-screwed', 'how-much-maintenance-does-solar-actually-need', 'do-i-actually-need-a-battery-in-california'],
+  ],
+  'solar-repair' => [
+    'title' => 'Solar Not Working? Solar Repair & Troubleshooting Help San Diego',
+    'desc'  => 'Solar not producing, monitoring offline, an inverter error or a bill that suddenly went up? We find out why, tell you whether it\'s under warranty, and get you a clear path to fixing it — in San Diego and Orange County, even if your installer is gone.',
+    'kicker' => 'Solar troubleshooting · already have solar?',
+    'h1'    => 'Something\'s off with your solar. Let\'s find out what.',
+    'lede'  => 'A bill that crept up, an app that stopped updating, a red light on the inverter. Most of the time it\'s fixable, and often it\'s still under warranty. The first step is knowing what\'s actually wrong.',
+    'points' => [
+      ['Is it actually broken?', 'Monitoring that went offline, a tripped breaker, one dead inverter, or a rate plan problem that only looks like a production problem. We sort out which.'],
+      ['Covered or not', 'Panels and inverters carry long manufacturer warranties that still apply if your installer went out of business. We check what\'s covered before anyone pays for a repair.'],
+      ['A straight path to fixed', 'What to repair, what to leave alone, who should do it, and whether a battery or added panels makes sense while someone is on the roof.'],
+    ],
+    'price' => 'savings-audit',
+    'cta'  => ['Book a solar check-up →', '/audit/'],
+    'alt'  => ['Or see how it\'s doing free in lumaria', 'https://www.lumaria.energy/'],
+    'topic' => 'repair',
+    'service' => 'Solar system troubleshooting and repair guidance',
+    'faq' => ['what-should-i-watch-in-my-monitoring-app-and-when-should-i-worry', 'my-installer-went-out-of-business-am-i-screwed', 'i-got-a-surprise-true-up-bill-what-happened',
+              'how-much-maintenance-does-solar-actually-need', 'microinverters-vs-string-inverters-which-is-right-for-my-roof', 'battery-warranties-the-fine-print-that-actually-matters', 'what-is-a-solar-health-audit-and-do-i-need-one'],
   ],
   'solar-inspection' => [
     'title' => 'Solar Inspection San Diego | Independent Solar System Inspection',
@@ -205,7 +224,7 @@ $priceTag = function ($key, $fallback) { return '<span data-price-of="' . kc_e($
         <div class="footer__contact"><a href="tel:+17604547868">📞 (760) 454-7868</a><span style="opacity:.8;font-size:.9em;white-space:nowrap;"> · 454-SUN8</span></div>
       </div>
       <div class="footer__col"><h5>Get started</h5><a href="/quote/">Solar &amp; battery quote</a><a href="/audit/">Solar audit</a><a href="https://www.lumaria.energy/">lumaria app</a></div>
-      <div class="footer__col"><h5>Learn</h5><a href="/knowledge/">Knowledge Center</a><a href="/solar-quote/">Solar quotes</a><a href="/home-battery/">Home batteries</a><a href="/solar-audit/">Solar audits</a><a href="/solar-inspection/">Solar inspections</a></div>
+      <div class="footer__col"><h5>Learn</h5><a href="/knowledge/">Knowledge Center</a><a href="/solar-quote/">Solar quotes</a><a href="/home-battery/">Home batteries</a><a href="/solar-audit/">Solar audits</a><a href="/solar-repair/">Solar not working?</a><a href="/solar-inspection/">Solar inspections</a></div>
     </div>
     <div class="footer__bottom"><span>&copy; <?= date('Y') ?> Your Energy Best. All rights reserved.</span></div>
   </div>

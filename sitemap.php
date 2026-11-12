@@ -25,6 +25,7 @@ $add('/solar-quote/',      'landing.php',               '0.9');
 $add('/home-battery/',     'landing.php',               '0.9');
 $add('/solar-audit/',      'landing.php',               '0.9');
 $add('/solar-inspection/', 'landing.php',               '0.8');
+$add('/solar-repair/',     'landing.php',               '0.8');
 $add('/services/',       'services/index.html',       '0.7');
 $add('/options/',        'options/index.html',        '0.7');
 $add('/start/',          'start/index.html',          '0.6');

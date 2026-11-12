@@ -95,6 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
   $s['stripe']['webhook_url'] = 'https://yourenergybest.com/stripe-webhook.php';
 
   $s['google'] = ['configured' => file_exists($F['gkey']) && file_exists($F['gplace'])];
+  $s['quo'] = ['configured' => file_exists(__DIR__ . '/.quo_api_key')];
 
   $s['stray_files'] = array_values(array_map('basename', array_filter($STRAY, 'file_exists')));
   out($s);
@@ -145,6 +146,17 @@ switch ($in['action'] ?? '') {
     @unlink(__DIR__ . '/reviews_cache.json');
     security_log('connection_updated', ['service' => 'google']);
     out(['ok' => true, 'account' => $j['displayName']['text'] ?? null, 'rating' => $j['rating'] ?? null, 'reviews' => $j['userRatingCount'] ?? null]);
+
+  case 'quo':
+    $key = trim($in['key'] ?? '');
+    if (strlen($key) < 20) out(['ok' => false, 'error' => 'Paste the API key from Quo → Settings → API.']);
+    // Quo (formerly OpenPhone) — list the workspace's numbers to check the key works
+    [$c, $j] = http('GET', 'https://api.openphone.com/v1/phone-numbers', ['Authorization: ' . $key]);
+    if ($c !== 200) out(['ok' => false, 'error' => 'Quo said: ' . ($j['message'] ?? "HTTP $c")]);
+    $nums = array_map(fn($p) => $p['number'] ?? $p['formattedNumber'] ?? '', $j['data'] ?? []);
+    if (!save_secret(__DIR__ . '/.quo_api_key', $key)) out(['ok' => false, 'error' => 'Could not write the key file.']);
+    security_log('connection_updated', ['service' => 'quo']);
+    out(['ok' => true, 'account' => implode(', ', array_filter($nums)) ?: 'Quo connected']);
 
   case 'cleanup':
     $gone = [];

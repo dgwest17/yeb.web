@@ -996,6 +996,9 @@ function renderConnections(main) {
   card('stripe', '💳 Stripe (payments → Zoho)',
     '<li><a href="https://dashboard.stripe.com/webhooks" target="_blank" rel="noopener">Stripe → Developers → Webhooks</a> → <i>Add endpoint</i>.</li><li>URL: <code>https://yourenergybest.com/stripe-webhook.php</code></li><li>Events: <code>checkout.session.completed</code>, <code>checkout.session.async_payment_succeeded</code>, <code>invoice.paid</code>, <code>invoice.payment_failed</code>, <code>customer.subscription.deleted</code>.</li><li>Reveal the signing secret (<code>whsec_…</code>) and paste it below, then <i>Send test event</i> in Stripe.</li>',
     [inp('secret', 'whsec_…')], 'stripe_webhook', 'Save signing secret');
+  card('quo', '💬 Quo (texts from (760) 454-7868)',
+    '<li>In <a href="https://my.quo.com/" target="_blank" rel="noopener">Quo</a>: Settings → <i>API</i> → <i>Generate API key</i>.</li><li>Paste it below. After someone finishes the before-we-meet questions, they get a text with your booking link, and you get a heads-up.</li><li>Texts only deliver reliably once Quo\'s business texting registration (10DLC) is approved.</li>',
+    [inp('key', 'Quo API key')], 'quo', 'Check & save');
   card('google', '⭐ Google Reviews (homepage rating)',
     '<li>In <a href="https://console.cloud.google.com/apis/library/places.googleapis.com" target="_blank" rel="noopener">Google Cloud</a>, enable <i>Places API (New)</i>.</li><li><i>Credentials → Create credentials → API key</i>, restricted to Places API (New).</li><li>Find your Place ID with the <a href="https://developers.google.com/maps/documentation/places/web-service/place-id" target="_blank" rel="noopener">Place ID Finder</a>.</li>',
     [inp('key', 'API key'), inp('place_id', 'Place ID (ChIJ…)', false)], 'google', 'Check & save');
@@ -1011,6 +1014,7 @@ function renderConnections(main) {
       const st = s.stripe;
       set('stripe', !st.secret_key || !st.ok ? 'bad' : st.webhook_secret ? 'ok' : 'warn', !st.secret_key ? 'No secret key in config.php' : !st.ok ? 'Stripe rejected the key'
         : (st.live ? 'Live' : 'TEST mode') + (st.account ? ' · ' + st.account : '') + (st.webhook_secret ? ' · webhook on' : ' · webhook not set up'));
+      set('quo', s.quo && s.quo.configured ? 'ok' : 'warn', s.quo && s.quo.configured ? 'Connected — texts on' : 'Not connected — no automatic texts');
       set('google', s.google.configured ? 'ok' : 'warn', s.google.configured ? 'Connected' : 'Not connected — showing fixed numbers');
       if (s.stray_files && s.stray_files.length) {
         stray.classList.remove('hidden'); stray.innerHTML = '';

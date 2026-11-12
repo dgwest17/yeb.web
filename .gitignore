@@ -59,3 +59,6 @@ knowledge.json
 # Admin → Newsletters (drafts, settings) and what Zoho Campaigns reports back
 newsletters.json
 newsletters-zoho.json
+
+# local preview server cache
+.vite/

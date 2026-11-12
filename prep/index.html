@@ -16,6 +16,9 @@
     /prep/?for=solar   new solar (surf look)
     /prep/?for=audit   existing solar / audit (ship look)
     /prep/             asks "Do you already have solar?" first
+    /prep/solar/, /prep/audit/   the two forms on their own (what app.lumaria.energy sends)
+    ?t=…               sent from app.lumaria.energy: already knows who they are, greets them by
+                       name, skips name/phone/email, and answers go on that client in Zoho
   The same questions also appear after the quote form and the audit booking pages (prep.js).
 -->
 <style>
@@ -35,13 +38,23 @@
 <script src="/prep.js"></script>
 <script>
   (function () {
-    var f = new URLSearchParams(location.search).get('for');
-    var path = f === 'audit' || f === 'solar' ? f : null;
-    if (path === 'audit') document.body.classList.add('ship');
-    LumariaPrep.mount(document.getElementById('prep'), { path: path });
+    var q = new URLSearchParams(location.search);
+    var fixed = document.body.getAttribute("data-path");       // /prep/solar/ and /prep/audit/
+    var f = fixed || q.get("for");
+    var path = f === "audit" || f === "solar" ? f : null;
+    var t = q.get("t");                                         // a link sent from app.lumaria.energy
+    var host = document.getElementById("prep");
+    if (path === "audit") document.body.classList.add("ship");
+    var start = function (opt) { LumariaPrep.mount(host, opt); };
+    if (t) {
+      fetch("/prep.php?t=" + encodeURIComponent(t)).then(function (r) { return r.json(); }).catch(function () { return {}; }).then(function (j) {
+        if (j && j.ok) start({ path: j.kind || path, token: t, contact: { first: j.first || "" } });
+        else start({ path: path });                             // a broken link still works: it just asks who they are
+      });
+    } else start({ path: path });
     // the page background follows the look once they pick a path
-    new MutationObserver(function () { document.body.classList.toggle('ship', !!document.querySelector('.pp-ship')); })
-      .observe(document.getElementById('prep'), { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+    new MutationObserver(function () { document.body.classList.toggle("ship", !!document.querySelector(".pp-ship")); })
+      .observe(host, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
   })();
 </script>
 </body>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Before We Meet · New Solar — Lumaria Energy</title>
+<meta name="description" content="A few quick questions before your solar consultation, so our time together is all about you.">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="/img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/prep.css">
+<script src="/nav.js?v=20261111" defer></script>
+<!--
+  /prep/ — the "before we meet" questions as a page David can text anyone:
+    /prep/?for=solar   new solar (surf look)
+    /prep/?for=audit   existing solar / audit (ship look)
+    /prep/             asks "Do you already have solar?" first
+    /prep/solar/, /prep/audit/   the two forms on their own (what app.lumaria.energy sends)
+    ?t=…               sent from app.lumaria.energy: already knows who they are, greets them by
+                       name, skips name/phone/email, and answers go on that client in Zoho
+  The same questions also appear after the quote form and the audit booking pages (prep.js).
+-->
+<style>
+  body { margin: 0; min-height: 100vh; background: #04161f; font-family: Inter, sans-serif; }
+  body.ship { background: linear-gradient(180deg, #C3D9E9 0%, #EFEEE9 60%); }
+  main { padding: 96px 14px 40px; }
+  .foot { text-align: center; font-size: 13px; color: rgba(206,232,236,.6); margin-top: 18px; }
+  body.ship .foot { color: #5E7285; }
+  .foot a { color: inherit; font-weight: 600; }
+</style>
+</head>
+<body data-path="solar">
+<main>
+  <div id="prep"></div>
+  <p class="foot">Questions? Call or text David · <a href="tel:+17604547868">(760) 454-7868</a> · 454-SUN8</p>
+</main>
+<script src="/prep.js"></script>
+<script>
+  (function () {
+    var q = new URLSearchParams(location.search);
+    var fixed = document.body.getAttribute("data-path");       // /prep/solar/ and /prep/audit/
+    var f = fixed || q.get("for");
+    var path = f === "audit" || f === "solar" ? f : null;
+    var t = q.get("t");                                         // a link sent from app.lumaria.energy
+    var host = document.getElementById("prep");
+    if (path === "audit") document.body.classList.add("ship");
+    var start = function (opt) { LumariaPrep.mount(host, opt); };
+    if (t) {
+      fetch("/prep.php?t=" + encodeURIComponent(t)).then(function (r) { return r.json(); }).catch(function () { return {}; }).then(function (j) {
+        if (j && j.ok) start({ path: j.kind || path, token: t, contact: { first: j.first || "" } });
+        else start({ path: path });                             // a broken link still works: it just asks who they are
+      });
+    } else start({ path: path });
+    // the page background follows the look once they pick a path
+    new MutationObserver(function () { document.body.classList.toggle("ship", !!document.querySelector(".pp-ship")); })
+      .observe(host, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
+  })();
+</script>
+</body>
+</html>

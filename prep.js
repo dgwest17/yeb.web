@@ -5,6 +5,8 @@
  *              leave it out and the first screen asks "Do you already have solar?"
  *     ref      the signed Lead reference zoho.php returns, so answers attach to that Lead
  *     contact  { first, last, phone, email } when already known (skips the contact screen)
+ *     token    a link sent from app.lumaria.energy (?t=…) — it already knows who they are,
+ *              so no contact screen, it greets them by name, and answers go on that client
  *     booked   true when they've just been shown the calendar (the finish screen won't repeat it)
  *
  * Used on the quote success screen, the audit booking pages and /prep/ (a link David texts).
@@ -79,10 +81,11 @@
   function mount(host, opt) {
     css();
     opt = opt || {};
-    var store = 'lumaria.prep.' + (opt.ref || 'open');
+    var store = 'lumaria.prep.' + (opt.token ? 't.' + opt.token.slice(-16) : (opt.ref || 'open'));
     var saved = {}; try { saved = JSON.parse(localStorage.getItem(store) || '{}'); } catch (e) {}
     var st = { path: opt.path || saved.path || null, i: saved.i || 0, a: saved.a || {}, contact: opt.contact || saved.contact || null, bill: null };
-    var needContact = !opt.ref && !(st.contact && st.contact.first);
+    var needContact = !opt.ref && !opt.token && !(st.contact && st.contact.first);
+    var hi = opt.token && st.contact && st.contact.first ? st.contact.first : '';
     var root = el('div', { class: 'pp' });
     host.innerHTML = ''; host.appendChild(root);
 
@@ -101,7 +104,7 @@
       if (!step) return finish(inner);
       var pct = Math.round((st.i / list.length) * 100);
       inner.appendChild(el('div', { class: 'pp-kicker' }, surf ? 'Before we meet · ' + Math.max(1, list.length - st.i) + ' quick questions' : 'Come aboard · your system\'s logbook'));
-      if (st.i === 0 || step.id === '_path') inner.appendChild(el('div', { class: 'pp-title' }, surf ? 'Make our time all about you.' : 'Let\'s log your system.'));
+      if (st.i === 0 || step.id === '_path') inner.appendChild(el('div', { class: 'pp-title' }, (hi ? 'Hi ' + hi + ' — ' : '') + (surf ? (hi ? 'let\'s make our time all about you.' : 'Make our time all about you.') : (hi ? 'let\'s log your system.' : 'Let\'s log your system.'))));
       if (surf) { var tide = el('div', { class: 'pp-tide' }, [el('i')]); inner.appendChild(tide); requestAnimationFrame(function () { tide.firstChild.style.width = Math.max(4, pct) + '%'; }); }
       else { var log = el('div', { class: 'pp-log', html: '<div class="sea"></div><div class="beam"></div><div class="light">' + LIGHT + '</div><div class="boat">' + BOAT + '</div>' }); inner.appendChild(log);
              requestAnimationFrame(function () { log.querySelector('.boat').style.left = (6 + pct * 0.8) + '%'; }); inner.appendChild(el('div', { class: 'pp-rope' })); }
@@ -267,7 +270,7 @@
       var surf = st.path !== 'audit';
       inner.appendChild(el('div', { class: 'pp-kicker' }, surf ? 'Sending your answers…' : 'Logging it…'));
       var fd = new FormData();
-      fd.append('data', JSON.stringify({ path: st.path, ref: opt.ref || null, contact: st.contact || null, answers: st.a, summary: summary() }));
+      fd.append('data', JSON.stringify({ path: st.path, ref: opt.ref || null, t: opt.token || null, contact: st.contact || null, answers: st.a, summary: summary() }));
       if (st.bill) fd.append('bill', st.bill);
       fd.append('website', st.hp || '');
       fetch('/prep.php', { method: 'POST', body: fd }).then(function (r) { return r.json(); }).catch(function () { return { ok: false }; }).then(function (j) {

@@ -94,7 +94,7 @@
     var spot = document.getElementById('prepMount');
     if (!spot || !window.LumariaPrep) return;
     spot.hidden = false;
-    window.LumariaPrep.mount(spot.querySelector('.prep-slot') || spot, {
+    window.LumariaPrep.offer(spot.querySelector('.prep-slot') || spot, {
       path: 'audit', ref: ref || null, booked: true,
       contact: { first: l.first, last: l.last, phone: l.phone, email: l.email }
     });

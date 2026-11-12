@@ -12,7 +12,7 @@
  * Finds the Lead (signed ref → that Lead; else by email, then phone; else creates one),
  * fills Avg_Monthly_Bill / Opportunity_Type, adds a readable note (with the raw answers
  * for the rep app to read once it shows Leads), attaches the bill, emails David, and —
- * once Quo's API key is saved in Admin → Connections — texts the homeowner a booking
+ * once Twilio texting is on (after 10DLC) — texts the homeowner a booking
  * link and David a heads-up.
  */
 require_once __DIR__ . '/security-config.php';
@@ -21,8 +21,7 @@ header('Content-Type: application/json');
 
 const PREP_CALENDLY = 'https://calendly.com/yourenergybest/energy';
 const PREP_LUMARIA  = 'https://www.lumaria.energy/';
-const PREP_FROM     = '+18587862204';           // Twilio business line
-const PREP_DAVID    = '+13039419131';           // David's own phone (heads-up texts)
+const PREP_DAVID    = '+13039419131';           // David's own phone (heads-up texts, once Twilio texting is on)
 const PREP_NOTIFY   = 'dwest@yourenergybest.com';
 
 function out($a, $code = 200) { http_response_code($code); echo json_encode($a); exit; }
@@ -40,15 +39,14 @@ function crm($method, $path, $body = null, $multipart = false) {
   return [$code, json_decode($raw ?: '', true) ?: []];
 }
 function e164($p) { $d = preg_replace('/\D/', '', (string)$p); if (strlen($d) === 10) return '+1' . $d; if (strlen($d) === 11 && $d[0] === '1') return '+' . $d; return null; }
-function quo_text($to, $msg) {
-  $key = trim(@file_get_contents(__DIR__ . '/.quo_api_key') ?: '');
-  if ($key === '' || !$to) return false;
-  $ch = curl_init('https://api.openphone.com/v1/messages');
-  curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 15, CURLOPT_POST => true,
-    CURLOPT_HTTPHEADER => ['Authorization: ' . $key, 'Content-Type: application/json'],
-    CURLOPT_POSTFIELDS => json_encode(['content' => $msg, 'from' => PREP_FROM, 'to' => [$to]])]);
-  curl_exec($ch); $code = curl_getinfo($ch, CURLINFO_HTTP_CODE); curl_close($ch);
-  return $code >= 200 && $code < 300;
+// Texts: Quo is gone (cancelled 2026-11-12). They come back through Twilio (858) 786-2204 once
+// its texting registration (10DLC) is approved; until then David gets the email only.
+function send_text($to, $msg) { return false; }
+
+/** The signed Lead reference zoho.php hands the browser after the quote/audit form: "<leadId>.<sig>". */
+function lead_ref_id($ref) {
+  if (!preg_match('/^(\d{6,25})\.([a-f0-9]{24})$/', (string)$ref, $m) || !defined('AUDIT_ACCESS_SECRET')) return null;
+  return hash_equals(substr(hash_hmac('sha256', 'prep:' . $m[1], AUDIT_ACCESS_SECRET), 0, 24), $m[2]) ? $m[1] : null;
 }
 
 // A "before we meet" link sent from app.lumaria.energy carries a token the rep app signed;
@@ -71,6 +69,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['t'])) {
   record_rate_limit($ipg);
   $l = lumaria_link($_GET['t']);
   out($l ? ['ok' => true, 'first' => $l['first'] ?? '', 'kind' => $l['kind']] : ['ok' => false], $l ? 200 : 404);
+}
+
+// GET ?check=<ref> — the rep platform asks whether a website lead reference is real (it never
+// sees our secret), before it makes that lead a lumaria.energy before-we-meet link.
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['check'])) {
+  $id = lead_ref_id($_GET['check']);
+  if (!$id) out(['ok' => false], 404);
+  [$code, $j] = crm('GET', "/Leads/$id?fields=First_Name");
+  out(['ok' => true, 'module' => 'Leads', 'id' => $id, 'first' => (string)($j['data'][0]['First_Name'] ?? '')]);
+}
+
+// GET ?link=<ref>&kind=solar|audit — after booking on the website: the lumaria.energy form for
+// this new lead (Luma asks; the same form the rep app sends). The page falls back to prep.js if not.
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['link'])) {
+  $ipl = 'preplink_' . get_client_ip();
+  if (is_rate_limited($ipl, 30, 3600)) out(['ok' => false], 429);
+  record_rate_limit($ipl);
+  $kind = ($_GET['kind'] ?? '') === 'audit' ? 'audit' : 'solar';
+  if (!lead_ref_id($_GET['link'])) out(['ok' => false], 404);
+  $ch = curl_init('https://app.lumaria.energy/api/prep-link?kind=' . $kind . '&ref=' . rawurlencode($_GET['link']));
+  curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 12]);
+  $raw = curl_exec($ch); $code = curl_getinfo($ch, CURLINFO_HTTP_CODE); curl_close($ch);
+  $j = json_decode($raw ?: '', true);
+  $url = (string)($j['url'] ?? '');
+  if ($code !== 200 || strpos($url, 'https://www.lumaria.energy/prep/') !== 0) out(['ok' => false], 502);
+  out(['ok' => true, 'url' => $url]);
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') out(['ok' => false, 'error' => 'POST only'], 405);
@@ -149,7 +173,7 @@ try {
     }
   }
 
-  // ── tell David; text them if Quo is connected ──
+  // ── tell David; text them once Twilio texting is on ──
   $who = trim(($c['first'] ?? '') . ' ' . ($c['last'] ?? '')) ?: 'A lead';
   @mail(PREP_NOTIFY, "Before-we-meet form: $who (" . ($path === 'audit' ? 'existing solar' : 'new solar') . ')',
     implode("\n", $lines) . "\n\n" . ($billSaved ? "Bill attached in Zoho.\n" : '') . "Zoho: https://crm.zoho.com/crm/tab/$mod/$leadId",
@@ -158,10 +182,10 @@ try {
   $to = e164($c['phone'] ?? '');
   if ($to) {
     $first = $c['first'] ?? '';
-    $texted = quo_text($to, "Hi" . ($first ? " $first" : '') . ", it's David with Lumaria Energy — thanks, I've got your answers! "
+    $texted = send_text($to, "Hi" . ($first ? " $first" : '') . ", it's David with Lumaria Energy — thanks, I've got your answers! "
       . "Grab a time that works: " . PREP_CALENDLY . " — or just reply here with a good time. Reply STOP to opt out.");
   }
-  quo_text(PREP_DAVID, "Prep form in: $who (" . ($path === 'audit' ? 'audit' : 'new solar') . "). https://crm.zoho.com/crm/tab/$mod/$leadId");
+  send_text(PREP_DAVID, "Prep form in: $who (" . ($path === 'audit' ? 'audit' : 'new solar') . "). https://crm.zoho.com/crm/tab/$mod/$leadId");
 
   out(['ok' => true, 'calendly' => PREP_CALENDLY, 'lumaria' => $path === 'audit' ? PREP_LUMARIA : null, 'texted' => $texted, 'bill' => $billSaved]);
 } catch (Throwable $e) {

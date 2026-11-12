@@ -429,7 +429,7 @@ document.getElementById('submitBtn').addEventListener('click', async function() 
       // 2 · the follow-up questions, attached to this same Lead (result.prep), in the right look
       if (window.LumariaPrep) {
         const full = document.getElementById('wName').value.trim().split(/\s+/);
-        LumariaPrep.mount(document.getElementById('prepMount'), {
+        LumariaPrep.offer(document.getElementById('prepMount'), {
           path: selectedOption === 'Already Have Solar' ? 'audit' : 'solar',
           ref: result.prep || null,
           contact: { first: full[0] || '', last: full.slice(1).join(' '), email: document.getElementById('wEmail').value.trim(), phone: document.getElementById('wPhone').value.trim() },

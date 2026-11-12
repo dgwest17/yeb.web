@@ -298,5 +298,45 @@
     draw();
   }
 
-  window.LumariaPrep = { mount: mount };
+  /**
+   * offer(host, opt) — after booking on this site: the same before-we-meet form the rep app
+   * sends, on lumaria.energy (Luma asks; utility from their address; an audit carries on into
+   * the lumaria sign-up with the answers filled in). prep.php asks the rep platform for this
+   * lead's link; if that can't be had, the questions run right here (mount) as before.
+   */
+  function offer(host, opt) {
+    opt = opt || {};
+    if (!opt.ref) return mount(host, opt);
+    css();
+    var done = false;
+    var fallback = function () { if (!done) { done = true; mount(host, opt); } };
+    var timer = setTimeout(fallback, 7000);
+    fetch('/prep.php?link=' + encodeURIComponent(opt.ref) + '&kind=' + (opt.path === 'audit' ? 'audit' : 'solar'))
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (done) return;
+        if (!j || !j.ok || !j.url) return fallback();
+        done = true; clearTimeout(timer);
+        var surf = opt.path !== 'audit';
+        var first = opt.contact && opt.contact.first ? opt.contact.first : '';
+        var root = el('div', { class: 'pp ' + (surf ? 'pp-surf' : 'pp-ship') });
+        if (surf) { root.appendChild(el('div', { class: 'pp-sun', 'aria-hidden': 'true' })); root.insertAdjacentHTML('beforeend', swellHtml); }
+        else root.appendChild(el('div', { class: 'pp-hull', 'aria-hidden': 'true' }));
+        var inner = el('div', { class: 'pp-in' });
+        inner.appendChild(el('div', { class: 'pp-kicker' }, surf ? 'Before we meet · about a minute' : 'Come aboard · your system\'s logbook'));
+        inner.appendChild(el('div', { class: 'pp-title' }, (first ? first + ', ' : '') + (surf ? 'make our time all about you.' : 'let\'s log your system.')));
+        inner.appendChild(el('p', { class: 'pp-help' }, surf
+          ? 'Luma, David\'s assistant, asks a few quick questions — your bill, your roof, what you\'d want backed up — so your options are ready when we meet.'
+          : 'Luma, David\'s assistant, asks a few quick questions about your system, then sets you up in lumaria, free, with what you told her already filled in.'));
+        var acts = el('div', { class: 'pp-actions' });
+        acts.appendChild(el('a', { class: 'pp-act main', href: j.url, target: '_blank', rel: 'noopener' },
+          [el('span', { class: 'ic' }, surf ? '🌊' : '⚓'), el('span', {}, [surf ? 'Answer a few quick questions' : 'Log my system with Luma', el('small', {}, 'About a minute · opens lumaria.energy')])]));
+        inner.appendChild(acts);
+        root.appendChild(inner);
+        host.innerHTML = ''; host.appendChild(root);
+      })
+      .catch(fallback);
+  }
+
+  window.LumariaPrep = { mount: mount, offer: offer };
 })();

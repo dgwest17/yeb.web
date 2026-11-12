@@ -10,7 +10,8 @@
  *   newsletters-zoho.json   what Zoho says about each one (written only by newsletters.php):
  *                           { <id>: { campaignKey, list, created, contentHash, status, sent, report } }
  *
- * Templates: monthly (intro + stories), alert (rebate / deadline, urgent), tip (one idea).
+ * Templates: update (the Lumaria Energy Update; older ones are "monthly"), welcome, alert (rebate /
+ * deadline, urgent), tip (one idea). See nl_render.
  * Email HTML is table-based with inline styles, 600px wide — what email clients render.
  * Zoho fetches the email from /newsletter/view.php (content_url), which is also the
  * "view in browser" page.
@@ -57,64 +58,165 @@ function nl_button($label, $url, $bg = '#FB8500') {
 }
 
 /**
- * The email. $forZoho keeps Zoho's merge tags (unsubscribe link); the browser view swaps them out.
- * Unsubscribe uses Zoho Campaigns' $[LI:UNSUBSCRIBE]$ tag — confirm it in the first test from Zoho.
+ * The email — rebuilt from David's Canva designs ("Lumaria Energy Update" and "Welcome to
+ * Lumaria Energy", Nov 2026): the official logo, Lumaria teal + sunset orange, the palm
+ * photos from those designs (img/email/), cards that stack on phones, a teal footer.
+ *
+ *   update   the newsletter: title + palms, "This month at Lumaria Energy", up to three
+ *            cards (Energy tip · Did you know? · Customer corner), refer a friend
+ *            (older "monthly" ones show the same way; their stories become the cards)
+ *   welcome  for someone new: "Welcome to Lumaria Energy", the message, Contact our team,
+ *            the four promises, "Thanks for choosing lumaria energy"
+ *   alert    a rebate or deadline;   tip   one idea
+ *
+ * $forZoho keeps Zoho Campaigns' unsubscribe tag ($[LI:UNSUBSCRIBE]$ — confirm it in the
+ * first test from Zoho); the browser view swaps it out.
  */
-function nl_render($n, $settings, $forZoho = true) {
-  $t = $n['template'] ?? 'monthly';
-  $accent = $t === 'alert' ? '#EF476F' : '#219EBC';
-  $date = !empty($n['date']) ? date('F j, Y', strtotime($n['date'])) : date('F j, Y');
-  $kicker = ['monthly' => 'Monthly update', 'alert' => 'Heads up', 'tip' => 'Quick tip'][$t] ?? 'Update';
-  $body = '';
-  if ($t === 'monthly') {
-    if (trim($n['greeting'] ?? '')) $body .= '<p style="margin:0 0 14px;font-size:17px;line-height:1.5;color:#023047;font-weight:bold;">' . nl_e($n['greeting']) . '</p>';
-    if (trim(strip_tags($n['intro'] ?? ''))) $body .= nl_rich($n['intro']);
-    foreach ($n['stories'] ?? [] as $s) {
-      if (!trim(($s['title'] ?? '') . strip_tags($s['text'] ?? ''))) continue;
-      $body .= '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:20px 0 4px;border-top:1px solid #e3e8ec;"><tr><td style="padding-top:18px;">'
-        . (trim($s['title'] ?? '') ? '<h2 style="margin:0 0 8px;font-family:Georgia,serif;font-size:21px;line-height:1.3;color:#023047;font-weight:normal;">' . nl_e($s['title']) . '</h2>' : '')
-        . nl_rich($s['text'] ?? '') . nl_button($s['link_label'] ?? '', $s['link_url'] ?? '', '#219EBC') . '</td></tr></table>';
-    }
-  } else {
-    if (trim($n['headline'] ?? '')) $body .= '<h1 style="margin:0 0 12px;font-family:Georgia,serif;font-size:27px;line-height:1.25;color:#023047;font-weight:normal;">' . nl_e($n['headline']) . '</h1>';
-    if ($t === 'alert' && trim($n['deadline'] ?? '')) $body .= '<p style="margin:0 0 16px;padding:10px 14px;background:#fdecef;border-left:4px solid #EF476F;font-size:15px;color:#9b1c38;font-weight:bold;">' . nl_e($n['deadline']) . '</p>';
-    $body .= nl_rich($n['body'] ?? '');
+const NL_TEAL = '#0E97A0';
+const NL_ORANGE = '#F7861E';
+const NL_NAVY = '#0B2A4A';
+const NL_INK = '#3B4A55';
+const NL_TINT = '#E6F6F7';
+const NL_PHONE = '(858) 786-2204';
+const NL_TEL = 'tel:+18587862204';
+
+function nl_img($url) { $u = trim((string)$url); if ($u === '') return ''; return preg_match('#^https?://#', $u) ? $u : NL_BASE . '/' . ltrim($u, '/'); }
+function nl_photo($url, $alt = '', $width = 600, $radius = 0) {
+  $src = nl_img($url); if ($src === '') return '';
+  return '<img src="' . nl_e($src) . '" alt="' . nl_e($alt) . '" width="' . (int)$width . '" style="display:block;width:100%;max-width:' . (int)$width . 'px;height:auto;border:0;' . ($radius ? "border-radius:{$radius}px;" : '') . '">';
+}
+function nl_head($kicker) {
+  return '<tr><td align="center" style="padding:22px 24px 12px;background:#ffffff;">'
+    . '<img src="' . NL_BASE . '/img/brand/lumaria-energy-with-logo.png" width="150" alt="lumaria energy" style="display:block;width:150px;height:auto;border:0;margin:0 auto;">'
+    . '<div style="margin-top:8px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:' . NL_TEAL . ';font-weight:bold;">' . nl_e($kicker) . '</div></td></tr>';
+}
+function nl_values($items, $bg = '#ffffff') {
+  $w = floor(100 / count($items));
+  $dots = [NL_ORANGE, NL_TEAL, '#FFC94A', '#5FC2C7'];
+  $cells = '';
+  foreach ($items as $i => [$icon, $title, $text]) {
+    $cells .= '<td class="col" width="' . $w . '%" valign="top" align="center" style="padding:10px 6px;">'
+      . '<div style="width:48px;height:48px;line-height:48px;border-radius:50%;background:' . $dots[$i % 4] . ';color:#ffffff;font-size:22px;margin:0 auto 8px;">' . $icon . '</div>'
+      . '<div style="font-size:12px;font-weight:bold;letter-spacing:.5px;text-transform:uppercase;color:' . NL_NAVY . ';">' . nl_e($title) . '</div>'
+      . ($text !== '' ? '<div style="font-size:12px;line-height:1.4;color:' . NL_INK . ';margin-top:4px;">' . nl_e($text) . '</div>' : '') . '</td>';
   }
-  $body .= '<div style="margin-top:18px;">' . nl_button($n['cta_label'] ?? '', $n['cta_url'] ?? '') . '</div>';
-  $sign = trim($n['signoff'] ?? '') !== '' ? $n['signoff'] : "Talk soon,\nDavid West";
-  $body .= '<p style="margin:22px 0 0;font-size:16px;line-height:1.5;color:#33424d;">' . nl2br(nl_e($sign)) . '</p>';
+  return '<tr><td style="padding:14px 18px 20px;background:' . $bg . ';"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>' . $cells . '</tr></table></td></tr>';
+}
+/** The newsletter's cards: its own, or (an older "monthly" one) its stories. */
+function nl_cards($n) {
+  $cards = $n['cards'] ?? null;
+  if (!is_array($cards)) $cards = array_map(fn($s) => ['title' => $s['title'] ?? '', 'text' => $s['text'] ?? '', 'link_label' => $s['link_label'] ?? '', 'link_url' => $s['link_url'] ?? ''], $n['stories'] ?? []);
+  return array_values(array_filter($cards, fn($c) => trim(($c['title'] ?? '') . strip_tags($c['text'] ?? '')) !== ''));
+}
+
+function nl_render($n, $settings, $forZoho = true) {
+  $t = $n['template'] ?? 'update';
+  if ($t === 'monthly') $t = 'update';
+  $month = !empty($n['date']) ? date('F Y', strtotime($n['date'])) : date('F Y');
+  $rows = '';
+
+  if ($t === 'update') {
+    $rows .= nl_head('Solar tips · Updates · Community');
+    $hero = trim($n['hero_image'] ?? '') !== '' ? $n['hero_image'] : 'img/email/nl-hero.jpg';
+    $rows .= '<tr><td style="padding:0;background:' . NL_TINT . ';"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>'
+      . '<td class="col" width="55%" valign="middle" style="padding:24px 22px 22px 28px;">'
+      .   '<div style="font-size:30px;line-height:1.08;font-weight:bold;color:' . NL_TEAL . ';text-transform:uppercase;">' . nl_e(($n['title'] ?? '') !== '' ? $n['title'] : 'Lumaria Energy') . '<br><span style="color:' . NL_ORANGE . ';">' . nl_e(($n['title_accent'] ?? '') !== '' ? $n['title_accent'] : 'Update') . '</span></div>'
+      .   '<div style="margin:14px 0 12px;background:#FFC94A;border-radius:6px;padding:9px 12px;font-size:14px;line-height:1.4;color:' . NL_NAVY . ';">' . nl_e(($n['subtitle'] ?? '') !== '' ? $n['subtitle'] : 'Tips, updates & everything you need to get your energy best.') . '</div>'
+      .   '<span style="display:inline-block;border:1px solid ' . NL_TEAL . ';background:#ffffff;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:bold;letter-spacing:1px;color:' . NL_TEAL . ';text-transform:uppercase;">' . nl_e($month) . '</span>'
+      . '</td><td class="col" width="45%" valign="middle" style="padding:0;">' . nl_photo($hero, 'Palm trees on the San Diego coast', 270) . '</td>'
+      . '</tr></table></td></tr>';
+    $rows .= '<tr><td align="center" style="padding:28px 30px 6px;background:#ffffff;">'
+      . '<div style="font-size:20px;font-weight:bold;color:' . NL_TEAL . ';text-transform:uppercase;letter-spacing:.5px;">' . nl_e(($n['intro_heading'] ?? '') !== '' ? $n['intro_heading'] : 'This month at Lumaria Energy') . '</div>'
+      . '<div style="width:46px;height:3px;background:#FFC94A;margin:10px auto 14px;font-size:0;line-height:0;">&nbsp;</div>'
+      . (trim($n['greeting'] ?? '') !== '' ? '<p style="margin:0 0 12px;font-size:16px;color:' . NL_NAVY . ';font-weight:bold;">' . nl_e($n['greeting']) . '</p>' : '')
+      . '<div style="text-align:center;">' . nl_rich($n['intro'] ?? '', NL_INK) . '</div></td></tr>';
+    $cards = nl_cards($n);
+    if ($cards) {
+      $w = floor(100 / count($cards));
+      $badge = [NL_ORANGE, NL_TEAL, '#FFC94A'];
+      $cells = '';
+      foreach ($cards as $i => $c) {
+        $cells .= '<td class="col" width="' . $w . '%" valign="top" style="padding:8px;">'
+          . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff;border:1px solid #e3eef0;border-radius:10px;overflow:hidden;">'
+          . (trim($c['image'] ?? '') !== '' ? '<tr><td style="padding:0;">' . nl_photo($c['image'], $c['title'] ?? '', 210) . '</td></tr>' : '<tr><td style="height:5px;background:' . $badge[$i % 3] . ';font-size:0;line-height:0;">&nbsp;</td></tr>')
+          . '<tr><td style="padding:14px 14px 16px;">'
+          .   '<div style="font-size:15px;line-height:1.25;font-weight:bold;color:' . NL_TEAL . ';text-transform:uppercase;margin-bottom:8px;">' . nl_e($c['title'] ?? '') . '</div>'
+          .   '<div style="font-size:14px;line-height:1.5;color:' . NL_INK . ';">' . strip_tags((string)($c['text'] ?? ''), '<strong><b><em><i><br><a>') . '</div>'
+          .   (trim($c['link_url'] ?? '') !== '' ? '<a href="' . nl_e($c['link_url']) . '" style="display:inline-block;margin-top:10px;font-size:12px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:' . NL_TEAL . ';text-decoration:none;">' . nl_e(($c['link_label'] ?? '') !== '' ? $c['link_label'] : 'Learn more') . ' &rarr;</a>' : '')
+          . '</td></tr></table></td>';
+      }
+      $rows .= '<tr><td style="padding:8px 14px 12px;background:#ffffff;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>' . $cells . '</tr></table></td></tr>';
+    }
+    if (!isset($n['referral']) || $n['referral']) {
+      $rows .= '<tr><td style="padding:10px 22px 22px;background:#ffffff;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#FFF6DC;border-radius:12px;overflow:hidden;"><tr>'
+        . '<td class="col" width="42%" valign="middle" style="padding:0;">' . nl_photo('img/email/nl-refer.jpg', 'Sunset palms', 230) . '</td>'
+        . '<td class="col" valign="middle" style="padding:18px 20px;">'
+        . '<div style="font-size:19px;line-height:1.2;font-weight:bold;color:' . NL_TEAL . ';text-transform:uppercase;">Know someone thinking about solar?</div>'
+        . '<div style="font-size:14px;line-height:1.5;color:' . NL_INK . ';margin:8px 0 12px;">We love helping friends and family of our customers explore their energy options too.</div>'
+        . nl_button('Refer a friend →', ($n['referral_url'] ?? '') !== '' ? $n['referral_url'] : NL_BASE . '/quote/', NL_ORANGE)
+        . '</td></tr></table></td></tr>';
+    }
+    if (trim($n['cta_url'] ?? '') !== '') $rows .= '<tr><td align="center" style="padding:0 28px 20px;background:#ffffff;">' . nl_button($n['cta_label'] ?? '', $n['cta_url'], NL_ORANGE) . '</td></tr>';
+    $rows .= nl_values([['&#9788;', 'Cleaner energy', 'Brighter futures'], ['&#8962;', 'Stronger communities', ''], ['&#8776;', 'A more sustainable California', '']]);
+
+  } elseif ($t === 'welcome') {
+    $rows .= nl_head('Solar · Savings · A brighter tomorrow');
+    $rows .= '<tr><td align="center" bgcolor="#F2A65A" style="padding:34px 24px 30px;background:#F2A65A;background-image:linear-gradient(180deg,#F7C77E 0%,#EE9A4D 55%,#1F5F7A 100%);">'
+      . '<div style="font-family:\'Brush Script MT\',\'Segoe Script\',cursive;font-size:38px;line-height:1;color:#ffffff;">' . nl_e(($n['title_small'] ?? '') !== '' ? $n['title_small'] : 'Welcome to') . '</div>'
+      . '<div style="font-size:32px;line-height:1.15;font-weight:bold;color:#ffffff;text-transform:uppercase;margin-top:6px;">' . nl_e(($n['title'] ?? '') !== '' ? $n['title'] : 'Lumaria Energy') . '</div>'
+      . '<div style="font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:#ffffff;font-weight:bold;margin-top:8px;">' . nl_e(($n['subtitle'] ?? '') !== '' ? $n['subtitle'] : 'Simple energy solutions for a brighter tomorrow') . '</div></td></tr>';
+    $rows .= '<tr><td style="padding:26px 34px 10px;background:#ffffff;">'
+      . (trim($n['greeting'] ?? '') !== '' ? '<p style="margin:0 0 14px;font-size:17px;color:' . NL_NAVY . ';">' . nl_e($n['greeting']) . '</p>' : '')
+      . nl_rich($n['body'] ?? '', NL_INK) . '</td></tr>';
+    $rows .= '<tr><td align="center" style="padding:4px 28px 22px;background:#ffffff;">' . nl_button(($n['cta_label'] ?? '') !== '' ? $n['cta_label'] : 'Contact our team →', ($n['cta_url'] ?? '') !== '' ? $n['cta_url'] : NL_TEL, NL_ORANGE) . '</td></tr>';
+    $rows .= nl_values([['&#9788;', 'Cleaner energy', 'A brighter, more sustainable tomorrow.'], ['&#8962;', 'Lower bills', 'More savings for what matters most.'],
+                        ['&#9831;', 'A healthier planet', 'Good for your home and your community.'], ['&#9825;', 'A team you can count on', 'We\'re here to help, always.']], '#F4FAFB');
+
+  } else {   // alert, tip
+    $rows .= nl_head($t === 'alert' ? 'Heads up' : 'Energy tip');
+    if (trim($n['hero_image'] ?? '') !== '') $rows .= '<tr><td style="padding:0;">' . nl_photo($n['hero_image'], $n['headline'] ?? '') . '</td></tr>';
+    $rows .= '<tr><td style="padding:24px 30px 10px;background:#ffffff;">'
+      . '<div style="font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:' . NL_ORANGE . ';font-weight:bold;margin-bottom:6px;">' . nl_e($month) . '</div>'
+      . '<div style="font-size:26px;line-height:1.2;font-weight:bold;color:' . NL_TEAL . ';margin-bottom:12px;">' . nl_e($n['headline'] ?? '') . '</div>'
+      . ($t === 'alert' && trim($n['deadline'] ?? '') !== '' ? '<div style="margin:0 0 16px;padding:12px 14px;background:#FFF6DC;border-left:4px solid ' . NL_ORANGE . ';font-size:15px;font-weight:bold;color:' . NL_NAVY . ';">' . nl_e($n['deadline']) . '</div>' : '')
+      . nl_rich($n['body'] ?? '', NL_INK) . '</td></tr>';
+    if (trim($n['cta_url'] ?? '') !== '') $rows .= '<tr><td align="center" style="padding:4px 28px 22px;background:#ffffff;">' . nl_button($n['cta_label'] ?? '', $n['cta_url'], NL_ORANGE) . '</td></tr>';
+  }
+
+  // sign-off (all but welcome, which signs as the team in the footer)
+  if ($t !== 'welcome' && trim($n['signoff'] ?? '') !== '')
+    $rows .= '<tr><td style="padding:0 30px 24px;background:#ffffff;font-size:15px;line-height:1.5;color:' . NL_INK . ';">' . nl2br(nl_e($n['signoff'])) . '</td></tr>';
 
   $address = trim($settings['address'] ?? '');
-  $unsub = $forZoho ? '<a href="$[LI:UNSUBSCRIBE]$" style="color:#5b6b77;">Unsubscribe</a>' : '<span>Unsubscribe link appears in the email</span>';
-  $pre = nl_e($n['preheader'] ?? '');
-
-  return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-    . '<title>' . nl_e($n['subject'] ?? 'Newsletter') . '</title></head>'
-    . '<body style="margin:0;padding:0;background:#eef2f5;">'
-    . '<div style="display:none;max-height:0;overflow:hidden;opacity:0;">' . $pre . '&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;</div>'
-    . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eef2f5;"><tr><td align="center" style="padding:24px 12px;">'
-    . '<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background:#ffffff;border-radius:14px;overflow:hidden;font-family:Arial,Helvetica,sans-serif;">'
-    . '<tr><td style="background:#023047;padding:20px 28px;">'
-    .   '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>'
-    .   '<td><img src="' . NL_BASE . '/img/logo.png" width="64" height="64" alt="Your Energy Best" style="display:block;border:0;"></td>'
-    .   '<td align="right" style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#8ECAE6;">' . nl_e($kicker) . '<br><span style="color:#ffffff;letter-spacing:0;text-transform:none;font-size:13px;">' . nl_e($date) . '</span></td>'
-    .   '</tr></table></td></tr>'
-    . '<tr><td style="height:4px;background:' . $accent . ';font-size:0;line-height:0;">&nbsp;</td></tr>'
-    . '<tr><td style="padding:28px 28px 30px;">' . $body . '</td></tr>'
-    . '<tr><td style="background:#f6f9fb;padding:18px 28px;font-size:12px;line-height:1.6;color:#5b6b77;">'
-    .   'Your Energy Best · Solar + battery in San Diego &amp; Orange County · <a href="' . NL_BASE . '/" style="color:#5b6b77;">yourenergybest.com</a><br>'
+  $unsub = $forZoho ? '<a href="$[LI:UNSUBSCRIBE]$" style="color:#ffffff;">Unsubscribe</a>' : '<span>Unsubscribe link appears in the email</span>';
+  $thanks = $t === 'welcome' ? '<div style="font-family:\'Brush Script MT\',\'Segoe Script\',cursive;font-size:26px;color:#ffffff;">Thanks for choosing</div><div style="font-size:18px;font-weight:bold;color:#ffffff;margin-bottom:4px;">lumaria energy</div><div style="font-size:13px;color:#ffffff;margin-bottom:14px;">The Lumaria Energy Team</div>' : '';
+  $footer = '<tr><td align="center" style="background:' . NL_TEAL . ';padding:24px 26px;">' . $thanks
+    . '<img src="' . NL_BASE . '/img/brand/lumaria-energy-with-logo-on-dark.png" width="110" alt="lumaria energy" style="display:block;width:110px;height:auto;border:0;margin:0 auto 12px;">'
+    . '<div style="font-size:13px;line-height:1.7;color:#e6f7f8;">'
+    .   '<a href="' . NL_BASE . '/" style="color:#ffffff;">yourenergybest.com</a> · <a href="https://instagram.com/energy.best.ca" style="color:#ffffff;">Instagram</a> · <a href="' . NL_TEL . '" style="color:#ffffff;">' . NL_PHONE . '</a><br>'
     .   ($address !== '' ? nl_e($address) . '<br>' : '')
     .   'You\'re getting this because you\'ve worked with us or talked with us about your energy. ' . $unsub
-    . '</td></tr></table></td></tr></table></body></html>';
+    . '</div></td></tr>';
+
+  $pre = nl_e($n['preheader'] ?? '');
+  return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+    . '<title>' . nl_e($n['subject'] ?? 'Lumaria Energy') . '</title>'
+    . '<style>@media only screen and (max-width:600px){.col{display:block!important;width:100%!important;max-width:100%!important;box-sizing:border-box}}</style></head>'
+    . '<body style="margin:0;padding:0;background:#eef4f5;">'
+    . '<div style="display:none;max-height:0;overflow:hidden;opacity:0;">' . $pre . '&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;</div>'
+    . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eef4f5;"><tr><td align="center" style="padding:20px 10px;">'
+    . '<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background:#ffffff;border-radius:14px;overflow:hidden;font-family:Montserrat,Arial,Helvetica,sans-serif;">'
+    . $rows . $footer
+    . '</table></td></tr></table></body></html>';
 }
 
 /** Plain-text version of a newsletter — for the blog post and Luma. */
 function nl_text_html($n) {
   $t = $n['template'] ?? 'monthly';
   $h = '';
-  if ($t === 'monthly') {
+  if ($t === 'monthly' || $t === 'update') {
     $h .= (trim($n['intro'] ?? '') ? $n['intro'] : '');
-    foreach ($n['stories'] ?? [] as $s) {
+    foreach (nl_cards($n) as $s) {
       if (trim($s['title'] ?? '')) $h .= '<h3>' . nl_e($s['title']) . '</h3>';
       $h .= $s['text'] ?? '';
       if (trim($s['link_url'] ?? '')) $h .= '<p><a href="' . nl_e($s['link_url']) . '">' . nl_e($s['link_label'] ?: 'Read more') . '</a></p>';

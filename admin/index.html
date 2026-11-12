@@ -783,20 +783,34 @@ function renderKnowledge(main) {
 
 
 /* ─── Newsletters (newsletters.json + newsletters.php → Zoho Campaigns) ─── */
+// The look comes from the Canva designs ("Lumaria Energy Update", "Welcome to Lumaria Energy"); newsletter-lib.php renders them.
+const NL_CARDS = () => ([
+  { title: 'Energy tip of the month', text: '', image: '/img/email/nl-tip.jpg', link_label: 'More energy saving tips', link_url: 'https://yourenergybest.com/knowledge/' },
+  { title: 'Did you know?', text: '', image: '/img/email/nl-know.jpg', link_label: 'Learn more', link_url: 'https://yourenergybest.com/knowledge/' },
+  { title: 'Customer corner', text: '', image: '', link_label: '', link_url: '' }]);
 const NL_TEMPLATES = {
-  monthly: { label: 'Monthly update', blurb: 'A short intro and 2–3 stories', blank: () => ({ greeting: 'Hi there,', intro: '', stories: [{ title: '', text: '', link_label: '', link_url: '' }] }) },
+  update:  { label: 'Lumaria Energy Update', blurb: 'The newsletter: a short intro, three cards, refer a friend', blank: () => ({ title: 'Lumaria Energy', title_accent: 'Update',
+             subtitle: 'Tips, updates & everything you need to get your energy best.', hero_image: '', intro_heading: 'This month at Lumaria Energy', greeting: '',
+             intro: '<p>We\x27re here to keep you informed, inspired, and empowered. Each month we share solar tips, energy-saving ideas, company updates, answers to common questions, and opportunities for the Lumaria Energy community.</p>',
+             cards: NL_CARDS(), referral: true, referral_url: '' }) },
+  welcome: { label: 'Welcome email', blurb: 'For someone new: welcome, what to expect, contact us', blank: () => ({ title_small: 'Welcome to', title: 'Lumaria Energy',
+             subtitle: 'Simple energy solutions for a brighter tomorrow', greeting: 'Hi there,',
+             body: '<p>Welcome to lumaria energy! We\x27re so excited to have you with us.</p><p>Our goal is to make your solar experience simple, transparent, and stress-free. From keeping you updated throughout the process to answering your questions, our team is here to support you every step of the way.</p><p>You\x27ll also hear from us from time to time with helpful energy tips, important updates, and resources to help you get the most out of your system.</p>',
+             cta_label: 'Contact our team →', cta_url: 'tel:+18587862204' }) },
   alert:   { label: 'Rebate / deadline alert', blurb: 'One urgent item with a deadline', blank: () => ({ headline: '', deadline: '', body: '' }) },
   tip:     { label: 'Quick tip', blurb: 'One useful idea', blank: () => ({ headline: '', body: '' }) },
 };
+// Older newsletters were "monthly"; they show (and edit) as an Update, their stories as cards.
+const NL_LABEL = (t) => (NL_TEMPLATES[t] || NL_TEMPLATES.update).label;
 let nlZoho = {};
 const nlKey = () => [...crypto.getRandomValues(new Uint8Array(12))].map((b) => b.toString(16).padStart(2, '0')).join('');
 const nlEsc = (s) => String(s || '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 /** The newsletter as a blog post body (same as newsletter-lib.php's nl_text_html). */
 function nlBlogHtml(n) {
   let out = '';
-  if (n.template === 'monthly') {
+  if (n.template === 'monthly' || n.template === 'update') {
     out += n.intro || '';
-    for (const s of n.stories || []) { if (s.title) out += '<h3>' + nlEsc(s.title) + '</h3>'; out += s.text || ''; if (s.link_url) out += '<p><a href="' + nlEsc(s.link_url) + '">' + nlEsc(s.link_label || 'Read more') + '</a></p>'; }
+    for (const s of (n.cards || n.stories || [])) { if (s.title) out += '<h3>' + nlEsc(s.title) + '</h3>'; out += s.text || ''; if (s.link_url) out += '<p><a href="' + nlEsc(s.link_url) + '">' + nlEsc(s.link_label || 'Read more') + '</a></p>'; }
   } else { if (n.template === 'alert' && n.deadline) out += '<p><strong>' + nlEsc(n.deadline) + '</strong></p>'; out += n.body || ''; }
   if (n.cta_url) out += '<p><a href="' + nlEsc(n.cta_url) + '">' + nlEsc(n.cta_label || 'Learn more') + '</a></p>';
   return out;
@@ -863,7 +877,7 @@ function renderNewsletters(main) {
       const key = 'nl:' + n.id, isOpen = open.has(key);
       const hd = h('div', { class: 'hd', style: 'cursor:pointer', onclick: (e) => { if (e.target.closest('a,button')) return; isOpen ? open.delete(key) : open.add(key); draw(); } },
         h('h3', {}, (isOpen ? '▾ ' : '▸ ') + (n.subject || n.name || '(untitled newsletter)')),
-        h('span', { class: 'where' }, (NL_TEMPLATES[n.template] || {}).label + ' · ' + (n.date || '') + ' · ' + statusOf(n)));
+        h('span', { class: 'where' }, NL_LABEL(n.template) + ' · ' + (n.date || '') + ' · ' + statusOf(n)));
       const bd = h('div', { class: 'bd' + (isOpen ? '' : ' hidden') });
       if (isOpen) bd.append(...nlEditor(n));
       box.append(h('section', { class: 'sec' }, hd, bd));
@@ -874,11 +888,23 @@ function renderNewsletters(main) {
       field('newsletters', { row: [ { path: 'subject', type: 'text', label: 'Subject line' }, { path: 'name', type: 'text', label: 'Internal name (only you see it)' } ] }, n),
       field('newsletters', { row: [ { path: 'preheader', type: 'text', label: 'Preview text', help: 'The grey line inboxes show after the subject' }, { path: 'date', type: 'date', label: 'Date shown' } ] }, n),
     ];
-    if (n.template === 'monthly') {
-      els.push(field('newsletters', { path: 'greeting', type: 'text', label: 'Greeting' }, n), field('newsletters', { path: 'intro', type: 'rich', label: 'Intro' }, n),
-        field('newsletters', { path: 'stories', type: 'list', label: 'Stories', titleKey: 'title', addLabel: 'Add a story', blank: { title: '', text: '', link_label: '', link_url: '' }, fields: [
-          { key: 'title', type: 'text', label: 'Headline' }, { key: 'text', type: 'rich', label: 'Text' },
-          { row: [ { key: 'link_label', type: 'text', label: 'Button text (optional)' }, { key: 'link_url', type: 'url', label: 'Button link' } ] } ] }, n));
+    if (n.template === 'monthly' && !n.cards) n.cards = (n.stories || []).map((s) => ({ title: s.title || '', text: s.text || '', image: '', link_label: s.link_label || '', link_url: s.link_url || '' }));
+    if (n.template === 'update' || n.template === 'monthly') {
+      els.push(
+        field('newsletters', { row: [ { path: 'title', type: 'text', label: 'Title', help: 'Teal, e.g. Lumaria Energy' }, { path: 'title_accent', type: 'text', label: 'Title, second line', help: 'Orange, e.g. Update' } ] }, n),
+        field('newsletters', { row: [ { path: 'subtitle', type: 'text', label: 'Yellow line under the title' }, { path: 'hero_image', type: 'url', label: 'Photo beside the title (optional)', help: 'Leave empty for the palms. A link to any photo works.' } ] }, n),
+        field('newsletters', { row: [ { path: 'intro_heading', type: 'text', label: 'Section heading' }, { path: 'greeting', type: 'text', label: 'Greeting (optional)' } ] }, n),
+        field('newsletters', { path: 'intro', type: 'rich', label: 'Intro' }, n),
+        field('newsletters', { path: 'cards', type: 'list', label: 'Cards (up to 3 side by side; they stack on phones)', titleKey: 'title', addLabel: 'Add a card', blank: { title: '', text: '', image: '', link_label: '', link_url: '' }, fields: [
+          { key: 'title', type: 'text', label: 'Heading' }, { key: 'text', type: 'rich', label: 'Text' },
+          { key: 'image', type: 'url', label: 'Photo (optional)', help: 'e.g. /img/email/nl-tip.jpg or a link to any photo' },
+          { row: [ { key: 'link_label', type: 'text', label: 'Link text (optional)' }, { key: 'link_url', type: 'url', label: 'Link' } ] } ] }, n),
+        field('newsletters', { row: [ { path: 'referral', type: 'toggle', label: 'Show "Know someone thinking about solar? Refer a friend"' }, { path: 'referral_url', type: 'url', label: 'Refer-a-friend link', help: 'Empty = the quote page' } ] }, n));
+    } else if (n.template === 'welcome') {
+      els.push(
+        field('newsletters', { row: [ { path: 'title_small', type: 'text', label: 'Script line', help: 'e.g. Welcome to' }, { path: 'title', type: 'text', label: 'Title' } ] }, n),
+        field('newsletters', { row: [ { path: 'subtitle', type: 'text', label: 'Line under the title' }, { path: 'greeting', type: 'text', label: 'Greeting' } ] }, n),
+        field('newsletters', { path: 'body', type: 'rich', label: 'Message' }, n));
     } else {
       els.push(field('newsletters', { path: 'headline', type: 'text', label: 'Headline' }, n));
       if (n.template === 'alert') els.push(field('newsletters', { path: 'deadline', type: 'text', label: 'Deadline line', help: 'e.g. "SDCP rebate funds expected to run out by mid-January"' }, n));

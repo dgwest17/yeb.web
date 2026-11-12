@@ -49,7 +49,7 @@ $offers = array_values(array_filter([
 
 echo json_encode([
   'updated'  => date('c', max(@filemtime(__DIR__ . '/knowledge.json') ?: 0, @filemtime(__DIR__ . '/knowledge-seed.json') ?: 0, @filemtime(__DIR__ . '/content.json') ?: 0, @filemtime(__DIR__ . '/plans.php') ?: 0)),
-  'business' => ['name' => 'Your Energy Best', 'phone' => '(760) 454-7868', 'email' => 'dwest@yourenergybest.com',
+  'business' => ['name' => 'Your Energy Best', 'phone' => '(858) 786-2204', 'email' => 'dwest@yourenergybest.com',
                  'area' => 'San Diego County, Orange County and Long Beach (SDG&E reaches San Clemente, Dana Point and San Juan Capistrano; the rest of OC and Long Beach are Edison)', 'site' => KC_BASE . '/'],
   'offers'    => $offers,
   'knowledge' => $knowledge,

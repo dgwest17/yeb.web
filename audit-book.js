@@ -12,7 +12,7 @@
   'use strict';
 
   // ─── EDIT ME ───
-  var DAVID = { name: 'David', phone: '7604547868', phoneShown: '(760) 454-7868', email: 'dwest@yourenergybest.com' };
+  var DAVID = { name: 'David', phone: '8587862204', phoneShown: '(858) 786-2204', email: 'dwest@yourenergybest.com' };
   // David's 45-min "Solar Consultation" on purpose: it blocks both calendars for the
   // full window; the page tells people the audit takes 20–45 min.
   var CALENDLY = 'https://calendly.com/yourenergybest/energy';

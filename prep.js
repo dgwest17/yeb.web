@@ -277,7 +277,7 @@
         inner.innerHTML = '';
         if (!j || !j.ok) {
           inner.appendChild(el('div', { class: 'pp-q' }, 'That didn\'t send.'));
-          inner.appendChild(el('p', { class: 'pp-help' }, (j && j.error) || 'Check your connection and try again — or call or text (760) 454-7868.'));
+          inner.appendChild(el('p', { class: 'pp-help' }, (j && j.error) || 'Check your connection and try again — or call or text (858) 786-2204.'));
           inner.appendChild(el('button', { type: 'button', class: 'pp-next', style: 'margin:0', onclick: function () { st.i = steps().length - 1; draw(); } }, 'Try again'));
           return;
         }
@@ -291,7 +291,7 @@
         var acts = el('div', { class: 'pp-actions' });
         if (!opt.booked) acts.appendChild(el('a', { class: 'pp-act main', href: j.calendly, target: '_blank', rel: 'noopener' }, [el('span', { class: 'ic' }, '📅'), el('span', {}, ['Pick a time with David', el('small', {}, '20–45 minutes')])]));
         if (j.lumaria) acts.appendChild(el('a', { class: 'pp-act', href: j.lumaria, target: '_blank', rel: 'noopener' }, [el('span', { class: 'ic' }, '⚓'), el('span', {}, ['Come aboard the lumaria app', el('small', {}, 'Free — see what your system is really saving')])]));
-        acts.appendChild(el('a', { class: 'pp-act', href: 'sms:+17604547868' }, [el('span', { class: 'ic' }, '💬'), el('span', {}, ['Text David', el('small', {}, '(760) 454-SUN8')])]));
+        acts.appendChild(el('a', { class: 'pp-act', href: 'sms:+18587862204' }, [el('span', { class: 'ic' }, '💬'), el('span', {}, ['Text David', el('small', {}, '858-SUN-2204')])]));
         d.appendChild(acts); inner.appendChild(d);
       });
     }

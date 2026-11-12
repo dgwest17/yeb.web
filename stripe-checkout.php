@@ -72,7 +72,7 @@ $data = json_decode($resp, true);
 if ($code !== 200 || empty($data['url'])) {
   error_log('Stripe session error: ' . $resp);
   http_response_code(502);
-  echo json_encode(['error' => 'Could not start checkout. Please call (760) 454-7868.']);
+  echo json_encode(['error' => 'Could not start checkout. Please call (858) 786-2204.']);
   exit;
 }
 echo json_encode(['url' => $data['url']]);

@@ -21,7 +21,7 @@ header('Content-Type: application/json');
 
 const PREP_CALENDLY = 'https://calendly.com/yourenergybest/energy';
 const PREP_LUMARIA  = 'https://www.lumaria.energy/';
-const PREP_FROM     = '+17604547868';           // Quo business line
+const PREP_FROM     = '+18587862204';           // Twilio business line
 const PREP_DAVID    = '+13039419131';           // David's own phone (heads-up texts)
 const PREP_NOTIFY   = 'dwest@yourenergybest.com';
 
@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['t'])) {
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') out(['ok' => false, 'error' => 'POST only'], 405);
 if (!empty($_POST['website'])) out(['ok' => true]);                       // honeypot: bots get a quiet success
 $ip = 'prep_' . get_client_ip();
-if (is_rate_limited($ip, 12, 3600)) out(['ok' => false, 'error' => 'That\'s a lot of submissions — please call or text (760) 454-7868.'], 429);
+if (is_rate_limited($ip, 12, 3600)) out(['ok' => false, 'error' => 'That\'s a lot of submissions — please call or text (858) 786-2204.'], 429);
 record_rate_limit($ip);
 
 $d = json_decode($_POST['data'] ?? '', true);
@@ -94,7 +94,7 @@ try {
   $fromApp = false;
   if (!empty($d['t'])) {
     $l = lumaria_link($d['t']);
-    if (!$l) out(['ok' => false, 'error' => 'This link isn\'t working — please call or text (760) 454-7868.'], 400);
+    if (!$l) out(['ok' => false, 'error' => 'This link isn\'t working — please call or text (858) 786-2204.'], 400);
     $mod = $l['module']; $leadId = $l['id']; $path = $l['kind']; $fromApp = true;
     [$code, $j] = crm('GET', "/$mod/$leadId?fields=First_Name,Last_Name,Phone,Mobile,Email");
     $r = $j['data'][0] ?? [];

@@ -37,6 +37,7 @@
     { label: 'Knowledge Center', href: '/knowledge/' },
     { label: 'Services',         href: '/services/' },
     { label: 'Get a Quote',      href: '/quote/' },
+    { label: 'Audit Your System', href: '/audit/' },
     { label: 'Build With Us',    href: '/build/' },
     { label: 'Blog',             href: '/blog.html' }
   ];
@@ -44,6 +45,8 @@
   var PHONE_TEL     = 'tel:7604547868';
   var CTA_LABEL     = 'Get Your Custom Quote';
   var CTA_HREF      = '/quote/';
+  var AUDIT_LABEL   = 'Audit Your System';   // the second button, for homeowners who already have solar
+  var AUDIT_HREF    = '/audit/';
   var LOGO_SRC      = '/img/logo.png';
 
   // ─── Active link detection ───
@@ -94,6 +97,7 @@
   +   '.yebnav__links-phone a{color:#FFB703;font-weight:600}'
   +   '.yebnav__links-cta{display:block;border-bottom:none;padding:.5rem 0}'
   +   '.yebnav__links-cta a{background:#FFB703;color:#023047;font-weight:700;text-align:center;border-radius:100px;padding:.85rem 1rem;margin-top:.5rem}'
+  +   '.yebnav__links-cta--audit a{background:transparent;color:#fff;border:2px solid #8ECAE6}'
   + '}';
 
   function build() {
@@ -132,6 +136,7 @@
       +   linksHtml
       +   '<li class="yebnav__links-phone"><a href="' + PHONE_TEL + '">📞 ' + PHONE_DISPLAY + '</a></li>'
       +   '<li class="yebnav__links-cta"><a href="' + CTA_HREF + '">' + CTA_LABEL + ' →</a></li>'
+      +   '<li class="yebnav__links-cta yebnav__links-cta--audit"><a href="' + AUDIT_HREF + '">' + AUDIT_LABEL + ' →</a></li>'
       + '</ul>'
       + '</div>';
 

@@ -83,7 +83,7 @@
     }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   </style>
-  <script src="/nav.js" defer></script>
+  <script src="/nav.js?v=20261111" defer></script>
 </head>
 <body>
 
@@ -202,8 +202,11 @@
     <div class="wizard-success" id="wizardSuccess">
       <div class="wizard-success__check">✅</div>
       <h3>You're all set!</h3>
-      <p>We've received your information. Schedule a time to chat with a solar expert below — or we'll reach out within 24 hours.</p>
+      <p>Two quick things and we're ready for you.</p>
+      <p class="prep-step"><b>1 · Schedule your consultation</b> — pick a time below, or we'll reach out within 24 hours.</p>
       <div class="calendly-container" id="calendlyEmbed"></div>
+      <p class="prep-step"><b>2 · Fill in a few more details</b> — about 45 seconds, so our time together is all about your home.</p>
+      <div id="prepMount" style="margin:12px 0 8px;"></div>
       <p class="microcopy" style="margin-top:1rem;">Or call us directly: <a href="tel:7604547868" style="color:var(--teal); font-weight:600;">(760) 454-7868</a></p>
     </div>
 
@@ -423,9 +426,20 @@ document.getElementById('submitBtn').addEventListener('click', async function() 
       const success = document.getElementById('wizardSuccess');
       success.classList.add('active');
 
+      // 2 · the follow-up questions, attached to this same Lead (result.prep), in the right look
+      if (window.LumariaPrep) {
+        const full = document.getElementById('wName').value.trim().split(/\s+/);
+        LumariaPrep.mount(document.getElementById('prepMount'), {
+          path: selectedOption === 'Already Have Solar' ? 'audit' : 'solar',
+          ref: result.prep || null,
+          contact: { first: full[0] || '', last: full.slice(1).join(' '), email: document.getElementById('wEmail').value.trim(), phone: document.getElementById('wPhone').value.trim() },
+          booked: true
+        });
+      }
+
       if (typeof Calendly !== 'undefined') {
         Calendly.initInlineWidget({
-          url:           'https://calendly.com/yourenergybest?hide_gdpr_banner=1',
+          url:           'https://calendly.com/yourenergybest/energy?hide_gdpr_banner=1',
           parentElement: document.getElementById('calendlyEmbed'),
           prefill: {
             name:  document.getElementById('wName').value.trim(),
@@ -448,6 +462,7 @@ document.getElementById('submitBtn').addEventListener('click', async function() 
 });
 </script>
 
+<script src="/prep.js"></script>
 <script src="/cms.js"></script>
 <script>
 CMS.load().then(() => {

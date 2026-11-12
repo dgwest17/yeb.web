@@ -12,7 +12,7 @@
   'use strict';
 
   // ─── EDIT ME ───
-  var DAVID = { name: 'David', phone: '3039419131', phoneShown: '(303) 941-9131', email: 'dwest@yourenergybest.com' };
+  var DAVID = { name: 'David', phone: '7604547868', phoneShown: '(760) 454-7868', email: 'dwest@yourenergybest.com' };
   // David's 45-min "Solar Consultation" on purpose: it blocks both calendars for the
   // full window; the page tells people the audit takes 20–45 min.
   var CALENDLY = 'https://calendly.com/yourenergybest/energy';
@@ -77,13 +77,26 @@
         website: form.elements.website ? form.elements.website.value : '', _ts: loadTs
       }, attr);
       fetch('/zoho.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-        .catch(function () {})   // never block them: the text/email/booking still reach David
-        .then(function () {
+        .then(function (r) { return r.json(); })
+        .catch(function () { return {}; })   // never block them: the text/email/booking still reach David
+        .then(function (res) {
           lead = l; save(l);
           btn.disabled = false; btn.textContent = 'Continue →';
           fillChoices(l);
           show('#stepChoose');
+          mountPrep(l, res && res.prep);
         });
+    });
+  }
+
+  // The audit questions (prep.js, ship look) under the booking options, attached to this Lead
+  function mountPrep(l, ref) {
+    var spot = document.getElementById('prepMount');
+    if (!spot || !window.LumariaPrep) return;
+    spot.hidden = false;
+    window.LumariaPrep.mount(spot.querySelector('.prep-slot') || spot, {
+      path: 'audit', ref: ref || null, booked: true,
+      contact: { first: l.first, last: l.last, phone: l.phone, email: l.email }
     });
   }
 

@@ -358,7 +358,9 @@ $result = upsertLead($leadData, $accessToken, $email);
 if ($result['success']) {
     addLeadNote($result['id'], $zohoNote, $accessToken);
     logStructured($sourceForm, 'success', $input, $result['id']);
-    echo json_encode(['success'=>true,'zoho_id'=>$result['id'],'action'=>$result['action'],'trace'=>$traceId]);
+    // A signed reference to this Lead, so the follow-up questions (prep.php) attach to it
+    $prep = ($result['id'] && defined('AUDIT_ACCESS_SECRET')) ? $result['id'] . '.' . substr(hash_hmac('sha256', 'prep:' . $result['id'], AUDIT_ACCESS_SECRET), 0, 24) : null;
+    echo json_encode(['success'=>true,'zoho_id'=>$result['id'],'action'=>$result['action'],'trace'=>$traceId,'prep'=>$prep]);
 } else {
     logStructured($sourceForm, 'fail', $input, null, $result['error'] ?? 'Unknown');
     echo json_encode(['success'=>true,'note'=>'Saved locally, Zoho sync pending','trace'=>$traceId]);

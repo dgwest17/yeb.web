@@ -129,7 +129,7 @@ $priceTag = function ($key, $fallback) { return '<span data-price-of="' . kc_e($
 <link rel="stylesheet" href="/audit-book.css">
 <link rel="stylesheet" href="/landing.css">
 <script type="application/ld+json"><?= json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?></script>
-<script src="/nav.js" defer></script>
+<script src="/nav.js?v=20261111" defer></script>
 </head>
 <body>
 

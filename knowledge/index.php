@@ -31,7 +31,7 @@ $faq = ['@context' => 'https://schema.org', '@type' => 'FAQPage', 'mainEntity' =
 echo '<script type="application/ld+json">' . json_encode($faq, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) . '</script>';
 ?>
 <link rel="stylesheet" href="/knowledge/kc.css">
-  <script src="/nav.js" defer></script>
+  <script src="/nav.js?v=20261111" defer></script>
 </head>
 <body>
 

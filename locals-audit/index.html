@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" href="/img/logo.png">
 <link rel="stylesheet" href="/style.css">
 <link rel="stylesheet" href="/audit-book.css">
-<script src="/nav.js" defer></script>
+<script src="/nav.js?v=20261111" defer></script>
 <!--
   /locals-audit/ — the page the "Have solar and still paying SDG&E a lot?" flyer's
   QR code opens. Flyer recipients get the $219 audit fee waived.
@@ -75,10 +75,14 @@
     <div class="opts">
       <a class="opt main" href="#" id="optBook"><span class="ic">📅</span><span><b>Pick a time (20–45 min)</b><small>See David's calendar and book now</small></span></a>
       <a class="opt" href="#" id="optText"><span class="ic">💬</span><span><b>Text David</b><small>A message is written for you, just hit send</small></span></a>
-      <a class="opt" href="#" id="optCall"><span class="ic">📞</span><span><b>Call David</b><small>(303) 941-9131</small></span></a>
+      <a class="opt" href="#" id="optCall"><span class="ic">📞</span><span><b>Call David</b><small>(760) 454-7868</small></span></a>
       <a class="opt" href="#" id="optEmail"><span class="ic">✉️</span><span><b>Email David</b><small>An email is drafted for you</small></span></a>
     </div>
     <div id="calendlyBox" hidden></div>
+    <div id="prepMount" hidden style="margin-top:1.4rem;">
+      <p style="margin-bottom:.8rem;"><b>While you're here:</b> about 45 seconds to log your system, so David walks in already knowing it.</p>
+      <div class="prep-slot"></div>
+    </div>
   </section>
 
   <!-- Done -->
@@ -110,7 +114,7 @@
     <p>Ask about battery setups designed to keep your existing NEM grandfathering where permitted. Not eligible for a rebate? The free audit is still worth it.</p>
   </div>
 
-  <p class="contact">Call or text David West · <a href="tel:+13039419131">(303) 941-9131</a><br>
+  <p class="contact">Call or text David West · <a href="tel:+17604547868">(760) 454-7868</a><br>
     <a href="mailto:dwest@yourenergybest.com">dwest@yourenergybest.com</a> · Aloha Solar Power · Encinitas, CA</p>
   <p class="legal">Free, no-obligation audit. Rebate estimates and remaining funding are subject to SDCP confirmation; savings and NEM treatment depend on system design and utility approval.</p>
 </main>
@@ -120,7 +124,7 @@
       <div>
         <img src="/img/logo.png" alt="Your Energy Best" class="footer__logo" />
         <p>San Diego's trusted solar installer.</p>
-        <div class="footer__contact"><a href="tel:+13039419131">📞 (303) 941-9131</a></div>
+        <div class="footer__contact"><a href="tel:+17604547868">📞 (760) 454-7868</a></div>
       </div>
       <div class="footer__col"><h5>Quick Links</h5><a href="/">Home</a><a href="/knowledge/">Knowledge Center</a><a href="/services/audit/">All Audit Options</a><a href="/quote/">Get a Quote</a></div>
     </div>
@@ -129,6 +133,7 @@
     </div>
   </div>
 </footer>
+<script src="/prep.js"></script>
 <script src="/audit-book.js"></script>
 </body>
 </html>

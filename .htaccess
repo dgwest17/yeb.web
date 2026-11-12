@@ -87,9 +87,11 @@ Options -Indexes
     Header set Cache-Control "max-age=604800, public"
 </FilesMatch>
 
-# Cache CSS and JS for 1 day (so updates show quickly)
+# CSS and JS: browsers check for a newer copy on every visit (a quick "not modified" when
+# nothing changed). A day-long cache kept showing visitors yesterday's header — e.g. the
+# old phone number in nav.js — after a change went live.
 <FilesMatch "\.(css|js)$">
-    Header set Cache-Control "max-age=86400, public"
+    Header set Cache-Control "no-cache, public"
 </FilesMatch>
 
 # ========================================

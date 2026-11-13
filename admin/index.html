@@ -419,9 +419,11 @@ function updateBar() {
   $('#status').innerHTML = d.length ? '<span class="dot"></span><b>Unpublished changes</b> — visitors still see the old version.'
     : '<span class="dot"></span>Everything is published' + (files._savedAt ? ' · last publish ' + files._savedAt : '') + '.';
 }
-async function publish() {
-  const d = dirtyFiles(); if (!d.length) return;
-  const btn = $('#publishBtn'); btn.disabled = true; btn.textContent = 'Publishing…';
+/** Publish what changed — or only the files named (a newsletter's Save draft saves just newsletters.json). */
+async function publish(only = null) {
+  const d = dirtyFiles().filter((n) => !Array.isArray(only) || only.includes(n)); if (!d.length) return true;
+  const draft = Array.isArray(only) && only.length === 1 && only[0] === 'newsletters';
+  const btn = $('#publishBtn'); btn.disabled = true; btn.textContent = draft ? 'Saving…' : 'Publishing…';
   try {
     for (const name of d) {
       // Someone (another tab, device, or the classic editor) published since this was opened?
@@ -430,7 +432,7 @@ async function publish() {
         const what = { content: 'Homepage / Quote / Build / Blog content', options: 'Energy Options page', services: 'Services page', knowledge: 'Knowledge Center', newsletters: 'Newsletters' }[name];
         const go = await ask('This changed somewhere else', `The ${what} was published from another tab or device after you opened the editor. Publishing now replaces those changes with yours.`,
           [{ label: 'Cancel', value: false }, { label: 'Publish mine anyway', value: true, cls: 'danger' }]);
-        if (!go) { btn.textContent = 'Publish'; updateBar(); return; }
+        if (!go) { btn.textContent = 'Publish'; updateBar(); return false; }
       }
       const r = await api('/save.php', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF },
         body: JSON.stringify({ ...files[name].data, _save_target: name }) });
@@ -439,11 +441,14 @@ async function publish() {
       files[name].snap = JSON.stringify(files[name].data);
     }
     files._savedAt = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-    toast('Published — it\'s live now.');
-  } catch (e) { if (e.message !== 'signed out') toast('Not published: ' + e.message, true); }
-  btn.textContent = 'Publish'; updateBar();
+    toast(draft ? 'Draft saved. Nothing was sent.' : 'Published — it\'s live now.');
+  } catch (e) {
+    if (e.message !== 'signed out') toast((draft ? 'Not saved: ' : 'Not published: ') + e.message, true);
+    btn.textContent = 'Publish'; updateBar(); return false;
+  }
+  btn.textContent = 'Publish'; updateBar(); return true;
 }
-$('#publishBtn').addEventListener('click', publish);
+$('#publishBtn').addEventListener('click', () => publish());
 $('#discardBtn').addEventListener('click', async () => {
   if (await ask('Discard your changes?', 'Everything goes back to what\'s live now.', [{ label: 'Keep editing', value: false }, { label: 'Discard', value: true, cls: 'danger' }]) !== true) return;
   for (const n of Object.keys(FILES)) files[n].data = JSON.parse(files[n].snap);
@@ -868,8 +873,11 @@ function renderNewsletters(main) {
     const label = { draft: 'In Zoho, ready to send', tobereviewed: 'Zoho is reviewing it', review: 'Zoho is reviewing it', reviewed: 'Approved by Zoho — ready to send',
                     sending: 'Sending…', inprogress: 'Sending…', sent: 'Sent', error: 'Zoho error' }[z.status];
     if (label) return label;
-    return (JSON.parse(files.newsletters.snap).items || []).some((x) => x.id === n.id) ? 'Draft' : 'Not saved yet';
+    return savedCopy(n) ? 'Draft' : 'Not saved yet';
   };
+  // What's saved on the server for this newsletter, and whether the editor has changes since.
+  const savedCopy = (n) => (JSON.parse(files.newsletters.snap).items || []).find((x) => x.id === n.id) || null;
+  const unsaved = (n) => { const s = savedCopy(n); return !s || JSON.stringify(s) !== JSON.stringify(n); };
   const draw = () => {
     box.innerHTML = '';
     if (!d.items.length) box.append(h('div', { class: 'sec' }, h('div', { class: 'bd' }, h('p', { style: 'margin:0;color:var(--soft)' }, 'No newsletters yet — pick a template above.'))));
@@ -877,9 +885,24 @@ function renderNewsletters(main) {
       const key = 'nl:' + n.id, isOpen = open.has(key);
       const hd = h('div', { class: 'hd', style: 'cursor:pointer', onclick: (e) => { if (e.target.closest('a,button')) return; isOpen ? open.delete(key) : open.add(key); draw(); } },
         h('h3', {}, (isOpen ? '▾ ' : '▸ ') + (n.subject || n.name || '(untitled newsletter)')),
-        h('span', { class: 'where' }, NL_LABEL(n.template) + ' · ' + (n.date || '') + ' · ' + statusOf(n)));
+        h('span', { class: 'where' }, NL_LABEL(n.template) + ' · ' + (n.date || '') + ' · ' + statusOf(n) + (savedCopy(n) && unsaved(n) ? ' · unsaved changes' : '')));
       const bd = h('div', { class: 'bd' + (isOpen ? '' : ' hidden') });
-      if (isOpen) bd.append(...nlEditor(n));
+      if (isOpen) {
+        // SAVE DRAFT (David, Nov 2026): keep working on a newsletter and come back to it.
+        // Saves only the newsletters file; nothing goes to Zoho or the list until Send now.
+        const note = h('span', { class: 'msg', style: 'margin-left:8px' });
+        const refresh = () => { const u = unsaved(n); note.style.color = u ? 'var(--red)' : 'var(--green)'; note.textContent = u ? 'Unsaved changes' : 'Draft saved'; };
+        const saveBtn = h('button', { class: 'btn pri', type: 'button', onclick: async (e) => {
+          const b = e.currentTarget; b.disabled = true;
+          if (await publish(['newsletters'])) { refresh(); draw(); }
+          b.disabled = false; } }, 'Save draft');
+        bd.append(h('div', { style: 'display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:14px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg2, #f6f9fb)' },
+          saveBtn, note, h('span', { class: 'help', style: 'margin:0 0 0 auto' }, 'Drafts stay here. Nothing is sent until you press Send now.')));
+        bd.append(...nlEditor(n));
+        bd.addEventListener('input', () => setTimeout(refresh, 0));
+        bd.addEventListener('change', () => setTimeout(refresh, 0));
+        refresh();
+      }
       box.append(h('section', { class: 'sec' }, hd, bd));
     }
   };
@@ -919,7 +942,10 @@ function renderNewsletters(main) {
     const z = nlZoho[n.id] || {};
     const msg = h('span', { class: 'msg' });
     const say = (t, ok) => { msg.style.color = ok ? 'var(--green)' : 'var(--red)'; msg.textContent = t; };
-    const ensurePublished = async () => { if (isDirty()) { say('Publishing your changes first…', true); await publish(); } return !isDirty(); };
+    const ensurePublished = async () => {
+      if (dirtyFiles().includes('newsletters')) { say('Saving your draft first…', true); await publish(['newsletters']); }
+      return !dirtyFiles().includes('newsletters');
+    };
     const act = (label, cls, fn) => h('button', { class: 'btn ' + cls, type: 'button', style: 'margin:4px 6px 4px 0', onclick: async (e) => {
       const b = e.currentTarget; b.disabled = true; try { await fn(); } catch (err) { if (err.message !== 'signed out') say(err.message, false); } b.disabled = false; } }, label);
 
@@ -927,7 +953,7 @@ function renderNewsletters(main) {
       title: 'Email preview', style: 'width:100%;height:640px;border:1px solid var(--line);border-radius:10px;background:#eef2f5;margin-top:10px' }) : null;
     els.push(h('div', { class: 'f', style: 'margin-top:18px' },
       h('label', {}, 'Preview & send'),
-      h('div', { class: 'help' }, saved ? 'The preview shows the last published version.' + (z.status ? ' Zoho: ' + statusOf(n) + '.' : '') + (z.message ? ' ' + z.message : '') : 'Publish once to see the preview.'),
+      h('div', { class: 'help' }, saved ? 'The preview shows the last saved draft.' + (z.status ? ' Zoho: ' + statusOf(n) + '.' : '') + (z.message ? ' ' + z.message : '') : 'Save the draft once to see the preview.'),
       h('div', {},
         act('Email me a preview', 'sec2', async () => { if (!await ensurePublished()) return; const j = await nlCall('preview', { id: n.id }); j.ok ? say('Sent to ' + j.to, true) : say(j.error, false); }),
         act(z.campaignKey ? 'Re-create in Zoho' : 'Create in Zoho', 'sec2', async () => { if (!await ensurePublished()) return; const j = await nlCall('create', { id: n.id });
@@ -948,6 +974,11 @@ function renderNewsletters(main) {
         z.campaignKey ? act('Refresh from Zoho', 'sec2', async () => { const j = await nlCall('refresh', { id: n.id }); if (j.zoho) nlZoho[n.id] = j.zoho; j.ok ? (say('Updated: ' + statusOf(n), true)) : say(j.error, false); }) : null,
         msg),
       preview,
+      h('button', { class: 'btn sec2', type: 'button', style: 'margin:12px 8px 0 0', onclick: () => {
+        // A copy to start the next one from: new id and key, not in Zoho, not sent.
+        const id = 'nl' + Date.now().toString(36);
+        const copy = Object.assign(JSON.parse(JSON.stringify(n)), { id, key: nlKey(), subject: (n.subject || '') + (n.subject ? ' (copy)' : ''), date: new Date().toISOString().slice(0, 10) });
+        d.items.unshift(copy); open.add('nl:' + id); changed(); render(); } }, 'Duplicate'),
       h('button', { class: 'btn danger', type: 'button', style: 'margin-top:12px', onclick: async () => {
         if (await ask('Delete this newsletter from your log?', 'If it was already sent, it stays sent (and stays in Zoho).', [{ label: 'Keep it', value: false }, { label: 'Delete', value: true, cls: 'danger' }]) !== true) return;
         d.items.splice(d.items.indexOf(n), 1); changed(); render(); } }, 'Delete')));

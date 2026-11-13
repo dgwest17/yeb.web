@@ -30,8 +30,11 @@
       { id: 'stay', type: 'one', q: 'How long do you plan to live in this home?', opts: ['Under 3 years', '3–7 years', '7–15 years', '15+ years / forever', 'Not sure yet'] },
       { id: 'timeline', type: 'one', q: 'How soon would you like it installed?', opts: ['ASAP', 'In a couple of weeks', 'In a couple of months', 'Within 6 months', 'Within a year', 'In the next few years'] },
       { id: 'backup', type: 'many', q: 'In an outage, what would you want kept on?', opts: ['Fridge & freezer', 'Lights & outlets', 'Internet / Wi-Fi', 'Medical equipment', 'Well or pool pump', 'AC / heating', 'The whole home', 'Nothing — just savings'] },
-      { id: 'leaning', type: 'one', q: 'Which option are you leaning toward?', helpHtml: 'Not sure? <a class="pp-link" href="' + OPTIONS_URL + '" target="_blank" rel="noopener">See how each option works →</a>',
-        opts: [['Pay upfront', 'Own it, best long-term return'], ['$0-down financing', 'Own it with a loan'], ['$0-upfront PPA', 'Pay for the power, not the panels'], ['Not sure yet', 'We\'ll walk through it together']] },
+      { id: 'leaning', type: 'one', q: 'How were you hoping to do the project?', helpHtml: 'Not sure? <a class="pp-link" href="' + OPTIONS_URL + '" target="_blank" rel="noopener">See how each option works →</a>',
+        opts: [['Upfront', 'Fast payoff, you own it, and you have cash you want to put toward it'],
+               ['$0 down ownership', 'You own it with no cash now: savings right away, no more big utility bills, pay it off whenever you like'],
+               ['$0 down PPA', 'Full maintenance and warranties for 25 years and savings right away; owning it doesn\'t matter to you'],
+               ['Other', 'A mix of these, not sure yet, or something else']] },
       { id: 'held_back', type: 'many', q: 'What\'s held you back from solar before?', other: true,
         opts: ['Roof concerns', 'Thought we might move', 'Worried about selling the home', 'Bill used to be lower', 'Heard bad things about solar', 'Bad experience with a solar rep', 'Other home projects', 'Thought it cost too much', 'Too busy', 'Nothing — just starting'] },
       { id: 'notes', type: 'text', q: 'Anything else David should know?', help: 'Questions, quotes you\'ve gotten, who\'ll be at the meeting — anything.', optional: true }

@@ -329,8 +329,10 @@
           ? 'Luma, David\'s assistant, asks a few quick questions — your bill, your roof, what you\'d want backed up — so your options are ready when we meet.'
           : 'Luma, David\'s assistant, asks a few quick questions about your system, then sets you up in lumaria, free, with what you told her already filled in.'));
         var acts = el('div', { class: 'pp-actions' });
-        acts.appendChild(el('a', { class: 'pp-act main', href: j.url, target: '_blank', rel: 'noopener' },
-          [el('span', { class: 'ic' }, surf ? '🌊' : '⚓'), el('span', {}, [surf ? 'Answer a few quick questions' : 'Log my system with Luma', el('small', {}, 'About a minute · opens lumaria.energy')])]));
+        // The address people see says Your Energy Best; .htaccess forwards it to the form on lumaria.energy.
+        var shown = j.url.replace(/^https:\/\/www\.lumaria\.energy\/prep\/(solar|audit)\?/, 'https://yourenergybest.com/prep/$1/?');
+        acts.appendChild(el('a', { class: 'pp-act main', href: shown, target: '_blank', rel: 'noopener' },
+          [el('span', { class: 'ic' }, surf ? '🌊' : '⚓'), el('span', {}, [surf ? 'Answer a few quick questions' : 'Log my system with Luma', el('small', {}, 'About a minute · Your Energy Best')])]));
         inner.appendChild(acts);
         root.appendChild(inner);
         host.innerHTML = ''; host.appendChild(root);

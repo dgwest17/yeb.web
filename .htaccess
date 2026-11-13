@@ -15,6 +15,11 @@ RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
 # Clean URL for build page: /build works without /index.html
 RewriteRule ^build/?$ build/index.html [L]
 
+# Before-we-meet links show yourenergybest.com (customers know the name) and forward to the
+# form on lumaria.energy (Luma asks): /prep/solar/?t=… and /prep/audit/?t=… — until it's all switched over.
+RewriteCond %{QUERY_STRING} (?:^|&)t=([A-Za-z0-9_.-]+)
+RewriteRule ^prep/(solar|audit)/?$ https://www.lumaria.energy/prep/$1?t=%1 [R=302,L]
+
 # Sitemap is built live from the pages, Knowledge Center answers and blog posts
 RewriteRule ^sitemap\.xml$ sitemap.php [L]
 

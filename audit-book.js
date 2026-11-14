@@ -16,7 +16,7 @@
   // David's 45-min "Solar Consultation" on purpose: it blocks both calendars for the
   // full window; the page tells people the audit takes 20–45 min.
   var CALENDLY = 'https://calendly.com/yourenergybest/energy';
-  var CALENDLY_NOTES = 'a8';     // that event's "anything that will help prepare" question (its 8th)
+  var CALENDLY_NOTES = 'a3';     // that event's "anything that will help prepare" question (3rd, after phone and address)
   var APP_URL = 'https://www.lumaria.energy/';
   var APP_LIVE = false;          // true once the lumaria app is launched to the public
   var PLAN = 'savings-audit';    // plans.php — $219
@@ -122,7 +122,7 @@
     /**
      * WHAT THEY ALREADY TOLD US, FILLED IN (David, Nov 2026). Calendly fills an
      * invitee question from a1, a2 … by its order on the event's booking form. The
-     * "Solar Consultation" event asks: 1 phone, 2 address, … 8 "anything that will
+     * "Solar Consultation" event asks: 1 phone, 2 address, 3 "anything that will
      * help". An audit-only event with phone and address first works the same way;
      * its last question gets the notes (CALENDLY_NOTES).
      */

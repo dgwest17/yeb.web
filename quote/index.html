@@ -441,9 +441,15 @@ document.getElementById('submitBtn').addEventListener('click', async function() 
         Calendly.initInlineWidget({
           url:           'https://calendly.com/yourenergybest/energy?hide_gdpr_banner=1',
           parentElement: document.getElementById('calendlyEmbed'),
+          // Calendly's questions are 1 phone, 2 address, 3 notes: phone and ZIP filled in from the form
+          // (they confirm the full address there).
           prefill: {
             name:  document.getElementById('wName').value.trim(),
             email: document.getElementById('wEmail').value.trim(),
+            customAnswers: {
+              a1: document.getElementById('wPhone').value.replace(/[^\d+]/g, ''),
+              a2: document.getElementById('wZip').value.trim()
+            }
           }
         });
       }

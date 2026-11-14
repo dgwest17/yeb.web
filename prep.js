@@ -8,6 +8,10 @@
  *     token    a link sent from app.lumaria.energy (?t=…) — it already knows who they are,
  *              so no contact screen, it greets them by name, and answers go on that client
  *     booked   true when they've just been shown the calendar (the finish screen won't repeat it)
+ *     askAddress  the contact screen also asks home address + ZIP (the locals audit page)
+ *     source   'locals' — the Lead is marked as the flyer's free audit (prep.php)
+ *     onDone   function({ contact, answers, summary, result }) — the page takes over after sending
+ *              (the locals audit page opens the calendar) instead of the finish screen
  *
  * Used on the quote success screen, the audit booking pages and /prep/ (a link David texts).
  * Answers go to /prep.php → their Zoho Lead (note + fields + bill), David is told, and the
@@ -142,11 +146,16 @@
         var f = function (k, ph, type, ac) { var i = el('input', { class: 'pp-field', type: type || 'text', placeholder: ph, autocomplete: ac, value: c[k] || '' }); i.addEventListener('input', function () { c[k] = i.value.trim(); st.contact = c; keep(); }); return i; };
         box.appendChild(el('div', { class: 'pp-two' }, [f('first', 'First name', 'text', 'given-name'), f('last', 'Last name', 'text', 'family-name')]));
         box.appendChild(el('div', { class: 'pp-two' }, [f('phone', 'Mobile', 'tel', 'tel'), f('email', 'Email', 'email', 'email')]));
+        if (opt.askAddress) box.appendChild(el('div', { class: 'pp-two' }, [f('street', 'Home address', 'text', 'street-address'), f('zip', 'ZIP', 'text', 'postal-code')]));
         var trap = el('input', { class: 'pp-hp', name: 'website', tabindex: '-1', autocomplete: 'off', style: 'position:absolute;left:-9999px', 'aria-hidden': 'true' });
         trap.addEventListener('input', function () { st.hp = trap.value; });   // only bots fill this
         box.appendChild(trap);
         var err = el('div', { class: 'pp-err' }); box.appendChild(err);
-        return function () { if (!c.first || (!c.phone && !c.email)) { err.textContent = 'Please add your first name and a phone or email.'; return false; } st.contact = c; return true; };
+        return function () {
+          if (!c.first || (!c.phone && !c.email)) { err.textContent = 'Please add your first name and a phone or email.'; return false; }
+          if (opt.askAddress && !c.street) { err.textContent = 'Please add your home address, so David can look up your system.'; return false; }
+          st.contact = c; return true;
+        };
       }
       head();
       if (s.type === 'one') {
@@ -274,7 +283,7 @@
       var surf = st.path !== 'audit';
       inner.appendChild(el('div', { class: 'pp-kicker' }, surf ? 'Sending your answers…' : 'Logging it…'));
       var fd = new FormData();
-      fd.append('data', JSON.stringify({ path: st.path, ref: opt.ref || null, t: opt.token || null, contact: st.contact || null, answers: st.a, summary: summary() }));
+      fd.append('data', JSON.stringify({ path: st.path, ref: opt.ref || null, t: opt.token || null, source: opt.source || null, contact: st.contact || null, answers: st.a, summary: summary() }));
       if (st.bill) fd.append('bill', st.bill);
       fd.append('website', st.hp || '');
       fetch('/prep.php', { method: 'POST', body: fd }).then(function (r) { return r.json(); }).catch(function () { return { ok: false }; }).then(function (j) {
@@ -286,6 +295,8 @@
           return;
         }
         try { localStorage.removeItem(store); } catch (e) {}
+        // The page takes it from here (the locals audit page goes straight to booking).
+        if (typeof opt.onDone === 'function') { opt.onDone({ contact: st.contact || {}, answers: st.a, summary: summary(), result: j }); return; }
         if (surf) wash(); else root.classList.add('arrived');
         if (!surf) { var log = el('div', { class: 'pp-log', html: '<div class="sea"></div><div class="beam"></div><div class="light">' + LIGHT + '</div><div class="boat" style="left:88%">' + BOAT + '</div>' }); inner.appendChild(log); }
         var d = el('div', { class: 'pp-done' });

@@ -109,6 +109,8 @@ $path = $d['path'];
 $c = array_map(fn($v) => trim(substr((string)$v, 0, 120)), (array)($d['contact'] ?? []));
 $summary = array_slice(array_filter((array)($d['summary'] ?? []), 'is_array'), 0, 40);
 $answers = (array)($d['answers'] ?? []);
+// The flyer's QR page (/locals-audit/): the free audit, fee waived.
+$locals = ($d['source'] ?? '') === 'locals';
 
 try {
   // ── which record ── a link from app.lumaria.energy names the client outright (no form contact
@@ -135,9 +137,11 @@ try {
       if ($code === 200 && !empty($j['data'][0]['id'])) { $leadId = $j['data'][0]['id']; break; }
     }
     if (!$leadId) {
-      [$code, $j] = crm('POST', '/Leads', ['data' => [[
+      [$code, $j] = crm('POST', '/Leads', ['data' => [array_filter([
         'First_Name' => $c['first'], 'Last_Name' => ($c['last'] ?? '') ?: 'N/A', 'Email' => $email, 'Phone' => $c['phone'] ?? '',
-        'Lead_Source' => 'Website', 'Lead_Status' => 'New', 'Description' => 'Source: Before-we-meet form (' . $path . ')']]]);
+        'Street' => $c['street'] ?? '', 'Zip_Code' => $c['zip'] ?? '',
+        'Lead_Source' => $locals ? 'Website - Locals Audit' : 'Website', 'Lead_Status' => 'New',
+        'Description' => $locals ? 'Source: Free solar audit (flyer QR, /locals-audit/). Audit fee WAIVED.' : 'Source: Before-we-meet form (' . $path . ')'], fn($v) => $v !== '')]]);
       $leadId = $j['data'][0]['details']['id'] ?? null;
       if (!$leadId) throw new RuntimeException('Could not save to Zoho');
     }
@@ -151,6 +155,8 @@ try {
   $upd['Opportunity_Type'] = $path === 'audit'
     ? (in_array('A battery', (array)($answers['interested'] ?? []), true) ? 'Solar Owner – Add Battery' : 'Solar Owner – Audit / Review')
     : 'No Solar Yet';
+  if (!empty($c['street'])) $upd['Street'] = substr($c['street'], 0, 250);
+  if (!empty($c['zip'])) $upd['Zip_Code'] = substr($c['zip'], 0, 10);
   crm('PUT', '/Leads/' . $leadId, ['data' => [$upd]]);
   }
 
@@ -175,7 +181,7 @@ try {
 
   // ── tell David; text them once Twilio texting is on ──
   $who = trim(($c['first'] ?? '') . ' ' . ($c['last'] ?? '')) ?: 'A lead';
-  @mail(PREP_NOTIFY, "Before-we-meet form: $who (" . ($path === 'audit' ? 'existing solar' : 'new solar') . ')',
+  @mail(PREP_NOTIFY, ($locals ? "Free solar audit (flyer): $who" : "Before-we-meet form: $who (" . ($path === 'audit' ? 'existing solar' : 'new solar') . ')'),
     implode("\n", $lines) . "\n\n" . ($billSaved ? "Bill attached in Zoho.\n" : '') . "Zoho: https://crm.zoho.com/crm/tab/$mod/$leadId",
     "From: Lumaria Energy <noreply@yourenergybest.com>\r\n");
   $texted = false;

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Free Solar Savings Audit — San Diego | Your Energy Best</title>
+<title>Free Audit of Your Solar System | Your Energy Best</title>
 <meta name="description" content="Have solar and still paying SDG&E a lot? Book a free solar savings audit with David West — bills, production, rate plan and battery options reviewed.">
 <meta name="robots" content="noindex">
 <link rel="icon" type="image/png" href="/img/logo.png">
@@ -13,16 +13,17 @@
 <!--
   /locals-audit/ — the page the "Have solar and still paying SDG&E a lot?" flyer's
   QR code opens. Flyer recipients get the $219 audit fee waived.
-  Booking flow: /audit-book.js (Lead to Zoho first, then book / text / call / email).
+  Flow: the audit questions (prep.js: name, phone/email, address, then the questions; prep.php
+  makes the Lead, fee waived) → audit-book.js opens Calendly filled in, with text / call / email.
   noindex: it's for flyer recipients, not search — the public audit page is /audit/.
 -->
 <script>window.AUDIT_PAGE = { mode: 'local', source: 'LocalsAudit', leadSource: 'Website - Locals Audit' };</script>
 </head>
 <body>
 <section class="ab-hero">
-  <span class="eyebrow">Solar savings · San Diego</span>
-  <h1>Have solar and still paying SDG&amp;E a lot?</h1>
-  <p>Your panels may be producing just fine, but your system might not be saving you as much as it could.</p>
+  <span class="eyebrow">Already have solar? · San Diego</span>
+  <h1>Free Audit of Your Solar System</h1>
+  <p>Find out what your system is really producing and saving, why you may still be paying SDG&amp;E, and whether a battery would pay off.</p>
 </section>
 <main class="ab-wrap">
 
@@ -31,47 +32,19 @@
     <div><b>Got our flyer? Your audit is free.</b>The <s>$219</s> audit fee is waived. No obligation.</div>
   </div>
 
-  <!-- Step 1 -->
+  <!-- Step 1: the audit questions (prep.js, ship look) with name, phone/email and address first.
+       When they finish, audit-book.js opens the calendar, filled in with what they told us. -->
   <section class="ab-card" id="stepForm">
-    <h2>Book your free audit</h2>
-    <p>Takes a minute. David will look at your bills, solar production, rate plan and how you use power.</p>
-    <form id="auditForm" novalidate>
-      <div class="two">
-        <label class="f"><span>First name</span><input type="text" name="first" autocomplete="given-name" required></label>
-        <label class="f"><span>Last name</span><input type="text" name="last" autocomplete="family-name" required></label>
-      </div>
-      <div class="zip">
-        <label class="f"><span>Home address</span><input type="text" name="street" autocomplete="street-address" placeholder="123 Main St, Carlsbad" required></label>
-        <label class="f"><span>ZIP</span><input type="text" name="zip" inputmode="numeric" maxlength="5" autocomplete="postal-code"></label>
-      </div>
-      <div class="two">
-        <label class="f"><span>Mobile</span><input type="tel" name="phone" autocomplete="tel" placeholder="(760) 555-0123"></label>
-        <label class="f"><span>Email</span><input type="email" name="email" autocomplete="email"></label>
-      </div>
-      <p class="or">A phone number or an email is enough.</p>
-
-      <label class="f"><span>What would you like checked? <small>Tap any</small></span></label>
-      <div class="chips">
-        <label><input type="checkbox" name="reason" value="Still paying SDG&E too much"><span>Bill still too high</span></label>
-        <label><input type="checkbox" name="reason" value="Battery: worth it / rebate"><span>Is a battery worth it?</span></label>
-        <label><input type="checkbox" name="reason" value="Production seems low"><span>Production seems low</span></label>
-        <label><input type="checkbox" name="reason" value="Rate plan / true-up"><span>Rate plan or true-up</span></label>
-        <label><input type="checkbox" name="reason" value="Keep my NEM status"><span>Keeping my NEM status</span></label>
-        <label><input type="checkbox" name="reason" value="Something else"><span>Something else</span></label>
-      </div>
-      <label class="f"><span>Anything else? <small>Optional</small></span><textarea name="notes" placeholder="e.g. True-up was $900 this year"></textarea></label>
-      <div class="hp" aria-hidden="true"><input type="text" name="website" tabindex="-1" autocomplete="off"></div>
-
-      <div class="err" id="formErr" hidden></div>
-      <button class="btn btn--primary btn--lg" type="submit">Continue →</button>
-      <p class="fine">Free, no obligation. Your info goes only to David.</p>
-    </form>
+    <h2>Tell us about your system</h2>
+    <p>About a minute. Your answers go straight to David, so the audit starts where you are.</p>
+    <div id="localsPrep" style="margin-top:1rem;"></div>
+    <p class="fine">Free, no obligation. Your info goes only to David.</p>
   </section>
 
   <!-- Step 2 -->
   <section class="ab-card" id="stepChoose" hidden>
-    <h2>Thanks, <span id="chooseName">there</span>. How do you want to set it up?</h2>
-    <p>David has your details already. Pick whatever's easiest.</p>
+    <h2>Thanks, <span id="chooseName">there</span>. Now pick a time.</h2>
+    <p>David has your answers already, and the calendar is filled in for you. Or text, call or email if that's easier.</p>
     <div class="opts">
       <a class="opt main" href="#" id="optBook"><span class="ic">📅</span><span><b>Pick a time (20–45 min)</b><small>See David's calendar and book now</small></span></a>
       <a class="opt" href="#" id="optText"><span class="ic">💬</span><span><b>Text David</b><small>A message is written for you, just hit send</small></span></a>
@@ -79,10 +52,6 @@
       <a class="opt" href="#" id="optEmail"><span class="ic">✉️</span><span><b>Email David</b><small>An email is drafted for you</small></span></a>
     </div>
     <div id="calendlyBox" hidden></div>
-    <div id="prepMount" hidden style="margin-top:1.4rem;">
-      <p style="margin-bottom:.8rem;"><b>While you're here:</b> about 45 seconds to log your system, so David walks in already knowing it.</p>
-      <div class="prep-slot"></div>
-    </div>
   </section>
 
   <!-- Done -->
@@ -135,5 +104,12 @@
 </footer>
 <script src="/prep.js"></script>
 <script src="/audit-book.js"></script>
+<script>
+  // The free-audit form: the audit questions (the same as the before-we-meet form), then the calendar.
+  if (window.LumariaPrep) LumariaPrep.mount(document.getElementById('localsPrep'), {
+    path: 'audit', askAddress: true, source: 'locals', booked: true,
+    onDone: function (d) { if (window.AuditBook) AuditBook.toBooking(d.contact, d.summary); }
+  });
+</script>
 </body>
 </html>

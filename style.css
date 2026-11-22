@@ -980,6 +980,8 @@ body.nav-open { overflow: hidden; }
   letter-spacing: 0.02em;
   white-space: nowrap;
 }
+/* the longest item: let it wrap on narrow phones */
+.trust-bar__item.trust-bar__item--installers { white-space: normal; }
 
 /* ─── Microcopy (Rec #8) ─── */
 .microcopy {

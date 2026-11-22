@@ -1,5 +1,9 @@
 /* landing.css — /solar-quote/, /home-battery/, /solar-audit/, /solar-inspection/ (with style.css + audit-book.css) */
 .lp-cta { text-align: center; }
+.lp-short p, .lp-body p { color: var(--slate); line-height: 1.7; }
+.lp-body h3 { color: var(--navy); font-size: 1.05rem; margin: 1.1rem 0 .25rem; }
+.lp-sources { color: var(--slate); font-size: .88rem; margin: 1rem 0; }
+.lp-sources a { color: var(--teal-dark); display: block; }
 .lp-cta .btn { width: auto; display: inline-block; }
 .lp-alt { display: block; margin-top: .8rem; color: var(--teal-dark); font-weight: 600; text-decoration: none; }
 .lp-alt:hover { text-decoration: underline; }

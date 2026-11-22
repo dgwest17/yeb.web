@@ -1,7 +1,7 @@
 <?php
 /**
  * landing.php — the search landing pages: /solar-quote/, /home-battery/,
- * /solar-audit/, /solar-repair/, /solar-inspection/. Each folder's index.php sets $LANDING and
+ * /solar-audit/, /solar-repair/, /high-bill-with-solar/, /solar-inspection/. Each folder's index.php sets $LANDING and
  * requires this file.
  *
  * What feeds them:
@@ -92,6 +92,52 @@ $PAGES = [
     'faq' => ['what-should-i-watch-in-my-monitoring-app-and-when-should-i-worry', 'my-installer-went-out-of-business-am-i-screwed', 'i-got-a-surprise-true-up-bill-what-happened',
               'how-much-maintenance-does-solar-actually-need', 'microinverters-vs-string-inverters-which-is-right-for-my-roof', 'battery-warranties-the-fine-print-that-actually-matters', 'what-is-a-solar-health-audit-and-do-i-need-one'],
   ],
+  // The question solar owners type into Google and ChatGPT. The optional 'answer', 'sections' and
+  // 'sources' keys print as plain HTML, so crawlers that don't run JavaScript read the whole answer.
+  // SDG&E figures checked 2026-11-22: re-check when the rate tables change.
+  'high-bill-with-solar' => [
+    'title' => 'Why Is My Electric Bill High With Solar? San Diego & SDG&E',
+    'desc'  => 'Have solar and still get a high SDG&E bill or true-up? The seven usual reasons, how to check each one from your bill and monitoring app, and when a battery, repair or rate change helps.',
+    'kicker' => 'Already have solar? · San Diego & Orange County',
+    'h1'    => 'Why is my electric bill so high if I have solar?',
+    'lede'  => 'Usually it is one of seven things, and you can narrow it down with a bill and your monitoring app.',
+    'answer' => 'A high bill with solar usually means your home uses more power than it used to, your system makes less than it should, or you buy power at expensive hours (4–9 pm on SDG&E) and get little credit for what you send back. Some charges also remain however well the panels work: SDG&E\'s Base Services Charge is about $24 a month for most homes (less with income-qualified discounts), and solar homes pay it too.',
+    'points' => [
+      ['Compare production', 'In your monitoring app, compare the last 12 months with the year before. A small yearly decline is normal. A sharp drop points to equipment, shade or dirt.'],
+      ['Compare usage', 'Your usage is what you made, plus what you imported, minus what you exported. If that grew, the system may be fine and simply too small for the home now.'],
+      ['Read the bill', 'Find your rate plan, your NEM version, your true-up month and the charges that solar credits cannot cover. Those tell you which fix is worth paying for.'],
+    ],
+    'sections' => [
+      ['The seven usual reasons', [
+        ['Your usage grew', 'An EV, pool pump, hot tub, sauna, air conditioning, electric water heater or more people at home can add more than the system was designed for.'],
+        ['The system makes less', 'A failed inverter or microinverter, a tripped breaker, new shade or heavy dirt. When monitoring goes offline, this can go unnoticed for months.'],
+        ['You buy power in the evening', 'Panels make most of their power midday. On SDG&E the peak runs 4–9 pm, so evening use is bought at the highest rate unless a battery covers it.'],
+        ['Exports earn less than imports cost', 'On the Solar Billing Plan (NEM 3.0), power sent to the grid is usually credited well below what you pay to buy it back.'],
+        ['Some charges cannot be offset', 'The Base Services Charge and certain non-bypassable charges remain. On the Solar Billing Plan, export credits cannot pay the Base Services Charge.'],
+        ['A true-up added up quietly', 'Many NEM 1.0 and 2.0 homes settle energy charges once a year, so small monthly shortfalls arrive as one large bill.'],
+        ['Your plan or program changed', 'NEM 1.0 and 2.0 generally last 20 years from interconnection, and then the account moves to current rules. A rate change or a community choice provider such as SDCP or CEA can also change how the bill reads.'],
+      ]],
+      ['Which fix fits which cause', [
+        ['Production dropped', 'Check the warranty and repair it before buying panels or a battery.'],
+        ['Evening imports are the problem', 'Move flexible loads to midday first, then see whether a battery pays for itself.'],
+        ['Usage outgrew the system', 'Price added solar or a battery, and check how either affects your current NEM status before signing.'],
+        ['Only fixed charges are left', 'The system may be working well. More panels will not remove those charges.'],
+      ]],
+    ],
+    'sources' => [
+      ['SDG&E: Base Services Charge', 'https://www.sdge.com/electric-billing'],
+      ['SDG&E: Understanding your solar bill', 'https://www.sdge.com/solar/solar-billing-plan/UnderstandingYourSolarBill'],
+      ['SDG&E: Net Energy Metering', 'https://www.sdge.com/residential/savings-center/solar-power-renewable-energy/net-energy-metering'],
+    ],
+    'checked' => 'November 22, 2026',
+    'price' => 'savings-audit',
+    'cta'  => ['Have David find the reason →', '/audit/'],
+    'alt'  => ['System not producing? Start here', '/solar-repair/'],
+    'topic' => 'bill',
+    'service' => 'High electric bill review for homes with solar',
+    'faq' => ['i-got-a-surprise-true-up-bill-what-happened', 'what-are-time-of-use-rates-and-why-do-they-matter', 'whats-the-difference-between-net-metering-and-net-billing-nem-3-0',
+              'what-should-i-watch-in-my-monitoring-app-and-when-should-i-worry', 'whats-a-cca-and-what-are-sdcp-and-cea', 'do-i-actually-need-a-battery-in-california'],
+  ],
   'solar-inspection' => [
     'title' => 'Solar Inspection San Diego | Independent Solar System Inspection',
     'desc'  => 'An independent on-site solar inspection in San Diego and Orange County: roof penetrations, mounting, wiring, panels, inverters and batteries checked by someone with no workmanship to defend.',
@@ -169,12 +215,34 @@ $priceTag = function ($key, $fallback) { return '<span data-price-of="' . kc_e($
 <?php endif; ?>
   </div>
 
+<?php if (!empty($P['answer'])): ?>
+  <section class="ab-card lp-short">
+    <h2>The short answer</h2>
+    <p><?= kc_e($P['answer']) ?></p>
+  </section>
+<?php endif; ?>
   <div class="points">
 <?php foreach ($P['points'] as $i => [$h, $t]): ?>
     <div class="point"><span class="n"><?= sprintf('%02d', $i + 1) ?></span><h3><?= kc_e($h) ?></h3><p><?= kc_e($t) ?></p></div>
 <?php endforeach; ?>
   </div>
 
+<?php foreach ($P['sections'] ?? [] as [$heading, $items]): ?>
+  <section class="ab-card lp-body">
+    <h2><?= kc_e($heading) ?></h2>
+<?php foreach ($items as [$h, $t]): ?>
+    <h3><?= kc_e($h) ?></h3>
+    <p><?= kc_e($t) ?></p>
+<?php endforeach; ?>
+  </section>
+<?php endforeach; ?>
+<?php if (!empty($P['sources'])): ?>
+  <p class="lp-sources">By David West, Your Energy Best. Checked <?= kc_e($P['checked']) ?> against
+<?php foreach ($P['sources'] as [$name, $href]): ?>
+    <a href="<?= kc_e($href) ?>" target="_blank" rel="noopener"><?= kc_e($name) ?></a>
+<?php endforeach; ?>
+  </p>
+<?php endif; ?>
   <section class="ab-section">
     <h2>Where we work</h2>
     <p class="lp-sub">What's different depends on your utility. Find your city:</p>
@@ -224,7 +292,7 @@ $priceTag = function ($key, $fallback) { return '<span data-price-of="' . kc_e($
         <div class="footer__contact"><a href="tel:+18587862204">📞 (858) 786-2204</a><span style="opacity:.8;font-size:.9em;white-space:nowrap;"> · 858-SUN-2204</span></div>
       </div>
       <div class="footer__col"><h5>Get started</h5><a href="/quote/">Solar &amp; battery quote</a><a href="/audit/">Solar audit</a><a href="https://www.lumaria.energy/">lumaria app</a></div>
-      <div class="footer__col"><h5>Learn</h5><a href="/knowledge/">Knowledge Center</a><a href="/solar-quote/">Solar quotes</a><a href="/home-battery/">Home batteries</a><a href="/solar-audit/">Solar audits</a><a href="/solar-repair/">Solar not working?</a><a href="/solar-inspection/">Solar inspections</a></div>
+      <div class="footer__col"><h5>Learn</h5><a href="/knowledge/">Knowledge Center</a><a href="/solar-quote/">Solar quotes</a><a href="/home-battery/">Home batteries</a><a href="/solar-audit/">Solar audits</a><a href="/high-bill-with-solar/">High bill with solar?</a><a href="/solar-repair/">Solar not working?</a><a href="/solar-inspection/">Solar inspections</a></div>
     </div>
     <div class="footer__bottom"><span>&copy; <?= date('Y') ?> Your Energy Best. All rights reserved.</span></div>
   </div>

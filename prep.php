@@ -17,6 +17,7 @@
  */
 require_once __DIR__ . '/security-config.php';
 require_once __DIR__ . '/newsletter-lib.php';   // nl_zoho_token(): the site's Zoho connection
+require_once __DIR__ . '/lead-alerts.php';      // emails David when Zoho didn't take it
 header('Content-Type: application/json');
 
 const PREP_CALENDLY = 'https://calendly.com/yourenergybest/energy';
@@ -165,7 +166,8 @@ try {
   foreach ($summary as $row) { $q = trim((string)($row[0] ?? '')); $a = trim((string)($row[1] ?? '')); if ($q !== '' && $a !== '') $lines[] = "• $q\n  $a"; }
   $title = $path === 'audit' ? 'Before we meet — existing solar / audit' : 'Before we meet — new solar';
   $content = implode("\n", $lines) . "\n\n--- prep-data v1 ---\n" . json_encode(['path' => $path, 'answers' => $answers, 'at' => date('c')], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-  crm('POST', "/$mod/$leadId/Notes", ['data' => [['Note_Title' => $title, 'Note_Content' => mb_substr($content, 0, 30000)]]]);
+  [$noteCode] = crm('POST', "/$mod/$leadId/Notes", ['data' => [['Note_Title' => $title, 'Note_Content' => mb_substr($content, 0, 30000)]]]);
+  if ($noteCode < 200 || $noteCode >= 300) throw new RuntimeException("Zoho did not take the answers (HTTP $noteCode)");
 
   // ── the bill, if they added one ──
   $billSaved = false;
@@ -196,7 +198,6 @@ try {
   out(['ok' => true, 'calendly' => PREP_CALENDLY, 'lumaria' => $path === 'audit' ? PREP_LUMARIA : null, 'texted' => $texted, 'bill' => $billSaved]);
 } catch (Throwable $e) {
   // never lose the answers: email them even if Zoho is down
-  @mail(PREP_NOTIFY, 'Before-we-meet form (Zoho failed — saved here)', print_r(['contact' => $c, 'path' => $path, 'summary' => $summary, 'error' => $e->getMessage()], true),
-    "From: Lumaria Energy <noreply@yourenergybest.com>\r\n");
+  yeb_lead_alert('Audit / before-we-meet form NOT saved to Zoho', $e->getMessage(), $c + ['form' => $path, 'answers' => $summary]);
   out(['ok' => true, 'calendly' => PREP_CALENDLY, 'lumaria' => $path === 'audit' ? PREP_LUMARIA : null, 'texted' => false, 'note' => 'emailed']);
 }

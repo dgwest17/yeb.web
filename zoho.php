@@ -22,11 +22,13 @@ define('LEADS_BACKUP_FILE',  __DIR__ . '/leads_backup.csv');
 define('SPAM_LOG_FILE',      __DIR__ . '/spam_blocked.log');
 define('NOTIFY_EMAIL',       'info@yourenergybest.com');
 define('ZOHO_API_BASE',      'https://www.zohoapis.com/crm/v2');
+require_once __DIR__ . '/lead-alerts.php';
 
 // ═══════════════════════════════════════════════════════════
 // SPAM PROTECTION — Runs BEFORE anything else
-// Returns fake success so bots think it worked
-// Logs blocked attempts to spam_blocked.log
+// Returns success either way, so bots think it worked
+// A filled honeypot is dropped. Anything else suspicious is HELD: backed up and
+// emailed to David, never discarded (it used to lose real people silently).
 // ═══════════════════════════════════════════════════════════
 
 function isGibberish($str) {
@@ -34,14 +36,12 @@ function isGibberish($str) {
     if (strlen($str) < 2) return false;
     // Alternating caps pattern: UhRgOzhkFFEkFhac
     if (preg_match('/[A-Z][a-z][A-Z][a-z][A-Z]/', $str)) return true;
-    // 5+ consecutive consonants
-    if (preg_match('/[^aeiouAEIOU\s]{5,}/', preg_replace('/[^a-zA-Z\s]/', '', $str))) return true;
-    // Very low vowel ratio for names > 5 chars
+    // 7+ consonants in a row, or a long word with no vowel at all (y counts as a vowel).
+    // It was 5+ and "under 15% vowels", which threw away Schmidt, Schwartz, Lynch,
+    // Kirschner, Lindstrom and other real surnames.
+    if (preg_match('/[^aeiouy\s]{7,}/i', preg_replace('/[^a-zA-Z\s]/', '', $str))) return true;
     $letters = preg_replace('/[^a-zA-Z]/', '', $str);
-    if (strlen($letters) > 5) {
-        $vowels = preg_match_all('/[aeiouAEIOU]/', $letters);
-        if ($vowels / strlen($letters) < 0.15) return true;
-    }
+    if (strlen($letters) > 5 && !preg_match('/[aeiouy]/i', $letters)) return true;
     // (An all-caps rule used to sit here. Real people type "JANE DOE" on phones,
     //  and blocked leads get a fake success, so it silently lost real homeowners.)
     return false;
@@ -53,6 +53,17 @@ function blockSpam($reason, $input) {
              " Email:" . ($input['email'] ?? 'none') .
              " Name:" . ($input['name'] ?? $input['first_name'] ?? 'none') . "\n";
     @file_put_contents(SPAM_LOG_FILE, $entry, FILE_APPEND);
+    if ($reason !== 'honeypot') {
+        saveLocalBackup($input, 'HELD');
+        // At most 25 of these emails an hour, so a bot flood can't bury the inbox
+        $seenFile = __DIR__ . '/.held_alerts.json';
+        $seen = array_filter((array)json_decode(@file_get_contents($seenFile) ?: '[]', true), fn($t) => $t > time() - 3600);
+        if (count($seen) < 25) {
+            $seen[] = time();
+            @file_put_contents($seenFile, json_encode(array_values($seen)), LOCK_EX);
+            yeb_lead_alert('Website lead held as possible spam', $reason, $input);
+        }
+    }
     echo json_encode(['success' => true]);
     exit;
 }
@@ -71,8 +82,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$__isInternal) {
             blockSpam('honeypot', $spamCheck);
 
         // Layer 2: Timing — form must take > 3 seconds
-        if (!empty($spamCheck['_ts']) && (time() - intval($spamCheck['_ts'])) < 3)
-            blockSpam('too_fast:' . (time() - intval($spamCheck['_ts'])) . 's', $spamCheck);
+        // (a phone whose clock runs ahead gives a negative number: that isn't a bot)
+        $took = !empty($spamCheck['_ts']) ? time() - intval($spamCheck['_ts']) : null;
+        if ($took !== null && $took >= 0 && $took < 3)
+            blockSpam('too_fast:' . $took . 's', $spamCheck);
 
         // Layer 3: Gibberish names
         $fn = $spamCheck['name'] ?? $spamCheck['first_name'] ?? '';
@@ -164,7 +177,8 @@ function sendNotification($data, $source) {
             $body .= ucfirst(str_replace('_', ' ', $key)) . ": {$val}\n";
     }
     $body .= "\nTime: " . date('Y-m-d H:i:s');
-    @mail(NOTIFY_EMAIL, $subject, $body, "From: noreply@yourenergybest.com\r\nReply-To: " . ($data['email'] ?? NOTIFY_EMAIL));
+    $replyTo = filter_var(trim($data['email'] ?? ''), FILTER_VALIDATE_EMAIL) ?: NOTIFY_EMAIL;
+    @mail(NOTIFY_EMAIL, str_replace(["\r", "\n"], ' ', $subject), $body, "From: noreply@yourenergybest.com\r\nReply-To: " . $replyTo);
 }
 
 function zohoRequest($method, $url, $accessToken, $body = null) {
@@ -241,6 +255,7 @@ $traceId = 'WebLead:' . date('Ymd-His') . '-' . substr(md5(uniqid()), 0, 6);
 $accessToken = getAccessToken();
 if (!$accessToken) {
     logStructured($sourceForm, 'token_fail', $input);
+    yeb_lead_alert('Website lead NOT saved to Zoho', 'The site could not sign in to Zoho (reconnect it in Admin, Connections).', $input);
     echo json_encode(['success' => true, 'note' => 'Saved locally, Zoho sync pending', 'trace' => $traceId]);
     exit;
 }
@@ -315,6 +330,7 @@ if ($action === 'recruit') {
         echo json_encode(['success'=>true,'zoho_id'=>$newId,'action'=>'created','trace'=>$traceId]);
     } else {
         logStructured($sourceForm, 'fail', $input, null, $result['raw']);
+        yeb_lead_alert('Build With Us signup NOT saved to Zoho', 'Zoho answered: ' . substr((string)$result['raw'], 0, 300), $input);
         echo json_encode(['success'=>true,'note'=>'Saved locally, Zoho sync pending','trace'=>$traceId]);
     }
     exit;
@@ -363,5 +379,6 @@ if ($result['success']) {
     echo json_encode(['success'=>true,'zoho_id'=>$result['id'],'action'=>$result['action'],'trace'=>$traceId,'prep'=>$prep]);
 } else {
     logStructured($sourceForm, 'fail', $input, null, $result['error'] ?? 'Unknown');
+    yeb_lead_alert('Website lead NOT saved to Zoho', 'Zoho answered: ' . substr((string)($result['error'] ?? 'Unknown'), 0, 300), $input);
     echo json_encode(['success'=>true,'note'=>'Saved locally, Zoho sync pending','trace'=>$traceId]);
 }

@@ -1,7 +1,8 @@
 <?php
 /**
  * landing.php — the search landing pages: /solar-quote/, /home-battery/,
- * /solar-audit/, /solar-repair/, /high-bill-with-solar/, /solar-inspection/. Each folder's index.php sets $LANDING and
+ * /solar-audit/, /solar-repair/, /high-bill-with-solar/, /solar-true-up-bill/, /nem-2-expiring/,
+ * /add-battery-to-existing-solar/, /solar-installer-out-of-business/, /solar-inspection/. Each folder's index.php sets $LANDING and
  * requires this file.
  *
  * What feeds them:
@@ -138,6 +139,151 @@ $PAGES = [
     'faq' => ['i-got-a-surprise-true-up-bill-what-happened', 'what-are-time-of-use-rates-and-why-do-they-matter', 'whats-the-difference-between-net-metering-and-net-billing-nem-3-0',
               'what-should-i-watch-in-my-monitoring-app-and-when-should-i-worry', 'whats-a-cca-and-what-are-sdcp-and-cea', 'do-i-actually-need-a-battery-in-california'],
   ],
+  'solar-true-up-bill' => [
+    'title' => 'Solar True-Up Bill Explained | SDG&E San Diego',
+    'desc'  => 'Why a solar true-up bill can be so high on SDG&E, how to tell a production problem from higher usage, and how to avoid the next surprise.',
+    'kicker' => 'True-up bills · SDG&E solar',
+    'h1'    => 'Why is my solar true-up bill so high?',
+    'lede'  => 'A true-up is a year of energy charges and credits settled at once.',
+    'answer' => 'On NEM 1.0 and 2.0, SDG&E reconciles your account at the end of each 12-month period. A big true-up means that over the year the power you took from the grid cost more than the credits for what you sent back. The usual causes are higher usage, lower production, or more buying during expensive hours.',
+    'points' => [
+      ['Get all 12 months', 'Find the true-up statement and the monthly NEM summaries in My Energy Center. One month will not explain a yearly bill.'],
+      ['Compare production', 'Put the same 12 months from your monitoring app beside the year before. A sharp drop needs a system check.'],
+      ['Compare usage', 'Add what you made and what you imported, then subtract what you exported. That is what the home used.'],
+    ],
+    'sections' => [
+      ['What the result tells you', [
+        ['Production fell sharply', 'Look for a failed inverter, a tripped breaker, shade or dirt, and check warranties before paying for a repair.'],
+        ['Usage went up', 'An EV, air conditioning, a pool, a spa or more people at home can outgrow a healthy system.'],
+        ['Both look normal', 'Look at the rate plan, when you used power and any changes to rates. The same kilowatt-hours can cost more than last year.'],
+      ]],
+      ['Avoiding the next surprise', [
+        ['Check every month', 'Watch the running NEM balance. It is the early warning for the yearly bill.'],
+        ['Shift what you can', 'Car charging, laundry and pool pumps are often cheaper outside the 4–9 pm peak.'],
+        ['Read both sides of the bill', 'With SDCP or CEA, generation and SDG&E delivery are separate parts. SDCP reported that SDG&E changed how NEM charges display on October 24, 2026, so a generation amount due may now appear. SDCP says it is not a new fee.'],
+      ]],
+    ],
+    'sources' => [
+      ['SDG&E: Net Energy Metering', 'https://www.sdge.com/solar/net-energy-metering'],
+      ['San Diego Community Power: Net Energy Metering', 'https://sdcommunitypower.org/programs/net-energy-metering/'],
+    ],
+    'checked' => 'November 22, 2026',
+    'price' => 'savings-audit',
+    'cta'  => ['Have my true-up checked →', '/audit/'],
+    'alt'  => ['All the reasons a solar bill runs high', '/high-bill-with-solar/'],
+    'topic' => 'bill',
+    'service' => 'Solar true-up bill review',
+    'faq' => ['i-got-a-surprise-true-up-bill-what-happened', 'what-are-time-of-use-rates-and-why-do-they-matter', 'what-should-i-watch-in-my-monitoring-app-and-when-should-i-worry', 'whats-a-cca-and-what-are-sdcp-and-cea'],
+  ],
+  'nem-2-expiring' => [
+    'title' => 'When Does NEM 1.0 or 2.0 Expire? San Diego Solar',
+    'desc'  => 'NEM 1.0 and 2.0 generally last 20 years from Permission to Operate. How to find your date, what the Solar Billing Plan changes, and how to prepare.',
+    'kicker' => 'NEM 1.0 and 2.0 · San Diego',
+    'h1'    => 'When does my NEM 1.0 or 2.0 expire?',
+    'lede'  => 'It depends on when your system was turned on, not when you bought the house.',
+    'answer' => 'NEM 1.0 and 2.0 generally last 20 years from the date the original system received Permission to Operate. A system switched on in March 2007 reaches the end around March 2027. SDG&E then moves the account to the Solar Billing Plan and says it will notify you by email and in My Energy Center first.',
+    'points' => [
+      ['Find your PTO date', 'Look for the Permission to Operate letter or email, or ask SDG&E for the interconnection date on the account.'],
+      ['Bought a solar home?', 'The clock started when the solar was first interconnected. Moving in does not restart it.'],
+      ['Confirm the program', 'Your bill or SDG&E can confirm whether you are on NEM 1.0, NEM 2.0 or the Solar Billing Plan.'],
+    ],
+    'sections' => [
+      ['What changes afterward', [
+        ['Exports are valued differently', 'Power you send back earns time-based export credits, usually well below the retail price of buying power.'],
+        ['Billing is monthly', 'Monthly charges and export credits appear on the bill, and extra credits roll forward.'],
+        ['Timing matters more', 'Using your own solar as it is made, or storing it for the evening, is worth more.'],
+      ]],
+      ['Before your date', [
+        ['Do not end it early by accident', 'Adding more solar than the greater of 10% or 1 kW can move you to the Solar Billing Plan early. Get the effect in writing first.'],
+        ['Run both bills', 'Price your last 12 months under current rules and under the Solar Billing Plan. That shows whether doing nothing is fine.'],
+        ['Check the age of the equipment', 'At 20 years the inverter, roof and warranties may matter as much as the tariff.'],
+      ]],
+    ],
+    'sources' => [
+      ['SDG&E: Net Energy Metering', 'https://www.sdge.com/solar/net-energy-metering'],
+      ['SDG&E: Solar Billing Plan', 'https://www.sdge.com/solar/solar-billing-plan'],
+      ['San Diego Community Power: Net Energy Metering', 'https://sdcommunitypower.org/programs/net-energy-metering/'],
+    ],
+    'checked' => 'November 22, 2026',
+    'price' => 'savings-audit',
+    'cta'  => ['Check my NEM options →', '/audit/'],
+    'alt'  => ['Thinking about a battery?', '/add-battery-to-existing-solar/'],
+    'topic' => 'audit',
+    'service' => 'NEM expiration review for solar homeowners',
+    'faq' => ['whats-the-difference-between-net-metering-and-net-billing-nem-3-0', 'do-i-actually-need-a-battery-in-california', 'what-are-time-of-use-rates-and-why-do-they-matter', 'what-is-a-solar-health-audit-and-do-i-need-one'],
+  ],
+  'add-battery-to-existing-solar' => [
+    'title' => 'Add a Battery to Existing Solar Without Losing NEM | San Diego',
+    'desc'  => 'Can you add a battery to existing solar and keep NEM 1.0 or 2.0? What generally keeps your status, what can end it, and when a battery pays in San Diego.',
+    'kicker' => 'Batteries for existing solar',
+    'h1'    => 'Can I add a battery to my solar without losing NEM?',
+    'lede'  => 'Usually yes, if the project and any rebate are set up correctly.',
+    'answer' => 'Adding a battery by itself generally does not end NEM 1.0 or 2.0. Adding solar panels can: more than the greater of 10% or 1 kW moves the account to the Solar Billing Plan. Some rebate terms can also require a tariff change, so get the effect on your NEM status in writing before you sign.',
+    'points' => [
+      ['Battery only', 'Generally keeps NEM when interconnected under the paired-storage rules.'],
+      ['Battery plus panels', 'The size of the added solar is what usually decides it. Check it against the original system.'],
+      ['Battery plus rebate', 'Read the program terms. Some, including certain SGIP reservations, can affect NEM status or add participation rules.'],
+    ],
+    'sections' => [
+      ['When a battery tends to pay', [
+        ['You buy power in the evening', 'A battery can cover some of SDG&E’s 4–9 pm peak with solar made earlier.'],
+        ['You are on the Solar Billing Plan', 'Keeping your solar at home is often worth more than exporting it.'],
+        ['You want backup', 'Outage protection has value even when the bill savings alone are modest.'],
+      ]],
+      ['When to wait', [
+        ['Production has dropped', 'Fix the solar first. A battery cannot replace energy the panels are not making.'],
+        ['NEM already covers the bill', 'If only fixed charges are left, savings from storage may be small.'],
+        ['The numbers are not from your home', 'Ask for a calculation from your own 12 months of hourly Green Button data.'],
+      ]],
+    ],
+    'sources' => [
+      ['San Diego Community Power: Net Energy Metering', 'https://sdcommunitypower.org/programs/net-energy-metering/'],
+      ['SDG&E: Solar Billing Plan', 'https://www.sdge.com/solar/solar-billing-plan'],
+      ['CPUC: net metering decision', 'https://www.cpuc.ca.gov/industries-and-topics/electrical-energy/demand-side-management/customer-generation/nem-revisit'],
+    ],
+    'checked' => 'November 22, 2026',
+    'cta'  => ['Get a battery quote →', '/quote/?option=existing'],
+    'alt'  => ['Not sure it pays? Book an audit', '/audit/'],
+    'topic' => 'battery',
+    'service' => 'Battery review for existing solar',
+    'faq' => ['do-i-actually-need-a-battery-in-california', 'what-does-a-battery-cost-in-2026', 'will-one-battery-back-up-my-whole-house-the-1-battery-myth', 'sdcp-battery-rebate-3-000-to-6-000-per-battery'],
+  ],
+  'solar-installer-out-of-business' => [
+    'title' => 'Solar Installer Out of Business? What to Do in San Diego',
+    'desc'  => 'Solar company closed? What happens to your warranties, monitoring, lease or PPA, and how to find licensed help for an orphaned solar system in San Diego.',
+    'kicker' => 'Orphaned solar systems',
+    'h1'    => 'My solar installer went out of business. What do I do?',
+    'lede'  => 'Your system keeps working. The job now is to find who covers each part.',
+    'answer' => 'When an installer closes, manufacturer warranties on panels, inverters and batteries generally continue, but the installer’s workmanship warranty may have nobody behind it. A lease or PPA is owned by the financing company, so call the company on that agreement before hiring anyone. For work you pay for, use a properly licensed contractor.',
+    'points' => [
+      ['Gather the papers', 'Find the contract, Permission to Operate, equipment list, serial numbers, warranties and any financing agreement.'],
+      ['Secure monitoring', 'Ask the manufacturer to make you the owner on the account and remove the old installer’s access.'],
+      ['Find who owns it', 'With a lease or PPA, the system owner usually handles repairs. With cash or a loan, you do.'],
+    ],
+    'sections' => [
+      ['Who to call', [
+        ['Not producing', 'The inverter or battery manufacturer first, with the serial number and a screenshot of the error.'],
+        ['Lease or PPA', 'The servicer on your agreement or most recent statement, even if a different company installed it.'],
+        ['Roof leak or electrical hazard', 'Get qualified help promptly. For smoke, sparking or a burning smell, get clear and call 911.'],
+      ]],
+      ['Before paying for a repair', [
+        ['Check the license', 'Look up the contractor with CSLB and confirm the classification covers solar work.'],
+        ['Separate parts from labor', 'A warranty may replace the part while labor and the visit cost extra.'],
+        ['Keep your loan current', 'A closed installer does not normally cancel the financing. Speak with the lender before changing payments.'],
+      ]],
+    ],
+    'sources' => [
+      ['CSLB: Solar Smart', 'https://www.cslb.ca.gov/consumers/solar_smart/'],
+      ['CSLB: check a license', 'https://www.cslb.ca.gov/OnlineServices/CheckLicenseII/CheckLicense.aspx'],
+    ],
+    'checked' => 'November 22, 2026',
+    'price' => 'savings-audit',
+    'cta'  => ['Get my system checked →', '/audit/'],
+    'alt'  => ['System not producing? Start here', '/solar-repair/'],
+    'topic' => 'repair',
+    'service' => 'Help for orphaned solar systems',
+    'faq' => ['my-installer-went-out-of-business-am-i-screwed', 'what-should-i-watch-in-my-monitoring-app-and-when-should-i-worry', 'battery-warranties-the-fine-print-that-actually-matters', 'how-much-maintenance-does-solar-actually-need'],
+  ],
   'solar-inspection' => [
     'title' => 'Solar Inspection San Diego | Independent Solar System Inspection',
     'desc'  => 'An independent on-site solar inspection in San Diego and Orange County: roof penetrations, mounting, wiring, panels, inverters and batteries checked by someone with no workmanship to defend.',
@@ -237,7 +383,7 @@ $priceTag = function ($key, $fallback) { return '<span data-price-of="' . kc_e($
   </section>
 <?php endforeach; ?>
 <?php if (!empty($P['sources'])): ?>
-  <p class="lp-sources">By David West, Your Energy Best. Checked <?= kc_e($P['checked']) ?> against
+  <p class="lp-sources">General information from Your Energy Best; your account and agreement control. Last reviewed <?= kc_e($P['checked']) ?>. Sources:
 <?php foreach ($P['sources'] as [$name, $href]): ?>
     <a href="<?= kc_e($href) ?>" target="_blank" rel="noopener"><?= kc_e($name) ?></a>
 <?php endforeach; ?>
@@ -292,9 +438,9 @@ $priceTag = function ($key, $fallback) { return '<span data-price-of="' . kc_e($
         <div class="footer__contact"><a href="tel:+18587862204">📞 (858) 786-2204</a><span style="opacity:.8;font-size:.9em;white-space:nowrap;"> · 858-SUN-2204</span></div>
       </div>
       <div class="footer__col"><h5>Get started</h5><a href="/quote/">Solar &amp; battery quote</a><a href="/audit/">Solar audit</a><a href="https://www.lumaria.energy/">lumaria app</a></div>
-      <div class="footer__col"><h5>Learn</h5><a href="/knowledge/">Knowledge Center</a><a href="/solar-quote/">Solar quotes</a><a href="/home-battery/">Home batteries</a><a href="/solar-audit/">Solar audits</a><a href="/high-bill-with-solar/">High bill with solar?</a><a href="/solar-repair/">Solar not working?</a><a href="/solar-inspection/">Solar inspections</a></div>
+      <div class="footer__col"><h5>Learn</h5><a href="/knowledge/">Knowledge Center</a><a href="/solar-quote/">Solar quotes</a><a href="/home-battery/">Home batteries</a><a href="/solar-audit/">Solar audits</a><a href="/high-bill-with-solar/">High bill with solar?</a><a href="/solar-true-up-bill/">Big true-up bill?</a><a href="/nem-2-expiring/">NEM expiring?</a><a href="/add-battery-to-existing-solar/">Add a battery to solar</a><a href="/solar-installer-out-of-business/">Installer out of business?</a><a href="/solar-repair/">Solar not working?</a><a href="/solar-inspection/">Solar inspections</a></div>
     </div>
-    <div class="footer__bottom"><span>&copy; <?= date('Y') ?> Your Energy Best. All rights reserved.</span></div>
+    <div class="footer__bottom"><span>&copy; <?= date('Y') ?> Your Energy Best. All rights reserved.</span><span><a href="/privacy/">Privacy Policy</a> &nbsp;·&nbsp; <a href="/terms/">Terms of Service</a></span></div>
   </div>
 </footer>
 <script src="/prices.js" defer></script>

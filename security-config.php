@@ -61,7 +61,7 @@ $GLOBALS['ADMIN_ALLOWED_EMAILS'] = array_values(array_unique(array_map('strtolow
 /**
  * Verify admin login credentials
  */
-function admin_login($email, $password) {
+function admin_login($email, $password, $captcha = '') {
     // Rate limit check first (unchanged)
     if (is_rate_limited('admin_login_' . get_client_ip(), 5, 900)) {
         return ['success' => false, 'error' => 'Too many login attempts. Try again in 15 minutes.'];
@@ -84,7 +84,9 @@ function admin_login($email, $password) {
     $ch = curl_init(SUPABASE_URL . '/auth/v1/token?grant_type=password');
     curl_setopt_array($ch, [
         CURLOPT_POST           => true,
-        CURLOPT_POSTFIELDS     => json_encode(['email' => $email, 'password' => $password]),
+        // Supabase checks this Turnstile token (CAPTCHA protection is on for the whole project)
+        CURLOPT_POSTFIELDS     => json_encode(['email' => $email, 'password' => $password]
+            + ($captcha !== '' ? ['gotrue_meta_security' => ['captcha_token' => $captcha]] : [])),
         CURLOPT_HTTPHEADER     => ['Content-Type: application/json', 'apikey: ' . SUPABASE_ANON_KEY],
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_SSL_VERIFYPEER => true,

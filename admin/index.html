@@ -167,6 +167,7 @@
     <p>Sign in with your lumaria account.</p>
     <input type="email" id="loginEmail" placeholder="Email" autocomplete="username" required>
     <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password" required>
+    <div id="loginCaptcha" style="margin:0 0 10px"></div>
     <div class="err" id="loginErr"></div>
     <button type="submit" id="loginBtn">Sign in</button>
   </form>
@@ -381,19 +382,46 @@ async function api(url, opts = {}) {
   if (r.status === 403) { showLogin('Your session ended — sign in again. Your unpublished edits are kept.'); throw new Error('signed out'); }
   return r;
 }
-function showLogin(msg) { $('#login').classList.remove('hidden'); $('#loginErr').textContent = msg || ''; setTimeout(() => $('#loginEmail').focus(), 50); }
+// CLOUDFLARE TURNSTILE — the same widget as the lumaria apps. Supabase refuses a sign-in without its
+// token. Cloudflare only issues one on hostnames listed on the widget, so yourenergybest.com must be listed.
+const CAPTCHA_KEY = '0x4AAAAAAGJ0iCXjMOv6QHsv';   // public by design
+const captcha = { id: null, token: '', error: '', started: false };
+function loadCaptcha() {
+  if (captcha.started) return;
+  captcha.started = true;
+  const s = document.createElement('script');
+  s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+  s.onerror = () => { captcha.error = 'The security check could not load. Turn off ad blockers for this page and reload.'; $('#loginErr').textContent = captcha.error; };
+  s.onload = () => {
+    captcha.id = window.turnstile.render('#loginCaptcha', { sitekey: CAPTCHA_KEY, size: 'flexible',
+      callback: (t) => { captcha.token = t; captcha.error = ''; $('#loginErr').textContent = ''; },
+      'expired-callback': () => { captcha.token = ''; },
+      'error-callback': (code) => {
+        captcha.token = '';
+        captcha.error = String(code) === '110200'
+          ? 'Cloudflare does not allow this site yet. In Cloudflare: Turnstile → your widget → Hostname Management → add yourenergybest.com, then reload.'
+          : 'The security check failed (code ' + code + '). Reload and try again.';
+        $('#loginErr').textContent = captcha.error;
+        return true;
+      } });
+  };
+  document.head.appendChild(s);
+}
+function showLogin(msg) { loadCaptcha(); $('#login').classList.remove('hidden'); $('#loginErr').textContent = msg || ''; setTimeout(() => $('#loginEmail').focus(), 50); }
 $('#loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
+  if (!captcha.token) { $('#loginErr').textContent = captcha.error || 'Wait for the security check to finish, then press Sign in.'; return; }
   const btn = $('#loginBtn'); btn.disabled = true; btn.textContent = 'Signing in…'; $('#loginErr').textContent = '';
   try {
     const r = await fetch('/admin-auth.php?action=login', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: $('#loginEmail').value.trim(), password: $('#loginPass').value }) });
+      body: JSON.stringify({ username: $('#loginEmail').value.trim(), password: $('#loginPass').value, captcha: captcha.token }) });
     const j = await r.json();
     if (!j.success) { $('#loginErr').textContent = j.error || 'Sign-in failed.'; return; }
     CSRF = j.csrf_token; $('#loginPass').value = ''; $('#login').classList.add('hidden');
     if (!files.content) await loadAll();
   } catch (err) { $('#loginErr').textContent = 'Could not reach the server.'; }
-  finally { btn.disabled = false; btn.textContent = 'Sign in'; }
+  finally { btn.disabled = false; btn.textContent = 'Sign in';
+    captcha.token = ''; if (captcha.id !== null) window.turnstile.reset(captcha.id); }   // a token works once
 });
 $('#logoutBtn').addEventListener('click', async () => {
   if (isDirty() && await ask('Sign out with unpublished changes?', 'They will be lost.', [{ label: 'Stay', value: false }, { label: 'Sign out', value: true, cls: 'danger' }]) !== true) return;

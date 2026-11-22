@@ -39,7 +39,8 @@ switch ($action) {
             exit;
         }
 
-        $result = admin_login($username, $password);
+        $captcha = is_string($input['captcha'] ?? null) ? substr($input['captcha'], 0, 2048) : '';
+        $result = admin_login($username, $password, $captcha);
 
         if ($result['success']) {
             security_log('admin_login_success', ['username' => $username]);

@@ -83,6 +83,7 @@ $schema = [
     <p>© <?= date('Y') ?> Your Energy Best · San Diego, CA · <a href="/">yourenergybest.com</a> · <a href="tel:8587862204">(858) 786-2204</a><span style="opacity:.8;font-size:.9em;white-space:nowrap;"> · 858-SUN-2204</span></p>
     <p class="disclaimer">This knowledge center is educational. Program terms, rebate availability, rates, and regulations change — sometimes quickly. Nothing here is tax, legal, or financial advice; confirm specifics for your home before you decide.</p>
   </div>
+<p class="legal-links"><a href="/privacy/" style="color:inherit">Privacy Policy</a> · <a href="/terms/" style="color:inherit">Terms of Service</a></p>
 </footer>
 </body>
 </html>

@@ -107,6 +107,7 @@ echo '<script type="application/ld+json">' . json_encode($faq, JSON_UNESCAPED_SL
         <p>© 2026 Your Energy Best · San Diego, CA · <a href="/">yourenergybest.com</a> · <a href="tel:8587862204">(858) 786-2204</a><span style="opacity:.8;font-size:.9em;white-space:nowrap;"> · 858-SUN-2204</span></p>
         <p class="disclaimer">This knowledge center is educational. Program terms, rebate availability, rates, and regulations change — sometimes quickly. Nothing here is tax, legal, or financial advice; confirm current terms in writing with any provider and consult the relevant professionals about your specific situation. Content current as of mid-2026.</p>
     </div>
+<p class="legal-links"><a href="/privacy/" style="color:inherit">Privacy Policy</a> · <a href="/terms/" style="color:inherit">Terms of Service</a></p>
 </footer>
 
 <script>

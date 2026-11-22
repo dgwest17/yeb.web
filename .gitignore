@@ -60,5 +60,9 @@ knowledge.json
 newsletters.json
 newsletters-zoho.json
 
+# Written on the server by zoho-health.php and zoho.php
+.zoho_health.json
+.held_alerts.json
+
 # local preview server cache
 .vite/

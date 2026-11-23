@@ -66,3 +66,8 @@ newsletters-zoho.json
 
 # local preview server cache
 .vite/
+
+# QR codes and scan counts (Admin → QR Codes)
+.qr_codes.json
+.qr_codes.json.tmp
+.qr_scans.json

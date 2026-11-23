@@ -153,6 +153,7 @@
   .steps { margin: 0 0 12px 1.2rem; padding: 0; font-size: .9rem; color: #33424d; line-height: 1.7; }
   details.how > summary { cursor: pointer; font-weight: 600; font-size: .9rem; margin-bottom: 8px; }
   .msg { margin-left: 10px; font-size: .9rem; }
+  .help { font-size: .82rem; color: var(--soft); }
   table.hist { width: 100%; border-collapse: collapse; font-size: .92rem; }
   table.hist td { padding: 8px 6px; border-top: 1px solid var(--line); }
   table.hist td:last-child { text-align: right; white-space: nowrap; }
@@ -434,7 +435,7 @@ async function fetchFile(name) { const r = await api('/load-content.php?target='
 async function loadAll() {
   for (const name of Object.keys(FILES)) { const data = await fetchFile(name); files[name] = { data, snap: JSON.stringify(data) }; }
   const fromHash = location.hash.slice(1);
-  if (PAGES.some((p) => p.id === fromHash) || ['connections', 'history'].includes(fromHash)) current = fromHash;
+  if (PAGES.some((p) => p.id === fromHash) || ['qr', 'connections', 'history'].includes(fromHash)) current = fromHash;
   renderNav(); render(); updateBar();
 }
 const dirtyFiles = () => Object.keys(files).filter((n) => JSON.stringify(files[n].data) !== files[n].snap);
@@ -490,7 +491,7 @@ const changed = () => updateBar();
 function renderNav() {
   const nav = $('#nav'); nav.innerHTML = '';
   let grp = null;
-  const items = [...PAGES, { id: 'connections', group: 'Settings', label: 'Connections' }, { id: 'history', group: 'Settings', label: 'History' }];
+  const items = [...PAGES, { id: 'qr', group: 'Settings', label: 'QR Codes' }, { id: 'connections', group: 'Settings', label: 'Connections' }, { id: 'history', group: 'Settings', label: 'History' }];
   for (const p of items) {
     if (p.group !== grp) { grp = p.group; nav.append(h('div', { class: 'grp' }, grp)); }
     nav.append(h('button', { type: 'button', class: p.id === current ? 'on' : '', onclick: () => { current = p.id; history.replaceState(null, '', '#' + p.id); renderNav(); render(); window.scrollTo(0, 0); } }, p.label));
@@ -498,6 +499,7 @@ function renderNav() {
 }
 function render() {
   const main = $('#main'); main.innerHTML = '';
+  if (current === 'qr') return renderQr(main);
   if (current === 'connections') return renderConnections(main);
   if (current === 'history') return renderHistory(main);
   const page = PAGES.find((p) => p.id === current);
@@ -1046,6 +1048,123 @@ async function restore(b, when) {
   if (!j.ok) return toast(j.error || 'Restore failed', true);
   const data = await fetchFile(j.restored); files[j.restored] = { data, snap: JSON.stringify(data) };
   toast('Restored — live now.'); render(); updateBar();
+}
+
+/* ─── QR Codes (qr.php; printed as https://yourenergybest.com/go/<code>, served by go.php) ─── */
+const QR_LIB = { src: 'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js', sri: 'sha384-mZT2gIty7ZDdOGkxfP6joZcYdMW1Jvj9dRlfpTmaJAKKXTqzygtB22k7FLe+KZC1' };
+let qrLibP = null, qrLogoP = null;
+function loadQrLib() {
+  return qrLibP || (qrLibP = new Promise((ok, bad) => {
+    const s = document.createElement('script'); s.src = QR_LIB.src; s.integrity = QR_LIB.sri; s.crossOrigin = 'anonymous';
+    s.onload = () => ok(window.qrcode); s.onerror = () => { qrLibP = null; bad(new Error('The QR drawing library did not load. Reload the page.')); };
+    document.head.appendChild(s);
+  }));
+}
+function qrLogo() {   // the site logo as a data URL, so it survives in downloaded SVG and PNG files
+  return qrLogoP || (qrLogoP = fetch('/img/logo.png').then((r) => r.blob()).then((b) => new Promise((ok) => { const f = new FileReader(); f.onload = () => ok(f.result); f.readAsDataURL(b); })));
+}
+/** The code as SVG. With the logo, error correction goes to H (30% can be covered) and the logo covers about 5%. */
+function qrSvg(text, color, logo) {
+  const q = window.qrcode(0, logo ? 'H' : 'M'); q.addData(text); q.make();
+  const n = q.getModuleCount(), m = 4, size = n + m * 2; let d = '';
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) d += `M${c + m} ${r + m}h1v1h-1z`;
+  let mark = '';
+  if (logo) { const b = Math.round(n * 0.22), x = (size - b) / 2;
+    mark = `<rect x="${x - 0.8}" y="${x - 0.8}" width="${b + 1.6}" height="${b + 1.6}" rx="1.4" fill="#fff"/><image href="${logo}" x="${x}" y="${x}" width="${b}" height="${b}" preserveAspectRatio="xMidYMid meet"/>`; }
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path fill="${color}" d="${d}"/>${mark}</svg>`;
+}
+const qrTooLight = (hex) => { const v = parseInt(hex.slice(1), 16), ch = [v >> 16, (v >> 8) & 255, v & 255].map((c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; });
+  return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2] > 0.35; };
+function qrSave(blob, name) { const a = h('a', { href: URL.createObjectURL(blob), download: name }); document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); }
+function qrPng(svg, name) {
+  const img = new Image(), px = 2048;
+  img.onload = () => { const c = document.createElement('canvas'); c.width = c.height = px; const g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.drawImage(img, 0, 0, px, px); c.toBlob((b) => qrSave(b, name), 'image/png'); };
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+}
+const QR_DESTS = ['/quote/', '/audit/', '/locals-audit/', '/services/audit/', '/high-bill-with-solar/', '/closed-solar-installers/', '/solar-error-codes/', '/knowledge/', 'https://www.lumaria.energy/'];
+const qrSlugify = (s) => s.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40).replace(/-+$/, '');
+
+async function renderQr(main) {
+  main.append(h('div', { class: 'page-head' }, h('h2', {}, 'QR Codes'), h('button', { class: 'btn sec2', type: 'button', onclick: () => render() }, '↻ Refresh')));
+  main.append(h('p', { class: 'intro' }, 'Your own QR codes, no subscription. Each one prints a short link (yourenergybest.com/go/…) that you can point anywhere, any time, without reprinting. Scans are counted here, and visits to our pages arrive tagged with the code\'s name so leads show where they came from.'));
+  main.append(h('div', { class: 'note' }, 'Already printed through Flowcode: the "locals audit" flyer and the business card / door hanger code still work on Flowcode\'s free plan. Leave those there; use this page for everything new.'));
+  const post = async (body) => { const r = await api('/qr.php', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF }, body: JSON.stringify(body) }); return r.json(); };
+  const input = (attrs) => h('input', { style: 'width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px', ...attrs });
+  const list = h('datalist', { id: 'qrDests' }, ...QR_DESTS.map((d) => h('option', { value: d })));
+  main.append(list);
+
+  // New code
+  const nName = input({ placeholder: 'Name, e.g. Yard sign' }), nSlug = input({ placeholder: 'yard-sign' }), nDest = input({ list: 'qrDests', value: '/quote/' });
+  let slugTouched = false;
+  nName.addEventListener('input', () => { if (!slugTouched) nSlug.value = qrSlugify(nName.value); });
+  nSlug.addEventListener('input', () => { slugTouched = true; nSlug.value = qrSlugify(nSlug.value); });
+  const nMsg = h('span', { class: 'msg' });
+  main.append(h('section', { class: 'sec' }, h('div', { class: 'hd' }, h('h3', {}, '＋ New QR code')),
+    h('div', { class: 'bd' },
+      h('div', { class: 'f' }, h('label', {}, 'Name (just for you)'), nName),
+      h('div', { class: 'f' }, h('label', {}, 'Printed link: yourenergybest.com/go/…'), nSlug, h('p', { class: 'help' }, 'Short and lowercase. This can\'t change after it\'s printed.')),
+      h('div', { class: 'f' }, h('label', {}, 'Where it goes'), nDest, h('p', { class: 'help' }, 'A page on this site (like /quote/) or a full https:// link. You can change this later.')),
+      h('div', {}, h('button', { class: 'btn pri', type: 'button', onclick: async () => {
+        nMsg.style.color = 'var(--soft)'; nMsg.textContent = 'Saving…';
+        try { const j = await post({ action: 'save', create_only: true, name: nName.value, slug: nSlug.value, dest: nDest.value.trim() });
+          if (!j.ok) { nMsg.style.color = 'var(--red)'; nMsg.textContent = j.error || 'Failed'; return; }
+          toast('Created /go/' + nSlug.value); render(); } catch (e) {}
+      } }, 'Create code'), nMsg))));
+
+  const holder = h('div', {}, h('p', { class: 'intro' }, 'Loading…')); main.append(holder);
+  let data, lib, logo;
+  try { [data, lib] = await Promise.all([api('/qr.php').then((r) => r.json()), loadQrLib()]); logo = await qrLogo().catch(() => null); }
+  catch (e) { holder.innerHTML = ''; holder.append(h('div', { class: 'note warn' }, e.message === 'signed out' ? 'Sign in again to see your codes.' : e.message)); return; }
+  holder.innerHTML = '';
+  if (!data.codes.length) holder.append(h('p', { class: 'intro' }, 'No codes yet. Create your first one above.'));
+
+  for (const c of data.codes) {
+    const link = data.base + c.slug;
+    const opts = { color: '#023047', logo: true };
+    const preview = h('div', { style: 'width:168px;height:168px;flex:none;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff' });
+    const warn = h('p', { class: 'help', style: 'color:var(--red)' });
+    const svg = () => qrSvg(link, opts.color, opts.logo && logo ? logo : null);
+    const draw = () => { preview.innerHTML = svg(); warn.textContent = qrTooLight(opts.color) ? 'That color is too light to scan reliably. Use a dark color on the white background.' : ''; };
+    const dest = input({ list: 'qrDests', value: c.dest });
+    const name = input({ value: c.name });
+    const msg = h('span', { class: 'msg' });
+    const max = Math.max(1, ...c.daily);
+    const bars = h('div', { title: 'Scans per day, last 30 days', style: 'display:flex;align-items:flex-end;gap:2px;height:36px;margin:6px 0 2px' },
+      ...c.daily.map((v) => h('span', { style: `flex:1;min-width:3px;background:${v ? 'var(--teal)' : 'var(--line)'};height:${v ? Math.max(8, Math.round(v / max * 100)) : 6}%;border-radius:2px` })));
+    const stat = (n, label) => h('div', { style: 'min-width:70px' }, h('b', { style: 'font-size:1.25rem;display:block' }, String(n)), h('span', { class: 'help', style: 'margin:0' }, label));
+    const color = h('input', { type: 'color', value: opts.color, oninput: (e) => { opts.color = e.target.value; draw(); } });
+    const useLogo = h('input', { type: 'checkbox', checked: true, onchange: (e) => { opts.logo = e.target.checked; draw(); } });
+    const file = 'qr-' + c.slug;
+    holder.append(h('section', { class: 'sec', style: c.archived ? 'opacity:.6' : '' },
+      h('div', { class: 'hd' }, h('h3', {}, c.name), h('span', { class: 'pill ' + (c.archived ? 'bad' : c.total ? 'ok' : '') }, c.archived ? 'Archived: scans go to the homepage' : `${c.total} scan${c.total === 1 ? '' : 's'}`),
+        h('a', { class: 'view', href: link, target: '_blank', rel: 'noopener' }, 'Test it ↗')),
+      h('div', { class: 'bd', style: 'display:flex;gap:18px;flex-wrap:wrap' },
+        h('div', {}, preview, h('div', { style: 'display:flex;gap:10px;align-items:center;margin-top:8px;font-size:.85rem' },
+          h('label', { style: 'display:flex;gap:4px;align-items:center' }, color, 'Color'), h('label', { style: 'display:flex;gap:4px;align-items:center' }, useLogo, 'Logo')), warn),
+        h('div', { style: 'flex:1;min-width:240px' },
+          h('p', { style: 'margin:0 0 10px' }, h('code', {}, link.replace('https://', '')), ' ',
+            h('button', { class: 'ibtn', type: 'button', onclick: () => navigator.clipboard.writeText(link).then(() => toast('Link copied')) }, 'Copy')),
+          h('div', { style: 'display:flex;gap:16px;flex-wrap:wrap' }, stat(c.last7, 'last 7 days'), stat(c.last30, 'last 30 days'), stat(c.total, 'all time'),
+            stat(c.last_scan ? new Date(c.last_scan + 'T12:00').toLocaleDateString([], { month: 'short', day: 'numeric' }) : '—', 'last scan')),
+          bars,
+          h('div', { class: 'f' }, h('label', {}, 'Name'), name),
+          h('div', { class: 'f' }, h('label', {}, 'Where it goes'), dest),
+          h('div', { style: 'display:flex;gap:8px;flex-wrap:wrap;align-items:center' },
+            h('button', { class: 'btn pri', type: 'button', onclick: async () => {
+              msg.style.color = 'var(--soft)'; msg.textContent = 'Saving…';
+              try { const j = await post({ action: 'save', slug: c.slug, name: name.value, dest: dest.value.trim() });
+                msg.style.color = j.ok ? 'var(--green)' : 'var(--red)'; msg.textContent = j.ok ? '✓ Saved. Scans go there now.' : (j.error || 'Failed'); } catch (e) {}
+            } }, 'Save'),
+            h('button', { class: 'btn sec2', type: 'button', onclick: () => qrPng(svg(), file + '.png') }, 'Download PNG'),
+            h('button', { class: 'btn sec2', type: 'button', onclick: () => qrSave(new Blob([svg()], { type: 'image/svg+xml' }), file + '.svg') }, 'Download SVG (print)'),
+            h('button', { class: 'btn ' + (c.archived ? 'sec2' : 'danger'), type: 'button', onclick: async () => {
+              if (!c.archived && await ask('Archive this code?', `Anyone scanning /go/${c.slug} will land on the homepage instead of ${c.dest}. You can restore it later.`,
+                [{ label: 'Keep it', value: false }, { label: 'Archive', value: true, cls: 'danger' }]) !== true) return;
+              try { const j = await post({ action: c.archived ? 'restore' : 'archive', slug: c.slug }); toast(j.ok ? (c.archived ? 'Restored' : 'Archived') : (j.error || 'Failed'), !j.ok); render(); } catch (e) {}
+            } }, c.archived ? 'Restore' : 'Archive'),
+            msg)))));
+    draw();
+  }
 }
 
 /* ─── Connections (connections.php) ─── */

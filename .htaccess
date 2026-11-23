@@ -24,6 +24,9 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^knowledge/([a-z0-9-]+)/?$ knowledge/entry.php?slug=$1 [L,QSA]
 
+# QR codes: /go/<code> is go.php (Admin → QR Codes); counts the scan and redirects
+RewriteRule ^go/([a-z0-9-]+)/?$ go.php?c=$1 [L]
+
 # Prevent directory browsing
 Options -Indexes
 

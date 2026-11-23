@@ -60,6 +60,7 @@ function sub_plan(array $o) {
 switch ($type) {
   case 'checkout.session.completed':
   case 'checkout.session.async_payment_succeeded':
+    if (!stripe_site_plan($obj)) done(200, 'not a website plan'); // lumaria shares the Stripe account
     if (!record_paid_checkout($obj)) done(500, 'Zoho unreachable — retry');
     done(200, 'checkout recorded');
 

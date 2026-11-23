@@ -63,11 +63,24 @@ function stripe_release($key) {
 }
 
 /**
+ * Is this checkout one of the website's own plans? The Stripe account is shared
+ * with lumaria (Shacked House report orders, 2026-11-23), and its payments carry
+ * no website plan. Those are not website leads and never unlock an audit.
+ */
+function stripe_site_plan(array $s) {
+  static $plans = null;
+  if ($plans === null) $plans = require __DIR__ . '/plans.php';
+  $plan = $s['metadata']['plan'] ?? '';
+  return is_string($plan) && $plan !== '' && isset($plans[$plan]);
+}
+
+/**
  * Push a paid Checkout Session to Zoho, once. $s is the Stripe session object.
  * Returns false only when zoho.php could not be reached (the claim is released).
  */
 function record_paid_checkout(array $s) {
   if (empty($s['id']) || ($s['payment_status'] ?? '') !== 'paid') return true;
+  if (!stripe_site_plan($s)) return true; // another app's payment on the shared account
   if (!stripe_claim_once($s['id'])) return true;
 
   $m = $s['metadata'] ?? [];

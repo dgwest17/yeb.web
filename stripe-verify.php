@@ -17,7 +17,7 @@ if (!$sessionId) { http_response_code(400); echo json_encode(['error' => 'Missin
 
 $s = stripe_get('checkout/sessions/' . $sessionId);
 
-if (empty($s['id']) || ($s['payment_status'] ?? '') !== 'paid') {
+if (empty($s['id']) || ($s['payment_status'] ?? '') !== 'paid' || !stripe_site_plan($s)) {
   echo json_encode(['paid' => false]);
   exit;
 }

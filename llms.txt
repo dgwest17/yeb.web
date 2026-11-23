@@ -30,6 +30,7 @@ Serves San Diego County and Orange County, California. Phone (858) 786-2204 (858
 - [Enphase errors: DC Resistance Low, GFI, not reporting](https://yourenergybest.com/enphase-microinverter-errors/)
 - [SMA Sunny Boy red LED and events](https://yourenergybest.com/sma-inverter-errors/)
 - [Tesla Powerwall alerts explained](https://yourenergybest.com/tesla-powerwall-alerts/)
+- [SolarCity / Tesla solar inverter errors](https://yourenergybest.com/solarcity-error-codes/)
 - [Solar not working / troubleshooting](https://yourenergybest.com/solar-repair/): not producing, monitoring offline, inverter errors, bill went up, installer out of business; what's under warranty and how to get it fixed.
 - [Solar savings audit](https://yourenergybest.com/audit/): production versus what was promised, bills and true-up, rate plan and agreement, from someone who didn't sell the system. See current price on the page.
 - [Independent solar inspection](https://yourenergybest.com/solar-inspection/): on-site roof, mounting, wiring, panel, inverter and battery check with a written report.

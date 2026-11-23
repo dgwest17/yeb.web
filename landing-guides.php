@@ -30,6 +30,7 @@ $ERRORS = [
   ['Enphase microinverter errors', '/enphase-microinverter-errors/', 'DC Resistance Low, GFI and microinverters not reporting.'],
   ['SMA Sunny Boy events', '/sma-inverter-errors/', 'Red LED, insulation events 3501–3701 and grid events.'],
   ['Tesla Powerwall alerts', '/tesla-powerwall-alerts/', 'Gateway offline, Breaker Open, Solar Production Limited.'],
+  ['SolarCity / Tesla solar errors', '/solarcity-error-codes/', 'Older SolarCity systems: which inverter you have and what its lights and alerts mean.'],
 ];
 $ORPHAN_BASE = [
   'price' => 'savings-audit',
@@ -371,6 +372,39 @@ $GUIDES = [
     'sources' => [
       ['Tesla: Powerwall system alerts', 'https://www.tesla.com/support/energy/powerwall/own/system-alerts-notifications'],
       ['Tesla: troubleshooting your Powerwall', 'https://www.tesla.com/support/energy/powerwall/own/troubleshooting'],
+    ],
+  ],
+  'solarcity-error-codes' => ['_base' => 'error',
+    'title' => 'SolarCity Inverter Errors and Alerts: What They Mean (Tesla Solar)',
+    'desc'  => 'SolarCity systems are now supported by Tesla. Find which inverter your SolarCity system has (SolarEdge, Delta, ABB/Power-One or Tesla) and what its errors and Tesla app alerts mean.',
+    'kicker' => 'SolarCity and Tesla solar owners',
+    'h1'    => 'My SolarCity system shows an error. What now?',
+    'lede'  => 'SolarCity became part of Tesla in 2016, but the inverter on your wall may be one of several brands. The brand decides what the error means.',
+    'answer' => 'SolarCity systems are now supported by Tesla, and monitoring moved to the Tesla app. SolarCity installed several inverter brands over the years, commonly SolarEdge and Delta, plus ABB/Power-One on some systems; newer Tesla installs use the Tesla Solar Inverter. Read the brand on the inverter’s label first. Ground or isolation faults and arc faults need a qualified technician. If you lease or pay a PPA, Tesla owns the equipment and handles the repair.',
+    'points' => [
+      ['Lease or PPA', 'Tesla owns the system and handles repairs. Start with Tesla support in the Tesla app.'],
+      ['Bought it?', 'You own it. Equipment warranties may cover parts; check what still applies to a system this age.'],
+      ['Find the brand', 'Check the label on the inverter. SolarEdge and Tesla have their own guides here.'],
+    ],
+    'sections' => [
+      $SAFETY,
+      ['By inverter brand', [
+        ['SolarEdge', 'Isolation faults (ground leakage) and arc detection are the ones that matter. See our SolarEdge error guide.'],
+        ['ABB / Power-One (Aurora)', '“Riso Low” means low insulation resistance on the DC side, often moisture or damaged wiring. A “grid fail” warning means the inverter could not stay connected to the grid. Code meanings differ by model, so match the exact text on the display to the manual.'],
+        ['Delta', 'Write down the exact message and light pattern and compare it with the manual for your model before resetting anything.'],
+        ['Tesla Solar Inverter', 'An isolation alert points to a wiring fault on a string. Repeated arc faults can lock the inverter out until an installer inspects it. “Service Required – Fault Detected” in the app means an inverter may have stopped producing: contact Tesla or your installer.'],
+      ]],
+      ['If the Tesla app shows nothing', [
+        ['Check the inverter first', 'If the inverter screen shows power but the app has no data, the system may be producing fine and only the monitoring connection is down.'],
+        ['Night is normal', 'Many inverters go dark or sleep after sunset. Check again in midday sun.'],
+        ['Use your bill', 'Your utility bill shows what you sent to the grid. A sudden drop is the clearest sign production fell.'],
+      ]],
+    ],
+    'sources' => [
+      ['Tesla: system alerts', 'https://www.tesla.com/support/energy/powerwall/own/system-alerts-notifications'],
+      ['Tesla: solar inverter troubleshooting', 'https://energylibrary.tesla.com/docs/Public/EnergyStorage/Powerwall/2/TroubleshootingManual/SetupAndInstall/en-us/GUID-5C3664D3-D990-44A2-913C-D7F1844CE778.html'],
+      ['Tesla: arc fault lockout', 'https://energylibrary.tesla.com/docs/Public/EnergyStorage/Powerwall/2/TroubleshootingManual/SetupAndInstall/en-us/GUID-73A45665-0B05-4235-A6A5-9020A46E4B61.html'],
+      ['pv-tech: Tesla to use its own inverters for SolarCity', 'https://www.pv-tech.org/news/tesla-confirms-plan-to-use-own-inverters-for-solarcity-installs'],
     ],
   ],
 ];

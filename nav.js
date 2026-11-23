@@ -84,7 +84,9 @@
   + '.yebnav__overlay{display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.6);opacity:0;transition:opacity .3s}'
   + '.yebnav__overlay.open{display:block;opacity:1}'
   + 'body.yebnav-open{overflow:hidden}'
-  + '@media(max-width:900px){'
+  // Full bar needs ~1175px: compact from 1240px, the menu button below 1100px
+  + '@media(min-width:1101px) and (max-width:1240px){.yebnav__phone span{display:none}.yebnav__links a{padding:.5rem .55rem;font-size:.86rem}}'
+  + '@media(max-width:1100px){'
   +   '.yebnav{padding:.5rem 1rem}'
   +   '.yebnav__logo img{height:48px}'
   +   '.yebnav--scrolled .yebnav__logo img{height:44px}'

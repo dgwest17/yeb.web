@@ -376,7 +376,7 @@ $GUIDES = [
   ],
   'solarcity-error-codes' => ['_base' => 'error',
     'title' => 'SolarCity Inverter Errors and Alerts: What They Mean (Tesla Solar)',
-    'desc'  => 'SolarCity systems are now supported by Tesla. Find which inverter your SolarCity system has (SolarEdge, Delta, ABB/Power-One or Tesla) and what its errors and Tesla app alerts mean.',
+    'desc'  => 'SolarCity inverter errors explained: ABB/Power-One Riso Low, E018, E031, W003; Delta Earth Fault light and errors 506/508; SolarEdge and Tesla alerts. Who fixes it now that SolarCity is Tesla.',
     'kicker' => 'SolarCity and Tesla solar owners',
     'h1'    => 'My SolarCity system shows an error. What now?',
     'lede'  => 'SolarCity became part of Tesla in 2016, but the inverter on your wall may be one of several brands. The brand decides what the error means.',
@@ -390,8 +390,10 @@ $GUIDES = [
       $SAFETY,
       ['By inverter brand', [
         ['SolarEdge', 'Isolation faults (ground leakage) and arc detection are the ones that matter. See our SolarEdge error guide.'],
-        ['ABB / Power-One (Aurora)', '“Riso Low” means low insulation resistance on the DC side, often moisture or damaged wiring. A “grid fail” warning means the inverter could not stay connected to the grid. Code meanings differ by model, so match the exact text on the display to the manual.'],
-        ['Delta', 'Write down the exact message and light pattern and compare it with the manual for your model before resetting anything.'],
+        ['ABB / Power-One: “Riso Low”', 'Before connecting each morning, the inverter tests the panels’ insulation to ground and won’t start below its limit (1 MΩ in the manual). Owners often see it only on damp mornings, clearing by midday: that pattern usually points to a wet connector, junction box or damaged cable on the roof, not the inverter. A reading stuck at 0.00 more often means the inverter itself.'],
+        ['ABB / Power-One: E018, E031, W003', 'E018 is a leakage-current fault on the DC side. E031 is an output-relay fault inside the inverter, a common failure on older units. W003 is a grid warning: utility voltage or frequency was outside the allowed range, which often clears on its own.'],
+        ['Delta: red “Earth Fault” light, errors 506 / 508', 'The red Earth Fault light and errors 506 (while running) or 508 (at start-up) mean an insulation or grounding fault on the panel side, usually worn cable, water in a connector or a damaged panel. Some Delta units keep producing and only warn, so a fault can sit unnoticed for months.'],
+        ['Before anyone replaces an inverter', 'An insulation test with a megohmmeter, string by string, tells a roof fault from an inverter fault. Replacing the inverter won’t fix a wet connector.'],
         ['Tesla Solar Inverter', 'An isolation alert points to a wiring fault on a string. Repeated arc faults can lock the inverter out until an installer inspects it. “Service Required – Fault Detected” in the app means an inverter may have stopped producing: contact Tesla or your installer.'],
       ]],
       ['If the Tesla app shows nothing', [
@@ -405,6 +407,9 @@ $GUIDES = [
       ['Tesla: solar inverter troubleshooting', 'https://energylibrary.tesla.com/docs/Public/EnergyStorage/Powerwall/2/TroubleshootingManual/SetupAndInstall/en-us/GUID-5C3664D3-D990-44A2-913C-D7F1844CE778.html'],
       ['Tesla: arc fault lockout', 'https://energylibrary.tesla.com/docs/Public/EnergyStorage/Powerwall/2/TroubleshootingManual/SetupAndInstall/en-us/GUID-73A45665-0B05-4235-A6A5-9020A46E4B61.html'],
       ['pv-tech: Tesla to use its own inverters for SolarCity', 'https://www.pv-tech.org/news/tesla-confirms-plan-to-use-own-inverters-for-solarcity-installs'],
+      ['Power-One Aurora PVI-3.0/4.2 manual', 'https://esesolar.co.uk/wp-content/uploads/2023/02/AuroraPVI3.0-4.2TL_Manual.pdf'],
+      ['Delta Solivia manual: LEDs and faults', 'https://www.manualslib.com/manual/910274/Delta-Solivia-2-5.html?page=19'],
+      ['DIY Solar Forum: ABB low Riso in the mornings', 'https://diysolarforum.com/threads/abb-pvi-3-0-inverter-low-riso-in-the-mornings-w-used-solar-panels.27539/'],
     ],
   ],
 ];

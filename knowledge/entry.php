@@ -48,7 +48,7 @@ $schema = [
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/knowledge/kc.css">
 <script type="application/ld+json"><?= json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?></script>
-<script src="/nav.js?v=20261112" defer></script>
+<script src="/nav.js?v=20261123" defer></script>
 </head>
 <body>
 

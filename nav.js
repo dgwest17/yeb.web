@@ -43,6 +43,8 @@
   ];
   var PHONE_DISPLAY = '(858) 786-2204';
   var PHONE_TEL     = 'tel:8587862204';
+  // Solar owners sign in to their lumaria page (the customer app). One place, every page.
+  var SIGNIN_HREF   = 'https://www.lumaria.energy/';
   var CTA_LABEL     = 'Get Your Custom Quote';
   var CTA_HREF      = '/quote/';
   var AUDIT_LABEL   = 'Audit Your System';   // the second button, for homeowners who already have solar
@@ -76,6 +78,8 @@
   + '.yebnav__links li{list-style:none}'
   + '.yebnav__links a{color:rgba(255,255,255,.8);text-decoration:none;font-size:.9rem;font-weight:500;padding:.5rem .75rem;border-radius:6px;transition:color .2s,background .2s;white-space:nowrap;display:inline-block}'
   + '.yebnav__links a:hover,.yebnav__links a.active{color:#fff;background:rgba(255,255,255,.08)}'
+  + '.yebnav__links .yebnav__signin a{border:1.5px solid rgba(255,255,255,.55);border-radius:100px;padding:.4rem .95rem;margin-left:.35rem;color:#fff}'
+  + '.yebnav__links .yebnav__signin a:hover{border-color:#FFB703;color:#FFB703;background:transparent}'
   + '.yebnav__links-phone,.yebnav__links-cta{display:none}'
   + '.yebnav__overlay{display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.6);opacity:0;transition:opacity .3s}'
   + '.yebnav__overlay.open{display:block;opacity:1}'
@@ -95,6 +99,7 @@
   +   '.yebnav__links li a:hover,.yebnav__links li a.active{color:#FFB703;background:rgba(255,183,3,.06)}'
   +   '.yebnav__links-phone{display:block;margin-top:.5rem;border-top:1px solid rgba(255,255,255,.1)}'
   +   '.yebnav__links-phone a{color:#FFB703;font-weight:600}'
+  +   '.yebnav__links .yebnav__signin a{border:none;border-radius:0;margin-left:0;padding:1rem .75rem;color:#8ECAE6;font-weight:600}'
   +   '.yebnav__links-cta{display:block;border-bottom:none;padding:.5rem 0}'
   +   '.yebnav__links-cta a{background:#FFB703;color:#023047;font-weight:700;text-align:center;border-radius:100px;padding:.85rem 1rem;margin-top:.5rem}'
   +   '.yebnav__links-cta--audit a{background:transparent;color:#fff;border:2px solid #8ECAE6}'
@@ -134,6 +139,7 @@
       + '<button class="yebnav__toggle" id="yebNavToggle" aria-label="Open menu" aria-expanded="false" aria-controls="yebNavLinks"><span></span><span></span><span></span></button>'
       + '<ul class="yebnav__links" id="yebNavLinks">'
       +   linksHtml
+      +   '<li class="yebnav__signin"><a href="' + SIGNIN_HREF + '" title="Solar owners: sign in to lumaria">Sign in</a></li>'
       +   '<li class="yebnav__links-phone"><a href="' + PHONE_TEL + '">📞 ' + PHONE_DISPLAY + '</a></li>'
       +   '<li class="yebnav__links-cta"><a href="' + CTA_HREF + '">' + CTA_LABEL + ' →</a></li>'
       +   '<li class="yebnav__links-cta yebnav__links-cta--audit"><a href="' + AUDIT_HREF + '">' + AUDIT_LABEL + ' →</a></li>'

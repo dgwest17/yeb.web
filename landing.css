@@ -22,3 +22,12 @@
 .lp-answer p { margin-bottom: .8rem; }
 .lp-answer strong { color: var(--navy); }
 .lp-more { display: inline-block; margin: 0 1.2rem 1rem; color: var(--teal-dark); font-weight: 600; font-size: .9rem; text-decoration: none; }
+
+/* Breadcrumbs and related-guide lists (closed installers, error codes) */
+.lp-crumbs{font-size:.82rem;color:rgba(255,255,255,.65);margin:0 auto 1rem;max-width:720px}
+.lp-crumbs a{color:rgba(255,255,255,.8);text-decoration:underline;text-underline-offset:2px}
+.lp-related ul{list-style:none;margin:0;padding:0;display:grid;gap:.6rem}
+.lp-related li{display:flex;flex-direction:column;gap:.15rem;padding:.7rem .85rem;border:1px solid rgba(2,48,71,.12);border-radius:10px}
+.lp-related a{font-weight:700;color:#023047}
+.lp-related span{font-size:.92rem;color:#475766}
+@media(min-width:720px){.lp-related ul{grid-template-columns:1fr 1fr}}

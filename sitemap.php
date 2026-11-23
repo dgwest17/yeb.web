@@ -30,6 +30,8 @@ $add('/solar-true-up-bill/', 'landing.php', '0.8');
 $add('/nem-2-expiring/', 'landing.php', '0.8');
 $add('/add-battery-to-existing-solar/', 'landing.php', '0.8');
 $add('/solar-installer-out-of-business/', 'landing.php', '0.8');
+// Guides (closed installers, error codes): every page in landing-guides.php
+foreach (array_keys(require __DIR__ . '/landing-guides.php') as $g) $add('/' . $g . '/', 'landing-guides.php', '0.7');
 $add('/privacy/', 'privacy/index.html', '0.2');
 $add('/terms/',   'terms/index.html',   '0.2');
 $add('/solar-repair/',     'landing.php',               '0.8');

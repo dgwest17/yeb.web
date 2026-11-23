@@ -2,8 +2,13 @@
 /**
  * landing.php — the search landing pages: /solar-quote/, /home-battery/,
  * /solar-audit/, /solar-repair/, /high-bill-with-solar/, /solar-true-up-bill/, /nem-2-expiring/,
- * /add-battery-to-existing-solar/, /solar-installer-out-of-business/, /solar-inspection/. Each folder's index.php sets $LANDING and
+ * /add-battery-to-existing-solar/, /solar-installer-out-of-business/, /solar-inspection/, plus the guides in
+ * landing-guides.php (closed installers, inverter error codes). Each folder's index.php sets $LANDING and
  * requires this file.
+ *
+ * Optional keys: 'answer', 'sections', 'sources' + 'checked' (plain-HTML answer, Article schema dated
+ * by 'checked'), 'crumb' (middle breadcrumb), 'related' + 'related_title' (linked list; with
+ * 'itemlist' it is also an ItemList for search engines).
  *
  * What feeds them:
  *   - the copy below (one entry per page in $PAGES)
@@ -305,6 +310,11 @@ $PAGES = [
   ],
 ];
 
+$PAGES += require __DIR__ . '/landing-guides.php';
+// The two general pages point into the guides
+$PAGES['solar-installer-out-of-business'] += ['related_title' => 'Find your installer', 'related' => $PAGES['closed-solar-installers']['related']];
+$PAGES['solar-repair'] += ['related_title' => 'Error code guides', 'related' => $PAGES['solar-error-codes']['related']];
+
 $P = $PAGES[$LANDING ?? ""] ?? null;
 if (!$P) { http_response_code(404); exit('Not found'); }
 $url = KC_BASE . '/' . $LANDING . '/';
@@ -319,6 +329,22 @@ $schema = [
 ];
 if ($faq) $schema[] = ['@context' => 'https://schema.org', '@type' => 'FAQPage', 'mainEntity' => array_map(fn($e) => [
   '@type' => 'Question', 'name' => $e['question'], 'acceptedAnswer' => ['@type' => 'Answer', 'text' => kc_text($e['answer'])]], $faq)];
+// Breadcrumbs on every page; an Article (dated) wherever the page answers a question.
+$crumbs = [['Home', KC_BASE . '/']];
+if (!empty($P['crumb'])) $crumbs[] = [$P['crumb'][0], KC_BASE . $P['crumb'][1]];
+$crumbs[] = [$P['kicker'], $url];
+$schema[] = ['@context' => 'https://schema.org', '@type' => 'BreadcrumbList', 'itemListElement' => array_map(
+  fn($i, $c) => ['@type' => 'ListItem', 'position' => $i + 1, 'name' => $c[0], 'item' => $c[1]], array_keys($crumbs), $crumbs)];
+$checkedIso = !empty($P['checked']) && strtotime($P['checked']) ? date('Y-m-d', strtotime($P['checked'])) : null;
+if (!empty($P['answer'])) {
+  $org = ['@type' => 'Organization', '@id' => KC_BASE . '/#business', 'name' => 'Your Energy Best', 'url' => KC_BASE . '/', 'logo' => KC_BASE . '/img/logo.png'];
+  $schema[] = ['@context' => 'https://schema.org', '@type' => 'Article', 'headline' => $P['h1'], 'description' => $P['desc'],
+    'mainEntityOfPage' => $url, 'author' => $org, 'publisher' => $org, 'inLanguage' => 'en-US']
+    + ($checkedIso ? ['dateModified' => $checkedIso] : []);
+}
+if (!empty($P['itemlist']) && !empty($P['related'])) $schema[] = ['@context' => 'https://schema.org', '@type' => 'ItemList',
+  'name' => $P['related_title'] ?? $P['kicker'], 'itemListElement' => array_map(
+    fn($i, $r) => ['@type' => 'ListItem', 'position' => $i + 1, 'name' => $r[0], 'url' => KC_BASE . $r[1]], array_keys($P['related']), $P['related'])];
 $priceTag = function ($key, $fallback) { return '<span data-price-of="' . kc_e($key) . '">' . kc_e($fallback) . '</span>'; };
 ?><!DOCTYPE html>
 <html lang="en">
@@ -340,11 +366,12 @@ $priceTag = function ($key, $fallback) { return '<span data-price-of="' . kc_e($
 <link rel="stylesheet" href="/audit-book.css">
 <link rel="stylesheet" href="/landing.css">
 <script type="application/ld+json"><?= json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?></script>
-<script src="/nav.js?v=20261112" defer></script>
+<script src="/nav.js?v=20261123" defer></script>
 </head>
 <body>
 
 <section class="ab-hero">
+  <nav class="lp-crumbs" aria-label="Breadcrumb"><?php foreach ($crumbs as $i => [$name, $href]): ?><?= $i ? ' <span aria-hidden="true">›</span> ' : '' ?><?php if ($i < count($crumbs) - 1): ?><a href="<?= kc_e($href) ?>"><?= kc_e($name) ?></a><?php else: ?><span aria-current="page"><?= kc_e($name) ?></span><?php endif; ?><?php endforeach; ?></nav>
   <span class="eyebrow"><?= kc_e($P['kicker']) ?></span>
   <h1><?= kc_e($P['h1']) ?></h1>
   <p><?= kc_e($P['lede']) ?></p>
@@ -382,6 +409,16 @@ $priceTag = function ($key, $fallback) { return '<span data-price-of="' . kc_e($
 <?php endforeach; ?>
   </section>
 <?php endforeach; ?>
+<?php if (!empty($P['related'])): ?>
+  <section class="ab-card lp-related">
+    <h2><?= kc_e($P['related_title'] ?? 'Related guides') ?></h2>
+    <ul>
+<?php foreach ($P['related'] as [$name, $href, $note]): if (rtrim($href, '/') === '/' . $LANDING) continue; ?>
+      <li><a href="<?= kc_e($href) ?>"><?= kc_e($name) ?></a><span><?= kc_e($note) ?></span></li>
+<?php endforeach; ?>
+    </ul>
+  </section>
+<?php endif; ?>
 <?php if (!empty($P['sources'])): ?>
   <p class="lp-sources">General information from Your Energy Best; your account and agreement control. Last reviewed <?= kc_e($P['checked']) ?>. Sources:
 <?php foreach ($P['sources'] as [$name, $href]): ?>
@@ -438,7 +475,7 @@ $priceTag = function ($key, $fallback) { return '<span data-price-of="' . kc_e($
         <div class="footer__contact"><a href="tel:+18587862204">📞 (858) 786-2204</a><span style="opacity:.8;font-size:.9em;white-space:nowrap;"> · 858-SUN-2204</span></div>
       </div>
       <div class="footer__col"><h5>Get started</h5><a href="/quote/">Solar &amp; battery quote</a><a href="/audit/">Solar audit</a><a href="https://www.lumaria.energy/">lumaria app</a></div>
-      <div class="footer__col"><h5>Learn</h5><a href="/knowledge/">Knowledge Center</a><a href="/solar-quote/">Solar quotes</a><a href="/home-battery/">Home batteries</a><a href="/solar-audit/">Solar audits</a><a href="/high-bill-with-solar/">High bill with solar?</a><a href="/solar-true-up-bill/">Big true-up bill?</a><a href="/nem-2-expiring/">NEM expiring?</a><a href="/add-battery-to-existing-solar/">Add a battery to solar</a><a href="/solar-installer-out-of-business/">Installer out of business?</a><a href="/solar-repair/">Solar not working?</a><a href="/solar-inspection/">Solar inspections</a></div>
+      <div class="footer__col"><h5>Learn</h5><a href="/knowledge/">Knowledge Center</a><a href="/solar-quote/">Solar quotes</a><a href="/home-battery/">Home batteries</a><a href="/solar-audit/">Solar audits</a><a href="/high-bill-with-solar/">High bill with solar?</a><a href="/solar-true-up-bill/">Big true-up bill?</a><a href="/nem-2-expiring/">NEM expiring?</a><a href="/add-battery-to-existing-solar/">Add a battery to solar</a><a href="/solar-installer-out-of-business/">Installer out of business?</a><a href="/closed-solar-installers/">Closed installers list</a><a href="/solar-error-codes/">Inverter error codes</a><a href="/solar-repair/">Solar not working?</a><a href="/solar-inspection/">Solar inspections</a></div>
     </div>
     <div class="footer__bottom"><span>&copy; <?= date('Y') ?> Your Energy Best. All rights reserved.</span><span><a href="/privacy/">Privacy Policy</a> &nbsp;·&nbsp; <a href="/terms/">Terms of Service</a></span></div>
   </div>

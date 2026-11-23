@@ -804,12 +804,24 @@ CMS.load().then(() => {
       const paras = String(CMS.data.home.about_text)
         .replace(/\\u([0-9a-fA-F]{4})/g, (_, h) => String.fromCharCode(parseInt(h, 16)))
         .split(/<\/p>|\n\s*\n/i).map(p => strip(p)).filter(Boolean);
-      about.replaceWith(...paras.map((t, i) => {
-        const el = document.createElement('p');
-        if (i === 0) el.id = 'about-text';
+      // Readable layout: lead paragraph, the story, "what sets us apart" as cards, closing line
+      const wrap = document.createElement('div'); wrap.className = 'about-body';
+      let grid = null;
+      paras.forEach((t, i) => {
+        const pt = t.match(/^☀️?s*([^:]{3,60}):s*(.+)$/u);
+        if (/^☀/.test(t) && pt) {
+          if (!grid) { grid = document.createElement('div'); grid.className = 'about-cards'; wrap.append(grid); }
+          const card = document.createElement('div'); card.className = 'about-card';
+          const b = document.createElement('b'); b.textContent = pt[1].trim();
+          const p = document.createElement('p'); p.textContent = pt[2].trim();
+          card.append(b, p); grid.append(card); return;
+        }
+        const el = document.createElement(/sets us apart/i.test(t) && t.length < 60 ? 'h3' : 'p');
+        if (i === 0) { el.id = 'about-text'; el.className = 'about-lead'; }
         el.textContent = t;
-        return el;
-      }));
+        wrap.append(el);
+      });
+      about.replaceWith(wrap);
     }
     if (CMS.data.home.referral_text) document.getElementById('referral-text').textContent = strip(CMS.data.home.referral_text);
   }

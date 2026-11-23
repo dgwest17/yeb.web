@@ -1465,3 +1465,14 @@ body.nav-open { overflow: hidden; }
 /* ─── Zoho Form Styles ─── */
 .zoho-form-wrap { max-width: 520px; margin-inline: auto; }
 .zoho-form-wrap iframe { width: 100%; border: none; border-radius: var(--radius); min-height: 480px; }
+
+/* Meet the Team: readable on the dark background (every paragraph was dark gray after the first) */
+.about-section .about-body { max-width: 760px; margin: 0 auto; text-align: left; }
+.about-section .about-body p { color: rgba(255,255,255,.88); font-size: 1.02rem; line-height: 1.7; margin: 0 0 1rem; }
+.about-section .about-body .about-lead { color: #fff; font-size: 1.18rem; line-height: 1.6; text-align: center; margin-bottom: 1.5rem; }
+.about-section .about-body h3 { color: #fff; font-size: 1.25rem; margin: 1.8rem 0 .9rem; text-align: center; }
+.about-section .about-cards { display: grid; gap: .8rem; grid-template-columns: 1fr; margin-bottom: 1.4rem; }
+@media (min-width: 720px) { .about-section .about-cards { grid-template-columns: 1fr 1fr; } }
+.about-section .about-card { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18); border-radius: 12px; padding: 1rem 1.1rem; }
+.about-section .about-card b { display: block; color: #FFB703; margin-bottom: .35rem; font-size: 1.02rem; }
+.about-section .about-card p { font-size: .95rem; margin: 0; }

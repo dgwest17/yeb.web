@@ -206,3 +206,14 @@
     build();
   }
 })();
+
+/* LUMA, lumaria's solar assistant (Nov 2026): the chat bubble on every page that loads this file, and the
+   30-second check wherever a page has <div data-lumaria-check></div>. It all lives on www.lumaria.energy,
+   which only lets this site frame it. */
+(function () {
+  if (location.pathname.indexOf('/admin') === 0 || document.querySelector('script[src*="lumaria.energy/luma-embed.js"]')) return;
+  var s = document.createElement('script');
+  s.src = 'https://www.lumaria.energy/luma-embed.js';
+  s.defer = true;
+  document.head.appendChild(s);
+})();

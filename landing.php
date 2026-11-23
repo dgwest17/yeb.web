@@ -366,7 +366,7 @@ $priceTag = function ($key, $fallback) { return '<span data-price-of="' . kc_e($
 <link rel="stylesheet" href="/audit-book.css">
 <link rel="stylesheet" href="/landing.css">
 <script type="application/ld+json"><?= json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?></script>
-<script src="/nav.js?v=20261123b" defer></script>
+<script src="/nav.js?v=20261124a" defer></script>
 </head>
 <body>
 
@@ -409,6 +409,11 @@ $priceTag = function ($key, $fallback) { return '<span data-price-of="' . kc_e($
 <?php endforeach; ?>
   </section>
 <?php endforeach; ?>
+<?php if ($LANDING === 'high-bill-with-solar'): ?>
+  <section class="ab-card" style="padding:0;overflow:hidden;background:transparent;border:0">
+    <div data-lumaria-check></div>
+  </section>
+<?php endif; ?>
 <?php if (!empty($P['related'])): ?>
   <section class="ab-card lp-related">
     <h2><?= kc_e($P['related_title'] ?? 'Related guides') ?></h2>

@@ -1498,3 +1498,15 @@ section.trust-bar .trust-bar__item--rating { color: #FFB703; }
 .about-section .team-member__bio p { color: rgba(255,255,255,.9); font-size: 1.02rem; line-height: 1.7; margin: 0 0 .9rem; }
 .about-section .team-member__bio p:last-child { margin-bottom: 0; }
 @media (max-width: 680px) { .about-section .team-member { grid-template-columns: 1fr; gap: 1rem; } }
+
+/* lumaria early access banner (homepage, under the trust bar) */
+.early-access { background: var(--navy); padding: 0 0 1.4rem; }
+.early-access__card { display: flex; align-items: center; gap: 1.1rem 1.5rem; flex-wrap: wrap; text-decoration: none;
+  background: linear-gradient(135deg, #0e7c86 0%, #126782 100%); border: 2px solid #FFB703; border-radius: 16px; padding: 1.1rem 1.4rem;
+  box-shadow: 0 8px 28px rgba(0,0,0,.25); transition: transform .2s; }
+.early-access__card:hover { transform: translateY(-2px); }
+.early-access__tag { background: #FFB703; color: #023047; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; font-size: .78rem; padding: .35rem .8rem; border-radius: 50px; white-space: nowrap; }
+.early-access__text { flex: 1; min-width: 240px; color: rgba(255,255,255,.9); font-size: 1rem; line-height: 1.5; }
+.early-access__text strong { color: #fff; font-size: 1.12rem; display: block; margin-bottom: .15rem; }
+.early-access__btn { background: #FFB703; color: #023047; font-weight: 800; padding: .75rem 1.3rem; border-radius: 50px; white-space: nowrap; }
+@media (max-width: 640px) { .early-access__btn { width: 100%; text-align: center; } }

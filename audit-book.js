@@ -18,7 +18,7 @@
   var CALENDLY = 'https://calendly.com/yourenergybest/energy';
   var CALENDLY_NOTES = 'a3';     // that event's "anything that will help prepare" question (3rd, after phone and address)
   var APP_URL = 'https://www.lumaria.energy/';
-  var APP_LIVE = false;          // true once the lumaria app is launched to the public
+  var APP_LIVE = true;           // early access opened 2026-11-23
   var PLAN = 'savings-audit';    // plans.php — $219
 
   var cfg = window.AUDIT_PAGE || { mode: 'local', source: 'LocalsAudit', leadSource: 'Website - Locals Audit' };
@@ -234,7 +234,7 @@
   var app = $('#appPrompt');
   if (app) {
     if (APP_LIVE) {
-      app.innerHTML = '<h3>One more thing: get the lumaria app</h3><p>Add your system details, bills and monitoring before the audit, so David walks in already knowing your system.</p>'
+      app.innerHTML = '<h3>One more thing: join lumaria early</h3><p>Add your system details, bills and monitoring before the audit, so David walks in already knowing your system.</p>'
         + '<a class="btn btn--primary" href="' + APP_URL + '">Open the lumaria app →</a>';
     } else {
       app.innerHTML = '<h3>Coming soon: the lumaria app</h3><p>A free app for solar owners: your real savings, your rates, and a place to keep your bills and system details. David will send you the link when it launches.</p>';

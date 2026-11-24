@@ -112,8 +112,8 @@ if (!$tokenData || empty($tokenData['access_token'])) {
             'id' => 'placeholder_' . $i,
             'media_type' => 'IMAGE',
             'media_url' => '',
-            'permalink' => 'https://instagram.com/energy.best.ca',
-            'caption' => 'Follow us on Instagram @energy.best.ca',
+            'permalink' => 'https://instagram.com/lumaria.energy',
+            'caption' => 'Follow us on Instagram @lumaria.energy',
             'timestamp' => date('c'),
             'placeholder' => true,
         ];

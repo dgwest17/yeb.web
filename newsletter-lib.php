@@ -193,7 +193,7 @@ function nl_render($n, $settings, $forZoho = true) {
   $footer = '<tr><td align="center" style="background:' . NL_TEAL . ';padding:24px 26px;">' . $thanks
     . '<img src="' . NL_BASE . '/img/brand/lumaria-energy-with-logo-on-dark.png" width="110" alt="lumaria energy" style="display:block;width:110px;height:auto;border:0;margin:0 auto 12px;">'
     . '<div style="font-size:13px;line-height:1.7;color:#e6f7f8;">'
-    .   '<a href="' . NL_BASE . '/" style="color:#ffffff;">yourenergybest.com</a> · <a href="https://instagram.com/energy.best.ca" style="color:#ffffff;">Instagram</a> · <a href="' . NL_TEL . '" style="color:#ffffff;">' . NL_PHONE . '</a><br>'
+    .   '<a href="' . NL_BASE . '/" style="color:#ffffff;">yourenergybest.com</a> · <a href="https://instagram.com/lumaria.energy" style="color:#ffffff;">Instagram</a> · <a href="' . NL_TEL . '" style="color:#ffffff;">' . NL_PHONE . '</a><br>'
     .   ($address !== '' ? nl_e($address) . '<br>' : '')
     .   'You\'re getting this because you\'ve worked with us or talked with us about your energy. ' . $unsub
     . '</div></td></tr>';

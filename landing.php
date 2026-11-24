@@ -314,6 +314,8 @@ $PAGES += require __DIR__ . '/landing-guides.php';
 // The two general pages point into the guides
 $PAGES['solar-installer-out-of-business'] += ['related_title' => 'Find your installer', 'related' => $PAGES['closed-solar-installers']['related']];
 $PAGES['solar-repair'] += ['related_title' => 'Error code guides', 'related' => $PAGES['solar-error-codes']['related']];
+// City pages (city.php) describe themselves
+if (!empty($EXTRA_PAGE)) $PAGES[$LANDING] = $EXTRA_PAGE;
 
 $P = $PAGES[$LANDING ?? ""] ?? null;
 if (!$P) { http_response_code(404); exit('Not found'); }
@@ -321,6 +323,9 @@ $url = KC_BASE . '/' . $LANDING . '/';
 $faq = array_values(array_filter(array_map('kc_find', $P['faq'])));   // only published answers show
 $cityNames = [];
 foreach ($CITIES as $t) foreach (array_keys($t['cities']) as $c) $cityNames[] = $c;
+if (!empty($P['area'])) $cityNames = $P['area'];
+$citySlug = [];   // city name → /solar/<slug>/ for the "Where we work" links
+foreach (require __DIR__ . '/solar-cities.php' as $s => $cc) $citySlug[$cc['name']] = $s;   // a city page serves its own city
 
 $schema = [
   ['@context' => 'https://schema.org', '@type' => 'Service', 'name' => $P['service'], 'serviceType' => $P['service'], 'url' => $url,
@@ -437,7 +442,7 @@ $priceTag = function ($key, $fallback) { return '<span data-price-of="' . kc_e($
 <?php foreach ($CITIES as $t): ?>
     <div class="note lp-terr">
       <h3><?= kc_e($t['name']) ?></h3>
-      <p class="lp-cities"><?= kc_e(implode(' · ', array_map('ucfirst', array_keys($t['cities'])))) ?></p>
+      <p class="lp-cities"><?= implode(' · ', array_map(fn($n) => isset($citySlug[$n]) ? '<a href="/solar/' . $citySlug[$n] . '/">' . kc_e($n) . '</a>' : kc_e(ucfirst($n)), array_keys($t['cities']))) ?></p>
       <p><?= kc_e($t['about'][$P['topic']] ?? '') ?></p>
 <?php $local = array_filter($t['cities']); if ($local): ?>
       <ul class="lp-local">
@@ -480,7 +485,7 @@ $priceTag = function ($key, $fallback) { return '<span data-price-of="' . kc_e($
         <div class="footer__contact"><a href="tel:+18587862204">📞 (858) 786-2204</a><span style="opacity:.8;font-size:.9em;white-space:nowrap;"> · 858-SUN-2204</span></div>
       </div>
       <div class="footer__col"><h5>Get started</h5><a href="/quote/">Solar &amp; battery quote</a><a href="/audit/">Solar audit</a><a href="https://www.lumaria.energy/">lumaria app</a></div>
-      <div class="footer__col"><h5>Learn</h5><a href="/knowledge/">Knowledge Center</a><a href="/solar-quote/">Solar quotes</a><a href="/home-battery/">Home batteries</a><a href="/solar-audit/">Solar audits</a><a href="/high-bill-with-solar/">High bill with solar?</a><a href="/solar-true-up-bill/">Big true-up bill?</a><a href="/nem-2-expiring/">NEM expiring?</a><a href="/add-battery-to-existing-solar/">Add a battery to solar</a><a href="/solar-installer-out-of-business/">Installer out of business?</a><a href="/closed-solar-installers/">Closed installers list</a><a href="/solar-error-codes/">Inverter error codes</a><a href="/solar-repair/">Solar not working?</a><a href="/solar-inspection/">Solar inspections</a></div>
+      <div class="footer__col"><h5>Learn</h5><a href="/knowledge/">Knowledge Center</a><a href="/solar-quote/">Solar quotes</a><a href="/home-battery/">Home batteries</a><a href="/solar-audit/">Solar audits</a><a href="/high-bill-with-solar/">High bill with solar?</a><a href="/solar-true-up-bill/">Big true-up bill?</a><a href="/nem-2-expiring/">NEM expiring?</a><a href="/add-battery-to-existing-solar/">Add a battery to solar</a><a href="/solar-installer-out-of-business/">Installer out of business?</a><a href="/closed-solar-installers/">Closed installers list</a><a href="/solar-error-codes/">Inverter error codes</a><a href="/solar/">Cities we serve</a><a href="/solar-repair/">Solar not working?</a><a href="/solar-inspection/">Solar inspections</a></div>
     </div>
     <div class="footer__bottom"><span>&copy; <?= date('Y') ?> Your Energy Best. All rights reserved.</span><span><a href="/privacy/">Privacy Policy</a> &nbsp;·&nbsp; <a href="/terms/">Terms of Service</a></span></div>
   </div>

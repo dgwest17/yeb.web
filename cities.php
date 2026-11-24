@@ -13,6 +13,8 @@ return [
       'San Diego'  => '',
       'Encinitas'  => 'The coastal marine layer can delay morning production, so we size for it.',
       'Ramona'     => 'Real fire risk and outage history: backup power often matters more than savings here.',
+      'Chula Vista' => '', 'Imperial Beach' => '', 'La Mesa' => '', 'National City' => '',
+      'Alpine' => '', 'Lakeside' => '', 'Spring Valley' => '', 'Fallbrook' => '', 'Valley Center' => '', 'Jamul' => '', 'Julian' => '',
     ],
     'about' => [
       'quote'      => 'SDCP customers can pair new solar with SDCP\'s battery rebate while funding lasts.',
@@ -41,6 +43,18 @@ return [
       'inspection' => 'Coastal and inland homes wear differently; the inspection covers both.',
       'bill'       => 'CEA supplies the generation and SDG&E delivers it, so solar credits and charges from both appear on your account.',
       'repair'     => 'Repairing or replacing equipment? CEA Solar Plus can add a battery at the same time, $0 down.',
+    ],
+  ],
+  'sdge' => [
+    'name'  => 'SDG&E (no community power program yet)',
+    'cities' => [ 'El Cajon' => '', 'Santee' => '', 'Poway' => '', 'Lemon Grove' => '', 'Coronado' => 'Joining San Diego Community Power, with service expected around 2028.' ],
+    'about' => [
+      'quote'      => 'SDG&E supplies and delivers your power here, so SDG&E’s own rates and time-of-use periods decide what solar saves.',
+      'battery'    => 'SDG&E’s 4–9 pm peak is where a battery earns its keep; virtual power plant programs can pay you for letting it help the grid.',
+      'audit'      => 'On SDG&E’s own generation, the rate plan you’re on matters a lot; the audit checks it.',
+      'inspection' => 'Inland heat is hard on inverters and wiring; the inspection checks both.',
+      'bill'       => 'Your bill is all SDG&E: generation and delivery, plus the Base Services Charge.',
+      'repair'     => 'Hot inland summers shorten inverter life; we check the inverter first.',
     ],
   ],
   'sdge-oc' => [

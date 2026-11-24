@@ -31,3 +31,5 @@
 .lp-related a{font-weight:700;color:#023047}
 .lp-related span{font-size:.92rem;color:#475766}
 @media(min-width:720px){.lp-related ul{grid-template-columns:1fr 1fr}}
+
+.lp-terr .lp-cities a { color: var(--navy); text-decoration: underline; text-underline-offset: 2px; }

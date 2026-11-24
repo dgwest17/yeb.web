@@ -71,3 +71,6 @@ newsletters-zoho.json
 .qr_codes.json
 .qr_codes.json.tmp
 .qr_scans.json
+
+# Drafts with client data (never publish)
+case-studies-draft.md

@@ -1230,6 +1230,8 @@ function renderConnections(main) {
     '<li>In <a href="https://console.cloud.google.com/apis/library/places.googleapis.com" target="_blank" rel="noopener">Google Cloud</a>, enable <i>Places API (New)</i>.</li><li><i>Credentials → Create credentials → API key</i>, restricted to Places API (New).</li><li>Find your Place ID with the <a href="https://developers.google.com/maps/documentation/places/web-service/place-id" target="_blank" rel="noopener">Place ID Finder</a>.</li>',
     [inp('key', 'API key'), inp('place_id', 'Place ID (ChIJ…)', false)], 'google', 'Check & save');
 
+  main.append(h('section', { class: 'sec' }, h('div', { class: 'hd' }, h('h3', {}, '🛡️ Bot check (Cloudflare Turnstile)'), h('span', { class: 'pill', id: 'pill-turnstile' }, 'Checking…')),
+    h('div', { class: 'bd' }, h('p', { class: 'note', style: 'margin:0' }, 'Checks quote, audit and before-we-meet forms for bots. Uses the same widget as the lumaria apps. To turn it on, add this line to config.php on Hostinger, with the widget\'s Secret Key from Cloudflare → Turnstile: define(\'TURNSTILE_SECRET\', \'…\'); Anything that fails is held and emailed to you, never thrown away.'))));
   async function loadStatus() {
     try {
       const s = await (await api('/connections.php')).json();
@@ -1242,6 +1244,7 @@ function renderConnections(main) {
       set('stripe', !st.secret_key || !st.ok ? 'bad' : st.webhook_secret ? 'ok' : 'warn', !st.secret_key ? 'No secret key in config.php' : !st.ok ? 'Stripe rejected the key'
         : (st.live ? 'Live' : 'TEST mode') + (st.account ? ' · ' + st.account : '') + (st.webhook_secret ? ' · webhook on' : ' · webhook not set up'));
       set('google', s.google.configured ? 'ok' : 'warn', s.google.configured ? 'Connected' : 'Not connected — showing fixed numbers');
+      if (s.turnstile) set('turnstile', s.turnstile.configured ? 'ok' : 'warn', s.turnstile.configured ? 'On: website forms are bot-checked' : 'Off: add TURNSTILE_SECRET to config.php');
       if (s.stray_files && s.stray_files.length) {
         stray.classList.remove('hidden'); stray.innerHTML = '';
         stray.append('Leftovers on the server that git cannot remove: ' + s.stray_files.join(', ') + ' ',

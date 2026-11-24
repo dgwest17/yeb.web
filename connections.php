@@ -97,6 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
   $s['google'] = ['configured' => file_exists($F['gkey']) && file_exists($F['gplace'])];
 
+  $s['turnstile'] = ['configured' => defined('TURNSTILE_SECRET') && TURNSTILE_SECRET !== ''];
   $s['stray_files'] = array_values(array_map('basename', array_filter($STRAY, 'file_exists')));
   out($s);
 }

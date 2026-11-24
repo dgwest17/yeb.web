@@ -105,6 +105,13 @@ if (is_rate_limited($ip, 12, 3600)) out(['ok' => false, 'error' => 'That\'s a lo
 record_rate_limit($ip);
 
 $d = json_decode($_POST['data'] ?? '', true);
+// Cloudflare human check (nav.js sends it). A failure is held: emailed to David, not saved to Zoho.
+require_once __DIR__ . '/human-check.php';
+[$human, $humanWhy] = human_check();
+if (!$human) {
+  yeb_lead_alert('Website before-we-meet answers held as possible spam', $humanWhy, array_merge((array)($d['contact'] ?? []), ['path' => $d['path'] ?? '', 'answers' => $d['summary'] ?? []]));
+  out(['ok' => true]);
+}
 if (!is_array($d) || !in_array($d['path'] ?? '', ['solar', 'audit'], true)) out(['ok' => false, 'error' => 'Something went wrong — please try again.'], 400);
 $path = $d['path'];
 $c = array_map(fn($v) => trim(substr((string)$v, 0, 120)), (array)($d['contact'] ?? []));

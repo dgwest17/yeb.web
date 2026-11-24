@@ -93,6 +93,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$__isInternal) {
         if (isGibberish($fn) || isGibberish($ln))
             blockSpam('gibberish:' . $fn . ' ' . $ln, $spamCheck);
 
+        // Layer 5: Cloudflare human check (nav.js sends it; held, never dropped)
+        require_once __DIR__ . '/human-check.php';
+        [$__human, $__why] = human_check();
+        if (!$__human) blockSpam($__why, $spamCheck);
+
         // Layer 4: Bad email
         $em = trim($spamCheck['email'] ?? '');
         if (!empty($em)) {

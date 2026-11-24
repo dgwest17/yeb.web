@@ -164,6 +164,7 @@ $cleanPosts = array_map(function($post) {
         'id' => $post['id'],
         'media_type' => $post['media_type'],
         'media_url' => $post['media_url'] ?? ($post['thumbnail_url'] ?? ''),
+        'thumbnail_url' => $post['thumbnail_url'] ?? '',   // a video's cover picture
         'permalink' => $post['permalink'],
         'caption' => mb_strimwidth($post['caption'] ?? '', 0, 120, '...'),
         'timestamp' => $post['timestamp'],

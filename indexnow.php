@@ -11,7 +11,7 @@ require_once __DIR__ . '/security-config.php';
 header('Content-Type: application/json');
 require_admin_auth();
 
-$keyFiles = array_values(array_filter(glob(__DIR__ . '/*.txt') ?: [], fn() => preg_match('/^[0-9a-f]{32}.txt$/', basename())));
+$keyFiles = array_values(array_filter(glob(__DIR__ . '/*.txt') ?: [], fn($f) => preg_match('/^[0-9a-f]{32}\.txt$/', basename($f))));
 $key = $keyFiles ? basename(reset($keyFiles), '.txt') : '';
 if ($key === '') { http_response_code(500); echo json_encode(['ok' => false, 'error' => 'No IndexNow key file at the site root']); exit; }
 

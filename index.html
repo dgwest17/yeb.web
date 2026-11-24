@@ -424,11 +424,18 @@
 
 <!-- ─── ABOUT DAVID / REFERRAL (Orange Background) ─── -->
 <section class="about-section">
-  <div class="container" style="max-width:860px;">
+  <div class="container" style="max-width:960px;">
     <div style="text-align:center;">
       <div class="section-head text-center">
         <span class="tag">Meet the Team</span>
-        <h2>David West</h2>
+      </div>
+      <!-- Team members: Admin → Homepage → Team members (photo, name, role, bio). Until any are
+           added, David's card uses the story paragraph from the About text. -->
+      <div class="team-list" id="teamList">
+        <div class="team-member">
+          <div class="team-member__id"><div class="team-member__photo"><span>DW</span></div><b>David West</b><small>Founder</small></div>
+          <div class="team-member__bio"><p>David West founded Your Energy Best to make solar honest and hassle-free for San Diego homeowners.</p></div>
+        </div>
       </div>
       <p id="about-text">David founded Your Energy Best with a simple mission: make solar accessible, honest, and hassle-free for every San Diego homeowner. With years in the industry and a NABCEP certification, he personally oversees every project to make sure you get the best possible outcome.</p>
       <div class="referral-box" style="margin-top:var(--space-xl); padding:var(--space-md) var(--space-lg); background:rgba(255,255,255,.2); backdrop-filter:blur(6px); border-radius:var(--radius); border-left:3px solid var(--white); max-width:740px; margin-inline:auto; text-align:left;">
@@ -444,14 +451,15 @@
   <div class="container">
     <div class="section-head text-center">
       <span class="tag">FAQ</span>
-      <h2>Got questions?</h2>
+      <h2><a href="/knowledge/" style="color:inherit;text-decoration:none">Got questions?</a></h2>
     </div>
     <div class="faq" id="cms-faq"></div>
     <!-- FAQ Exit CTA (Rec #7) -->
     <div class="faq-exit-cta text-center">
       <p><strong>Still have questions?</strong> That's what we're here for.</p>
       <p>Get personalized answers from a San Diego solar expert — no sales pitch, just straight talk.</p>
-      <a href="https://calendly.com/yourenergybest" target="_blank" rel="noopener" class="btn btn--primary" style="margin-top: var(--space-md);">Talk to an Expert →</a>
+      <a href="/knowledge/" class="btn btn--primary" style="margin-top: var(--space-md);">Browse the Knowledge Center →</a>
+      <a href="https://calendly.com/yourenergybest" target="_blank" rel="noopener" class="btn btn--outline" style="margin-top: var(--space-md);">Talk to an Expert</a>
       <p class="microcopy">Or call us directly: <a href="tel:8587862204" style="color:var(--teal); font-weight:600;">(858) 786-2204</a></p>
     </div>
   </div>
@@ -808,10 +816,37 @@ CMS.load().then(() => {
       const paras = String(CMS.data.home.about_text)
         .replace(/\\u([0-9a-fA-F]{4})/g, (_, h) => String.fromCharCode(parseInt(h, 16)))
         .split(/<\/p>|\n\s*\n/i).map(p => strip(p)).filter(Boolean);
-      // Readable layout: lead paragraph, the story, "what sets us apart" as cards, closing line
+      // Readable layout: team cards first (photo + name left, bio right), then the mission line,
+      // "what sets us apart" as cards, and the closing line.
+      const apart = paras.findIndex((t) => /sets us apart/i.test(t) && t.length < 60);
+      const firstCard = paras.findIndex((t) => /^☀/.test(t));
+      const storyEnd = apart > 0 ? apart : (firstCard > 0 ? firstCard : paras.length);
+      const story = paras.slice(1, storyEnd);
+      const team = (Array.isArray(CMS.data.home.team) ? CMS.data.home.team : []).filter((m) => m && strip(m.name || ''));
+      const members = team.length ? team : [{ name: 'David West', role: 'Founder', photo: '', bio: story.join('\n\n') }];
+      const list = document.getElementById('teamList');
+      if (list) {
+        list.innerHTML = '';
+        members.forEach((m) => {
+          const name = strip(m.name || ''), role = strip(m.role || '');
+          const card = document.createElement('div'); card.className = 'team-member';
+          const id = document.createElement('div'); id.className = 'team-member__id';
+          const ph = document.createElement('div'); ph.className = 'team-member__photo';
+          if (m.photo) { const img = document.createElement('img'); img.src = m.photo; img.alt = name; img.loading = 'lazy'; ph.append(img); }
+          else { const s = document.createElement('span'); s.textContent = name.split(/\s+/).map((w) => w[0] || '').join('').slice(0, 2).toUpperCase(); ph.append(s); }
+          const b = document.createElement('b'); b.textContent = name;
+          id.append(ph, b);
+          if (role) { const r = document.createElement('small'); r.textContent = role; id.append(r); }
+          const bio = document.createElement('div'); bio.className = 'team-member__bio';
+          String(m.bio || '').split(/<\/p>|\n\s*\n/i).map((p) => strip(p)).filter(Boolean)
+            .forEach((t) => { const p = document.createElement('p'); p.textContent = t; bio.append(p); });
+          card.append(id, bio); list.append(card);
+        });
+      }
       const wrap = document.createElement('div'); wrap.className = 'about-body';
       let grid = null;
       paras.forEach((t, i) => {
+        if (i > 0 && i < storyEnd) return;   // the story is on the team card
         const pt = t.match(/^☀️?s*([^:]{3,60}):s*(.+)$/u);
         if (/^☀/.test(t) && pt) {
           if (!grid) { grid = document.createElement('div'); grid.className = 'about-cards'; wrap.append(grid); }

@@ -235,8 +235,13 @@ const PAGES = [
       note: 'The rows of numbers are in the page code.' },
     { title: 'Photos of our work', anchor: '', fields: [ { path: 'gallery', type: 'images', label: 'Photos' } ] },
     { title: 'Equipment logos', fields: [ { path: 'manufacturers', type: 'images', logo: true, label: 'Logos', help: 'Scroll across the "Trusted equipment" strip. Transparent PNGs look best.' } ] },
-    { title: 'About Dave', fields: [
-      { path: 'home.about_text', type: 'para', label: 'About text', help: 'Leave a blank line between paragraphs.' },
+    { title: 'Meet the Team', fields: [
+      { path: 'home.team', type: 'list', titleKey: 'name', subKey: 'role', addLabel: 'Add a team member', blank: { name: '', role: '', photo: '', bio: '' },
+        help: 'Each person shows with a round photo, their name and role on the left, and their bio on the right. While this list is empty, David\'s card uses the story paragraph from the About text below.', fields: [
+        { row: [ { key: 'name', type: 'text', label: 'Name' }, { key: 'role', type: 'text', label: 'Role', help: 'e.g. Founder, Solar Advisor' } ] },
+        { key: 'photo', type: 'photo', label: 'Headshot', help: 'A square photo looks best. It is cropped to a circle.' },
+        { key: 'bio', type: 'para', label: 'Bio', help: 'Leave a blank line between paragraphs.' } ] },
+      { path: 'home.about_text', type: 'para', label: 'About text (mission + what sets us apart)', help: 'First paragraph: the mission line. Lines starting with ☀️ and "Title: text" become cards. Leave a blank line between paragraphs.' },
       { path: 'home.referral_text', type: 'para', label: 'Referral program text' } ] },
     { title: 'FAQ', fields: [
       { path: 'faq', type: 'list', titleKey: 'question', addLabel: 'Add a question', blank: { question: '', answer: '' }, fields: [
@@ -569,6 +574,27 @@ function field(file, f, obj, base) {
     }
     case 'rich': wrap.append(richEditor(val, (html) => set(html), f.tall)); break;
     case 'images': wrap.append(imageList(obj, path, !!f.logo)); break;
+    case 'photo': {   // one image, stored as its URL (team headshots)
+      const box = h('div', { style: 'display:flex;align-items:center;gap:12px;flex-wrap:wrap' });
+      const draw = () => {
+        box.innerHTML = '';
+        const cur = getP(obj, path) || '';
+        box.append(h('div', { style: 'width:72px;height:72px;border-radius:50%;background:#eef2f5 center/cover no-repeat;border:2px solid var(--line);' + (cur ? 'background-image:url("' + imgSrc(cur).replace(/"/g, '%22') + '")' : '') }));
+        const input = h('input', { type: 'file', accept: 'image/*' });
+        const label = h('label', { class: 'add upload' }, input, cur ? 'Replace photo' : '+ Upload photo');
+        input.addEventListener('change', async () => {
+          const file = input.files[0]; input.value = ''; if (!file) return;
+          label.lastChild.textContent = ' Uploading…';
+          const fd = new FormData(); fd.append('image', file); fd.append('_csrf_token', CSRF);
+          try { const j = await (await api('/upload-image.php', { method: 'POST', body: fd })).json();
+            if (!j.success) toast(j.error || 'Upload failed', true); else set(j.url); } catch (e) {}
+          draw();
+        });
+        box.append(label);
+        if (cur) box.append(h('button', { class: 'ibtn del', type: 'button', onclick: () => { set(''); draw(); } }, 'Remove'));
+      };
+      draw(); wrap.append(box); break;
+    }
     case 'list': wrap.append(listEditor(file, obj, path, f)); break;
   }
   return wrap;

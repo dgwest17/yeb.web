@@ -1483,3 +1483,18 @@ section.trust-bar .trust-bar__inner { gap: .75rem 2.25rem; }
 section.trust-bar .trust-bar__item { color: #fff; font-size: 1rem; font-weight: 700; opacity: 1; }
 section.trust-bar .trust-bar__item--rating { color: #FFB703; }
 @media (max-width: 640px) { section.trust-bar .trust-bar__item { font-size: .9rem; } }
+
+/* Meet the Team: photo + name on the left, bio on the right; stacks on phones */
+.about-section .team-list { display: grid; gap: 1.25rem; margin: 0 auto 2rem; text-align: left; }
+.about-section .team-member { display: grid; grid-template-columns: 180px 1fr; gap: 1.75rem; align-items: start;
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); border-radius: 16px; padding: 1.5rem; }
+.about-section .team-member__id { display: flex; flex-direction: column; align-items: center; text-align: center; gap: .35rem; }
+.about-section .team-member__photo { width: 148px; height: 148px; border-radius: 50%; overflow: hidden; border: 3px solid #FFB703;
+  background: rgba(255,255,255,.12); display: flex; align-items: center; justify-content: center; margin-bottom: .4rem; }
+.about-section .team-member__photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.about-section .team-member__photo span { color: #fff; font-size: 2.6rem; font-weight: 700; letter-spacing: .04em; }
+.about-section .team-member__id b { color: #fff; font-size: 1.25rem; }
+.about-section .team-member__id small { color: #FFB703; font-weight: 600; font-size: .9rem; }
+.about-section .team-member__bio p { color: rgba(255,255,255,.9); font-size: 1.02rem; line-height: 1.7; margin: 0 0 .9rem; }
+.about-section .team-member__bio p:last-child { margin-bottom: 0; }
+@media (max-width: 680px) { .about-section .team-member { grid-template-columns: 1fr; gap: 1rem; } }

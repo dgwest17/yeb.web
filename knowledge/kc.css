@@ -122,3 +122,12 @@ a{color:var(--teal-light)}
 .related h2{font-family:var(--heading);font-size:1.5rem;font-weight:600;margin-bottom:.8rem}
 .related a{display:block;padding:.75rem 0;border-top:1px solid rgba(255,255,255,.08);color:var(--text-light);text-decoration:none}
 .related a:hover{color:#fff}
+
+/* Guides: links to the longer guide pages */
+.kc-guides{padding:3.2rem 0 1rem;scroll-margin-top:90px}
+.kc-guides__group{font-family:var(--heading);font-weight:600;font-size:1.2rem;margin:1.6rem 0 .8rem}
+.kc-guides__grid{display:grid;gap:.75rem;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.kc-guide{display:flex;flex-direction:column;gap:.25rem;padding:1rem 1.1rem;border-radius:12px;text-decoration:none;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);transition:transform .2s,border-color .2s}
+.kc-guide:hover{transform:translateY(-2px);border-color:var(--gold,#FFB703)}
+.kc-guide b{color:var(--gold,#FFB703);font-size:1rem}
+.kc-guide span{color:var(--text-light,rgba(255,255,255,.75));font-size:.9rem;font-weight:300}

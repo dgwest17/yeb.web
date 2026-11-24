@@ -56,6 +56,25 @@ $ERROR_BASE = [
   'related' => $ERRORS,
   'checked' => 'November 23, 2026',
 ];
+$OWNER = [
+  ['How the Solar Billing Plan works', '/solar-billing-plan-explained/', 'NEM 3.0: hourly export credits, two credit buckets, the nine-year lock.'],
+  ['SDCP battery rebate', '/sdcp-battery-rebate/', 'Who qualifies, the five-year commitment and the 4–9 pm discharge.'],
+  ['New roof under solar', '/reroof-with-solar/', 'Remove, reroof, reinstall, and keep your NEM status.'],
+  ['Selling a home with solar', '/selling-a-home-with-solar/', 'Owned, financed, leased or PPA: what happens at sale.'],
+  ['Lease or PPA buyout', '/solar-lease-buyout/', 'When buyouts apply, how they’re priced, end-of-term choices.'],
+  ['Monitoring in your own name', '/transfer-solar-monitoring/', 'Enphase, SolarEdge and Tesla access after an installer or owner change.'],
+];
+$OWNER_BASE = [
+  'price' => 'savings-audit',
+  'cta'   => ['Book a free solar audit →', '/audit/'],
+  'alt'   => ['More answers in the Knowledge Center', '/knowledge/'],
+  'topic' => 'audit',
+  'service' => 'Solar owner guidance and audits',
+  'crumb' => ['Knowledge Center', '/knowledge/'],
+  'related_title' => 'More owner guides',
+  'related' => $OWNER,
+  'checked' => 'November 24, 2026',
+];
 $SAFETY = ['Safety first', [
   ['Smoke, sparks, a burning smell or a hot panel', 'Stay clear, and call 911 if anything is burning. Do not open the inverter, unplug connectors or climb on the roof.'],
   ['What you can safely do', 'Read the code, take a photo of the screen or app, and note when it started and the weather. Restart only the way the owner’s manual describes, and only once.'],
@@ -412,12 +431,171 @@ $GUIDES = [
       ['DIY Solar Forum: ABB low Riso in the mornings', 'https://diysolarforum.com/threads/abb-pvi-3-0-inverter-low-riso-in-the-mornings-w-used-solar-panels.27539/'],
     ],
   ],
+  // ─── Owner guides (also listed in the Knowledge Center) ─────────────────
+  'solar-billing-plan-explained' => ['_base' => 'owner',
+    'title' => 'SDG&E Solar Billing Plan Explained (NEM 3.0) | How Export Credits Work',
+    'desc'  => 'How SDG&E’s Solar Billing Plan (NEM 3.0 / net billing) works: hourly export credits, the delivery and generation credit buckets, the nine-year price lock, and why a battery matters.',
+    'kicker' => 'Solar Billing Plan (NEM 3.0)',
+    'h1'    => 'How does SDG&E’s Solar Billing Plan actually work?',
+    'lede'  => 'It is not the old net metering. Power you send to the grid earns a credit that depends on the hour, and it’s usually worth less than power you buy.',
+    'answer' => 'On SDG&E’s Solar Billing Plan, the power you export earns an hourly credit set from the CPUC’s Avoided Cost Calculator, so the same kilowatt-hour is worth more on some hours than others. Credits come in two buckets, delivery and generation, and each only offsets its own kind of charge. Your export prices are locked for nine years from your Permission to Operate date. Because exports usually earn less than imports cost, using your own solar, often with a battery, is what saves the most.',
+    'points' => [
+      ['Hourly credits', 'Each exported kWh is credited at that hour’s price, which changes through the day and year.'],
+      ['Two buckets', 'Delivery credits offset delivery charges; generation credits offset generation charges.'],
+      ['Nine-year lock', 'Your export prices are set for nine years from Permission to Operate.'],
+    ],
+    'sections' => [
+      ['What this means for your bill', [
+        ['Use your own power first', 'Running laundry, pool pumps or EV charging while the sun is up uses your solar directly instead of exporting it cheaply.'],
+        ['Why batteries fit this plan', 'A battery stores midday solar for the 4–9 pm peak, when buying from the grid costs the most.'],
+        ['Fixed charges still apply', 'SDG&E’s Base Services Charge is billed regardless, and export credits can’t offset it.'],
+      ]],
+      ['If you’re on NEM 1.0 or 2.0', [
+        ['You are not on this plan yet', 'Older systems keep their net metering for 20 years from Permission to Operate.'],
+        ['What moves you over', 'Adding more solar than allowed, or reaching the end of your 20 years. A battery by itself generally doesn’t.'],
+      ]],
+    ],
+    'sources' => [
+      ['SDG&E: Solar Billing Plan', 'https://www.sdge.com/solar/solar-billing-plan'],
+      ['SDG&E: export pricing', 'https://www.sdge.com/solar/solar-billing-plan/export-pricing'],
+      ['SDCP: Solar Billing Plan', 'https://sdcommunitypower.org/solar-billing-plan/'],
+    ],
+    'faq' => ['whats-the-difference-between-net-metering-and-net-billing-nem-3-0', 'what-are-time-of-use-rates-and-why-do-they-matter', 'do-i-actually-need-a-battery-in-california'],
+  ],
+  'sdcp-battery-rebate' => ['_base' => 'owner',
+    'title' => 'SDCP Battery Rebate (Solar Battery Savings): Rules and How It Works',
+    'desc'  => 'San Diego Community Power’s Solar Battery Savings program: who qualifies, adding a battery to existing solar, the five-year enrollment, the 4–9 pm discharge requirement, and performance payments.',
+    'kicker' => 'SDCP battery rebate',
+    'h1'    => 'Can I get paid to add a battery with San Diego Community Power?',
+    'lede'  => 'If SDCP is your power provider, its Solar Battery Savings program pays an upfront rebate plus ongoing performance payments.',
+    'answer' => 'San Diego Community Power’s Solar Battery Savings program pays an upfront rebate and ongoing performance incentives for batteries charged by solar. Only SDCP customers qualify, and NEM and Solar Billing Plan customers can add a new battery to existing solar. In return, the battery must discharge half its usable capacity between 4 and 9 pm on weekdays when called, it can’t be charged from the grid, and you stay enrolled for at least five years or repay part of the rebate.',
+    'points' => [
+      ['SDCP customers only', 'Check your bill: SDCP shows as your generation provider. San Diego, Chula Vista, Encinitas and more.'],
+      ['Existing solar counts', 'NEM and Solar Billing Plan customers can add a battery and qualify.'],
+      ['Five-year commitment', 'Leave early and you repay a prorated share: 100% in year one, down to 20% in year five.'],
+    ],
+    'sections' => [
+      ['The rules that matter', [
+        ['Solar-charged only', 'The battery must charge fully from your solar, not from the grid.'],
+        ['Weekday evening discharge', 'When called, the battery discharges half its usable capacity between 4 and 9 pm on weekdays, so less is held back for your own use.'],
+        ['Performance pay', 'Paid for the months you meet the program’s requirements.'],
+      ]],
+      ['Amounts change', [
+        ['Check the current rates', 'Rebate amounts per kWh and funding change over time. We confirm the current figure for your home before you sign.'],
+      ]],
+    ],
+    'sources' => [
+      ['SDCP: Solar Battery Savings', 'https://sdcommunitypower.org/solar-battery-savings/'],
+      ['SDCP: Solar Battery Savings FAQ', 'https://sdcommunitypower.org/wp-content/uploads/2026/10/Solar-Battery-Savings-Full-FAQ.pdf'],
+    ],
+    'faq' => ['sdcp-battery-rebate-3-000-to-6-000-per-battery', 'do-i-actually-need-a-battery-in-california', 'what-does-a-battery-cost-in-2026'],
+    'alt' => ['Add a battery to existing solar', '/add-battery-to-existing-solar/'],
+  ],
+  'reroof-with-solar' => ['_base' => 'owner',
+    'title' => 'New Roof Under Solar Panels: Remove, Reroof and Reinstall (San Diego)',
+    'desc'  => 'Replacing a roof under solar panels: permits, who can remove and reinstall the system, keeping your NEM status, and what to ask SDG&E before the panels come down.',
+    'kicker' => 'Reroofing with solar',
+    'h1'    => 'I need a new roof, but I have solar. What now?',
+    'lede'  => 'The panels come off, the roof goes on, the panels go back. The details decide whether it stays simple.',
+    'answer' => 'Replacing a roof under solar means removing the system, reroofing, and reinstalling it, usually with a reroof permit and an electrical permit for the solar work. Have a licensed solar or electrical contractor do the removal and reinstall. Putting back the same system generally keeps your NEM status, while adding panels or making other changes can move you to the Solar Billing Plan, so get SDG&E’s answer in writing before the panels come down.',
+    'points' => [
+      ['Permits', 'Expect a reroof permit plus an electrical permit for removing and reinstalling the solar.'],
+      ['The right contractor', 'A C-46 solar or C-10 electrical contractor should handle the system.'],
+      ['Same system, same NEM', 'Like-for-like generally keeps NEM. Changes are where the risk is.'],
+    ],
+    'sections' => [
+      ['Before the panels come down', [
+        ['Photograph everything', 'The array, wiring, labels and the inverter, plus a production screenshot, so you can compare afterward.'],
+        ['Ask about warranties', 'Removal by someone else can affect workmanship or roof warranties. Ask both sides in writing.'],
+        ['Think about timing', 'If an inverter is old, replacing it during the reinstall saves a second visit, but confirm it won’t change your NEM status.'],
+      ]],
+    ],
+    'sources' => [
+      ['SDG&E: NEM requirements', 'https://sdge.com/node/4616'],
+      ['CSLB: check a license', 'https://www.cslb.ca.gov/OnlineServices/CheckLicenseII/CheckLicense.aspx'],
+    ],
+    'faq' => ['will-solar-leak-my-roof', 'how-much-maintenance-does-solar-actually-need'],
+  ],
+  'selling-a-home-with-solar' => ['_base' => 'owner',
+    'title' => 'Selling a Home With Solar: Owned, Leased or PPA (California)',
+    'desc'  => 'Selling a house with solar panels in California: what changes if the system is owned, financed, leased or on a PPA, transferring the agreement, UCC-1 filings, and what buyers ask for.',
+    'kicker' => 'Selling a home with solar',
+    'h1'    => 'I’m selling my home. What happens to the solar?',
+    'lede'  => 'Owned solar is part of the house. Leased or PPA solar is a contract the buyer takes over, or you settle before closing.',
+    'answer' => 'If you own the system outright, it sells with the house. If there’s a solar loan, it usually has to be paid off or handled in escrow. With a lease or PPA, the usual path is transferring the agreement to the buyer, who typically needs to pass the solar company’s credit check; if that doesn’t work, you can buy out or prepay the contract. Start early: solar companies often file a UCC-1 notice on the equipment, and clearing or assigning it takes time.',
+    'points' => [
+      ['Owned', 'Hand over warranties, the equipment list, monitoring access and recent production.'],
+      ['Financed', 'Ask your lender for the payoff and how it’s handled at closing.'],
+      ['Lease or PPA', 'Contact the solar company as soon as you list. Transfers take weeks.'],
+    ],
+    'sections' => [
+      ['What buyers and agents ask for', [
+        ['Proof it works', 'A year of production and bills, so the savings are real, not a claim.'],
+        ['The agreement', 'Payment, escalator, years left and what happens at the end.'],
+        ['NEM status', 'Whether the system is on NEM 1.0, 2.0 or the Solar Billing Plan, and when that ends.'],
+      ]],
+    ],
+    'sources' => [
+      ['Solar United Neighbors: selling your solar home', 'https://solarunitedneighbors.org/gd-selling-your-solar-home'],
+      ['Tesla: solar and property title', 'https://tesla.com/support/energy/solar-panels/documents/property-title'],
+    ],
+    'faq' => ['my-installer-went-out-of-business-am-i-screwed', 'battery-warranties-the-fine-print-that-actually-matters'],
+  ],
+  'solar-lease-buyout' => ['_base' => 'owner',
+    'title' => 'Solar Lease or PPA Buyout: Options, End of Term and Early Purchase',
+    'desc'  => 'Buying out a solar lease or PPA: when buyout options usually apply, fair market value pricing, end-of-term choices, early termination costs, and what to ask your solar company.',
+    'kicker' => 'Lease and PPA buyouts',
+    'h1'    => 'Should I buy out my solar lease or PPA?',
+    'lede'  => 'Sometimes it makes sense, especially when selling or when payments are climbing. Your agreement sets the price and the timing.',
+    'answer' => 'Most leases and PPAs allow a buyout at set points in the contract and at the end of the term, usually priced at the system’s fair market value as the agreement defines it. At the end of the term you can typically renew, have the system removed, or buy it. Ending early without a buyout option can mean an early termination fee. Ask the solar company for a written buyout quote and compare it with what the system will save over the years you’ll stay.',
+    'points' => [
+      ['Find the clause', 'Look for “purchase option,” “buyout” or “end of term” in your agreement.'],
+      ['Get it in writing', 'Ask for a dated buyout quote, including any fees.'],
+      ['Run the numbers', 'Compare the price with remaining payments and the system’s age and warranties.'],
+    ],
+    'sections' => [
+      ['Before you buy', [
+        ['Check the equipment', 'An inverter near the end of its life changes what the system is worth. An audit tells you.'],
+        ['Warranties after a buyout', 'Ask which warranties and monitoring transfer to you, and which end with the contract.'],
+      ]],
+    ],
+    'sources' => [
+      ['Palmetto: what happens at the end of a lease or PPA', 'https://palmetto.com/solar/what-happens-at-the-end-of-a-solar-lease-or-ppa'],
+      ['EnergySage: canceling a solar lease', 'https://energysage.com/solar/solar-leases/cancelling-a-solar-lease-contract'],
+    ],
+    'faq' => ['prepaid-esa-vs-ppa-vs-cash-the-30-second-version', 'what-is-a-solar-health-audit-and-do-i-need-one'],
+  ],
+  'transfer-solar-monitoring' => ['_base' => 'owner',
+    'title' => 'Get Your Solar Monitoring Into Your Own Name (Enphase, SolarEdge, Tesla)',
+    'desc'  => 'How to get access to your own solar monitoring after an installer closes or you buy a home with solar: Enphase ownership transfer, SolarEdge access, and the Tesla app.',
+    'kicker' => 'Solar monitoring access',
+    'h1'    => 'How do I get my solar monitoring in my own name?',
+    'lede'  => 'Monitoring is how you know the system works. If an old installer or the previous owner controls it, you’re flying blind.',
+    'answer' => 'Each manufacturer handles this differently. Enphase has an ownership transfer for homeowners that moves the warranty and gives you access to the system in its app, and it may charge a fee. SolarEdge access is usually tied to the installer’s account, so a new installer often requests the transfer, sometimes for a fee. Tesla systems are monitored in the Tesla app, and ownership changes go through Tesla support. Start with the serial number on the inverter or gateway.',
+    'points' => [
+      ['Enphase', 'Complete Enphase’s transfer of ownership; you get warranty coverage and app access.'],
+      ['SolarEdge', 'Usually moved through an installer account. Ask a current installer to request it.'],
+      ['Tesla', 'Transfers are handled by Tesla support for the Tesla app.'],
+    ],
+    'sections' => [
+      ['Why it matters', [
+        ['Catch problems early', 'A failed optimizer or offline inverter can cost months of production before a bill shows it.'],
+        ['Warranty claims', 'Manufacturers often ask for monitoring data when you file a claim.'],
+      ]],
+    ],
+    'sources' => [
+      ['Enphase: transfer ownership', 'https://www4.enphase.com/en-uk/support/transfer-ownership-enphase-system'],
+      ['Tesla: transferring ownership', 'https://tesla.com/support/energy/solar-panels/after-installation/transferring-ownership'],
+    ],
+    'faq' => ['what-should-i-watch-in-my-monitoring-app-and-when-should-i-worry', 'my-installer-went-out-of-business-am-i-screwed'],
+    'alt' => ['Installer out of business?', '/solar-installer-out-of-business/'],
+  ],
 ];
 
 // A page's own keys win; the shared set fills in the rest.
 foreach ($GUIDES as $key => $page) {
   if (empty($page['_base'])) continue;
-  $GUIDES[$key] = $page + ($page['_base'] === 'orphan' ? $ORPHAN_BASE : $ERROR_BASE);
+  $GUIDES[$key] = $page + ['orphan' => $ORPHAN_BASE, 'error' => $ERROR_BASE, 'owner' => $OWNER_BASE][$page['_base']];
   unset($GUIDES[$key]['_base']);
 }
 return $GUIDES;

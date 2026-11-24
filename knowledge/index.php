@@ -92,6 +92,33 @@ echo '<script type="application/ld+json">' . json_encode($faq, JSON_UNESCAPED_SL
 </section>
 <?php endforeach; ?>
 
+<!-- ═══ GUIDES (the longer pages: landing-guides.php + the answer pages) ═══ -->
+<?php
+require __DIR__ . '/../landing-guides.php';   // defines $OWNER, $CLOSED, $ERRORS
+$GUIDE_GROUPS = [
+  ['🏠', 'Owner guides', array_merge([
+    ['Why is my bill high with solar?', '/high-bill-with-solar/', 'The usual causes on SDG&E and how to check each one.'],
+    ['Big true-up bill?', '/solar-true-up-bill/', 'What the annual true-up is and why it jumps.'],
+    ['Is my NEM 2.0 expiring?', '/nem-2-expiring/', 'When your 20 years end and what happens next.'],
+    ['Add a battery to existing solar', '/add-battery-to-existing-solar/', 'Keeping NEM, sizing, and programs.'],
+  ], $OWNER)],
+  ['🏚️', 'If your installer closed', array_merge([['What to do when any installer closes', '/solar-installer-out-of-business/', 'Warranties, monitoring, leases and who to call.']], $CLOSED)],
+  ['⚠️', 'Error codes and alerts', $ERRORS],
+];
+?>
+<section class="kc-guides" id="guides">
+    <div class="kc-head"><span class="kc-icon">📘</span><h2>Guides</h2></div>
+    <p class="kc-desc">Longer answers to the questions solar owners ask most, each on its own page.</p>
+<?php foreach ($GUIDE_GROUPS as [$icon, $title, $items]): ?>
+    <h3 class="kc-guides__group"><?= kc_e($icon . ' ' . $title) ?></h3>
+    <div class="kc-guides__grid">
+<?php foreach ($items as [$name, $href, $note]): ?>
+        <a class="kc-guide" href="<?= kc_e($href) ?>"><b><?= kc_e($name) ?></b><span><?= kc_e($note) ?></span></a>
+<?php endforeach; ?>
+    </div>
+<?php endforeach; ?>
+</section>
+
 <!-- ═══ AUDIT CTA ═══ -->
 <div class="audit-cta">
     <div class="ac-icon">🔍</div>

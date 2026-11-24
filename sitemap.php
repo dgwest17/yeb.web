@@ -32,6 +32,7 @@ $add('/add-battery-to-existing-solar/', 'landing.php', '0.8');
 $add('/solar-installer-out-of-business/', 'landing.php', '0.8');
 // Guides (closed installers, error codes): every page in landing-guides.php
 $add('/solar/', 'solar-cities.php', '0.8');
+foreach (array_keys(require __DIR__ . '/landing-es.php') as $es) $add('/' . $es . '/', 'landing-es.php', '0.6');   // Spanish pages
 foreach (array_keys(require __DIR__ . '/solar-cities.php') as $cty) $add('/solar/' . $cty . '/', 'solar-cities.php', '0.7');
 foreach (array_keys(require __DIR__ . '/landing-guides.php') as $g) $add('/' . $g . '/', 'landing-guides.php', '0.7');
 $add('/privacy/', 'privacy/index.html', '0.2');

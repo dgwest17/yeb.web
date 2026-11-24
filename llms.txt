@@ -44,3 +44,11 @@ Serves San Diego County and Orange County, California. Phone (858) 786-2204 (858
 
 ## Learn
 - [Knowledge Center](https://yourenergybest.com/knowledge/): plain answers on net billing (NEM 3.0), time-of-use rates, batteries, PPAs vs prepaid vs cash, dealer fees, escalators, true-up bills and monitoring apps.
+
+## En español
+- [Energía solar en San Diego](https://yourenergybest.com/es/)
+- [¿Factura alta aunque tiene paneles solares?](https://yourenergybest.com/es/factura-alta-con-solar/)
+- [Auditoría solar gratis](https://yourenergybest.com/es/auditoria-solar/)
+- [Cotización de paneles solares](https://yourenergybest.com/es/cotizacion-solar/)
+- [Batería para su sistema solar](https://yourenergybest.com/es/bateria-solar/)
+- [Mi instalador solar cerró](https://yourenergybest.com/es/instalador-solar-cerro/)

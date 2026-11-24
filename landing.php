@@ -314,12 +314,35 @@ $PAGES += require __DIR__ . '/landing-guides.php';
 // The two general pages point into the guides
 $PAGES['solar-installer-out-of-business'] += ['related_title' => 'Find your installer', 'related' => $PAGES['closed-solar-installers']['related']];
 $PAGES['solar-repair'] += ['related_title' => 'Error code guides', 'related' => $PAGES['solar-error-codes']['related']];
+$PAGES += require __DIR__ . '/landing-es.php';   // Spanish pages (/es/…)
 // City pages (city.php) describe themselves
 if (!empty($EXTRA_PAGE)) $PAGES[$LANDING] = $EXTRA_PAGE;
 
 $P = $PAGES[$LANDING ?? ""] ?? null;
 if (!$P) { http_response_code(404); exit('Not found'); }
 $url = KC_BASE . '/' . $LANDING . '/';
+// Language: the Spanish pages set 'lang' => 'es'. hreflang links each to its English page, both ways.
+$lang = $P['lang'] ?? 'en';
+$T = $lang === 'es' ? [
+  'home' => 'Inicio', 'short' => 'La respuesta corta', 'related' => 'Guías relacionadas',
+  'sources' => 'Información general de Your Energy Best; su cuenta y su contrato son los que rigen. Revisado el %s. Fuentes:',
+  'audit_fine' => ' · 20–45 minutos con David · sin compromiso', 'premium_fine' => ' · en su casa · incluye la auditoría completa',
+  'free_fine' => 'Gratis · sin revisión de crédito · sin compromiso',
+  'end_quote' => '¿Listo para ver sus números reales?', 'end' => 'Estamos listos cuando usted lo esté.',
+  'call' => 'O llame o envíe un texto a David',
+] : [
+  'home' => 'Home', 'short' => 'The short answer', 'related' => 'Related guides',
+  'sources' => 'General information from Your Energy Best; your account and agreement control. Last reviewed %s. Sources:',
+  'audit_fine' => ' · 20–45 minutes with David · fee may be applied toward a battery or new system', 'premium_fine' => ' · on site · includes the full savings audit',
+  'free_fine' => 'Free · no credit check · no obligation',
+  'end_quote' => 'Ready to see your real numbers?', 'end' => 'Ready when you are.',
+  'call' => 'Or call or text David',
+];
+$alternates = [];
+foreach ($PAGES as $k => $pg) if (!empty($pg['en']) && ($pg['lang'] ?? '') === 'es') {
+  $esUrl = KC_BASE . '/' . $k . '/'; $enUrl = KC_BASE . $pg['en'];
+  if ($k === $LANDING || $enUrl === $url) $alternates = ['en' => $enUrl, 'es' => $esUrl];
+}
 $faq = array_values(array_filter(array_map('kc_find', $P['faq'])));   // only published answers show
 $cityNames = [];
 foreach ($CITIES as $t) foreach (array_keys($t['cities']) as $c) $cityNames[] = $c;
@@ -335,7 +358,8 @@ $schema = [
 if ($faq) $schema[] = ['@context' => 'https://schema.org', '@type' => 'FAQPage', 'mainEntity' => array_map(fn($e) => [
   '@type' => 'Question', 'name' => $e['question'], 'acceptedAnswer' => ['@type' => 'Answer', 'text' => kc_text($e['answer'])]], $faq)];
 // Breadcrumbs on every page; an Article (dated) wherever the page answers a question.
-$crumbs = [['Home', KC_BASE . '/']];
+$crumbs = [[$T['home'], KC_BASE . ($lang === 'es' ? '/es/' : '/')]];
+if ($lang === 'es' && $LANDING === 'es') $crumbs = [[$T['home'], KC_BASE . '/es/']];
 if (!empty($P['crumb'])) $crumbs[] = [$P['crumb'][0], KC_BASE . $P['crumb'][1]];
 $crumbs[] = [$P['kicker'], $url];
 $schema[] = ['@context' => 'https://schema.org', '@type' => 'BreadcrumbList', 'itemListElement' => array_map(
@@ -344,7 +368,7 @@ $checkedIso = !empty($P['checked']) && strtotime($P['checked']) ? date('Y-m-d', 
 if (!empty($P['answer'])) {
   $org = ['@type' => 'Organization', '@id' => KC_BASE . '/#business', 'name' => 'Your Energy Best', 'url' => KC_BASE . '/', 'logo' => KC_BASE . '/img/logo.png'];
   $schema[] = ['@context' => 'https://schema.org', '@type' => 'Article', 'headline' => $P['h1'], 'description' => $P['desc'],
-    'mainEntityOfPage' => $url, 'author' => $org, 'publisher' => $org, 'inLanguage' => 'en-US']
+    'mainEntityOfPage' => $url, 'author' => $org, 'publisher' => $org, 'inLanguage' => $lang === 'es' ? 'es-US' : 'en-US']
     + ($checkedIso ? ['dateModified' => $checkedIso] : []);
 }
 if (!empty($P['itemlist']) && !empty($P['related'])) $schema[] = ['@context' => 'https://schema.org', '@type' => 'ItemList',
@@ -352,13 +376,15 @@ if (!empty($P['itemlist']) && !empty($P['related'])) $schema[] = ['@context' => 
     fn($i, $r) => ['@type' => 'ListItem', 'position' => $i + 1, 'name' => $r[0], 'url' => KC_BASE . $r[1]], array_keys($P['related']), $P['related'])];
 $priceTag = function ($key, $fallback) { return '<span data-price-of="' . kc_e($key) . '">' . kc_e($fallback) . '</span>'; };
 ?><!DOCTYPE html>
-<html lang="en">
+<html lang="<?= $lang ?>">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?= kc_e($P['title']) ?></title>
 <meta name="description" content="<?= kc_e($P['desc']) ?>">
 <link rel="canonical" href="<?= kc_e($url) ?>">
+<?php foreach ($alternates as $hl => $href): ?><link rel="alternate" hreflang="<?= $hl ?>" href="<?= kc_e($href) ?>">
+<?php endforeach; ?>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Your Energy Best">
 <meta property="og:url" content="<?= kc_e($url) ?>">
@@ -387,15 +413,15 @@ $priceTag = function ($key, $fallback) { return '<span data-price-of="' . kc_e($
     <a class="btn btn--primary btn--lg" href="<?= kc_e($P['cta'][1]) ?>"><?= kc_e($P['cta'][0]) ?></a>
     <a class="lp-alt" href="<?= kc_e($P['alt'][1]) ?>"><?= kc_e($P['alt'][0]) ?></a>
 <?php if (!empty($P['price'])): ?>
-    <p class="fine"><?= $P['price'] === 'savings-audit' ? $priceTag('savings-audit', '$219') . ' · 20–45 minutes with David · fee may be applied toward a battery or new system' : $priceTag('audit-premium', '$479') . ' · on site · includes the full savings audit' ?></p>
+    <p class="fine"><?= $P['price'] === 'savings-audit' ? $priceTag('savings-audit', '$219') . kc_e($T['audit_fine']) : $priceTag('audit-premium', '$479') . kc_e($T['premium_fine']) ?></p>
 <?php else: ?>
-    <p class="fine">Free · no credit check · no obligation</p>
+    <p class="fine"><?= kc_e($T['free_fine']) ?></p>
 <?php endif; ?>
   </div>
 
 <?php if (!empty($P['answer'])): ?>
   <section class="ab-card lp-short">
-    <h2>The short answer</h2>
+    <h2><?= kc_e($T['short']) ?></h2>
     <p><?= kc_e($P['answer']) ?></p>
   </section>
 <?php endif; ?>
@@ -421,7 +447,7 @@ $priceTag = function ($key, $fallback) { return '<span data-price-of="' . kc_e($
 <?php endif; ?>
 <?php if (!empty($P['related'])): ?>
   <section class="ab-card lp-related">
-    <h2><?= kc_e($P['related_title'] ?? 'Related guides') ?></h2>
+    <h2><?= kc_e($P['related_title'] ?? $T['related']) ?></h2>
     <ul>
 <?php foreach ($P['related'] as [$name, $href, $note]): if (rtrim($href, '/') === '/' . $LANDING) continue; ?>
       <li><a href="<?= kc_e($href) ?>"><?= kc_e($name) ?></a><span><?= kc_e($note) ?></span></li>
@@ -430,12 +456,13 @@ $priceTag = function ($key, $fallback) { return '<span data-price-of="' . kc_e($
   </section>
 <?php endif; ?>
 <?php if (!empty($P['sources'])): ?>
-  <p class="lp-sources">General information from Your Energy Best; your account and agreement control. Last reviewed <?= kc_e($P['checked']) ?>. Sources:
+  <p class="lp-sources"><?= kc_e(sprintf($T['sources'], $P['checked'])) ?>
 <?php foreach ($P['sources'] as [$name, $href]): ?>
     <a href="<?= kc_e($href) ?>" target="_blank" rel="noopener"><?= kc_e($name) ?></a>
 <?php endforeach; ?>
   </p>
 <?php endif; ?>
+<?php if ($lang !== 'es'): ?>
   <section class="ab-section">
     <h2>Where we work</h2>
     <p class="lp-sub">What's different depends on your utility. Find your city:</p>
@@ -454,6 +481,7 @@ $priceTag = function ($key, $fallback) { return '<span data-price-of="' . kc_e($
     </div>
 <?php endforeach; ?>
   </section>
+<?php endif; ?>
 
 <?php if ($faq): ?>
   <section class="ab-section">
@@ -470,9 +498,9 @@ $priceTag = function ($key, $fallback) { return '<span data-price-of="' . kc_e($
 <?php endif; ?>
 
   <div class="ab-card lp-cta lp-cta--end">
-    <h2><?= kc_e($P['cta'][0] === 'Get my free quote →' ? 'Ready to see your real numbers?' : 'Ready when you are.') ?></h2>
+    <h2><?= kc_e(in_array($P['cta'][0], ['Get my free quote →', 'Pida su cotización gratis →'], true) ? $T['end_quote'] : $T['end']) ?></h2>
     <a class="btn btn--primary btn--lg" href="<?= kc_e($P['cta'][1]) ?>"><?= kc_e($P['cta'][0]) ?></a>
-    <p class="contact">Or call or text David · <a href="tel:+18587862204">(858) 786-2204</a></p>
+    <p class="contact"><?= kc_e($T['call']) ?> · <a href="tel:+18587862204">(858) 786-2204</a></p>
   </div>
 </main>
 
@@ -481,11 +509,16 @@ $priceTag = function ($key, $fallback) { return '<span data-price-of="' . kc_e($
     <div class="footer__grid">
       <div>
         <img src="/img/logo.png" alt="Your Energy Best" class="footer__logo" />
-        <p>Solar + battery in San Diego &amp; Orange County.</p>
+        <p><?= $lang === 'es' ? 'Paneles solares y baterías en San Diego y Orange County.' : 'Solar + battery in San Diego &amp; Orange County.' ?></p>
         <div class="footer__contact"><a href="tel:+18587862204">📞 (858) 786-2204</a><span style="opacity:.8;font-size:.9em;white-space:nowrap;"> · 858-SUN-2204</span></div>
       </div>
+<?php if ($lang === 'es'): ?>
+      <div class="footer__col"><h5>En español</h5><a href="/es/">Inicio en español</a><a href="/es/auditoria-solar/">Auditoría solar gratis</a><a href="/es/factura-alta-con-solar/">Factura alta con solar</a><a href="/es/cotizacion-solar/">Cotización solar</a><a href="/es/bateria-solar/">Baterías</a><a href="/es/instalador-solar-cerro/">Mi instalador cerró</a></div>
+      <div class="footer__col"><h5>English</h5><a href="/">Your Energy Best (English)</a><a href="/knowledge/">Knowledge Center</a><a href="/solar/">Cities we serve</a></div>
+<?php else: ?>
       <div class="footer__col"><h5>Get started</h5><a href="/quote/">Solar &amp; battery quote</a><a href="/audit/">Solar audit</a><a href="https://www.lumaria.energy/">lumaria app</a></div>
-      <div class="footer__col"><h5>Learn</h5><a href="/knowledge/">Knowledge Center</a><a href="/solar-quote/">Solar quotes</a><a href="/home-battery/">Home batteries</a><a href="/solar-audit/">Solar audits</a><a href="/high-bill-with-solar/">High bill with solar?</a><a href="/solar-true-up-bill/">Big true-up bill?</a><a href="/nem-2-expiring/">NEM expiring?</a><a href="/add-battery-to-existing-solar/">Add a battery to solar</a><a href="/solar-installer-out-of-business/">Installer out of business?</a><a href="/closed-solar-installers/">Closed installers list</a><a href="/solar-error-codes/">Inverter error codes</a><a href="/solar/">Cities we serve</a><a href="/solar-repair/">Solar not working?</a><a href="/solar-inspection/">Solar inspections</a></div>
+      <div class="footer__col"><h5>Learn</h5><a href="/knowledge/">Knowledge Center</a><a href="/solar-quote/">Solar quotes</a><a href="/home-battery/">Home batteries</a><a href="/solar-audit/">Solar audits</a><a href="/high-bill-with-solar/">High bill with solar?</a><a href="/solar-true-up-bill/">Big true-up bill?</a><a href="/nem-2-expiring/">NEM expiring?</a><a href="/add-battery-to-existing-solar/">Add a battery to solar</a><a href="/solar-installer-out-of-business/">Installer out of business?</a><a href="/closed-solar-installers/">Closed installers list</a><a href="/solar-error-codes/">Inverter error codes</a><a href="/solar/">Cities we serve</a><a href="/solar-repair/">Solar not working?</a><a href="/solar-inspection/">Solar inspections</a><a href="/es/">Español</a></div>
+<?php endif; ?>
     </div>
     <div class="footer__bottom"><span>&copy; <?= date('Y') ?> Your Energy Best. All rights reserved.</span><span><a href="/privacy/">Privacy Policy</a> &nbsp;·&nbsp; <a href="/terms/">Terms of Service</a></span></div>
   </div>

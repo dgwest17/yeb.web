@@ -83,6 +83,66 @@ $SAFETY = ['Safety first', [
 
 $GUIDES = [
   // ─── Hubs ───────────────────────────────────────────────────────────────
+  // ─── Audit results (case studies). Initials, city and state only (David, 2026-11-24).
+  // Figures are each home's audit and proposal projections; update when installs report real numbers.
+  'solar-audit-results' => [
+    'title' => 'Solar Audit Results: Real San Diego Homes, Real Numbers | Your Energy Best',
+    'desc'  => 'What solar audits found in real San Diego County homes: batteries added to existing solar, non-export add-ons that keep NEM 1.0 and 2.0, a CEA lease, and a NEM 1.0 home preparing for its cliff.',
+    'kicker' => 'Audit results',
+    'h1'    => 'What our audits found in real homes.',
+    'lede'  => 'Every home here started with the same audit. Names are left off; each one is a real San Diego County household.',
+    'answer' => 'Most solar owners we audit have the same problem: the house now uses far more power than when the panels went in, so the old system covers less every year and the true-up grows. The fix depends on the home. Sometimes it is a battery alone, sometimes a non-export add-on that keeps NEM 1.0 or 2.0 untouched, and sometimes it is planning ahead for the end of NEM. These are projections from each home’s audit and proposal.',
+    'points' => [
+      ['Same audit, different answers', 'Battery only, add-on panels, a lease, or moving off NEM early: the numbers decide.'],
+      ['NEM protected when it should be', 'Non-export designs add panels without touching an existing NEM 1.0 or 2.0 agreement.'],
+      ['Free through Dec 31', 'The audit that produced every result on this page is free until the end of the year.'],
+    ],
+    'sections' => [
+      ['A.G. · Encinitas, CA · battery only', [
+        ['Before', 'A 5.4 kW system from 2012 and no battery. The home now uses 16,592 kWh a year; the panels make 8,900. Utility bill: about $298 a month.'],
+        ['The fix', 'One Tesla Powerwall 3 (13.5 kWh), $11,550 paid up front after the federal prepaid discount.'],
+        ['Projected result', 'Monthly bill to about $118. Roughly $87,000 kept over 20 years; break-even in about 4.6 years.'],
+      ]],
+      ['J.L. · Carlsbad, CA · more storage, no SDCP rebate', [
+        ['Before', 'An 11 kW system from 2023 with one Powerwall already. The home uses 19,576 kWh a year; the panels make 14,000. Bill: about $263 a month.'],
+        ['The fix', 'Two more Powerwall 3s (27 kWh), $29,750 cash. Carlsbad is a Clean Energy Alliance city, so no SDCP rebate.'],
+        ['Projected result', 'Monthly bill to about $114. Roughly $61,000 kept over 20 years; break-even in about 8.5 years.'],
+      ]],
+      ['F.B. · Solana Beach, CA · non-export add-on, NEM 1.0 kept', [
+        ['Before', 'A 9.5 kW system from 2015 on NEM 1.0. The home uses 22,257 kWh a year. The audit found the system needed repair: it was making about 90% of what it should.'],
+        ['The fix', '18 new panels (7.92 kW) designed non-export, plus a Powerwall 3. Nothing new is sent to the grid, so the NEM 1.0 agreement carries on untouched. $27,938 paid up front after the federal prepaid discount.'],
+        ['Projected result', 'Production up to about 24,200 kWh a year. Monthly bill from about $185 to $0; roughly $73,600 kept over 20 years.'],
+      ]],
+      ['S.K. · San Diego, CA · non-export add-on, NEM 2.0 kept', [
+        ['Before', 'A 6.27 kW system from 2018 on NEM 2.0. The home uses 13,789 kWh a year; the panels make 8,957. Bill: about $231 a month.'],
+        ['The fix', '11 new panels (4.84 kW) designed non-export, plus a Powerwall 3, keeping NEM 2.0. $20,945 paid up front after the federal prepaid discount.'],
+        ['Projected result', 'Production up to about 16,600 kWh a year. Monthly bill to about $24, the connection charge; roughly $92,700 kept over 20 years.'],
+      ]],
+      ['R.B. · Carlsbad, CA · battery through a CEA lease', [
+        ['Before', 'A 4.25 kW system from 2016 on NEM 2.0. Bill: about $104 a month, and no backup power.'],
+        ['The fix', 'A Powerwall 3 through Clean Energy Alliance: $0 down, $100 a month, fully warrantied, with a buyout option after year 6.'],
+        ['Projected result', 'Year one costs a little more, about $124 a month, in exchange for backup power. Because the lease rises 1.9% a year while utility rates rise faster, it is projected to keep about $32,000 over 20 years.'],
+      ]],
+      ['D.H. · Encinitas, CA · getting ahead of the NEM 1.0 cliff', [
+        ['Before', 'Two systems, from 2008 and 2021, still producing everything they should. But the home’s usage has climbed from 4,000 to over 10,000 kWh a year and is still rising, and NEM 1.0 ends in 2028. When it does, the credits from those panels drop sharply and the bill climbs with them.'],
+        ['The fix', 'Rather than wait for the cliff, a complete system now: 16 new panels (7.04 kW) and two Powerwall 3s (27 kWh), sized for where usage is heading, while San Diego Community Power’s battery rebate is available ($9,450, applied to the loan) and before borrowing costs rise.'],
+        ['Projected result', 'Production up to about 24,500 kWh a year and two batteries to run the evening peak, so the home is insulated from SDG&E rather than exposed when NEM 1.0 ends. Year one costs more than today’s bill; the plan pays off as rates climb.'],
+      ]],
+    ],
+    'related_title' => 'Read more', 'related' => [
+      ['Book your free audit', '/audit/', 'The same audit behind every result here. Free through December 31.'],
+      ['Is my NEM expiring?', '/nem-2-expiring/', 'When your 20 years end and what happens next.'],
+      ['Add a battery to existing solar', '/add-battery-to-existing-solar/', 'Keeping NEM, sizing and programs.'],
+      ['SDCP battery rebate', '/sdcp-battery-rebate/', 'Who qualifies and how it works.'],
+    ],
+    'checked' => 'November 24, 2026',
+    'price' => 'savings-audit',
+    'cta'   => ['Book my free audit →', '/audit/'],
+    'alt'   => ['Questions first? Browse the Knowledge Center', '/knowledge/'],
+    'topic' => 'audit',
+    'service' => 'Solar audits and system upgrades',
+    'faq'   => ['what-is-a-solar-health-audit-and-do-i-need-one', 'do-i-actually-need-a-battery-in-california'],
+  ],
   'closed-solar-installers' => [
     'title' => 'Closed Solar Installers List (2026) | Who Services Your System Now',
     'desc'  => 'Solar companies that went bankrupt or closed, including SunPower, Sunnova, Freedom Forever, Titan, Mosaic, Sullivan Solar, PetersenDean and Sungevity, and who services those systems now.',

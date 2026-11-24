@@ -12,6 +12,7 @@ Serves San Diego County and Orange County, California. Phone (858) 786-2204 (858
 
 ## Already have solar
 - [Why is my electric bill high if I have solar?](https://yourenergybest.com/high-bill-with-solar/): the seven usual causes on SDG&E, how to check each one, and which fix fits.
+- [Solar audit results in real San Diego homes](https://yourenergybest.com/solar-audit-results/): six anonymized cases: battery only, non-export add-ons that keep NEM 1.0/2.0, a CEA lease, and planning for the end of NEM 1.0.
 - [Why is my solar true-up bill so high?](https://yourenergybest.com/solar-true-up-bill/): Why a solar true-up bill can be so high on SDG&E, how to tell a production problem from higher usage, and how to avoid the next surprise.
 - [When does my NEM 1.0 or 2.0 expire?](https://yourenergybest.com/nem-2-expiring/): NEM 1.0 and 2.0 generally last 20 years from Permission to Operate. How to find your date, what the Solar Billing Plan changes, and how to prepare.
 - [Can I add a battery to my solar without losing NEM?](https://yourenergybest.com/add-battery-to-existing-solar/): Can you add a battery to existing solar and keep NEM 1.0 or 2.0? What generally keeps your status, what can end it, and when a battery pays in San Diego.

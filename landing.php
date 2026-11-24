@@ -520,7 +520,7 @@ $priceTag = function ($key, $fallback) { return '<span data-price-of="' . kc_e($
       <div class="footer__col"><h5>Learn</h5><a href="/knowledge/">Knowledge Center</a><a href="/solar-quote/">Solar quotes</a><a href="/home-battery/">Home batteries</a><a href="/solar-audit/">Solar audits</a><a href="/high-bill-with-solar/">High bill with solar?</a><a href="/solar-true-up-bill/">Big true-up bill?</a><a href="/nem-2-expiring/">NEM expiring?</a><a href="/add-battery-to-existing-solar/">Add a battery to solar</a><a href="/solar-installer-out-of-business/">Installer out of business?</a><a href="/closed-solar-installers/">Closed installers list</a><a href="/solar-error-codes/">Inverter error codes</a><a href="/solar/">Cities we serve</a><a href="/solar-audit-results/">Audit results</a><a href="/solar-repair/">Solar not working?</a><a href="/solar-inspection/">Solar inspections</a><a href="/es/">Español</a></div>
 <?php endif; ?>
     </div>
-    <div class="footer__bottom"><span>&copy; <?= date('Y') ?> Your Energy Best. All rights reserved.</span><span><a href="/privacy/">Privacy Policy</a> &nbsp;·&nbsp; <a href="/terms/">Terms of Service</a></span></div>
+    <div class="footer__bottom"><span>&copy; <?= date('Y') ?> Your Energy Best, a <a href="https://www.lumaria.energy/" style="color:inherit;text-decoration:underline">Lumaria Energy</a> provider. All rights reserved.</span><span><a href="/privacy/">Privacy Policy</a> &nbsp;·&nbsp; <a href="/terms/">Terms of Service</a></span></div>
   </div>
 </footer>
 <script src="/prices.js" defer></script>

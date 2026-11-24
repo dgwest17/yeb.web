@@ -173,6 +173,18 @@
     }
   };
 
+  // FREE FOR A LIMITED TIME (plans.php free_until): no checkout, straight to David's calendar
+  fetch('/plans.php').then(function (r) { return r.json(); }).then(function (plans) {
+    var p = plans[PLAN]; if (!p || !p.free || cfg.mode !== 'paid') return;
+    cfg.free = true;
+    var until = new Date(p.free_until + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+    var payBtn = $('#optPay');
+    if (payBtn) payBtn.innerHTML = '<span class="ic">📅</span><span><b>Pick a time: <s>$' + p.price + '</s> Free</b><small>Free audit through ' + until + '. No payment, no obligation.</small></span>';
+    var intro = document.querySelector('#stepForm > p'); if (intro) intro.textContent = 'Start with the basics, then pick a time. The audit is free through ' + until + '.';
+    var or = document.querySelector('#stepForm .or'); if (or) or.textContent = 'A phone number or an email is enough.';
+    var fine = document.querySelector('#stepForm .fine'); if (fine) fine.textContent = 'Free through ' + until + '. No payment and no obligation.';
+  }).catch(function () {});
+
   var book = $('#optBook');
   if (book) book.addEventListener('click', function (e) { e.preventDefault(); openCalendly(lead || restore() || {}); });
 
@@ -182,6 +194,7 @@
     e.preventDefault();
     var l = lead || restore();
     if (!l) return show('#stepForm');
+    if (cfg.free) return openCalendly(l);
     var email = l.email;
     if (!email) {
       email = (prompt('Stripe needs an email for your receipt:') || '').trim();

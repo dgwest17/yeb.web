@@ -12,17 +12,26 @@
 $PLANS = [
   // Audit tiers
   // The Self-Audit is free in the lumaria app — there's nothing to buy.
-  'full'          => ['name' => 'Full Professional Audit & Evaluation', 'amount' => 21900, 'mode' => 'payment'],   // same audit as savings-audit
+  // FREE FOR A LIMITED TIME (David, 2026-11-23): 'free_until' (last day, Pacific) shows ~~$219~~ Free
+  // everywhere, sends /audit/ straight to the calendar and never charges. Delete the key to end it.
+  'full'          => ['name' => 'Full Professional Audit & Evaluation', 'amount' => 21900, 'mode' => 'payment', 'free_until' => '2026-12-31'],   // same audit as savings-audit
   'audit-premium' => ['name' => 'Premium Audit & Inspection',           'amount' => 47900, 'mode' => 'payment',      'return' => '/services/audit/'],
   'audit-annual'  => ['name' => 'Annual Audit & Recommendations Plan',  'amount' => 10900, 'mode' => 'subscription', 'return' => '/services/audit/'],
   // /audit/ booking page (waived on /audit-local/ for flyer recipients)
-  'savings-audit' => ['name' => 'Solar Savings Audit',                  'amount' => 21900, 'mode' => 'payment',      'return' => '/audit/'],
+  'savings-audit' => ['name' => 'Solar Savings Audit',                  'amount' => 21900, 'mode' => 'payment',      'return' => '/audit/', 'free_until' => '2026-12-31'],
   // Annual service plans — not launched yet: greyed out on /services/ and refused at checkout.
   // To launch: set 'launched' => true here and rename data-plan-soon back to data-plan on /services/.
   'basic'         => ['name' => 'Service Plan — Essential',             'amount' => 14900, 'mode' => 'subscription', 'launched' => false],
   'plus'          => ['name' => 'Service Plan — Plus',                  'amount' => 26900, 'mode' => 'subscription', 'launched' => false],
   'totalcare'     => ['name' => 'Service Plan — Total Care',            'amount' => 46500, 'mode' => 'subscription', 'launched' => false],
 ];
+
+/** Is this plan free today? (through the end of free_until, Pacific time) */
+if (!function_exists('plan_free_now')) { function plan_free_now(array $p) {
+  if (empty($p['free_until'])) return false;
+  $today = (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->format('Y-m-d');
+  return $today <= $p['free_until'];
+} }
 
 // Requested directly → public price list as JSON. Included → hand the map to the caller.
 if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__) {
@@ -31,7 +40,8 @@ if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__) {
   $out = [];
   foreach ($PLANS as $key => $p) {
     if (($p['launched'] ?? true) === false) continue;   // no public price until it launches
-    $out[$key] = ['name' => $p['name'], 'price' => $p['amount'] / 100, 'recurring' => $p['mode'] === 'subscription'];
+    $out[$key] = ['name' => $p['name'], 'price' => $p['amount'] / 100, 'recurring' => $p['mode'] === 'subscription']
+      + (plan_free_now($p) ? ['free' => true, 'free_until' => $p['free_until']] : []);
   }
   echo json_encode($out);
   exit;

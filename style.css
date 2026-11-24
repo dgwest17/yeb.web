@@ -1476,3 +1476,10 @@ body.nav-open { overflow: hidden; }
 .about-section .about-card { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18); border-radius: 12px; padding: 1rem 1.1rem; }
 .about-section .about-card b { display: block; color: #FFB703; margin-bottom: .35rem; font-size: 1.02rem; }
 .about-section .about-card p { font-size: .95rem; margin: 0; }
+
+/* Trust bar: bigger and higher contrast (it read as faint gray) */
+section.trust-bar { background: var(--navy); padding: 1.1rem 0; }
+section.trust-bar .trust-bar__inner { gap: .75rem 2.25rem; }
+section.trust-bar .trust-bar__item { color: #fff; font-size: 1rem; font-weight: 700; opacity: 1; }
+section.trust-bar .trust-bar__item--rating { color: #FFB703; }
+@media (max-width: 640px) { section.trust-bar .trust-bar__item { font-size: .9rem; } }

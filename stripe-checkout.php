@@ -18,6 +18,8 @@ $plans = require __DIR__ . '/plans.php';
 $planKey = $input['plan'] ?? '';
 if (!isset($plans[$planKey])) { http_response_code(400); echo json_encode(['error' => 'Unknown plan']); exit; }
 $plan  = $plans[$planKey];
+// Free right now: never charge; the audit page books it straight onto the calendar
+if (plan_free_now($plan)) { echo json_encode(['url' => 'https://yourenergybest.com/audit/?free=1#stepForm']); exit; }
 if (($plan['launched'] ?? true) === false) { http_response_code(400); echo json_encode(['error' => 'That plan isn\'t available yet.']); exit; }
 $email = filter_var($input['email'] ?? '', FILTER_VALIDATE_EMAIL);
 if (!$email) { http_response_code(400); echo json_encode(['error' => 'Invalid email']); exit; }

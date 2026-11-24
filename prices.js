@@ -9,7 +9,12 @@
     function money(n) { return '$' + (n % 1 ? n.toFixed(2) : n.toLocaleString('en-US')); }
     document.querySelectorAll('[data-price-of]').forEach(function (el) {
       var p = plans[el.getAttribute('data-price-of')];
-      if (p) el.textContent = money(p.price);
+      if (!p) return;
+      if (p.free) {   // limited-time free: the regular price struck through, then Free
+        el.innerHTML = '<s style="opacity:.7">' + money(p.price) + '</s> <b style="color:#06A77D">Free</b>';
+        var until = new Date(p.free_until + 'T12:00:00');
+        el.title = 'Free through ' + until.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+      } else el.textContent = money(p.price);
     });
     document.querySelectorAll('[data-plan][data-price]').forEach(function (el) {
       var p = plans[el.getAttribute('data-plan')];

@@ -692,7 +692,7 @@ function renderComparison(data) {
   const colGood = c.col_solar || 'Go Solar';
   const rows = c.rows || [
     { label: 'Monthly Cost', utility: '~$250+ (rising)', solar: '~$150 (locked)' },
-    { label: 'Annual Rate Increase', utility: '~8–10%/yr', solar: '0%' },
+    { label: 'Annual Rate Increase', utility: '~8–10%/yr', solar: '0%*' },
     { label: '10-Year Cost', utility: '~$38,000+', solar: '~$18,000' },
     { label: 'Own Your Power', utility: '✗', solar: '✓' },
     { label: 'Home Value Increase', utility: '✗', solar: '+$15–25K' },
@@ -717,6 +717,7 @@ function renderComparison(data) {
   });
   
   html += '</div>';
+  if (/\*/.test(html)) html += '<p style="color:rgba(255,255,255,.7);font-size:.85rem;text-align:center;margin-top:.8rem">*If qualified.</p>';
   document.getElementById('cms-comparison').innerHTML = html;
 }
 
@@ -921,7 +922,10 @@ CMS.load().then(() => {
   const dismissed = sessionStorage.getItem('nl_dismissed');
   if (dismissed) return;
   
-  setTimeout(() => { popup.classList.add('visible'); }, 8000);
+  // Give people time to read first: 20 seconds, and only once they've scrolled a little
+  let nlArmed = false;
+  const nlShow = () => { if (nlArmed && window.scrollY > 600 && !sessionStorage.getItem('nl_dismissed')) popup.classList.add('visible'); };
+  setTimeout(() => { nlArmed = true; nlShow(); window.addEventListener('scroll', nlShow, { passive: true, once: false }); }, 20000);
   
   closeBtn.addEventListener('click', () => {
     popup.classList.remove('visible');

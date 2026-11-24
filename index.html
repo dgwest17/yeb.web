@@ -172,9 +172,10 @@
   </div>
   <div class="hero__content">
     <div class="hero__text anim-fadeUp">
-      <span class="eyebrow">San Diego's Solar & Energy Experts</span>
-      <h1><span class="title-white" id="home-title-part1">Surf Into</span> <em class="title-orange" id="home-title-part2">Energy Freedom</em></h1>
-      <p id="home-subtitle">Ride the wave to lower bills — solar + battery with $0 down options for eligible San Diego homes.</p>
+      <!-- Same words as Admin → Homepage, so nothing swaps in after load (change both together) -->
+      <span class="eyebrow">Southern California’s Energy Experts</span>
+      <h1><span class="title-white" id="home-title-part1">Your Home for the</span> <em class="title-orange" id="home-title-part2">BEST Energy Upgrades</em></h1>
+      <p id="home-subtitle">Custom solar + battery solutions — with $0 down options available for eligible homes.</p>
     </div>
     <div class="hero__visual anim-fadeUp anim-delay-2">
       <!-- The four ways in, visible without a click: learn, quote, existing solar, talk -->
@@ -654,8 +655,10 @@ const FALLBACK_PINS=[[33.0375,-117.2864],[33.1244,-117.0914],[33.2051,-117.2474]
 function initLeafletMap(pins) {
   const map = L.map('installMapLeaflet', { scrollWheelZoom: false }).setView([32.95, -117.15], 10);
   
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '',
+  // OpenStreetMap's own tiles: no key needed (CARTO's started showing "API KEY REQUIRED", 2026-11-23).
+  // The credit is required by OpenStreetMap's licence.
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors',
     maxZoom: 19
   }).addTo(map);
   

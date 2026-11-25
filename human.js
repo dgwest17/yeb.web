@@ -39,7 +39,8 @@
   function addOptIns() {
     document.querySelectorAll('input[type=tel]').forEach(function (tel) {
       if (tel.hasAttribute('data-no-optin') || tel.closest('.yeb-optin-done')) return;
-      var host = tel.closest('label') || tel;
+      // Below the whole row when the phone sits beside another field (e.g. Mobile | Email)
+      var host = tel.closest('.two, .row, .form-row, .grid-2') || tel.closest('label') || tel;
       host.classList.add('yeb-optin-done');
       var lab = document.createElement('label');
       lab.className = 'yeb-optin';

@@ -243,7 +243,9 @@ $zohoNote = $__isInternal && is_array($input['zoho_note'] ?? null) ? $input['zoh
 if (($input['action'] ?? '') === 'note' && !$__isInternal) { http_response_code(400); echo json_encode(['error' => 'Invalid action']); exit; }
 
 // Strip spam-filter fields before processing
-unset($input['website'], $input['company_url'], $input['_ts'], $input['zoho_note']);
+// Text opt-in from the website form (human.js adds the box): noted on the Lead, never assumed
+$textsOk = !empty($input['texts_ok']);
+unset($input['website'], $input['company_url'], $input['_ts'], $input['zoho_note'], $input['texts_ok']);
 
 $action = $input['action'] ?? 'lead';
 $sourceForm = $input['source_form'] ?? ($action === 'newsletter' ? 'NewsletterPopup' : 'QuoteWizard');
@@ -381,7 +383,20 @@ if ($result['success']) {
     logStructured($sourceForm, 'success', $input, $result['id']);
     // A signed reference to this Lead, so the follow-up questions (prep.php) attach to it
     $prep = ($result['id'] && defined('AUDIT_ACCESS_SECRET')) ? $result['id'] . '.' . substr(hash_hmac('sha256', 'prep:' . $result['id'], AUDIT_ACCESS_SECRET), 0, 24) : null;
+    if ($textsOk) addLeadNote($result['id'], ['title' => 'Texts OK (website opt-in)',
+        'content' => 'Ticked "OK to text me about my request" on the ' . $sourceForm . ' form, ' . date('M j, Y g:i a T') . ', from ' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown IP') . '. Shown: rates may apply, frequency varies, reply STOP to opt out, HELP for help.'], $accessToken);
     echo json_encode(['success'=>true,'zoho_id'=>$result['id'],'action'=>$result['action'],'trace'=>$traceId,'prep'=>$prep]);
+    // LEAD SPEED: text David now (lumaria /api/lead-alert checks the signed ref with prep.php first).
+    // After the response is sent, so the visitor never waits on it.
+    if ($prep && !$__isInternal && !$isTest) {
+        if (function_exists('fastcgi_finish_request')) fastcgi_finish_request();
+        $ch = curl_init('https://www.lumaria.energy/api/lead-alert');
+        curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_POST => true, CURLOPT_TIMEOUT => 12,
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+            CURLOPT_POSTFIELDS => json_encode(['ref' => $prep, 'form' => $sourceForm, 'opp' => $input['opportunity_type'] ?? '', 'texts_ok' => $textsOk])]);
+        $alert = curl_exec($ch); $alertCode = curl_getinfo($ch, CURLINFO_HTTP_CODE); curl_close($ch);
+        if ($alertCode !== 200) logDebug("Lead text alert failed [$alertCode]: " . substr((string)$alert, 0, 200));
+    }
 } else {
     logStructured($sourceForm, 'fail', $input, null, $result['error'] ?? 'Unknown');
     yeb_lead_alert('Website lead NOT saved to Zoho', 'Zoho answered: ' . substr((string)($result['error'] ?? 'Unknown'), 0, 300), $input);

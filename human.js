@@ -33,6 +33,25 @@
   }
   // Warm up as soon as someone starts typing, so the token is ready by Submit
   document.addEventListener('focusin', function (e) { if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) start(); });
+  // ─── TEXT OPT-IN (A2P 10DLC): an unticked box under each lead form's phone field ───
+  // Shown only where a form has a phone field; the answer rides along as texts_ok on the post to
+  // zoho.php, which notes it on the Lead. Wording follows carrier rules (rates, frequency, STOP, HELP).
+  function addOptIns() {
+    document.querySelectorAll('input[type=tel]').forEach(function (tel) {
+      if (tel.hasAttribute('data-no-optin') || tel.closest('.yeb-optin-done')) return;
+      var host = tel.closest('label') || tel;
+      host.classList.add('yeb-optin-done');
+      var lab = document.createElement('label');
+      lab.className = 'yeb-optin';
+      lab.style.cssText = 'display:flex;gap:8px;align-items:flex-start;margin:8px 0 4px;font-size:.82rem;line-height:1.4;opacity:.85;font-weight:400;text-transform:none;letter-spacing:0;cursor:pointer;grid-column:1/-1';
+      lab.innerHTML = '<input type="checkbox" name="texts_ok" value="1" style="margin-top:3px;width:auto;flex:none"> <span>OK to text me about my request. Msg &amp; data rates may apply; frequency varies. Reply STOP to opt out, HELP for help. <a href="https://www.lumaria.energy/sms/" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">Texting terms</a></span>';
+      host.parentNode.insertBefore(lab, host.nextSibling);
+    });
+  }
+  function optedIn() { return !!document.querySelector('.yeb-optin input:checked'); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', addOptIns); else addOptIns();
+  new MutationObserver(function () { addOptIns(); }).observe(document.documentElement, { childList: true, subtree: true });
+
   var orig = window.fetch;
   window.fetch = function (url, opts) {
     var u = typeof url === 'string' ? url : (url && url.url) || '';
@@ -41,7 +60,11 @@
     var self = this, args = arguments;
     return getToken().then(function (t) {
       var h = new Headers(opts.headers || {}); if (t) h.set('X-Turnstile', t);
-      return orig.call(self, url, Object.assign({}, opts, { headers: h }));
+      var body = opts.body;
+      if (/zoho\.php/.test(u) && typeof body === 'string' && optedIn()) {
+        try { var j = JSON.parse(body); j.texts_ok = true; body = JSON.stringify(j); } catch (e) {}
+      }
+      return orig.call(self, url, Object.assign({}, opts, { headers: h, body: body }));
     });
   };
 })();

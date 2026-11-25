@@ -201,7 +201,7 @@
   }
 
   // Human check for the lead forms (Cloudflare Turnstile): human.js
-  if (!document.querySelector('script[src^="/human.js"]')) { var hs = document.createElement('script'); hs.src = '/human.js?v=1'; hs.async = true; document.head.appendChild(hs); }
+  if (!document.querySelector('script[src^="/human.js"]')) { var hs = document.createElement('script'); hs.src = '/human.js?v=2'; hs.async = true; document.head.appendChild(hs); }
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', build);

@@ -729,6 +729,7 @@ function renderBlog(main) {
         field('content', { path: 'title', type: 'text', label: 'Title' }, p),
         field('content', { row3: [ { path: 'kind', type: 'select', label: 'Type', options: [['post', 'Blog post'], ['update', 'Quick update'], ['newsletter', 'Newsletter']] }, { path: 'tag', type: 'text', label: 'Topic tag', help: 'e.g. Batteries, Rates, Repairs' }, { path: 'date', type: 'date', label: 'Date' } ] }, p),
         field('content', { path: 'readtime', type: 'text', label: 'Read time' }, p),
+        field('content', { path: 'image', type: 'photo', label: 'Cover photo', help: 'Shows at the top of the post and on the blog list. A wide photo works best.' }, p),
         field('content', { path: 'body', type: 'rich', tall: true, label: 'Post' }, p),
         h('div', { class: 'f' }, (() => { const cb = h('input', { type: 'checkbox' }); cb.checked = p.beacon !== false;
           cb.addEventListener('change', () => { p.beacon = cb.checked; changed(); });

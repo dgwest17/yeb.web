@@ -75,10 +75,42 @@ function md(text) {
 
 function inlineMd(text) {
   text = esc(text);
+  // [text](https://…) or [text](/page/) → a link (only web and site links)
+  text = text.replace(/\[([^\]]+)\]\(((?:https?:\/\/|\/)[^\s)]+)\)/g, (m, t, u) => '<a href="' + u + '"' + (/^https?:/.test(u) ? ' target="_blank" rel="noopener"' : '') + '>' + t + '</a>');
   text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
   return text;
 }
+
+// ─── Post body: the admin's editor saves simple HTML; older posts are markdown. ───
+// HTML is cleaned to a short list of tags (links only to web and site addresses).
+function safeHtml(html) {
+  const ok = new Set(['P','BR','STRONG','B','EM','I','U','A','UL','OL','LI','H2','H3','H4','BLOCKQUOTE']);
+  const d = document.createElement('div'); d.innerHTML = html;
+  (function walk(n) {
+    for (const el of [...n.children]) {
+      if (!ok.has(el.tagName)) { if (/^(SCRIPT|STYLE|IFRAME|OBJECT)$/.test(el.tagName)) el.remove(); else el.replaceWith(...el.childNodes); continue; }
+      for (const a of [...el.attributes]) if (!(el.tagName === 'A' && a.name === 'href')) el.removeAttribute(a.name);
+      if (el.tagName === 'A') { const u = el.getAttribute('href') || ''; if (!/^(https?:|\/)/i.test(u)) el.removeAttribute('href'); else if (/^https?:/i.test(u)) { el.target = '_blank'; el.rel = 'noopener'; } }
+      walk(el);
+    }
+  })(d);
+  return d.innerHTML;
+}
+function postBody(b) { b = String(b || ''); return /^\s*</.test(b) ? safeHtml(b) : md(b); }
+function postText(b) { const d = document.createElement('div'); d.innerHTML = postBody(b); return d.textContent.replace(/\s+/g, ' ').trim(); }
+function postImage(p, ratio, radius) {
+  if (p.image && /^(https?:\/\/|\/|img\/|uploads\/)/.test(p.image)) {
+    const src = /^(https?:|\/)/.test(p.image) ? p.image : '/' + p.image;
+    return '<img src="' + esc(src) + '" alt="" loading="lazy" style="width:100%;aspect-ratio:' + ratio + ';object-fit:cover;display:block;' + (radius ? 'border-radius:var(--radius-lg);margin-bottom:var(--space-xl);' : '') + '">';
+  }
+  return '';
+}
+// Pinned at the top of the blog: the audit results (case studies)
+const RESULTS_CARD = '<a href="/solar-audit-results/" style="display:flex;gap:1rem;align-items:center;text-decoration:none;color:#fff;background:linear-gradient(135deg,var(--navy) 0%,#126782 100%);border-radius:var(--radius);padding:1.1rem 1.3rem;margin-bottom:var(--space-lg);">'
+  + '<span style="font-size:1.8rem">📊</span><span style="flex:1"><b style="display:block;font-size:1.05rem">Audit results: what we found in real San Diego homes</b>'
+  + '<span style="opacity:.85;font-size:.9rem">Batteries, non-export add-ons that keep NEM, repairs, and getting ahead of the NEM 1.0 cliff.</span></span>'
+  + '<span style="font-weight:700;white-space:nowrap">See the results →</span></a>';
 
 // ─── Helper: get testimonials items regardless of old/new format ───
 function getTestimonialItems() {
@@ -284,28 +316,26 @@ window.CMS.renderRebate = function(containerId) {
 window.CMS.renderBlogIndex = function(containerId) {
   const posts = [...(window.CMS.data.blog_posts || [])].sort((a,b) => new Date(b.date) - new Date(a.date));
   if (posts.length === 0) {
-    document.getElementById(containerId).innerHTML = `
+    document.getElementById(containerId).innerHTML = RESULTS_CARD + `
       <div style="text-align:center; padding:4rem 2rem; color:var(--slate);">
         <h3 style="margin-bottom:1rem;">Coming Soon</h3>
         <p>We're working on some great content. Check back soon!</p>
       </div>`;
     return;
   }
-  document.getElementById(containerId).innerHTML = posts.map((p, i) => `
+  document.getElementById(containerId).innerHTML = RESULTS_CARD + posts.map((p, i) => `
     <a href="#" onclick="event.preventDefault(); CMS.renderBlogArticle('${containerId}', ${i})"
        style="text-decoration:none; color:inherit; display:block; border:1px solid var(--gray-200); border-radius:var(--radius); overflow:hidden; background:#fff; transition:box-shadow .25s, transform .25s; margin-bottom:var(--space-lg);"
        onmouseenter="this.style.boxShadow='var(--shadow-md)';this.style.transform='translateY(-2px)'"
        onmouseleave="this.style.boxShadow='none';this.style.transform='none'">
-      <div style="width:100%; aspect-ratio:16/6; background:var(--gray-100); display:flex; align-items:center; justify-content:center; color:var(--slate); opacity:.4;">
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
-      </div>
+      ${postImage(p, '16/6', false)}
       <div style="padding:var(--space-lg);">
         <div style="display:flex; align-items:center; gap:var(--space-md); font-size:.8rem; color:var(--slate); margin-bottom:var(--space-sm);">
           <span style="display:inline-block; color:var(--teal); font-size:.72rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase; background:rgba(34,168,179,.1); padding:.2rem .55rem; border-radius:50px;">${strip(p.tag||'General')}</span>
           <span>·</span><span>${strip(p.date)}</span><span>·</span><span>${strip(p.readtime||'')}</span>
         </div>
         <h2 style="font-family:var(--font-display); font-weight:400; font-size:clamp(1.3rem,2.5vw,1.6rem); margin-bottom:.4rem; line-height:1.2;">${strip(p.title)}</h2>
-        <p style="font-size:.92rem; color:var(--slate); margin:0; line-height:1.6;">${esc((p.body||'').split('\\n\\n')[0].replace(/\\*\\*/g,'').replace(/\\*/g,'').slice(0,200))}</p>
+        <p style="font-size:.92rem; color:var(--slate); margin:0; line-height:1.6;">${esc(postText(p.body).slice(0,200))}${postText(p.body).length > 200 ? '…' : ''}</p>
         <div style="display:inline-flex; align-items:center; gap:.3rem; color:var(--teal); font-size:.82rem; font-weight:600; margin-top:var(--space-sm);">
           Read article <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
         </div>
@@ -318,7 +348,7 @@ window.CMS.renderBlogIndex = function(containerId) {
 window.CMS.renderBlogArticle = function(containerId, index) {
   const posts = [...(window.CMS.data.blog_posts || [])].sort((a,b) => new Date(b.date) - new Date(a.date));
   const p = posts[index];
-  const bodyHtml = md(p.body);
+  const bodyHtml = postBody(p.body);
 
   document.getElementById(containerId).innerHTML = `
     <div style="display:grid; grid-template-columns:1.7fr 0.8fr; gap:var(--space-3xl); align-items:start;">
@@ -327,12 +357,7 @@ window.CMS.renderBlogArticle = function(containerId, index) {
            style="display:inline-flex; align-items:center; gap:.4rem; font-size:.85rem; color:var(--teal); font-weight:500; margin-bottom:var(--space-lg); text-decoration:none;">
           <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 3L5 8l5 5"/></svg> Back to Blog
         </a>
-        <div style="width:100%; aspect-ratio:16/7; background:var(--gray-100); border-radius:var(--radius-lg); display:flex; align-items:center; justify-content:center; margin-bottom:var(--space-xl); color:var(--slate); opacity:.5;">
-          <div style="text-align:center;">
-            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
-            <div style="font-size:.75rem; margin-top:.3rem;">Article photo placeholder</div>
-          </div>
-        </div>
+        ${postImage(p, '16/7', true)}
         <div style="display:flex; align-items:center; gap:var(--space-md); margin-bottom:var(--space-md); font-size:.82rem; color:var(--slate);">
           <span style="display:inline-block; color:var(--teal); font-size:.72rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase; background:rgba(34,168,179,.1); padding:.2rem .55rem; border-radius:50px;">${strip(p.tag||'General')}</span>
           <span>·</span><span>${strip(p.date)}</span><span>·</span><span>${strip(p.readtime||'')}</span>
@@ -347,9 +372,9 @@ window.CMS.renderBlogArticle = function(containerId, index) {
       </article>
       <aside style="display:flex; flex-direction:column; gap:var(--space-xl);">
         <div style="background:var(--cream); border-radius:var(--radius); padding:var(--space-lg);">
-          <h4 style="margin-bottom:var(--space-sm); color:var(--navy);">💰 Don't Miss Out on Incentives</h4>
-          <p style="font-size:.85rem; margin:0; color:var(--slate);">Battery rebates and federal tax credits are available now — but funds are limited.</p>
-          <a href="/quote/" class="btn btn--primary btn--sm" style="margin-top:var(--space-md); width:100%; justify-content:center; display:inline-flex;">Get a Quote</a>
+          <h4 style="margin-bottom:var(--space-sm); color:var(--navy);">📊 Audit results</h4>
+          <p style="font-size:.85rem; margin:0; color:var(--slate);">What our audits found in real San Diego homes, and what we fixed.</p>
+          <a href="/solar-audit-results/" class="btn btn--primary btn--sm" style="margin-top:var(--space-md); width:100%; justify-content:center; display:inline-flex;">See the results</a>
         </div>
         <div style="background:var(--cream); border-radius:var(--radius); padding:var(--space-lg);">
           <h4 style="margin-bottom:var(--space-sm); color:var(--navy);">🔋 Battery Rebate Resources</h4>

@@ -34,6 +34,7 @@ function post_id($p) {
 
 $posts = [];
 foreach ($content['blog_posts'] ?? [] as $p) {
+  if (!empty($p['draft'])) continue;   // drafts stay hidden until published from Admin
   if (($p['beacon'] ?? true) === false) continue;
   $title = plain($p['title'] ?? '');
   if ($title === '') continue;

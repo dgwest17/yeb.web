@@ -321,7 +321,7 @@ function blogMeta(p) {
     + (p.readtime ? '<span>' + strip(p.readtime) + '</span>' : '') + '</div>';
 }
 window.CMS.renderBlogIndex = function(containerId) {
-  const posts = [...(window.CMS.data.blog_posts || [])].sort((a,b) => new Date(b.date) - new Date(a.date));
+  const posts = [...(window.CMS.data.blog_posts || [])].filter((p) => !p.draft).sort((a,b) => new Date(b.date) - new Date(a.date));
   const el = document.getElementById(containerId);
   if (!posts.length) {
     el.innerHTML = RESULTS_CARD + '<div class="sb-empty"><b>The first set is on its way.</b><p>New posts on rates, rebates and batteries are coming soon.</p></div>';
@@ -341,7 +341,7 @@ window.CMS.renderBlogIndex = function(containerId) {
   }));
 };
 window.CMS.renderBlogArticle = function(containerId, index, given) {
-  const posts = [...(window.CMS.data.blog_posts || [])].sort((a,b) => new Date(b.date) - new Date(a.date));
+  const posts = [...(window.CMS.data.blog_posts || [])].filter((p) => !p.draft).sort((a,b) => new Date(b.date) - new Date(a.date));
   const p = given || posts[index];
   document.getElementById(containerId).innerHTML = '<div class="sb-article">'
     + '<article>'

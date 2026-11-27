@@ -28,6 +28,7 @@ $knowledge = array_map(fn($e) => [
 $content = json_decode(@file_get_contents(__DIR__ . '/content.json') ?: '{}', true) ?: [];
 $posts = [];
 foreach ($content['blog_posts'] ?? [] as $p) {
+  if (!empty($p['draft'])) continue;   // drafts stay hidden until published from Admin
   $title = kc_text($p['title'] ?? '');
   if ($title === '') continue;
   $posts[] = [

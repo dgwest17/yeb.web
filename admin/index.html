@@ -707,9 +707,27 @@ function renderBlog(main) {
   const c = files.content.data;
   if (!Array.isArray(c.blog_posts)) c.blog_posts = [];
   const posts = c.blog_posts;
-  main.append(h('p', { class: 'intro' }, 'Posts appear on the blog, newest first. With "Also post to lumaria" on, members see it in the app under Beacons → "From the Admiral".'));
+  main.append(h('p', { class: 'intro' }, 'New posts start as drafts. Use "Publish this post" to put one post live (nothing else you are editing goes with it). The Publish button at the bottom saves everything; drafts stay hidden. With "Also post to lumaria" on, members see a live post under Beacons → "From the Admiral".'));
+  // ONE POST AT A TIME: save just this post (live or back to draft) on top of what's live now,
+  // so other unsaved edits on the site don't go out with it.
+  async function publishPost(p, makeLive) {
+    if (makeLive && !toPlain(p.title)) return toast('Give the post a title first', true);
+    try {
+      const fresh = await fetchFile('content');
+      fresh.blog_posts = Array.isArray(fresh.blog_posts) ? fresh.blog_posts : [];
+      const copy = JSON.parse(JSON.stringify(p)); copy.draft = !makeLive;
+      const i = fresh.blog_posts.findIndex((x) => x.id === p.id);
+      if (i >= 0) fresh.blog_posts[i] = copy; else fresh.blog_posts.push(copy);
+      const r = await api('/save.php', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF }, body: JSON.stringify({ ...fresh, _save_target: 'content' }) });
+      const j = await r.json(); if (!j.success) throw new Error(j.error || 'Save failed');
+      p.draft = !makeLive;
+      files.content.snap = JSON.stringify(fresh);   // the live file is the new baseline; other unsaved edits stay unsaved
+      toast(makeLive ? 'Published. That post is live now.' : 'Back to draft. It is off the blog.');
+      render(); updateBar();
+    } catch (e) { if (e.message !== 'signed out') toast('Not published: ' + e.message, true); }
+  }
   main.append(h('button', { class: 'add', type: 'button', style: 'margin-bottom:14px', onclick: () => {
-    posts.unshift({ id: 'b' + Date.now().toString(36), title: '', tag: '', date: new Date().toISOString().slice(0, 10), readtime: '3 min read', body: '', beacon: true });
+    posts.unshift({ id: 'b' + Date.now().toString(36), title: '', tag: '', date: new Date().toISOString().slice(0, 10), readtime: '3 min read', body: '', beacon: true, draft: true });
     open.add('blog:' + posts[0].id); changed(); render(); } }, '+ New post'));
   if (!posts.length) main.append(h('div', { class: 'sec' }, h('div', { class: 'bd' }, h('p', { style: 'margin:0;color:var(--soft)' }, 'No posts yet — the blog shows "Coming soon" until the first one is published.'))));
   const order = [...posts].sort((a, b) => String(b.date).localeCompare(String(a.date)));
@@ -717,11 +735,12 @@ function renderBlog(main) {
     const key = 'blog:' + (p.id || p.title);
     const isOpen = open.has(key);
     const live = JSON.parse(files.content.snap).blog_posts || [];
-    const published = p.id && live.some((x) => x.id === p.id);
+    const published = p.id && live.some((x) => x.id === p.id && !x.draft);
     const hd = h('div', { class: 'hd', style: 'cursor:pointer', onclick: (e) => { if (e.target.closest('a,button')) return; isOpen ? open.delete(key) : open.add(key); render(); } },
       h('h3', {}, (isOpen ? '▾ ' : '▸ ') + (toPlain(p.title) || '(untitled post)')),
       h('span', { class: 'where' }, (p.date || '') + (p.beacon === false ? '' : ' · also in lumaria')),
-      published ? h('a', { class: 'view', href: '/blog.html?p=' + encodeURIComponent(p.id), target: '_blank', rel: 'noopener' }, 'See it ↗') : h('span', { class: 'where' }, 'not published yet'));
+      h('span', { class: 'pill ' + (published ? 'ok' : 'warn') }, published ? 'Live' : 'Draft'),
+      published ? h('a', { class: 'view', href: '/blog.html?p=' + encodeURIComponent(p.id), target: '_blank', rel: 'noopener' }, 'See it ↗') : null);
     const bd = h('div', { class: 'bd' + (isOpen ? '' : ' hidden') });
     if (isOpen) {
       if (!p.id) { p.id = 'b' + Date.now().toString(36); }
@@ -738,6 +757,9 @@ function renderBlog(main) {
         h('button', { class: 'btn sec2', type: 'button', style: 'margin-right:8px', onclick: () => {
           try { localStorage.setItem('yeb_blog_preview', JSON.stringify(p)); } catch (e) { return toast('Preview needs browser storage on', true); }
           window.open('/blog.html?preview=1', '_blank', 'noopener'); } }, 'Preview ↗'),
+        published
+          ? h('button', { class: 'btn sec2', type: 'button', style: 'margin-right:8px', onclick: () => publishPost(p, false) }, 'Unpublish (back to draft)')
+          : h('button', { class: 'btn pri', type: 'button', style: 'margin-right:8px', onclick: () => publishPost(p, true) }, 'Publish this post'),
         h('button', { class: 'btn danger', type: 'button', onclick: async () => {
           if (await ask('Delete this post?', 'It comes off the blog and out of lumaria when you publish.', [{ label: 'Keep it', value: false }, { label: 'Delete', value: true, cls: 'danger' }]) !== true) return;
           posts.splice(posts.indexOf(p), 1); changed(); render(); } }, 'Delete post'));

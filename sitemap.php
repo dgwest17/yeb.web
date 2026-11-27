@@ -58,6 +58,7 @@ foreach (['knowledge.json', 'knowledge-seed.json'] as $kf) {
 // Blog posts
 $content = json_decode(@file_get_contents(__DIR__ . '/content.json') ?: '{}', true) ?: [];
 foreach ($content['blog_posts'] ?? [] as $p) {
+  if (!empty($p['draft'])) continue;   // drafts stay hidden until published from Admin
   if (empty($p['id']) || empty($p['title'])) continue;
   $urls[] = ['loc' => "$BASE/blog.html?p=" . rawurlencode(preg_replace('/[^a-z0-9-]/i', '', $p['id'])), 'lastmod' => $p['date'] ?? null, 'priority' => '0.6'];
 }

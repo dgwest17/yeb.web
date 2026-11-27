@@ -142,7 +142,7 @@
 
 <script>
 </script>
-<script src="cms.js?v=20261127"></script>
+<script src="cms.js?v=20261127b"></script>
 <script>
 // Same rule as blog-feed.php's post_id(): the saved id, else date + title.
 // Lets Lumaria Beacons (and anyone sharing a post) link to blog.html?p=<id>.
@@ -152,7 +152,7 @@ function postId(p) {
   return ((p.date || '') + '-' + d.textContent).replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase().slice(0, 70);
 }
 function showFromUrl() {
-  const posts = [...(CMS.data.blog_posts || [])].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const posts = [...(CMS.data.blog_posts || [])].filter((p) => !p.draft).sort((a, b) => new Date(b.date) - new Date(a.date));
   const q = new URLSearchParams(location.search);
   // Admin → Blog → Preview: the unsaved post, from this browser only
   // ?preview=all: a whole lineup of unpublished posts (from Admin or Claude), this browser only

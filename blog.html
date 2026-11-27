@@ -150,6 +150,17 @@ function showFromUrl() {
   const posts = [...(CMS.data.blog_posts || [])].sort((a, b) => new Date(b.date) - new Date(a.date));
   const q = new URLSearchParams(location.search);
   // Admin → Blog → Preview: the unsaved post, from this browser only
+  // ?preview=all: a whole lineup of unpublished posts (from Admin or Claude), this browser only
+  if (q.get('preview') === 'all') {
+    try { const list = JSON.parse(localStorage.getItem('yeb_blog_preview_all') || 'null');
+      if (Array.isArray(list) && list.length) {
+        CMS.data.blog_posts = list;
+        const i = q.get('n'); if (i !== null) return CMS.renderBlogArticle('cms-blog', 0, list[+i]);
+        CMS.renderBlogIndex('cms-blog');
+        document.getElementById('cms-blog').insertAdjacentHTML('afterbegin', '<div class="sb-preview">Preview of unpublished posts: only you can see this.</div>');
+        return;
+      } } catch (e) {}
+  }
   if (q.get('preview')) {
     try { const p = JSON.parse(localStorage.getItem('yeb_blog_preview') || 'null'); if (p) { document.title = 'Preview · ' + (p.title || 'post'); return CMS.renderBlogArticle('cms-blog', 0, p); } } catch (e) {}
   }

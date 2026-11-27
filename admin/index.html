@@ -587,11 +587,11 @@ function field(file, f, obj, base) {
           label.lastChild.textContent = ' Uploading…';
           const fd = new FormData(); fd.append('image', file); fd.append('_csrf_token', CSRF);
           try { const j = await (await api('/upload-image.php', { method: 'POST', body: fd })).json();
-            if (!j.success) toast(j.error || 'Upload failed', true); else set(j.url); } catch (e) {}
+            if (!j.success) toast(j.error || 'Upload failed', true); else { set(j.url); if (f.rerender) return render(); } } catch (e) {}
           draw();
         });
         box.append(label);
-        if (cur) box.append(h('button', { class: 'ibtn del', type: 'button', onclick: () => { set(''); draw(); } }, 'Remove'));
+        if (cur) box.append(h('button', { class: 'ibtn del', type: 'button', onclick: () => { set(''); if (f.rerender) return render(); draw(); } }, 'Remove'));
       };
       draw(); wrap.append(box); break;
     }
@@ -748,7 +748,8 @@ function renderBlog(main) {
         field('content', { path: 'title', type: 'text', label: 'Title' }, p),
         field('content', { row3: [ { path: 'kind', type: 'select', label: 'Type', options: [['post', 'Blog post'], ['update', 'Quick update'], ['newsletter', 'Newsletter']] }, { path: 'tag', type: 'text', label: 'Topic tag', help: 'e.g. Batteries, Rates, Repairs' }, { path: 'date', type: 'date', label: 'Date' } ] }, p),
         field('content', { path: 'readtime', type: 'text', label: 'Read time' }, p),
-        field('content', { path: 'image', type: 'photo', label: 'Cover photo', help: 'Shows at the top of the post and on the blog list. A wide photo works best.' }, p),
+        field('content', { path: 'image', type: 'photo', rerender: true, label: 'Cover photo', help: 'Shows at the top of the post and on the blog list. A wide photo works best.' }, p),
+        p.image ? coverFramer(p) : null,
         field('content', { path: 'body', type: 'rich', tall: true, label: 'Post' }, p),
         h('div', { class: 'f' }, (() => { const cb = h('input', { type: 'checkbox' }); cb.checked = p.beacon !== false;
           cb.addEventListener('change', () => { p.beacon = cb.checked; changed(); });
@@ -772,6 +773,57 @@ function renderBlog(main) {
   }
 }
 
+
+/* COVER FRAMER: drag the photo to choose what stays in view, zoom in, and see it exactly as the
+   blog crops it (the wide first card, a regular card, and the top of the post). Saves p.imagePos
+   ("x% y%") and p.imageZoom on the post; cms.js postImage() uses the same two values. */
+function coverFramer(p) {
+  const src = /^(https?:|\/)/.test(p.image) ? p.image : '/' + p.image;
+  const pos = () => { const m = /^(\d+(?:\.\d+)?)% (\d+(?:\.\d+)?)%$/.exec(p.imagePos || ''); return m ? [+m[1], +m[2]] : [50, 50]; };
+  const zoom = () => Math.min(2.5, Math.max(1, Number(p.imageZoom) || 1));
+  const frames = [];
+  const frame = (ratio, label, big) => {
+    const img = h('img', { src, alt: '', draggable: 'false', style: 'width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;user-select:none' });
+    const box = h('div', { style: 'position:relative;aspect-ratio:' + ratio + ';overflow:hidden;border-radius:10px;background:#0a2433;border:1px solid var(--line);' + (big ? 'cursor:grab;touch-action:none' : '') }, img);
+    if (big) box.append(h('div', { style: 'position:absolute;inset:0;pointer-events:none;background:linear-gradient(transparent 66%,rgba(0,0,0,.18));' }),
+      h('div', { class: 'dot', style: 'position:absolute;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 2px #34d399,0 2px 6px rgba(0,0,0,.4);pointer-events:none' }));
+    frames.push({ box, img });
+    return h('div', { style: big ? '' : 'flex:1;min-width:150px' }, h('div', { class: 'help', style: 'margin:0 0 4px' }, label), box);
+  };
+  const paint = () => {
+    const [x, y] = pos(), z = zoom();
+    frames.forEach(({ box, img }) => {
+      img.style.objectPosition = x + '% ' + y + '%';
+      img.style.transform = z > 1 ? 'scale(' + z + ')' : ''; img.style.transformOrigin = x + '% ' + y + '%';
+      const d = box.querySelector('.dot'); if (d) { d.style.left = x + '%'; d.style.top = y + '%'; }
+    });
+    zr.value = String(z); zl.textContent = z.toFixed(1) + '×';
+  };
+  const big = frame('16/7', 'Top of the post · drag to move what stays in view', true);
+  const set = (x, y) => { p.imagePos = Math.round(x) + '% ' + Math.round(y) + '%'; changed(); paint(); };
+  const box0 = frames[0].box;
+  let drag = null;
+  box0.addEventListener('pointerdown', (e) => { const [x, y] = pos(); drag = { sx: e.clientX, sy: e.clientY, x, y }; box0.setPointerCapture(e.pointerId); box0.style.cursor = 'grabbing'; });
+  box0.addEventListener('pointermove', (e) => {
+    if (!drag) return; const r = box0.getBoundingClientRect(), z = zoom();
+    // dragging the photo right shows more of its left side, like moving a print under a frame
+    set(Math.min(100, Math.max(0, drag.x - (e.clientX - drag.sx) / r.width * 100 / z)), Math.min(100, Math.max(0, drag.y - (e.clientY - drag.sy) / r.height * 100 / z)));
+  });
+  const end = () => { drag = null; box0.style.cursor = 'grab'; };
+  box0.addEventListener('pointerup', end); box0.addEventListener('pointercancel', end);
+  box0.addEventListener('dblclick', (e) => { const r = box0.getBoundingClientRect(); set((e.clientX - r.left) / r.width * 100, (e.clientY - r.top) / r.height * 100); });
+  const zr = h('input', { type: 'range', min: '1', max: '2.5', step: '0.05', style: 'flex:1', oninput: (e) => { p.imageZoom = Number(e.target.value); changed(); paint(); } });
+  const zl = h('span', { style: 'min-width:3em;text-align:right;font-weight:600' });
+  const small = h('div', { style: 'display:flex;gap:10px;flex-wrap:wrap;margin-top:10px' }, frame('16/6', 'First card on the blog'), frame('16/9', 'Other cards'));
+  const wrap = h('div', { class: 'f' }, h('label', {}, 'Cover framing'),
+    h('div', { class: 'help' }, 'Drag the photo (or double-click a spot) to choose what stays in view; zoom to crop tighter. All three views update together.'),
+    big,
+    h('div', { style: 'display:flex;gap:10px;align-items:center;margin-top:10px' }, h('span', { class: 'help', style: 'margin:0' }, 'Zoom'), zr, zl,
+      h('button', { class: 'ibtn', type: 'button', onclick: () => { delete p.imagePos; delete p.imageZoom; changed(); paint(); } }, 'Reset')),
+    small);
+  requestAnimationFrame(paint);
+  return wrap;
+}
 
 /* ─── Knowledge Center (knowledge.json) — one source for the site and for Luma ─── */
 const kcSlug = (s) => String(s || '').toLowerCase().replace(/&/g, 'and').replace(/['’]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 70).replace(/-$/, '');

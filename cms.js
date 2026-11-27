@@ -104,10 +104,20 @@ function postId(p) {
 }
 function postBody(b) { b = String(b || ''); return /^\s*</.test(b) ? safeHtml(b) : md(b); }
 function postText(b) { const d = document.createElement('div'); d.innerHTML = postBody(b); return d.textContent.replace(/\s+/g, ' ').trim(); }
+// Cover photo, framed the way it was set in Admin: imagePos = "x% y%" (the point kept in view),
+// imageZoom = 1–2.5 (zoomed toward that point).
+function coverFrame(p) {
+  const pos = /^\d{1,3}(\.\d+)?% \d{1,3}(\.\d+)?%$/.test(p.imagePos || '') ? p.imagePos : '50% 50%';
+  const z = Math.min(2.5, Math.max(1, Number(p.imageZoom) || 1));
+  return { pos, z };
+}
 function postImage(p, ratio, radius) {
   if (p.image && /^(https?:\/\/|\/|img\/|uploads\/)/.test(p.image)) {
     const src = /^(https?:|\/)/.test(p.image) ? p.image : '/' + p.image;
-    return '<img src="' + esc(src) + '" alt="" loading="lazy" style="width:100%;aspect-ratio:' + ratio + ';object-fit:cover;display:block;' + (radius ? 'border-radius:var(--radius-lg);margin-bottom:var(--space-xl);' : '') + '">';
+    const f = coverFrame(p);
+    return '<div style="width:100%;aspect-ratio:' + ratio + ';overflow:hidden;' + (radius ? 'border-radius:var(--radius-lg);margin-bottom:var(--space-xl);' : '') + '">'
+      + '<img src="' + esc(src) + '" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;object-position:' + f.pos + ';'
+      + (f.z > 1 ? 'transform:scale(' + f.z + ');transform-origin:' + f.pos + ';' : '') + '"></div>';
   }
   return '';
 }

@@ -97,6 +97,11 @@ function safeHtml(html) {
   })(d);
   return d.innerHTML;
 }
+function postId(p) {
+  if (p.id) return String(p.id).replace(/[^a-z0-9-]/gi, '');
+  const d = document.createElement('div'); d.innerHTML = p.title || '';
+  return ((p.date || '') + '-' + d.textContent).replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase().slice(0, 70);
+}
 function postBody(b) { b = String(b || ''); return /^\s*</.test(b) ? safeHtml(b) : md(b); }
 function postText(b) { const d = document.createElement('div'); d.innerHTML = postBody(b); return d.textContent.replace(/\s+/g, ' ').trim(); }
 function postImage(p, ratio, radius) {
@@ -107,10 +112,8 @@ function postImage(p, ratio, radius) {
   return '';
 }
 // Pinned at the top of the blog: the audit results (case studies)
-const RESULTS_CARD = '<a href="/solar-audit-results/" style="display:flex;gap:1rem;align-items:center;text-decoration:none;color:#fff;background:linear-gradient(135deg,var(--navy) 0%,#126782 100%);border-radius:var(--radius);padding:1.1rem 1.3rem;margin-bottom:var(--space-lg);">'
-  + '<span style="font-size:1.8rem">📊</span><span style="flex:1"><b style="display:block;font-size:1.05rem">Audit results: what we found in real San Diego homes</b>'
-  + '<span style="opacity:.85;font-size:.9rem">Batteries, non-export add-ons that keep NEM, repairs, and getting ahead of the NEM 1.0 cliff.</span></span>'
-  + '<span style="font-weight:700;white-space:nowrap">See the results →</span></a>';
+const RESULTS_CARD = '<a href="/solar-audit-results/" class="sb-results"><span style="font-size:1.8rem">📊</span><span><b>Audit results: what we found in real San Diego homes</b>'
+  + '<span>Batteries, non-export add-ons that keep NEM, repairs, and getting ahead of the NEM 1.0 cliff.</span></span><span class="go">See the results →</span></a>';
 
 // ─── Helper: get testimonials items regardless of old/new format ───
 function getTestimonialItems() {
@@ -312,81 +315,50 @@ window.CMS.renderRebate = function(containerId) {
     </div>`;
 };
 
-// ─── BLOG INDEX ───
+// ─── BLOG (surf-styled "Swell Report"; the look lives in blog.html, .sb-*) ───
+function blogMeta(p) {
+  return '<div class="sb-meta"><span class="sb-tag">' + strip(p.tag || 'Swell report') + '</span><span>' + strip(p.date || '') + '</span>'
+    + (p.readtime ? '<span>' + strip(p.readtime) + '</span>' : '') + '</div>';
+}
 window.CMS.renderBlogIndex = function(containerId) {
   const posts = [...(window.CMS.data.blog_posts || [])].sort((a,b) => new Date(b.date) - new Date(a.date));
-  if (posts.length === 0) {
-    document.getElementById(containerId).innerHTML = RESULTS_CARD + `
-      <div style="text-align:center; padding:4rem 2rem; color:var(--slate);">
-        <h3 style="margin-bottom:1rem;">Coming Soon</h3>
-        <p>We're working on some great content. Check back soon!</p>
-      </div>`;
+  const el = document.getElementById(containerId);
+  if (!posts.length) {
+    el.innerHTML = RESULTS_CARD + '<div class="sb-empty"><b>The first set is on its way.</b><p>New posts on rates, rebates and batteries are coming soon.</p></div>';
     return;
   }
-  document.getElementById(containerId).innerHTML = RESULTS_CARD + posts.map((p, i) => `
-    <a href="#" onclick="event.preventDefault(); CMS.renderBlogArticle('${containerId}', ${i})"
-       style="text-decoration:none; color:inherit; display:block; border:1px solid var(--gray-200); border-radius:var(--radius); overflow:hidden; background:#fff; transition:box-shadow .25s, transform .25s; margin-bottom:var(--space-lg);"
-       onmouseenter="this.style.boxShadow='var(--shadow-md)';this.style.transform='translateY(-2px)'"
-       onmouseleave="this.style.boxShadow='none';this.style.transform='none'">
-      ${postImage(p, '16/6', false)}
-      <div style="padding:var(--space-lg);">
-        <div style="display:flex; align-items:center; gap:var(--space-md); font-size:.8rem; color:var(--slate); margin-bottom:var(--space-sm);">
-          <span style="display:inline-block; color:var(--teal); font-size:.72rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase; background:rgba(34,168,179,.1); padding:.2rem .55rem; border-radius:50px;">${strip(p.tag||'General')}</span>
-          <span>·</span><span>${strip(p.date)}</span><span>·</span><span>${strip(p.readtime||'')}</span>
-        </div>
-        <h2 style="font-family:var(--font-display); font-weight:400; font-size:clamp(1.3rem,2.5vw,1.6rem); margin-bottom:.4rem; line-height:1.2;">${strip(p.title)}</h2>
-        <p style="font-size:.92rem; color:var(--slate); margin:0; line-height:1.6;">${esc(postText(p.body).slice(0,200))}${postText(p.body).length > 200 ? '…' : ''}</p>
-        <div style="display:inline-flex; align-items:center; gap:.3rem; color:var(--teal); font-size:.82rem; font-weight:600; margin-top:var(--space-sm);">
-          Read article <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
-        </div>
-      </div>
-    </a>
-  `).join('');
+  el.innerHTML = RESULTS_CARD + '<div class="sb-grid">' + posts.map((p, i) => {
+    const text = postText(p.body);
+    return '<a href="?p=' + encodeURIComponent(postId(p)) + '" class="sb-card' + (i === 0 ? ' sb-card--lead' : '') + '" data-i="' + i + '">'
+      + (p.image ? '<div class="sb-cover">' + postImage(p, i === 0 ? '16/7' : '16/9', false) + '</div>' : '<div class="sb-cover sb-cover--blank"></div>')
+      + '<div class="sb-card__in">' + blogMeta(p)
+      + '<h2>' + strip(p.title) + '</h2>'
+      + '<p>' + esc(text.slice(0, i === 0 ? 260 : 160)) + (text.length > (i === 0 ? 260 : 160) ? '…' : '') + '</p>'
+      + '<span class="sb-more">Paddle in →</span></div></a>';
+  }).join('') + '</div>';
+  el.querySelectorAll('.sb-card').forEach((a) => a.addEventListener('click', (e) => {
+    e.preventDefault(); history.pushState(null, '', a.getAttribute('href')); CMS.renderBlogArticle(containerId, +a.dataset.i);
+  }));
 };
-
-// ─── BLOG ARTICLE (single post view) ───
-window.CMS.renderBlogArticle = function(containerId, index) {
+window.CMS.renderBlogArticle = function(containerId, index, given) {
   const posts = [...(window.CMS.data.blog_posts || [])].sort((a,b) => new Date(b.date) - new Date(a.date));
-  const p = posts[index];
-  const bodyHtml = postBody(p.body);
-
-  document.getElementById(containerId).innerHTML = `
-    <div style="display:grid; grid-template-columns:1.7fr 0.8fr; gap:var(--space-3xl); align-items:start;">
-      <article>
-        <a href="#" onclick="event.preventDefault(); CMS.renderBlogIndex('${containerId}')"
-           style="display:inline-flex; align-items:center; gap:.4rem; font-size:.85rem; color:var(--teal); font-weight:500; margin-bottom:var(--space-lg); text-decoration:none;">
-          <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 3L5 8l5 5"/></svg> Back to Blog
-        </a>
-        ${postImage(p, '16/7', true)}
-        <div style="display:flex; align-items:center; gap:var(--space-md); margin-bottom:var(--space-md); font-size:.82rem; color:var(--slate);">
-          <span style="display:inline-block; color:var(--teal); font-size:.72rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase; background:rgba(34,168,179,.1); padding:.2rem .55rem; border-radius:50px;">${strip(p.tag||'General')}</span>
-          <span>·</span><span>${strip(p.date)}</span><span>·</span><span>${strip(p.readtime||'')}</span>
-        </div>
-        <h1 style="font-family:var(--font-display); font-weight:400; font-size:clamp(2.2rem,5vw,3.4rem); line-height:1.2; margin-bottom:var(--space-md);">${strip(p.title)}</h1>
-        <div style="max-width:720px; color:var(--navy-light); line-height:1.8;">${bodyHtml}</div>
-        <div style="background:var(--cream); border-radius:var(--radius); padding:var(--space-lg) var(--space-xl); margin-top:var(--space-xl); text-align:center;">
-          <h3 style="font-family:var(--font-display); font-weight:400; margin-bottom:.3rem;">Ready to see what solar could save you?</h3>
-          <p style="font-size:.88rem; margin-bottom:var(--space-md); color:var(--slate);">Get a free, no-obligation quote tailored to your home.</p>
-          <a href="/quote/" class="btn btn--primary">Get Your Free Quote</a>
-        </div>
-      </article>
-      <aside style="display:flex; flex-direction:column; gap:var(--space-xl);">
-        <div style="background:var(--cream); border-radius:var(--radius); padding:var(--space-lg);">
-          <h4 style="margin-bottom:var(--space-sm); color:var(--navy);">📊 Audit results</h4>
-          <p style="font-size:.85rem; margin:0; color:var(--slate);">What our audits found in real San Diego homes, and what we fixed.</p>
-          <a href="/solar-audit-results/" class="btn btn--primary btn--sm" style="margin-top:var(--space-md); width:100%; justify-content:center; display:inline-flex;">See the results</a>
-        </div>
-        <div style="background:var(--cream); border-radius:var(--radius); padding:var(--space-lg);">
-          <h4 style="margin-bottom:var(--space-sm); color:var(--navy);">🔋 Battery Rebate Resources</h4>
-          <p style="font-size:.85rem; margin:0; color:var(--slate);">Learn more about SD Community Power's Solar Battery Savings program.</p>
-          <a href="https://sdcommunitypower.org/solar-battery-savings/" target="_blank" rel="noopener" class="btn btn--outline btn--sm" style="margin-top:var(--space-md); width:100%; justify-content:center; display:inline-flex;">Learn More →</a>
-        </div>
-        <div style="background:var(--navy); border-radius:var(--radius); padding:var(--space-lg);">
-          <h4 style="margin-bottom:var(--space-sm); color:#fff;">🤝 Join Our Team</h4>
-          <p style="font-size:.85rem; margin:0; color:rgba(255,255,255,.6);">Interested in earning while helping homeowners go solar?</p>
-          <a href="build" class="btn btn--outline btn--sm" style="margin-top:var(--space-md); width:100%; justify-content:center; display:inline-flex; border-color:var(--teal-light); color:var(--teal-light);">Apply Now</a>
-        </div>
-      </aside>
-    </div>`;
+  const p = given || posts[index];
+  document.getElementById(containerId).innerHTML = '<div class="sb-article">'
+    + '<article>'
+    + (given ? '<div class="sb-preview">Preview: only you can see this. Nothing is published until you press Publish in Admin.</div>'
+             : '<a href="blog.html" class="sb-back" onclick="event.preventDefault(); history.pushState(null, \'\', \'blog.html\'); CMS.renderBlogIndex(\'' + containerId + '\')">← Back to the lineup</a>')
+    + postImage(p, '16/7', true)
+    + blogMeta(p)
+    + '<h1>' + strip(p.title) + '</h1>'
+    + '<div class="sb-body">' + postBody(p.body) + '</div>'
+    + '<div class="sb-cta"><b>Want to know what this means for your house?</b><p>Our solar audit is free through December 31: your bills, your production, your rate plan, straight answers.</p>'
+    + '<a href="/audit/" class="sb-btn">Book my free audit →</a></div>'
+    + '</article>'
+    + '<aside class="sb-side">'
+    + '<a class="sb-tile" href="/solar-audit-results/"><b>📊 Audit results</b><span>What our audits found in real San Diego homes, and what we fixed.</span></a>'
+    + '<a class="sb-tile" href="/sdcp-battery-rebate/"><b>🔋 SDCP battery rebate</b><span>Who qualifies, the rules, and how the payments work.</span></a>'
+    + '<a class="sb-tile" href="/knowledge/"><b>🌊 Knowledge Center</b><span>Straight answers to the questions solar owners ask most.</span></a>'
+    + '<a class="sb-tile sb-tile--dark" href="https://www.lumaria.energy/"><b>Join lumaria early</b><span>The free app for solar owners. Early access is open.</span></a>'
+    + '</aside></div>';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };

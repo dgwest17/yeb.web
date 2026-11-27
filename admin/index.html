@@ -734,6 +734,10 @@ function renderBlog(main) {
         h('div', { class: 'f' }, (() => { const cb = h('input', { type: 'checkbox' }); cb.checked = p.beacon !== false;
           cb.addEventListener('change', () => { p.beacon = cb.checked; changed(); });
           return h('label', { class: 'toggle' }, cb, 'Also post to lumaria (Beacons → From the Admiral)'); })()),
+        // Preview: the post as it stands (unsaved is fine) in the real blog design, in a new tab
+        h('button', { class: 'btn sec2', type: 'button', style: 'margin-right:8px', onclick: () => {
+          try { localStorage.setItem('yeb_blog_preview', JSON.stringify(p)); } catch (e) { return toast('Preview needs browser storage on', true); }
+          window.open('/blog.html?preview=1', '_blank', 'noopener'); } }, 'Preview ↗'),
         h('button', { class: 'btn danger', type: 'button', onclick: async () => {
           if (await ask('Delete this post?', 'It comes off the blog and out of lumaria when you publish.', [{ label: 'Keep it', value: false }, { label: 'Delete', value: true, cls: 'danger' }]) !== true) return;
           posts.splice(posts.indexOf(p), 1); changed(); render(); } }, 'Delete post'));

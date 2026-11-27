@@ -15,23 +15,91 @@
   <meta name="description" content="Solar energy news, tips, and insights from Your Energy Best." />
   <link rel="icon" type="image/png" href="img/logo.png" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
   <style>
-    .blog-layout { display: grid; grid-template-columns: 1.7fr 0.8fr; gap: var(--space-3xl); align-items: start; }
-    @media (max-width: 900px) { .blog-layout { grid-template-columns: 1fr; } }
+    /* SWELL REPORT — the blog in the lumaria Warm Up's surf look (night ocean, sunset, rolling swell) */
+    body.sb { background: #031520; color: #e8f6f4; }
+    .sb-hero { position: relative; overflow: hidden; padding: 9.5rem 0 7.5rem; color: #e8f6f4;
+      background: radial-gradient(800px 380px at 85% -10%, rgba(253,134,33,.28), transparent 60%),
+                  radial-gradient(600px 500px at 0% 40%, rgba(45,212,191,.14), transparent 60%),
+                  linear-gradient(180deg, #0a2433 0%, #06202d 45%, #031520 100%); }
+    .sb-sun { position: absolute; right: 8%; top: 92px; width: 150px; height: 150px; border-radius: 50%; opacity: .8;
+      background: radial-gradient(circle at 50% 45%, #fff7d6 0%, #ffd27a 38%, #ff9a3c 70%, rgba(255,120,50,0) 72%);
+      box-shadow: 0 0 90px 34px rgba(255,166,77,.3); animation: sb-sun 6s ease-in-out infinite alternate; }
+    @keyframes sb-sun { to { box-shadow: 0 0 120px 46px rgba(255,166,77,.5); } }
+    .sb-hero .container { position: relative; z-index: 2; }
+    .sb-kicker { font: 700 12px/1 Inter, sans-serif; letter-spacing: .22em; text-transform: uppercase; color: #5eead4; }
+    .sb-hero h1 { font: 800 clamp(2.4rem, 6vw, 3.8rem)/1.05 Outfit, Inter, sans-serif; color: #fff; margin: .6rem 0 .8rem; }
+    .sb-hero p { max-width: 560px; color: rgba(206,232,236,.82); font-size: 1.08rem; }
+    .sb-swell { position: absolute; left: 0; right: 0; bottom: -1px; height: 110px; overflow: hidden; pointer-events: none; z-index: 1; }
+    .sb-swell svg { position: absolute; bottom: 0; left: 0; width: 200%; height: 100%; animation: sb-roll linear infinite; }
+    .sb-swell .l1 { color: rgba(14,116,144,.35); animation-duration: 24s; }
+    .sb-swell .l2 { color: rgba(45,212,191,.22); animation-duration: 16s; animation-direction: reverse; height: 80%; }
+    .sb-swell .l3 { color: #031520; animation-duration: 11s; height: 55%; }
+    @keyframes sb-roll { to { transform: translate3d(-50%,0,0); } }
+    @media (prefers-reduced-motion: reduce) { .sb-swell svg, .sb-sun, .sb-btn::after { animation: none !important; } }
+    .sb-main { padding: 2.5rem 0 5rem; }
+    .sb-grid { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+    .sb-card { display: flex; flex-direction: column; text-decoration: none; color: #e8f6f4; border-radius: 18px; overflow: hidden;
+      background: rgba(255,255,255,.05); border: 1px solid rgba(148,197,205,.25); transition: transform .25s, border-color .25s, box-shadow .25s; }
+    .sb-card:hover { transform: translateY(-3px); border-color: #5eead4; box-shadow: 0 14px 34px -14px rgba(45,212,191,.55); }
+    .sb-card--lead { grid-column: 1 / -1; }
+    .sb-cover img { display: block; width: 100%; object-fit: cover; }
+    .sb-cover--blank { aspect-ratio: 16/9; background: linear-gradient(180deg, #0e3b4f, #062433); }
+    .sb-card--lead .sb-cover--blank { aspect-ratio: 16/6; }
+    .sb-card__in { padding: 1.2rem 1.3rem 1.4rem; display: flex; flex-direction: column; gap: .5rem; flex: 1; }
+    .sb-card h2 { font: 700 1.3rem/1.2 Outfit, Inter, sans-serif; color: #fff; margin: 0; }
+    .sb-card--lead h2 { font-size: clamp(1.5rem, 3vw, 2rem); }
+    .sb-card p { color: rgba(206,232,236,.78); margin: 0; font-size: .95rem; line-height: 1.6; }
+    .sb-more { margin-top: auto; padding-top: .4rem; font: 700 .85rem Inter, sans-serif; color: #fbbf24; }
+    .sb-meta { display: flex; flex-wrap: wrap; gap: .4rem .9rem; align-items: center; font-size: .8rem; color: rgba(206,232,236,.7); }
+    .sb-tag { font: 700 .7rem/1 Inter, sans-serif; letter-spacing: .14em; text-transform: uppercase; color: #062c3a; background: #5eead4; padding: .35rem .6rem; border-radius: 999px; }
+    .sb-empty { text-align: center; padding: 3rem 1rem; color: rgba(206,232,236,.8); } .sb-empty b { color: #fff; font: 700 1.3rem Outfit, sans-serif; }
+    .sb-results { display: flex; gap: 1rem; align-items: center; text-decoration: none; color: #062c3a; margin-bottom: 1.5rem; padding: 1.1rem 1.3rem; border-radius: 18px;
+      background: linear-gradient(90deg, #fde68a 0%, #fbbf24 45%, #fd8621 100%); box-shadow: 0 12px 30px -12px rgba(253,134,33,.7); }
+    .sb-results b { display: block; font: 800 1.08rem Outfit, sans-serif; } .sb-results span { font-size: .9rem; }
+    .sb-results .go { margin-left: auto; font-weight: 800; white-space: nowrap; }
+    .sb-article { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, .8fr); gap: 2.5rem; align-items: start; }
+    @media (max-width: 900px) { .sb-article { grid-template-columns: 1fr; } .sb-hero { padding: 7.5rem 0 6rem; } .sb-sun { width: 100px; height: 100px; right: -20px; } }
+    .sb-back { color: #5eead4; font-weight: 600; text-decoration: none; display: inline-block; margin-bottom: 1.2rem; }
+    .sb-preview { background: rgba(251,191,36,.15); border: 1px solid #fbbf24; color: #fde68a; border-radius: 12px; padding: .7rem 1rem; margin-bottom: 1.2rem; font-weight: 600; }
+    .sb-article h1 { font: 800 clamp(2rem, 4.5vw, 3rem)/1.12 Outfit, Inter, sans-serif; color: #fff; margin: .6rem 0 1.2rem; }
+    .sb-article article img { border: 1px solid rgba(148,197,205,.25); }
+    .sb-body { color: rgba(232,246,244,.92); font-size: 1.06rem; line-height: 1.8; max-width: 720px; }
+    .sb-body h2 { font: 700 1.45rem/1.25 Outfit, Inter, sans-serif; color: #fff; margin: 2rem 0 .6rem; }
+    .sb-body p { margin: 0 0 1.1rem; } .sb-body ul { margin: 0 0 1.2rem 1.2rem; } .sb-body li { margin-bottom: .45rem; }
+    .sb-body strong { color: #fff; } .sb-body a { color: #5eead4; text-decoration: underline; text-underline-offset: 2px; }
+    .sb-body em { color: rgba(206,232,236,.75); }
+    .sb-cta { margin-top: 2.2rem; padding: 1.4rem 1.5rem; border-radius: 18px; background: rgba(255,255,255,.06); border: 1px solid rgba(94,234,212,.35); }
+    .sb-cta b { display: block; font: 700 1.2rem Outfit, sans-serif; color: #fff; } .sb-cta p { color: rgba(206,232,236,.8); margin: .4rem 0 1rem; }
+    .sb-btn { position: relative; overflow: hidden; display: inline-block; padding: .9rem 1.4rem; border-radius: 999px; font-weight: 800; text-decoration: none; color: #062c3a;
+      background: linear-gradient(90deg, #fde68a 0%, #fbbf24 35%, #fd8621 100%); box-shadow: 0 10px 30px -10px rgba(253,134,33,.75); }
+    .sb-btn::after { content: ''; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 35%, rgba(255,255,255,.55) 50%, transparent 65%); transform: translateX(-130%); animation: sb-shim 3.6s ease-in-out infinite; }
+    @keyframes sb-shim { 0%, 55% { transform: translateX(-130%); } 100% { transform: translateX(130%); } }
+    .sb-side { display: flex; flex-direction: column; gap: .9rem; position: sticky; top: 100px; }
+    .sb-tile { display: block; text-decoration: none; padding: 1rem 1.1rem; border-radius: 14px; background: rgba(255,255,255,.05); border: 1px solid rgba(148,197,205,.25); color: rgba(206,232,236,.8); transition: border-color .2s; }
+    .sb-tile:hover { border-color: #5eead4; } .sb-tile b { display: block; color: #fff; font: 700 1rem Outfit, sans-serif; margin-bottom: .2rem; } .sb-tile span { font-size: .88rem; }
+    .sb-tile--dark { background: linear-gradient(135deg, rgba(94,234,212,.22), rgba(14,116,144,.45)); border-color: #5eead4; }
+    body.sb .footer { border-top: 1px solid rgba(148,197,205,.15); }
   </style>
   <script src="/nav.js?v=20261125" defer></script>
 </head>
-<body>
+<body class="sb">
 
-<section class="page-hero">
+<section class="sb-hero">
+  <div class="sb-sun" aria-hidden="true"></div>
   <div class="container">
-    <span class="eyebrow">Solar Insights</span>
-    <h1>Blog</h1>
-    <p>Stay up to date on solar incentives, policy changes, and tips for getting the most out of your energy.</p>
+    <span class="sb-kicker">The Swell Report · San Diego solar</span>
+    <h1>What's coming in.</h1>
+    <p>Rates, rebates, batteries and policy, read for San Diego homeowners. Straight from David, no pitch.</p>
+  </div>
+  <div class="sb-swell" aria-hidden="true">
+    <span class="l1"><svg viewBox="0 0 1440 120" preserveAspectRatio="none"><path d="M0 70 C180 40 360 100 540 70 C720 40 900 100 1080 70 C1260 40 1350 90 1440 70 L1440 120 L0 120Z" fill="currentColor"/></svg></span><span class="l2"><svg viewBox="0 0 1440 120" preserveAspectRatio="none"><path d="M0 70 C180 40 360 100 540 70 C720 40 900 100 1080 70 C1260 40 1350 90 1440 70 L1440 120 L0 120Z" fill="currentColor"/></svg></span><span class="l3"><svg viewBox="0 0 1440 120" preserveAspectRatio="none"><path d="M0 70 C180 40 360 100 540 70 C720 40 900 100 1080 70 C1260 40 1350 90 1440 70 L1440 120 L0 120Z" fill="currentColor"/></svg></span>
   </div>
 </section>
 
-<section class="section">
+<section class="sb-main">
   <div class="container">
     <div id="cms-blog"></div>
   </div>
@@ -62,7 +130,7 @@
 
 <script>
 </script>
-<script src="cms.js?v=20261126"></script>
+<script src="cms.js?v=20261127"></script>
 <script>
 // Same rule as blog-feed.php's post_id(): the saved id, else date + title.
 // Lets Lumaria Beacons (and anyone sharing a post) link to blog.html?p=<id>.
@@ -71,14 +139,21 @@ function postId(p) {
   const d = document.createElement('div'); d.innerHTML = p.title || '';
   return ((p.date || '') + '-' + d.textContent).replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase().slice(0, 70);
 }
-CMS.load().then(() => {
+function showFromUrl() {
   const posts = [...(CMS.data.blog_posts || [])].sort((a, b) => new Date(b.date) - new Date(a.date));
-  const want = new URLSearchParams(location.search).get('p');
+  const q = new URLSearchParams(location.search);
+  // Admin → Blog → Preview: the unsaved post, from this browser only
+  if (q.get('preview')) {
+    try { const p = JSON.parse(localStorage.getItem('yeb_blog_preview') || 'null'); if (p) { document.title = 'Preview · ' + (p.title || 'post'); return CMS.renderBlogArticle('cms-blog', 0, p); } } catch (e) {}
+  }
+  const want = q.get('p');
   const linked = want ? posts.findIndex(p => postId(p) === want) : -1;
   if (linked >= 0) { CMS.renderBlogArticle('cms-blog', linked); }
   else if (posts.length === 1) { CMS.renderBlogArticle('cms-blog', 0); }
   else { CMS.renderBlogIndex('cms-blog'); }
-});
+}
+CMS.load().then(showFromUrl);
+window.addEventListener('popstate', showFromUrl);
 </script>
 </body>
 </html>

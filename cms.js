@@ -361,8 +361,10 @@ window.CMS.renderBlogArticle = function(containerId, index, given) {
     + blogMeta(p)
     + '<h1>' + strip(p.title) + '</h1>'
     + '<div class="sb-body">' + postBody(p.body) + '</div>'
-    + '<div class="sb-cta"><b>Want to know what this means for your house?</b><p>Our solar audit is free through December 31: your bills, your production, your rate plan, straight answers.</p>'
-    + '<a href="/audit/" class="sb-btn">Book my free audit →</a></div>'
+    // Two ways in, for readers with solar and without
+    + '<div class="sb-cta"><b>Want to know what this means for your house?</b><p>Straight answers either way, whether you already have solar or you&rsquo;re thinking about it.</p>'
+    + '<div class="sb-ctas"><a href="/audit/" class="sb-btn">Book Audit of My System →<small>Already have solar · free through Dec 31</small></a>'
+    + '<a href="/quote/" class="sb-btn sb-btn--alt">Get a Custom Quote for a New System →<small>No solar yet · no obligation</small></a></div></div>'
     + '</article>'
     + '<aside class="sb-side">'
     + '<a class="sb-tile" href="/solar-audit-results/"><b>📊 Audit results</b><span>What our audits found in real Southern California homes, and what we fixed.</span></a>'

@@ -88,6 +88,10 @@
     .sb-btn { position: relative; overflow: hidden; display: inline-block; padding: .9rem 1.4rem; border-radius: 999px; font-weight: 800; text-decoration: none; color: #062c3a;
       background: linear-gradient(90deg, #fde68a 0%, #fbbf24 35%, #fd8621 100%); box-shadow: 0 10px 30px -10px rgba(253,134,33,.75); }
     .sb-btn::after { content: ''; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 35%, rgba(255,255,255,.55) 50%, transparent 65%); transform: translateX(-130%); animation: sb-shim 3.6s ease-in-out infinite; }
+    .sb-ctas { display: flex; flex-wrap: wrap; gap: .8rem; }
+    .sb-ctas .sb-btn { flex: 1 1 240px; text-align: center; }
+    .sb-btn small { display: block; font-weight: 600; font-size: .78rem; opacity: .75; margin-top: .2rem; }
+    .sb-btn--alt { color: #052e22; background: linear-gradient(90deg, #6ee7b7 0%, #34d399 50%, #10b981 100%); box-shadow: 0 10px 30px -10px rgba(16,185,129,.7); }
     @keyframes sb-shim { 0%, 55% { transform: translateX(-130%); } 100% { transform: translateX(130%); } }
     .sb-side { display: flex; flex-direction: column; gap: .9rem; position: sticky; top: 100px; }
     .sb-tile { display: block; text-decoration: none; padding: 1rem 1.1rem; border-radius: 14px; background: rgba(255,255,255,.05); border: 1px solid rgba(148,197,205,.25); color: rgba(206,232,236,.8); transition: border-color .2s; }
@@ -142,7 +146,7 @@
 
 <script>
 </script>
-<script src="cms.js?v=20261128b"></script>
+<script src="cms.js?v=20261128c"></script>
 <script>
 // Same rule as blog-feed.php's post_id(): the saved id, else date + title.
 // Lets Lumaria Beacons (and anyone sharing a post) link to blog.html?p=<id>.

@@ -707,10 +707,10 @@ function renderBlog(main) {
   const c = files.content.data;
   if (!Array.isArray(c.blog_posts)) c.blog_posts = [];
   const posts = c.blog_posts;
-  main.append(h('p', { class: 'intro' }, 'New posts start as drafts. Use "Publish this post" to put one post live (nothing else you are editing goes with it). The Publish button at the bottom saves everything; drafts stay hidden. With "Also post to lumaria" on, members see a live post under Beacons → "From the Admiral".'));
+  main.append(h('p', { class: 'intro' }, 'New posts start as drafts. "Save draft" keeps your work without showing it; "Publish this post" puts that one post live (nothing else you are editing goes with it). The Publish button at the bottom saves everything else on the site; drafts stay hidden. With "Also post to lumaria" on, members see a live post under Beacons → "From the Admiral".'));
   // ONE POST AT A TIME: save just this post (live or back to draft) on top of what's live now,
   // so other unsaved edits on the site don't go out with it.
-  async function publishPost(p, makeLive) {
+  async function publishPost(p, makeLive, msg) {
     if (makeLive && !toPlain(p.title)) return toast('Give the post a title first', true);
     try {
       const fresh = await fetchFile('content');
@@ -722,7 +722,7 @@ function renderBlog(main) {
       const j = await r.json(); if (!j.success) throw new Error(j.error || 'Save failed');
       p.draft = !makeLive;
       files.content.snap = JSON.stringify(fresh);   // the live file is the new baseline; other unsaved edits stay unsaved
-      toast(makeLive ? 'Published. That post is live now.' : 'Back to draft. It is off the blog.');
+      toast(msg || (makeLive ? 'Published. That post is live now.' : 'Back to draft. It is off the blog.'));
       render(); updateBar();
     } catch (e) { if (e.message !== 'signed out') toast('Not published: ' + e.message, true); }
   }
@@ -757,6 +757,10 @@ function renderBlog(main) {
         h('button', { class: 'btn sec2', type: 'button', style: 'margin-right:8px', onclick: () => {
           try { localStorage.setItem('yeb_blog_preview', JSON.stringify(p)); } catch (e) { return toast('Preview needs browser storage on', true); }
           window.open('/blog.html?preview=1', '_blank', 'noopener'); } }, 'Preview ↗'),
+        // Drafts: save as you go, publish when ready. Live posts: save edits to the live post, or take it down.
+        published
+          ? h('button', { class: 'btn pri', type: 'button', style: 'margin-right:8px', onclick: () => publishPost(p, true, 'Saved. The live post is updated.') }, 'Save changes (live)')
+          : h('button', { class: 'btn sec2', type: 'button', style: 'margin-right:8px', onclick: () => publishPost(p, false, 'Draft saved. Still hidden from the blog.') }, 'Save draft'),
         published
           ? h('button', { class: 'btn sec2', type: 'button', style: 'margin-right:8px', onclick: () => publishPost(p, false) }, 'Unpublish (back to draft)')
           : h('button', { class: 'btn pri', type: 'button', style: 'margin-right:8px', onclick: () => publishPost(p, true) }, 'Publish this post'),

@@ -112,7 +112,7 @@ function postImage(p, ratio, radius) {
   return '';
 }
 // Pinned at the top of the blog: the audit results (case studies)
-const RESULTS_CARD = '<a href="/solar-audit-results/" class="sb-results"><span style="font-size:1.8rem">📊</span><span><b>Audit results: what we found in real San Diego homes</b>'
+const RESULTS_CARD = '<a href="/solar-audit-results/" class="sb-results"><span style="font-size:1.8rem">📊</span><span><b>Audit results: what we found in real Southern California homes</b>'
   + '<span>Batteries, non-export add-ons that keep NEM, repairs, and getting ahead of the NEM 1.0 cliff.</span></span><span class="go">See the results →</span></a>';
 
 // ─── Helper: get testimonials items regardless of old/new format ───
@@ -355,7 +355,7 @@ window.CMS.renderBlogArticle = function(containerId, index, given) {
     + '<a href="/audit/" class="sb-btn">Book my free audit →</a></div>'
     + '</article>'
     + '<aside class="sb-side">'
-    + '<a class="sb-tile" href="/solar-audit-results/"><b>📊 Audit results</b><span>What our audits found in real San Diego homes, and what we fixed.</span></a>'
+    + '<a class="sb-tile" href="/solar-audit-results/"><b>📊 Audit results</b><span>What our audits found in real Southern California homes, and what we fixed.</span></a>'
     + '<a class="sb-tile" href="/sdcp-battery-rebate/"><b>🔋 SDCP battery rebate</b><span>Who qualifies, the rules, and how the payments work.</span></a>'
     + '<a class="sb-tile" href="/knowledge/"><b>🌊 Knowledge Center</b><span>Straight answers to the questions solar owners ask most.</span></a>'
     + '<a class="sb-tile sb-tile--dark" href="https://www.lumaria.energy/"><b>Join lumaria early</b><span>The free app for solar owners. Early access is open.</span></a>'

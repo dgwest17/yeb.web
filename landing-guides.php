@@ -88,11 +88,11 @@ $GUIDES = [
   // No prices, payments or break-even (David, 2026-11-24): only what we added, fixed and recovered.
   // Rebate amounts and qualifying for the federal discount are fine to show.
   'solar-audit-results' => [
-    'title' => 'Solar Audit Results: Real San Diego Homes, Real Numbers | Your Energy Best',
-    'desc'  => 'What solar audits found in real San Diego County homes: batteries added to existing solar, non-export add-ons that keep NEM 1.0 and 2.0, a CEA lease, and a NEM 1.0 home preparing for its cliff.',
+    'title' => 'Solar Audit Results: Real Southern California Homes, Real Numbers | Your Energy Best',
+    'desc'  => 'What solar audits found in real Southern California homes: batteries added to existing solar, non-export add-ons that keep NEM 1.0 and 2.0, a CEA lease, and a NEM 1.0 home preparing for its cliff.',
     'kicker' => 'Audit results',
-    'h1'    => 'What our audits found in real homes.',
-    'lede'  => 'Every home here started with the same audit. Names are left off; each one is a real San Diego County household.',
+    'h1'    => 'What we found in real Southern California homes.',
+    'lede'  => 'Every home here started with the same audit. Names are left off; each one is a real Southern California household.',
     'answer' => 'Most solar owners we audit have the same problem: the house now uses far more power than when the panels went in, so the old system covers less every year and the true-up grows. The fix depends on the home. Sometimes it is a battery alone, sometimes a non-export add-on that keeps NEM 1.0 or 2.0 untouched, and sometimes it is planning ahead for the end of NEM. Results are projections from each home’s audit; every home’s numbers differ.',
     'points' => [
       ['Same audit, different answers', 'Battery only, add-on panels, a lease, or moving off NEM early: the numbers decide.'],
